@@ -1,0 +1,71 @@
+{
+  "author": "Original project synthesis",
+  "generator": "tools/create_audio.py",
+  "seed": 70117,
+  "sample_rate": 22050,
+  "channels": 1,
+  "encoding": "PCM signed 16-bit",
+  "total_bytes": 1631964,
+  "assets": [
+    {
+      "name": "wind.wav",
+      "seconds": 10.0,
+      "bytes": 441044,
+      "sha256": "afcb3e414c322c3624bc53c831d6c8a07a4dbc34c95d43e67f4d8988218c59ad",
+      "peak": 0.4711921744137643,
+      "rms": 0.08654724391834856,
+      "loop": true,
+      "loop_boundary_delta": 0.007547320352819388
+    },
+    {
+      "name": "rolling.wav",
+      "seconds": 4.0,
+      "bytes": 176444,
+      "sha256": "ed076b38f2d964a710db9a964de25e5192cbfc227f3a30b79b85b6cd0b2bf0e5",
+      "peak": 0.3772614564699998,
+      "rms": 0.08760124161328087,
+      "loop": true,
+      "loop_boundary_delta": 0.0040891728838029495
+    },
+    {
+      "name": "servo.wav",
+      "seconds": 3.0,
+      "bytes": 132344,
+      "sha256": "ebff586741564be0639a6d54957a345afc78b4c44ea24758f9697719263ed9b5",
+      "peak": 0.15285541993943919,
+      "rms": 0.0742588378578604,
+      "loop": true,
+      "loop_boundary_delta": 0.00797977593462661
+    },
+    {
+      "name": "pulse.wav",
+      "seconds": 4.0,
+      "bytes": 176444,
+      "sha256": "81d63ac2328b6aed27686df9ff2a12c2d873485a48e77152b42aeafb22191b26",
+      "peak": 0.42851036062910164,
+      "rms": 0.09360884172074221,
+      "loop": true,
+      "loop_boundary_delta": 2.2110825896565518e-73
+    },
+    {
+      "name": "transmit.wav",
+      "seconds": 3.0,
+      "bytes": 132344,
+      "sha256": "1b5aab76f190025a56339c7ca30ae21246bc94a884824bef3e805e7d5266e849",
+      "peak": 0.44671341988796953,
+      "rms": 0.10354374855517114,
+      "loop": false,
+      "loop_boundary_delta": null
+    },
+    {
+      "name": "response.wav",
+      "seconds": 13.0,
+      "bytes": 573344,
+      "sha256": "e639021585445e9c2cd9ff81abc48d689689c05265196a046743b355eaa29505",
+      "peak": 0.47035043773414253,
+      "rms": 0.0802960366029352,
+      "loop": false,
+      "loop_boundary_delta": null
+    }
+  ]
+}

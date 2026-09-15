@@ -15,7 +15,7 @@ for(const args of [['--version'],['--headless','--path',project,'--editor','--im
 }
 const files=[];
 for(const entry of readdirSync(raw,{withFileTypes:true})) {
-  if(!entry.isFile()) continue;
+  if(!entry.isFile() || entry.name.endsWith('.import') || entry.name.startsWith('.')) continue;
   let data=readFileSync(resolve(raw,entry.name));
   if(extname(entry.name)==='.wasm') data=gzipSync(data,{level:9,mtime:0});
   writeFileSync(resolve(out,entry.name),data);

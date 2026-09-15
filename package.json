@@ -8,6 +8,6 @@
     "dev": "python tools/serve_web.py --port 4174",
     "preview": "python tools/serve_web.py --port 4174",
     "check": "node tools/check.mjs",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node tools/run-native-check.mjs"
   }
 }

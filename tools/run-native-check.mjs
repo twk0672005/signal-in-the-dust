@@ -1,0 +1,8 @@
+import { spawnSync } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+const root=resolve(import.meta.dirname,'..');
+const evidence=resolve(root,'evidence','native-latest'); mkdirSync(evidence,{recursive:true});
+const engine=process.env.GODOT_BIN || 'C:/Users/tsang/AppData/Local/Microsoft/WinGet/Packages/GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe/Godot_v4.7.2-stable_win64_console.exe';
+const r=spawnSync(engine,['--headless','--path',resolve(root,'godot'),'--script','res://tests/runtime_checks.gd','--','--evidence-dir='+evidence],{stdio:'inherit',timeout:180000});
+process.exit(r.status??1);

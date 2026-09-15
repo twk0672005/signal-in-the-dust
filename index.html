@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050b18" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Aurelia — The Quiet Observer</title>
+  </head>
+  <body>
+    <main id="app" aria-label="Aurelia alien ecology observatory">
+      <canvas id="world" tabindex="0" aria-label="Three.js alien world canvas"></canvas>
+      <div id="hud" class="hud">
+        <div class="brand"><span class="eyebrow">AURELIA / FIELD JOURNAL</span><strong id="phase">ROVER ONLINE · EXPLORING</strong></div>
+        <div class="zone"><span id="zoneName">HUB OF QUIET PLANET</span><span id="zoneSubtitle">Choose any ecological route</span></div>
+        <div class="controls" aria-label="Controls"><kbd>WASD</kbd> drive <kbd>drag</kbd> look <kbd>E</kbd> observe / enter gate <kbd>J</kbd> journal <kbd>R</kbd> reset</div>
+        <div id="prompt" class="prompt">Drive toward a living signal. Four routes share one impossible gate.</div>
+      </div>
+      <div id="touchControls" class="touch-controls" aria-label="Touch controls">
+        <div class="touch-pad" aria-label="Drive rover">
+          <button type="button" data-action="forward" aria-label="Drive forward">▲</button>
+          <div class="touch-pad-row">
+            <button type="button" data-action="left" aria-label="Drive left">◀</button>
+            <button type="button" data-action="back" aria-label="Drive backward">▼</button>
+            <button type="button" data-action="right" aria-label="Drive right">▶</button>
+          </div>
+        </div>
+        <div class="touch-actions" aria-label="Observe and navigate">
+          <button type="button" data-action="scan" aria-label="Observe nearest life">SCAN</button>
+          <button type="button" data-action="journal" aria-label="Open field journal">JOURNAL</button>
+          <button type="button" data-action="portal" aria-label="Enter or exit gate">GATE</button>
+        </div>
+      </div>
+      <aside id="journal" class="journal" hidden>
+        <header><span>FIELD JOURNAL</span><button id="closeJournal" aria-label="Close field journal">×</button></header>
+        <p id="journalIntro">Quiet observations become a map of relationships.</p>
+        <div id="journalEntries"></div>
+      </aside>
+      <button id="settingsToggle" class="settings-toggle" aria-expanded="false" aria-controls="settingsPanel">SETTINGS</button>
+      <aside id="settingsPanel" class="settings-panel" hidden>
+        <header><span>OBSERVATORY SETTINGS</span><button id="closeSettings" aria-label="Close settings">×</button></header>
+        <label><input id="lightToggle" type="checkbox" checked /> dynamic lights</label>
+        <label><input id="fogToggle" type="checkbox" checked /> atmospheric fog</label>
+        <label><input id="audioToggle" type="checkbox" checked /> ambient sound</label>
+        <label><input id="cinemaToggle" type="checkbox" /> cinema HUD</label>
+      </aside>
+      <div id="reticle" aria-hidden="true">＋</div>
+      <div id="vignette" aria-hidden="true"></div>
+      <div id="loading" role="status">WAKING THE QUIET PLANET…</div>
+      <button id="start" class="start" hidden>ENTER OBSERVATORY</button>
+      <noscript>This world needs JavaScript and WebGL. The field journal remains available in the project documentation.</noscript>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

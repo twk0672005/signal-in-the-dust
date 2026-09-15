@@ -1,0 +1,31 @@
+{
+  "generator": "tools/create_terrain.py",
+  "seed": 150926,
+  "license": "Original project-authored procedural maps; CC0-1.0",
+  "resolution": [
+    1024,
+    1024
+  ],
+  "files": {
+    "basalt_albedo.png": {
+      "sha256": "aad4b4555b227d19ea092052308182db3a7bd5a2219b463d49da87ece266831a",
+      "bytes": 965595
+    },
+    "dust_albedo.png": {
+      "sha256": "e0c3334d764e1d6709d4eb7c95dfcc750a85bb7d631923cd9bac3ba790b8d0c2",
+      "bytes": 1032884
+    },
+    "geology_normal.png": {
+      "sha256": "9682e5fbb62a8df101e213f23b8c8066977c980f7d64412456951a3f50b6d419",
+      "bytes": 1997040
+    },
+    "geology_roughness.png": {
+      "sha256": "259a9616ffca74e833277061be087ea8e34b7594f4a95585157869e08297f852",
+      "bytes": 770369
+    },
+    "dust_mask.png": {
+      "sha256": "69147c066b51b2c0ee55e7d6682462cf1da16ba25601d83279f57725292aed5c",
+      "bytes": 63414
+    }
+  }
+}
