@@ -1,0 +1,16 @@
+node_modules/
+legacy/
+.omc/
+.agents/
+tmp-runtime-proof-*/
+**/.godot/
+godot/build/
+godot/evidence/
+out/
+dist/
+evidence/
+*.zip
+*.tar.gz
+*.log
+.sites-runtime/
+art-source/*.blend1
