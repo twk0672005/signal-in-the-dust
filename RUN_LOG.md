@@ -9,3 +9,6 @@ Native16/16 fixtures pass after fixing pause-held input onresume; captures evide
 
 ## 2026-09-15T18:29:55.221958+00:00 — G2/G3/G4 close receipt
 Assets material fix and world revision integrated. Native graphical 16/16 PASS and first-person/contact captures in evidence/integrated-final2; latest visual is materially improved. Web final export built and no-header decoder exercised to ready state with errors=[] in IAB, but IAB software performance was 4fps and Chrome automation timed out; browser real-input/audio remains PARTIAL. Human and macOS review absent.
+
+## 2026-09-15T18:38:40.607027+00:00 — Terrain3D research and final visual gate
+Official v1.0.2 ZIP hash verified and Godot 4.7.2 demo import exit0. Kept addon isolated because upstream WebGL is experimental. Material fix and camera/world visual repairs verified natively; browser input/audio and human review remain open.
