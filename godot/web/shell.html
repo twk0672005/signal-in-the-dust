@@ -26,7 +26,8 @@ const veil=document.getElementById('veil'),progress=document.getElementById('pro
 document.getElementById('intro').textContent=copy.intro;status.textContent=copy.loading;retry.textContent=copy.retry;retry.addEventListener('click',()=>location.reload());
 window.__EXPEDITION_ERRORS__=[];
 function fail(message,error){document.body.dataset.phase='error';veil.classList.remove('hidden');progress.classList.add('hidden');status.textContent=message;retry.style.display='inline-block';if(error){window.__EXPEDITION_ERRORS__.push(String(error));console.error(error);}}
-const mobile=matchMedia('(pointer:coarse)').matches && Math.min(innerWidth,innerHeight)<700;
+const touchOnly=matchMedia('(pointer:coarse)').matches && !matchMedia('(hover:hover)').matches;
+const mobile=touchOnly || Math.min(innerWidth,innerHeight)<700;
 if(mobile){progress.classList.add('hidden');status.textContent=copy.mobile;document.body.dataset.phase='desktop_required';}
 else if(typeof Engine==='undefined'||Engine.getMissingFeatures({threads:false}).length){fail(copy.support);}
 else{
