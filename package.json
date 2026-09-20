@@ -12,6 +12,7 @@
     "test:controller": "node tools/run-native-check.mjs physics_camera_regression",
     "test:interaction": "node tools/run-native-check.mjs interaction_regression",
     "test:ecology": "node tools/run-native-check.mjs ecology_regression",
-    "test:save": "node tools/run-native-check.mjs save_resume_regression"
+    "test:save": "node tools/run-native-check.mjs save_resume_regression",
+    "test:save-flow": "node tools/run-native-check.mjs save_flow_regression"
   }
 }

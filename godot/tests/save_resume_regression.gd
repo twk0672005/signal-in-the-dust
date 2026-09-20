@@ -14,11 +14,11 @@ func run() -> void:
 	await tick(10);game.start_expedition();game._set_phase("exploring");game.rover.set_driving_enabled(false)
 	game.rover.global_position += Vector3(2.2,0,-4.5);game.rover.heading=0.47;game.elapsed=123.4;game.rover.distance_travelled=86.2;game.observed_ecology={"veyra":true};game.transmit_count=2
 	game.save_expedition()
-	checks.save_file_created=FileAccess.file_exists("user://expedition_state.json")
-	var before: Dictionary=game.snapshot()
+	checks.save_file_created=FileAccess.file_exists(game.save_path)
+	var before: Dictionary=game.snapshot().duplicate(true)
 	game.rover.global_position=game.world.spawn_origin();game.elapsed=0.0;game.observed_ecology.clear();game.transmit_count=0
 	checks.load_returns_true=game.load_expedition()
-	var after: Dictionary=game.snapshot()
+	var after: Dictionary=game.snapshot().duplicate(true)
 	checks.position_restored=before.position==after.position
 	checks.heading_restored=is_equal_approx(float(before.heading),float(after.heading))
 	checks.elapsed_restored=is_equal_approx(float(before.elapsed),float(after.elapsed))
@@ -26,11 +26,11 @@ func run() -> void:
 	checks.observations_restored=bool(game.observed_ecology.get("veyra",false)) and after.get("observedEcology",{}).get("veyra",false)
 	checks.phase_resumed=after.phase=="exploring" and game.rover.driving
 	game.reset_expedition()
-	checks.reset_deletes_save=not FileAccess.file_exists("user://expedition_state.json")
+	checks.reset_deletes_save=not FileAccess.file_exists(game.save_path)
 	var passed:=true
 	for value in checks.values(): passed=passed and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)
 	var result={"passed":passed,"checks":checks,"kind":"native_save_resume_fixture_not_full_journey"}
 	var file:=FileAccess.open(output.path_join("save-resume.json"),FileAccess.WRITE);file.store_string(JSON.stringify(result,"  "));file.close()
 	print("SAVE_RESUME_REGRESSION "+JSON.stringify(result))
-	root.remove_child(game);game.free();await process_frame;await process_frame;quit(0 if passed else 1)
+	game.queue_free();await create_timer(0.5).timeout;quit(0 if passed else 1)

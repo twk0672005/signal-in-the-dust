@@ -10,8 +10,8 @@ automationId: deepspacerover
 threadId: 01a0a610-615a-7af0-937e-c003b4d301bf
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 continuationProvider: current-session; official heartbeat configured separately
-lastObservedWorkAt: 2026-09-20T00:51:50.430277+00:00
-lastReceipt: evidence/habitat-receipt-20260920T005150Z/receipt.json
+lastObservedWorkAt: 2026-09-20T04:23:59.6631791Z
+lastReceipt: evidence/save-resume-receipt-20260920T042359Z/receipt.json
 nativeAppGoal: older3–5-minute objective remains BLOCKED; create_goal refused replacement because an unfinished goal exists. Do not falsely complete it to replace metadata.
 finishTarget: complete30-minute meaningful exploration and required runtime/visual/performance/human/private/public gates
 status: IN_PROGRESS / PARTIAL

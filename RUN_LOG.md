@@ -27,3 +27,6 @@ Start, first-person, V third-person, Esc pause/resume passed in actual in-app br
 
 ## 2026-09-20T00:51:50.430277+00:00 — four habitat mesh stage
 Actual work receipt evidence/habitat-receipt-20260920T005150Z/receipt.json.6/19/7/23 native assertions, four inspected screenshots, Web14.6MB PCK. Independent scoped review pass; full ecology/30min content/market gate incomplete. Sites helpers restored.
+
+## 2026-09-20T04:23:59.5990938Z — save/resume and private deployment reconciliation
+Commit396e123 pushed. Save fixture9/9 and Web rebuild passed. Version2 readback succeeded; version3 archive upload timed out twice. Receipt evidence/save-resume-receipt-20260920T042359Z/receipt.json.

@@ -1,5 +1,6 @@
 extends CanvasLayer
 ## Bilingual expedition HUD. Every gameplay mutation is delegated through signals.
+signal continue_saved_requested
 signal start_requested
 signal resume_requested
 signal reset_requested
@@ -13,6 +14,9 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"continue_saved": ["Continue last expedition", "繼續上次探勘"],
+	"new_run": ["New expedition", "開始新探勘"],
+	"save_invalid": ["Saved progress could not be read. You can start a new expedition.", "無法讀取上次進度，可開始新探勘。"],
 	"speed_label": ["SPEED", "車速"],
 	"view_label": ["VIEW", "視角"],
 	"first_person_label": ["FP", "第一身"],
@@ -59,6 +63,8 @@ const COPY := {
 
 var _config: Dictionary = {"locale": "en", "volume": 0.65, "reduced_motion": false, "low_quality": false}
 var _state := "menu"
+var _saved_available := false
+var _save_invalid := false
 var _root: Control
 var _hud: Control
 var _overlay: Control
@@ -278,8 +284,15 @@ func _build_overlay() -> void:
 		column.add_child(_label(_text("title"), 38))
 		column.add_child(_label(_text("intro"), 16))
 		column.add_child(_label(_text("duration"), 12, MUTED))
-		primary = _button("begin", func() -> void: start_requested.emit())
-		column.add_child(primary)
+		if _saved_available:
+			primary = _button("continue_saved", func() -> void: continue_saved_requested.emit())
+			primary.name = "ContinueSaved"
+			column.add_child(primary)
+			column.add_child(_button("new_run", func() -> void: start_requested.emit()))
+		else:
+			primary = _button("begin", func() -> void: start_requested.emit())
+			column.add_child(primary)
+		if _save_invalid: column.add_child(_label(_text("save_invalid"),12,AMBER))
 		column.add_child(_label(_text("controls"), 12, MUTED))
 		_build_settings(column)
 		column.add_child(_label(_text("headphones"), 12, MUTED))
@@ -290,6 +303,12 @@ func _build_overlay() -> void:
 		column.add_child(_button("restart", func() -> void: show_state("confirm_reset")))
 		_build_settings(column)
 		column.add_child(_label(_text("controls"), 12, MUTED))
+	elif _state == "confirm_new":
+		column.add_child(_label(_text("confirm_reset"),25))
+		column.add_child(_label(_text("reset_detail"),14,MUTED))
+		primary = _button("cancel", func() -> void: show_state("menu"))
+		column.add_child(primary)
+		column.add_child(_button("confirm", func() -> void: reset_requested.emit()))
 	elif _state == "confirm_reset":
 		column.add_child(_label(_text("confirm_reset"), 25))
 		column.add_child(_label(_text("reset_detail"), 14, MUTED))
@@ -359,8 +378,13 @@ func _toggle_setting(value: bool, key: String) -> void:
 	_config[key] = value
 	_save_settings()
 
+func set_saved_available(value: bool, failed: bool = false) -> void:
+	_saved_available = value
+	_save_invalid = failed
+	if _state == "menu" and is_instance_valid(_root): _build()
+
 func show_state(state: String) -> void:
-	if not state in ["menu", "arrival", "exploring", "contact", "ending", "paused", "confirm_reset"]:
+	if not state in ["menu", "arrival", "exploring", "contact", "ending", "paused", "confirm_reset", "confirm_new"]:
 		return
 	_state = state
 	if is_instance_valid(_root):

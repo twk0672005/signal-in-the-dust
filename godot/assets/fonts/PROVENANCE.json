@@ -2,16 +2,16 @@
   "upstream": "https://github.com/notofonts/noto-cjk/blob/Sans2.004/Sans/SubsetOTF/TC/NotoSansTC-Regular.otf",
   "license": "SIL Open Font License 1.1; see OFL.txt",
   "copyright": [
-    "© 2014-2021 Adobe (http://www.adobe.com/)."
+    "\u00a9 2014-2021 Adobe (http://www.adobe.com/)."
   ],
   "source_sha256": "5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537",
-  "subset_sha256": "a63d9ea3e43dc752ad14c1b1afc80b5ace8e22baf6c8e183d96c0c06278e25c9",
-  "subset_bytes": 72700,
-  "covered_characters": 298,
+  "subset_sha256": "eced0706952440fadcc3211a26dffc32f8cf63bc24050a752423b58565388c8e",
+  "subset_bytes": 73904,
+  "covered_characters": 304,
   "missing_characters": [],
   "derivative_family": "Signal Sans TC",
   "tool": "fontTools 4.65.0, unpacked locally; no system installation",
   "rebuild": "python evidence/ui-audio/build_font.py; rerun when interface strings change",
   "coverage": "All current runtime GDScript text plus ASCII",
-  "updated_at": "20260919T205951Z"
+  "updated_at": "20260920T052509Z"
 }
