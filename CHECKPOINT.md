@@ -1,14 +1,15 @@
-# Checkpoint
-updatedAt: 2026-09-15T18:38:40.607027+00:00
-stage: G4/G5
+# Checkpoint — current
+updatedAt: 2026-09-20T00:51:50.430277+00:00
+root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
+objective: approximately30-minute four-region bilingual alien ecology with throttle and V cameras
 status: PARTIAL
-Goal active; heartbeat deepspacerover configured; observed work recorded below.
-G0: HASH_VERIFIED migration, backup, Godot promoted to root, AURELIA archived.
-G1: Godot 4.7.2 Web release export PASS; compressed WASM 10,153,810 bytes, PCK 9,167,552 bytes; private baseline Sites deployment succeeded; response HTTP 200 magic 1F8B0800 and no Content-Encoding; shell exact-WASM gzip decoder added.
-G2: Authored pack PASS candidate: 78,507 triangles / 5.75 MB source payload; Blender readback and Godot -vcol material repair native PASS. World PASS: 149,199 triangles, 61/61 collision rays, max height error1.344mm, route grade4.27%, 36–42 isolated calls.
-G3: Native Godot graphical journey PASS: 16/16 checks, first-person, forward/reverse/left/right, collision/floor, pause/focus/reset, contact, no duplicate transmit, ending. RTX4060 1440x900 p50 4.17ms/p95 4.17ms/worst4.17ms/122 calls/350,698 primitives. Captures evidence/integrated-final2.
-G4: Browser no-header page reached ready state in IAB with errors=[]; IAB software p50 about129ms/4FPS. Chrome state/screenshot controls timed out after retrying a separate browser route. Full browser input/audio journey is unproven; keep Web RUNTIME_PROVEN closed.
-G5: Independent reviewer and actual first-time human review pending; macOS/Safari absent. No public deployment.
-Terrain3D: official v1.0.2 downloaded and hash verified in ignored research/; Godot4.7.2 demo import exit0; upstream labels WebGL very experimental. It remains an authoring comparison.
-Final source commit pending this receipt; Web final build and native release checks are fresh.
-Next: inspect final reviewer; push current source, package, privately deploy; then obtain real browser input/audio and independent human review before public publish.
+Current stage: four habitat mesh families + audited CC0 map reuse + softened color transitions; Web candidate exported.
+Fresh evidence: habitat6/6, controller19/19, interaction7/7, ecology23/23. Previous existing21 suite passed before habitat geometry. Terrain route shader now matches path_x. Solid geometry rays hit36/36; all new vertices clear route. Packed normal-map alpha has roughness variation0.576..0.757 preserved with lossless mipmaps. Four mesh batches23184 triangles is not FPS proof.
+Native screenshots: evidence/habitat-features-presentation/{aurora_shelf,ember_rift,veil_marsh,pale_decay}.png. Root and independent controller_review inspected. Distinct silhouettes, still prototype-level repeat placement and incomplete local atmosphere/ecosystems.
+Asset provenance: godot/assets/terrain/cc0/PROVENANCE.json +LICENSE.txt; Rock023 original maps copied byte-identically from research Terrain3D demo; MIT addon remains isolated. Original authored rover/signal/rocks retained.
+Web build: 2026-09-20T00:45:13.636Z; PCK14,612,908 bytes, compressed WASM10,153,810 bytes; manifest/hash/gzip verified. Previous local browser smoke start/V/Esc has not yet been repeated against this habitat revision.
+Receipt: evidence/habitat-receipt-20260920T005150Z/receipt.json
+Backups: evidence/habitat-shader-20260919T233908Z, habitat-features-20260920T003612Z/before, habitat-import-settings-20260920T003946Z; all earlier source retained.
+Sites: plugin package/reference files restored and portable profile checked; private publishing preparation in progress. Existing site version1 remains old5ee3e0a; no new push/deploy has happened yet. Reconcile remote/process before any retry.
+Continuation: official deepspacerover15min heartbeat ACTIVE per last read; current-session artifacts only prove actual work. Native App Goal still older BLOCKED3–5min objective; replacement API refused unfinished goal, do not fake completion.
+Next: finish private candidate handoff; then meaningful optional routes/activities, save/resume and30-minute player content. Add local atmosphere and stop displaying raw near/disturbed keys in bilingual HUD. Keep fine-model/real-input/full-journey/performance/platform/first-time-human/public gates open.

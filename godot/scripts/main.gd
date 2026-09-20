@@ -20,6 +20,7 @@ var transmit_count: int = 0
 var reset_count: int = 0
 var ready_for_play: bool = false
 var reveal_audio_played: bool = false
+var observed_ecology: Dictionary = {}
 
 func _ready() -> void:
 	_install_inputs()
@@ -56,7 +57,7 @@ func _ready() -> void:
 	print("EXPEDITION_READY")
 
 func _install_inputs() -> void:
-	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"interact":[KEY_E],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R]}
+	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"toggle_camera":[KEY_V],"interact":[KEY_E],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R]}
 	for action in bindings:
 		if not InputMap.has_action(action): InputMap.add_action(action)
 		for key in bindings[action]:
@@ -75,6 +76,7 @@ func start_expedition() -> void:
 	arrival_time = 0.0
 	world_clock = 0.0
 	transmit_count = 0
+	observed_ecology.clear()
 	reveal_audio_played = false
 	rover.reset()
 	rover.set_driving_enabled(false)
@@ -105,15 +107,17 @@ func _process(delta: float) -> void:
 		world_clock += delta
 		if phase != "ending": elapsed += delta
 		world.set_response(contact.progress,world_clock)
+		world.set_player_state(rover.global_position, rover.speed)
 	if phase == "arrival":
 		arrival_time += delta
 		var blend: float = smoothstep(1.8,5.5,arrival_time)
 		var start: Vector3 = world.spawn_origin()
-		exterior.global_position = (start+Vector3(5.5,3.2,5.8)).lerp(rover.camera.global_position,blend)
-		var first_look: Vector3 = rover.camera.global_position+rover.view_direction()*20.0
+		var selected: Camera3D = rover.get_active_camera()
+		exterior.global_position = (start+Vector3(5.5,3.2,5.8)).lerp(selected.global_position,blend)
+		var first_look: Vector3 = selected.global_position+rover.view_direction()*20.0
 		exterior.look_at((start+Vector3(0,0.85,-0.2)).lerp(first_look,blend))
 		if arrival_time >= 5.5:
-			rover.camera.current = true
+			rover.set_camera_mode(rover.camera_mode)
 			rover.set_driving_enabled(true)
 			_set_phase("exploring")
 	elif phase == "contact":
@@ -127,7 +131,7 @@ func _process(delta: float) -> void:
 	readout_clock += delta
 	if readout_clock >= 0.15:
 		readout_clock = 0.0
-		ui.update_readout(target_distance(),elapsed,contact.progress,can_interact())
+		ui.update_readout(target_distance(), elapsed, contact.progress, can_interact(), rover.current_speed_mps(), rover.max_speed_mps(), rover.camera_mode, ecology_snapshot())
 		if phase == "exploring": ui.set_message("near" if target_distance()<20.0 else "signal_found")
 		_publish_snapshot()
 
@@ -136,6 +140,11 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause_mission"):
 		if phase in ["paused","confirm_reset"]: resume_expedition()
 		elif phase in ["arrival","exploring","contact"]: pause_expedition()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("toggle_camera") and phase in ["exploring", "contact"]:
+		rover.toggle_camera_mode()
+		ui.set_view_message(rover.camera_mode)
+		_publish_snapshot()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("restart_mission") and phase != "menu":
 		if phase == "ending": reset_expedition()
@@ -155,6 +164,7 @@ func _notification(what: int) -> void:
 func _suspend() -> void:
 	rover.set_driving_enabled(false)
 	contact.paused = true
+	world.set_paused(true)
 	audio.set_paused(true)
 
 func pause_expedition() -> void:
@@ -166,6 +176,7 @@ func pause_expedition() -> void:
 func resume_expedition() -> void:
 	if phase not in ["paused","confirm_reset"]: return
 	contact.paused = false
+	world.set_paused(false)
 	audio.set_paused(false)
 	rover.set_driving_enabled(previous_phase == "exploring")
 	_set_phase(previous_phase)
@@ -173,18 +184,39 @@ func resume_expedition() -> void:
 func target_distance() -> float:
 	return Vector2(rover.global_position.x-contact.global_position.x,rover.global_position.z-contact.global_position.z).length()
 
-func can_interact() -> bool:
-	if phase != "exploring" or target_distance() > 9.5: return false
-	var target: Vector3 = contact.global_position+Vector3(0,2.0,0)-rover.camera.global_position
-	var facing: float = rover.view_direction().dot(target.normalized())
-	if facing < 0.55: return false
-	var query := PhysicsRayQueryParameters3D.create(rover.camera.global_position,contact.global_position+Vector3(0,2.0,0))
+func _target_visible(point: Vector3, allowed: Node = null) -> bool:
+	var selected: Camera3D = rover.get_active_camera()
+	var direction: Vector3 = point-selected.global_position
+	if direction.length_squared() < 0.001: return true
+	if rover.view_direction().dot(direction.normalized()) < 0.55: return false
+	var query := PhysicsRayQueryParameters3D.create(selected.global_position,point)
 	query.exclude = [rover.get_rid()]
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
-	return hit.is_empty() or contact.is_ancestor_of(hit.get("collider"))
+	return hit.is_empty() or (allowed != null and allowed.is_ancestor_of(hit.get("collider")))
+
+func interaction_target() -> String:
+	if phase != "exploring" or absf(rover.speed) >= 2.0: return "none"
+	if target_distance() <= 9.5 and _target_visible(contact.global_position+Vector3(0,2,0),contact):
+		return "contact"
+	var ecology: Dictionary = world.nearest_ecology(rover.global_position)
+	if not ecology.is_empty() and float(ecology.get("distance",999.0)) <= 14.0:
+		var point: Vector3 = ecology.get("position",ecology["base"])
+		if _target_visible(point): return "ecology"
+	return "none"
+
+func can_interact() -> bool:
+	return interaction_target() != "none"
 
 func interact() -> void:
-	if not can_interact(): return
+	var target := interaction_target()
+	if target == "none": return
+	if target == "ecology":
+		var observed: Dictionary = world.observe_ecology(rover.global_position)
+		if not observed.is_empty():
+			observed_ecology[str(observed.get("kind","unknown"))] = true
+			ui.set_message("ecology_observed")
+			_publish_snapshot()
+		return
 	transmit_count += 1
 	rover.set_driving_enabled(false)
 	audio.play_transmit()
@@ -208,7 +240,10 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":"first_person" if rover.camera.current else "arrival_exterior","floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings}
+	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology,"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings}
+
+func ecology_snapshot() -> Dictionary:
+	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
 
 func metrics() -> Dictionary:
 	var ordered := frames.duplicate()

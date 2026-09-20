@@ -8,6 +8,9 @@
     "dev": "python tools/serve_web.py --port 4174",
     "preview": "python tools/serve_web.py --port 4174",
     "check": "node tools/check.mjs",
-    "test": "node tools/run-native-check.mjs"
+    "test": "node tools/run-native-check.mjs",
+    "test:controller": "node tools/run-native-check.mjs physics_camera_regression",
+    "test:interaction": "node tools/run-native-check.mjs interaction_regression",
+    "test:ecology": "node tools/run-native-check.mjs ecology_regression"
   }
 }

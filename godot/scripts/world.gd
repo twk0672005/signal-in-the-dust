@@ -1,5 +1,7 @@
 extends Node3D
 ## Authored geological basin. Coordinates and height queries are shared with driving.
+const HABITAT_FEATURES = preload("res://scripts/habitat_features.gd")
+const ECOLOGY_RESPONSE = preload("res://scripts/ecology_response.gd")
 const ROCKS_PATH := "res://assets/models/rocks.glb"
 const TERRAIN_SHADER = preload("res://shaders/terrain.gdshader")
 const SKY_SHADER = preload("res://shaders/storm_sky.gdshader")
@@ -18,10 +20,19 @@ var _rock_transforms: Array[Array] = []
 var _bank_transforms: Array[Array] = []
 var _small_transforms: Array[Array] = []
 var _low_quality := false
+var _world_time: float = 0.0
+var _paused: bool = false
+var _player_position := Vector3.ZERO
+var _player_speed: float = 0.0
+var _ecology_reactions: Array[RefCounted] = []
+var _ecology_glow: Array[Array] = []
+var _ecology_nodes: Array[Node3D] = []
+var _ecology_meta: Array[Dictionary] = []
+var _observed_regions: Dictionary = {}
 var build_stats: Dictionary = {}
 
 func path_x(z: float) -> float:
-	return 14.0 * sin((100.0 - z) * 0.02)
+	return 18.0 * sin((150.0 - z) * 0.012) + 4.0 * sin((150.0 - z) * 0.033)
 
 func height_at(x: float, z: float) -> float:
 	var d := absf(x - path_x(z))
@@ -30,14 +41,19 @@ func height_at(x: float, z: float) -> float:
 	var shelf := 1.8 + 2.2 * sin(z * 0.039 + x * 0.018) + 1.4 * sin(x * 0.087 + z * 0.022)
 	var broken := sin(x * 0.31 + sin(z * 0.09)) * sin(z * 0.26) * 0.35
 	var flank := smoothstep(65.0, 170.0, d) * (9.0 + 4.0 * sin(z * 0.021 + x * 0.026))
-	var signal_clear := 1.0 - smoothstep(11.0, 24.0, Vector2(x - path_x(-140.0), z + 140.0).length())
-	return base + (banks * (shelf + broken) + flank) * (1.0 - signal_clear)
+	var zone_wave := 0.0
+	if z < 40.0 and z > -130.0: zone_wave = sin(x * 0.18 + z * 0.04) * 0.5
+	elif z <= -130.0 and z > -300.0: zone_wave = sin(x * 0.11) * 1.2 + cos(z * 0.13) * 0.45
+	elif z <= -300.0 and z > -470.0: zone_wave = sin(x * 0.27 + z * 0.02) * 0.22 - 0.45
+	else: zone_wave = sin(x * 0.08 + z * 0.07) * 0.8 + 0.35
+	var signal_clear := 1.0 - smoothstep(11.0, 24.0, Vector2(x - path_x(-650.0), z + 650.0).length())
+	return base + zone_wave + (banks * (shelf + broken) + flank) * (1.0 - signal_clear)
 
 func spawn_origin() -> Vector3:
-	return Vector3(path_x(100.0), height_at(path_x(100.0), 100.0), 100.0)
+	return Vector3(path_x(150.0), height_at(path_x(150.0), 150.0), 150.0)
 
 func signal_origin() -> Vector3:
-	return Vector3(path_x(-140.0), height_at(path_x(-140.0), -140.0), -140.0)
+	return Vector3(path_x(-650.0), height_at(path_x(-650.0), -650.0), -650.0)
 
 func _ready() -> void:
 	_rng.seed = 20260915
@@ -47,9 +63,113 @@ func _ready() -> void:
 	_build_horizon()
 	_build_landmarks()
 	_build_rocks()
+	var habitats := HABITAT_FEATURES.new()
+	habitats.name = "HabitatFeatures"
+	add_child(habitats)
+	habitats.build(self)
+	_build_ecology()
+	_prepare_ecology_responses()
 	_build_response()
 	_build_dust()
 	reset()
+
+func _prepare_ecology_responses() -> void:
+	for node in _ecology_nodes:
+		_ecology_reactions.append(ECOLOGY_RESPONSE.new())
+		var glow: Array = []
+		for child in node.get_children():
+			if child is MeshInstance3D and child.material_override is StandardMaterial3D:
+				var material := child.material_override.duplicate() as StandardMaterial3D
+				child.material_override = material
+				if material.emission_enabled:
+					glow.append({"material": material, "energy": material.emission_energy_multiplier})
+		_ecology_glow.append(glow)
+
+func _process(delta: float) -> void:
+	if _paused: return
+	_world_time += delta
+	for i in _ecology_nodes.size():
+		var node := _ecology_nodes[i]
+		var data := _ecology_meta[i]
+		var reaction: RefCounted = _ecology_reactions[i]
+		var phase: float = data["phase"]
+		var base: Vector3 = data["base"]
+		var kind: String = data["kind"]
+		reaction.step(node.global_position.distance_to(_player_position), _player_speed, delta)
+		var alarm: float = reaction.alert
+		var pulse: float = reaction.pulse_amount()
+		var away := Vector3(base.x - _player_position.x, 0, base.z - _player_position.z).normalized()
+		if away.is_zero_approx(): away = Vector3.RIGHT
+		var target := base
+		if kind == "aeral":
+			target += Vector3(sin(_world_time * 0.55 + phase) * 2.4, sin(_world_time * 0.8 + phase) * 0.75, cos(_world_time * 0.44 + phase) * 1.5)
+			target += away * alarm * 3.0 + Vector3.UP * alarm * 3.5
+			node.rotation = Vector3(0, phase + sin(_world_time * 0.4 + phase) * 0.25, sin(_world_time * 1.2 + phase) * (0.08 + alarm * 0.28))
+		elif kind == "veyra":
+			target += away * alarm * 3.0 + Vector3(sin(_world_time * 0.7 + phase) * 0.35, 0, cos(_world_time * 0.55 + phase) * 0.35)
+			target.y = height_at(target.x, target.z) + 0.35 + absf(sin(_world_time * 2.0 + phase)) * 0.08
+			node.rotation.y = phase + sin(_world_time * 0.7 + phase) * 0.5
+		else:
+			node.rotation.y = phase + sin(_world_time * 0.2 + phase) * 0.12
+		node.position = node.position.lerp(target, 1.0 - exp(-delta * 5.0))
+		var width := 1.0 + pulse * 0.12
+		node.scale = Vector3(width, (1.0 - alarm * 0.55 if kind == "root_choir" else 1.0) + pulse * 0.1, width)
+		for entry: Dictionary in _ecology_glow[i]:
+			entry["material"].emission_energy_multiplier = float(entry["energy"]) * (1.0 + pulse * 2.0 - alarm * 0.65)
+
+func reaction_snapshot() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for i in _ecology_reactions.size():
+		var reaction: RefCounted = _ecology_reactions[i]
+		result.append({"kind": _ecology_meta[i]["kind"], "alert": reaction.alert, "recovery": reaction.recovery, "pulse": reaction.pulse})
+	return result
+
+func region_at(position: Vector3) -> String:
+	if position.z > -10.0: return "aurora_shelf"
+	if position.z > -170.0: return "ember_rift"
+	if position.z > -350.0: return "veil_marsh"
+	return "pale_decay"
+
+func region_label(position: Vector3) -> String:
+	return {"aurora_shelf":"Aurora Shelf / 極光高原", "ember_rift":"Ember Rift / 熱泉裂谷", "veil_marsh":"Veil Marsh / 濃霧沼澤", "pale_decay":"Pale Decay / 孢子衰變"}.get(region_at(position), "Unknown")
+
+func set_player_state(position: Vector3, speed: float) -> void:
+	_player_position = position
+	_player_speed = speed
+
+func ecology_state(kind: String, position: Vector3) -> String:
+	var index := -1
+	var distance := INF
+	for i in _ecology_nodes.size():
+		if _ecology_meta[i]["kind"] != kind: continue
+		var candidate := position.distance_to(_ecology_nodes[i].global_position)
+		if candidate < distance: distance = candidate; index = i
+	if index < 0 or distance >= 42.0: return "quiet"
+	if _ecology_reactions[index].alert > 0.2: return "disturbed"
+	if distance < 10.0 and absf(_player_speed) < 1.5: return str(_ecology_meta[index]["label"])
+	return "near"
+
+func nearest_ecology(position: Vector3) -> Dictionary:
+	var best: Dictionary = {}
+	var best_distance := INF
+	for i in _ecology_nodes.size():
+		var distance := position.distance_to(_ecology_nodes[i].global_position)
+		if distance < best_distance:
+			best_distance = distance
+			best = _ecology_meta[i].duplicate()
+			best["index"] = i
+			best["distance"] = distance
+			best["position"] = _ecology_nodes[i].global_position + Vector3(0,0.3,0)
+	return best
+
+func observe_ecology(position: Vector3) -> Dictionary:
+	var target := nearest_ecology(position)
+	if target.is_empty() or float(target.get("distance", 999.0)) > 14.0: return {}
+	var kind := str(target.get("kind", ""))
+	_ecology_reactions[int(target["index"])].observe()
+	_observed_regions[kind] = true
+	target["observed"] = true
+	return target
 
 func _build_atmosphere() -> void:
 	_environment = Environment.new()
@@ -116,7 +236,7 @@ func _build_terrain() -> void:
 	for iz in NZ:
 		for ix in NX:
 			var x := -192.0 + ix * (384.0 / float(NX - 1))
-			var z := -240.0 + iz * 2.5
+			var z := -700.0 + float(iz) * (900.0 / float(NZ - 1))
 			var i := iz * NX + ix
 			vertices[i] = Vector3(x, height_at(x, z), z)
 			var dx := (height_at(x + 0.15, z) - height_at(x - 0.15, z)) / 0.3
@@ -178,9 +298,12 @@ func _build_horizon() -> void:
 func _horizon_point(a: int, r: int) -> Vector3:
 	var angle := float(a) / 256.0 * TAU
 	var radial := float(r) / 16.0
-	var radius := 180.0 + pow(radial, 1.25) * 1250.0
-	var x := cos(angle) * radius * 1.12
-	var z := sin(angle) * radius
+	# Bury the inner seam inside the rectangular ground skirt, beyond all driving bounds.
+	# The old 180m circular hole crossed the expanded southern play area.
+	var inner_radius := minf(170.0 / maxf(absf(cos(angle)), 0.0001), 445.0 / maxf(absf(sin(angle)), 0.0001))
+	var radius := inner_radius + pow(radial, 1.25) * 1250.0
+	var x := cos(angle) * radius
+	var z := -250.0 + sin(angle) * radius
 	var foothill := height_at(x, z)
 	var peak := 130.0 + 58.0 * sin(angle * 3.0 + 0.4) + 32.0 * sin(angle * 7.0) + 21.0 * sin(angle * 13.0 + 1.0) + 11.0 * sin(angle * 47.0) + 7.0 * sin(angle * 73.0)
 	# Signal corridor points north; the far gap frames the mineral silhouette.
@@ -216,6 +339,94 @@ func _build_landmarks() -> void:
 	add_child(landmark)
 	landmark.create_trimesh_collision()
 	build_stats["landmark_triangles"] = _triangle_count(landmark.mesh)
+
+func _ecology_material(color: Color, emission: Color = Color.BLACK, energy: float = 0.0, roughness: float = 0.65) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.roughness = roughness
+	if energy > 0.0:
+		mat.emission_enabled = true
+		mat.emission = emission
+		mat.emission_energy_multiplier = energy
+	return mat
+
+func _eco_sphere(parent: Node3D, position: Vector3, scale: Vector3, material: Material) -> MeshInstance3D:
+	var mesh := SphereMesh.new()
+	mesh.radial_segments = 10
+	mesh.rings = 6
+	var instance := MeshInstance3D.new()
+	instance.mesh = mesh
+	instance.position = position
+	instance.scale = scale
+	instance.material_override = material
+	parent.add_child(instance)
+	return instance
+
+func _eco_cylinder(parent: Node3D, position: Vector3, radius: float, height: float, material: Material) -> MeshInstance3D:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius * 0.82
+	mesh.bottom_radius = radius
+	mesh.height = height
+	mesh.radial_segments = 8
+	var instance := MeshInstance3D.new()
+	instance.mesh = mesh
+	instance.position = position
+	instance.material_override = material
+	parent.add_child(instance)
+	return instance
+
+func _eco_rod(parent: Node3D, a: Vector3, b: Vector3, radius: float, material: Material) -> void:
+	var rod := _eco_cylinder(parent, (a + b) * 0.5, radius, a.distance_to(b), material)
+	rod.quaternion = Quaternion(Vector3.UP, (b - a).normalized())
+
+func _build_ecology() -> void:
+	# Three local organisms occupy different energy gradients. They are deliberately readable silhouettes, not decorative glow props.
+	var veyra_shell := _ecology_material(Color("3d4845"), Color("a86b3f"), 0.18, 0.82)
+	var veyra_core := _ecology_material(Color("b56b42"), Color("e47d42"), 1.0, 0.48)
+	for i in 4:
+		var node := Node3D.new()
+		node.name = "VeyraLithovore_%02d" % i
+		var z := -105.0 + i * 7.0
+		var x := path_x(z) + 7.0 + sin(i * 2.1) * 2.0
+		node.position = Vector3(x, height_at(x, z) + 0.35, z)
+		add_child(node)
+		_eco_sphere(node, Vector3(0,0.25,0), Vector3(0.9,0.34,1.25), veyra_shell)
+		_eco_sphere(node, Vector3(0,0.48,-0.72), Vector3(0.42,0.24,0.32), veyra_core)
+		for side in [-1.0,1.0]:
+			for leg in 3:
+				var zoff := -0.62 + leg * 0.62
+				_eco_rod(node, Vector3(side * 0.3,0.12,zoff), Vector3(side * 1.05,-0.08,zoff + 0.16), 0.035, veyra_shell)
+		_ecology_nodes.append(node)
+		_ecology_meta.append({"kind":"veyra","label":"VEYRA / 礦脈群體","phase":float(i) * 1.7,"base":node.position})
+	var aeral_membrane := _ecology_material(Color("76644e"), Color("dca66d"), 0.7, 0.52)
+	var aeral_core := _ecology_material(Color("d2c58f"), Color("f1d98f"), 1.3, 0.42)
+	for i in 5:
+		var node := Node3D.new()
+		node.name = "AeralVeil_%02d" % i
+		var z := -285.0 - i * 5.5
+		var x := path_x(z) - 5.5 + cos(i * 1.8) * 3.0
+		node.position = Vector3(x, height_at(x,z) + 5.0 + (i % 2) * 1.6, z)
+		add_child(node)
+		_eco_sphere(node, Vector3.ZERO, Vector3(0.9,0.16,1.8), aeral_membrane)
+		_eco_sphere(node, Vector3(0,0,0.9), Vector3(0.16,0.16,0.16), aeral_core)
+		for side in [-1.0,1.0]: _eco_rod(node, Vector3(side*0.35,0,0), Vector3(side*1.4,0.05,0.7), 0.025, aeral_membrane)
+		_ecology_nodes.append(node)
+		_ecology_meta.append({"kind":"aeral","label":"AERAL VEIL / 霧膜群","phase":float(i) * 1.1,"base":node.position})
+	var decay_shell := _ecology_material(Color("57464d"), Color("744e86"), 0.32, 0.91)
+	var decay_spore := _ecology_material(Color("c08bce"), Color("cc70dd"), 1.2, 0.58)
+	for i in 4:
+		var node := Node3D.new()
+		node.name = "MorrowShell_%02d" % i
+		var z := -470.0 - i * 8.0
+		var x := path_x(z) + 8.0 + sin(i * 1.9) * 3.0
+		node.position = Vector3(x, height_at(x,z) + 0.7, z)
+		add_child(node)
+		_eco_sphere(node, Vector3.ZERO, Vector3(1.2,0.75,1.0), decay_shell)
+		for j in 5:
+			var angle := float(j) / 5.0 * TAU
+			_eco_rod(node, Vector3(cos(angle)*0.45,0.35,sin(angle)*0.45), Vector3(cos(angle)*1.45,0.85,sin(angle)*1.45), 0.035, decay_spore)
+		_ecology_nodes.append(node)
+		_ecology_meta.append({"kind":"root_choir","label":"MORROW SHELL / 孢殼群","phase":float(i) * 2.0,"base":node.position})
 
 func _append_fault_fin(st: SurfaceTool, center: Vector3, size: Vector3, yaw: float, salt: int) -> void:
 	const SIDES := 11
@@ -281,7 +492,7 @@ func _build_rocks() -> void:
 		_bank_transforms.append([])
 		_small_transforms.append([])
 	# Designed sight-line anchors: asymmetrical gates, split outcrops and long horizontal shelves.
-	var anchors := [Vector3(-23, 15, 49), Vector3(36, 12, 17), Vector3(-33, 19, -29), Vector3(30, 14, -86), Vector3(-44, 16, -123), Vector3(43, 22, -169), Vector3(-65, 25, -179), Vector3(82, 19, -51)]
+	var anchors := [Vector3(-23, 15, 49), Vector3(36, 12, 17), Vector3(-33, 19, -29), Vector3(30, 14, -86), Vector3(-44, 16, -210), Vector3(43, 22, -320), Vector3(-65, 25, -455), Vector3(82, 19, -560)]
 	for anchor: Vector3 in anchors:
 		for j in 4:
 			var x := anchor.x + j * 3.0 - 5.0
@@ -289,14 +500,14 @@ func _build_rocks() -> void:
 			var size := Vector3(_rng.randf_range(5.0, 10.0), anchor.y * _rng.randf_range(0.45, 1.0), _rng.randf_range(4.0, 8.0))
 			_place_rock(x, z, size, false, true, true)
 	# Bedrock slabs emerge from bank crests. Placement avoids the entire clear driving corridor.
-	for i in 72:
-		var z := _rng.randf_range(-180.0, 121.0)
+	for i in 160:
+		var z := _rng.randf_range(-620.0, 170.0)
 		var side := -1.0 if i % 2 == 0 else 1.0
 		var x := path_x(z) + side * _rng.randf_range(10.0, 74.0)
 		var size := Vector3(_rng.randf_range(1.6, 5.0), _rng.randf_range(0.5, 2.9), _rng.randf_range(1.5, 4.5))
 		_place_rock(x, z, size, false, true)
-	for i in 44:
-		var z := _rng.randf_range(-170.0, 122.0)
+	for i in 120:
+		var z := _rng.randf_range(-610.0, 170.0)
 		var x := path_x(z) + _rng.randf_range(6.5, 80.0) * (-1.0 if i % 2 == 0 else 1.0)
 		var s := _rng.randf_range(0.12, 0.58)
 		_place_rock(x, z, Vector3(s * 1.7, s * 0.7, s), true, false)
@@ -331,7 +542,7 @@ func _place_rock(x: float, z: float, size: Vector3, small: bool, collidable: boo
 	var footprint := maxf(size.x, size.z) * 0.55
 	if absf(x - path_x(z)) < 5.5 + footprint:
 		return
-	if Vector2(x - signal_origin().x, z + 140.0).length() < 12.0 + footprint:
+	if Vector2(x - signal_origin().x, z + 650.0).length() < 12.0 + footprint:
 		return
 	var type := _rng.randi_range(0, _rock_meshes.size() - 1)
 	var yaw := _rng.randf_range(-PI, PI)
@@ -345,7 +556,7 @@ func _place_rock(x: float, z: float, size: Vector3, small: bool, collidable: boo
 		_rock_transforms[type].append(transform)
 	else:
 		_bank_transforms[type].append(transform)
-	if collidable and absf(x) < 96.0 and z > -166.0 and z < 126.0:
+	if collidable and absf(x) < 96.0 and z > -670.0 and z < 180.0:
 		var body := StaticBody3D.new()
 		body.name = "BedrockCollision"
 		var shape := CollisionShape3D.new()
@@ -417,8 +628,8 @@ func _build_dust() -> void:
 	_dust.lifetime = 18.0
 	_dust.preprocess = 8.0
 	_dust.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
-	_dust.emission_box_extents = Vector3(75.0, 0.7, 135.0)
-	_dust.position = Vector3(0, 1.3, -25)
+	_dust.emission_box_extents = Vector3(75.0, 0.7, 390.0)
+	_dust.position = Vector3(0, 1.3, -210)
 	_dust.direction = Vector3(1, 0.01, 0.2)
 	_dust.spread = 8.0
 	_dust.gravity = Vector3.ZERO
@@ -451,6 +662,22 @@ func set_low_quality(value: bool) -> void:
 		_dust.emitting = not value
 		_dust.visible = not value
 
+func set_paused(value: bool) -> void:
+	_paused = value
+	if is_instance_valid(_dust): _dust.speed_scale = 0.0 if value else 1.0
+
 func reset() -> void:
+	_world_time = 0.0
+	_player_position = spawn_origin()
+	_player_speed = 0.0
+	_observed_regions.clear()
+	for i in _ecology_nodes.size():
+		_ecology_nodes[i].position = _ecology_meta[i]["base"]
+		_ecology_nodes[i].rotation = Vector3(0, float(_ecology_meta[i]["phase"]), 0)
+		_ecology_nodes[i].scale = Vector3.ONE
+		_ecology_reactions[i].reset()
+		for entry: Dictionary in _ecology_glow[i]:
+			entry["material"].emission_energy_multiplier = entry["energy"]
+	set_paused(false)
 	set_response(0.0, 0.0)
 	set_low_quality(_low_quality)

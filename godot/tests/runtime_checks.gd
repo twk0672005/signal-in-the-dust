@@ -34,6 +34,16 @@ func run() -> void:
 	game.start_expedition()
 	await create_timer(6.0).timeout
 	results.checks.first_person=game.phase=="exploring" and game.rover.camera.current
+	results.checks.four_regions=game.world.region_at(Vector3(0,0,50)) != game.world.region_at(Vector3(0,0,-100)) and game.world.region_at(Vector3(0,0,-100)) != game.world.region_at(Vector3(0,0,-260)) and game.world.region_at(Vector3(0,0,-260)) != game.world.region_at(Vector3(0,0,-480))
+	key(KEY_V,true)
+	key(KEY_V,false)
+	await process_frame
+	results.checks.third_person=game.rover.camera_mode=="third_person" and game.rover.third_camera.current
+	await capture("third-person")
+	key(KEY_V,true)
+	key(KEY_V,false)
+	await process_frame
+	results.checks.camera_toggle_back=game.rover.camera_mode=="first_person" and game.rover.camera.current
 	await capture("first-person")
 	var before: Vector3=game.rover.global_position
 	key(KEY_W,true)
@@ -41,6 +51,7 @@ func run() -> void:
 	key(KEY_W,false)
 	await create_timer(0.5).timeout
 	results.checks.forward=game.rover.global_position.z<before.z-0.5
+	results.checks.acceleration=game.rover.speed>2.0 and game.rover.max_speed_mps()>=8.0
 	results.checks.on_floor=game.rover.is_on_floor()
 	var heading: float=game.rover.heading
 	key(KEY_A,true)
@@ -53,11 +64,12 @@ func run() -> void:
 	key(KEY_D,false)
 	results.checks.right=game.rover.heading>heading+0.1
 	before=game.rover.global_position
+	var reverse_axis := Vector3(sin(game.rover.heading),0,-cos(game.rover.heading))
 	key(KEY_S,true)
 	await create_timer(1.5).timeout
 	key(KEY_S,false)
 	await create_timer(0.5).timeout
-	results.checks.reverse=game.rover.global_position.z>before.z+0.5
+	results.checks.reverse=(game.rover.global_position-before).dot(reverse_axis)<-0.5
 	game.pause_expedition()
 	var clock: float=game.elapsed
 	key(KEY_W,true)
@@ -65,6 +77,16 @@ func run() -> void:
 	results.checks.pause_freezes=game.elapsed==clock and game.rover.speed==0.0
 	game.resume_expedition()
 	results.checks.resume_clears_keys=not Input.is_action_pressed("drive_forward")
+	# Optional ecology observation fixture: the player must stop near an organism and receive world feedback.
+	var ecology_node: Node3D = game.world._ecology_nodes[0]
+	game.rover.global_position=ecology_node.global_position+Vector3(0,0.1,4.0)
+	game.rover.speed=0
+	game.rover.velocity=Vector3.ZERO
+	await physics_frame
+	game.world.set_player_state(game.rover.global_position,0.0)
+	var ecology_before: int = game.observed_ecology.size()
+	game.interact()
+	results.checks.ecology_observation=game.observed_ecology.size()>ecology_before
 	game.interact()
 	results.checks.remote_interact_rejected=game.phase=="exploring" and game.transmit_count==0
 	var center: Vector3=game.world.signal_origin()

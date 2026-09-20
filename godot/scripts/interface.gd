@@ -13,12 +13,16 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"speed_label": ["SPEED", "車速"],
+	"view_label": ["VIEW", "視角"],
+	"first_person_label": ["FP", "第一身"],
+	"third_person_label": ["TP", "第三身"],
 	"title": ["SIGNAL\nIN THE DUST", "塵境回聲"],
 	"edition": ["FIELD EXPEDITION  /  07", "地表探勘  /  07"],
 	"intro": ["Something beneath the storm is listening.\nFollow its signal. Let it hear you.", "風暴之下，有什麼正在聆聽。\n循著訊號前進，讓它聽見你。"],
-	"duration": ["A first-contact expedition · 3–5 minutes", "一段初次接觸的旅程 · 約 3–5 分鐘"],
+	"duration": ["Explore the four regions. Stop and listen.", "探索四大地區，停車聆聽生命。"],
 	"begin": ["Begin expedition", "開始探勘"],
-	"controls": ["WASD / arrows   Drive     SPACE   Brake\nRight-drag   Look     E   Transmit     ESC   Pause", "WASD / 方向鍵   駕駛     空白鍵   煞車\n按住滑鼠右鍵拖曳   環顧     E   發送     ESC   暫停"],
+	"controls": ["WASD / arrows   Drive     SPACE   Brake\nRight-drag   Look     V   Camera     E   Observe / transmit     ESC   Pause", "WASD / 方向鍵   駕駛     空白鍵   煞車\n按住滑鼠右鍵拖曳   環顧     V   視角     E   觀察／發送     ESC   暫停"],
 	"volume": ["Sound", "音量"],
 	"motion": ["Reduced motion", "減少動態效果"],
 	"quality": ["Low graphics", "低畫質"],
@@ -48,6 +52,7 @@ const COPY := {
 	"signal_found": ["Signal acquired. Follow the pale glow.", "已鎖定訊號，沿著微光前進。"],
 	"transmitting": ["Pulse sent. Waiting for a response…", "脈衝已發送，等待回應……"],
 	"response": ["This is not an echo.", "這並非回音。"],
+	"ecology_observed": ["The organism changes its rhythm.", "生物改變了節奏。"],
 	"pause_hint": ["ESC  Pause", "ESC  暫停"],
 	"muted": ["Muted", "靜音"],
 }
@@ -58,6 +63,14 @@ var _root: Control
 var _hud: Control
 var _overlay: Control
 var _distance_label: Label
+var _speed_label: Label
+var _speed_mps: float = 0.0
+var _max_speed_mps: float = 8.0
+var _view_mode: String = "first_person"
+var _ecology_readout: Dictionary = {}
+var _speed_bar: ProgressBar
+var _view_label: Label
+var _ecology_label: Label
 var _reticle: Label
 var _interaction: Button
 var _message: Label
@@ -140,7 +153,7 @@ func _build() -> void:
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_overlay)
 	_build_overlay()
-	update_readout(_distance, _elapsed, _progress, _can_interact)
+	update_readout(_distance, _elapsed, _progress, _can_interact, _speed_mps, _max_speed_mps, _view_mode, _ecology_readout)
 
 func _label(text: String, size: int = 14, color: Color = PAPER) -> Label:
 	var result := Label.new()
@@ -171,6 +184,16 @@ func _build_hud() -> void:
 	left.add_child(_label(_text("goal"), 14, AMBER))
 	_distance_label = _label("", 25)
 	left.add_child(_distance_label)
+	_speed_label = _label("", 16, PAPER)
+	left.add_child(_speed_label)
+	_speed_bar = ProgressBar.new()
+	_speed_bar.custom_minimum_size = Vector2(210, 4)
+	_speed_bar.max_value = 1.0
+	_speed_bar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_speed_bar.show_percentage = false
+	_speed_bar.add_theme_stylebox_override("background", _style(Color("252b2b"), Color.TRANSPARENT, 0))
+	_speed_bar.add_theme_stylebox_override("fill", _style(AMBER, Color.TRANSPARENT, 0))
+	left.add_child(_speed_bar)
 	var right := VBoxContainer.new()
 	top.add_child(right)
 	var storm := _label(_text("storm"), 12)
@@ -182,6 +205,9 @@ func _build_hud() -> void:
 	var hint := _label(_text("pause_hint"), 12, MUTED)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(hint)
+	_view_label = _label("", 12, AMBER)
+	_view_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	right.add_child(_view_label)
 	_reticle = _label("·", 24, Color(0.93, 0.91, 0.86, 0.35))
 	_reticle.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_reticle.offset_left = -12
@@ -201,6 +227,9 @@ func _build_hud() -> void:
 	_message = _label(_text(_message_key), 14)
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	bottom.add_child(_message)
+	_ecology_label = _label("", 12, MUTED)
+	_ecology_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	bottom.add_child(_ecology_label)
 	_interaction = _button("transmit", func() -> void: interact_requested.emit())
 	_interaction.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_interaction.custom_minimum_size.x = 260
@@ -337,7 +366,11 @@ func show_state(state: String) -> void:
 	if is_instance_valid(_root):
 		_build()
 
-func update_readout(distance: float, elapsed: float, contact_progress: float, can_interact: bool) -> void:
+func update_readout(distance: float, elapsed: float, contact_progress: float, can_interact: bool, speed_mps: float = 0.0, max_speed_mps: float = 8.0, view_mode: String = "first_person", ecology_state: Dictionary = {}) -> void:
+	_speed_mps = speed_mps
+	_max_speed_mps = max_speed_mps
+	_view_mode = view_mode
+	_ecology_readout = ecology_state.duplicate()
 	_distance = maxf(distance, 0.0)
 	_elapsed = maxf(elapsed, 0.0)
 	_progress = clampf(contact_progress, 0.0, 1.0)
@@ -345,6 +378,15 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 	if not is_instance_valid(_distance_label):
 		return
 	_distance_label.text = "%03d m" % roundi(_distance)
+	_speed_label.text = "%s  %.1f m/s  ·  %d km/h%s" % [_text("speed_label"), absf(speed_mps), roundi(absf(speed_mps)*3.6), "  R" if speed_mps < -0.05 else ""]
+	_speed_bar.value = clampf(absf(speed_mps) / maxf(max_speed_mps, 0.1), 0.0, 1.0)
+	_view_label.text = "%s  %s  [V]" % [_text("view_label"), _text("first_person_label" if view_mode == "first_person" else "third_person_label")]
+	if not ecology_state.is_empty():
+		var active := []
+		for key in ["veyra", "aeral", "rootChoir"]:
+			if ecology_state.get(key, "quiet") != "quiet": active.append(str(ecology_state[key]))
+		_ecology_label.text = " · ".join(active)
+	else: _ecology_label.text = ""
 	_interaction.visible = _can_interact and _state == "exploring"
 	_reticle.text = "+" if _can_interact else "·"
 	_reticle.modulate = SIGNAL if _can_interact else Color(1, 1, 1, 0.35)
@@ -356,3 +398,8 @@ func set_message(key: String) -> void:
 	_message_key = key
 	if is_instance_valid(_message):
 		_message.text = _text(key)
+
+func set_view_message(view_mode: String) -> void:
+	_view_mode = view_mode
+	if is_instance_valid(_view_label):
+		_view_label.text = "%s  %s  [V]" % [_text("view_label"), _text("first_person_label" if view_mode == "first_person" else "third_person_label")]

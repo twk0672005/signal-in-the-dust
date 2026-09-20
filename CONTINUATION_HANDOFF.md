@@ -1,7 +1,6 @@
-# Current handoff
-
-The active project is the Godot first-person Signal in the Dust slice at `godot/project.godot`.
-Read `PLANS.md`, `CHECKPOINT.md` and `RUN_CONTRACT.md` for current stage evidence.
-AURELIA/Three.js is historical under `legacy/aurelia-threejs`; it is not the release route.
-Current state: native Godot behavior and graphical proof PASS; Web export and private baseline exist; browser real-input, independent human and macOS proof remain PARTIAL.
-Next: complete final source Web export, private deploy, real browser journey and independent review before public publication.
+# Current continuation
+Use C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906; current conversation cwd is an older checkout.
+Read AGENTS.md, RUN_CONTRACT.md, PLANS.md and CHECKPOINT.md. User target is30-minute four-region ecology, not3–5minute short version.
+Latest repair is verified through native fixtures, source not committed/pushed in this wake. Worktree was already dirty and backups preserve the before state.
+Next stage: distinct four-biome art and actual speed/light/observation creature response, then adequate content pacing. Keep market/public gates open.
+The native App Goal cannot be replaced by the available create_goal tool while its older blocked objective is unfinished. Do not mark it complete falsely.15-minute automation already has the new goal.

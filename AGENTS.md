@@ -3,7 +3,7 @@
 Nova's approved 2026-09-15 plan supersedes the archived AURELIA route.
 This root owns one Godot 4.7.2 game at `godot/project.godot`.
 Preserve first-person driving and corrected left/right steering.
-Product: 3–5 minute, Traditional Chinese/English first-contact expedition.
+Product: approximately 30 minutes of Traditional Chinese/English four-region alien ecology exploration, as authorised on 2026-09-19. Preserve throttle driving, speedometer and V first/third-person switching. Native fixtures alone cannot prove the content duration.
 Desktop browser first; mobile has an honest desktop-support screen.
 Build: GDScript, Compatibility, single-thread Web; local authored assets.
 Read GAME_CONTRACT.md, PLANS.md, RUN_CONTRACT.md and CHECKPOINT.md.
