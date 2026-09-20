@@ -12,14 +12,14 @@ const SITES := {
  "ember_vent":{"region":"ember_rift","z":-135.0,"offset":54.0,"kind":"veyra","tier":"optional"},
  "marsh_crossing":{"region":"veil_marsh","z":-285.0,"offset":-58.0,"kind":"aeral","tier":"optional"},
  "spore_pulse":{"region":"pale_decay","z":-540.0,"offset":62.0,"kind":"root_choir","tier":"optional"},
- "aurora_lode":{"region":"aurora_shelf","z":105.0,"offset":-64.0,"kind":"","tier":"field"},
- "aurora_ridge":{"region":"aurora_shelf","z":25.0,"offset":68.0,"kind":"","tier":"field"},
- "ember_lake":{"region":"ember_rift","z":-58.0,"offset":-62.0,"kind":"","tier":"field"},
- "ember_cairn":{"region":"ember_rift","z":-152.0,"offset":-52.0,"kind":"","tier":"field"},
- "marsh_reed":{"region":"veil_marsh","z":-228.0,"offset":62.0,"kind":"","tier":"field"},
- "marsh_pool":{"region":"veil_marsh","z":-342.0,"offset":-62.0,"kind":"","tier":"field"},
- "pale_bone":{"region":"pale_decay","z":-430.0,"offset":-62.0,"kind":"","tier":"field"},
- "pale_sink":{"region":"pale_decay","z":-585.0,"offset":58.0,"kind":"","tier":"field"}
+ "aurora_lode":{"region":"aurora_shelf","z":105.0,"offset":-18.0,"kind":"","tier":"field"},
+ "aurora_ridge":{"region":"aurora_shelf","z":25.0,"offset":10.0,"kind":"","tier":"field"},
+ "ember_lake":{"region":"ember_rift","z":-58.0,"offset":-10.0,"kind":"","tier":"field"},
+ "ember_cairn":{"region":"ember_rift","z":-152.0,"offset":10.0,"kind":"","tier":"field"},
+ "marsh_reed":{"region":"veil_marsh","z":-228.0,"offset":10.0,"kind":"","tier":"field"},
+ "marsh_pool":{"region":"veil_marsh","z":-342.0,"offset":-10.0,"kind":"","tier":"field"},
+ "pale_bone":{"region":"pale_decay","z":-430.0,"offset":-10.0,"kind":"","tier":"field"},
+ "pale_sink":{"region":"pale_decay","z":-470.0,"offset":10.0,"kind":"","tier":"field"}
 }
 var completed: Dictionary = {}
 var optional: Dictionary = {}
