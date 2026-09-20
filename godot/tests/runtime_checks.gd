@@ -101,6 +101,7 @@ func run() -> void:
 	# This is explicitly a contact-state fixture, not a real-input full-route claim.
 	var activity_fixture: Dictionary=game.activities.snapshot()
 	for region in activity_fixture.completed_regions: activity_fixture.completed_regions[region]=true
+	for site in activity_fixture.field_notes: activity_fixture.field_notes[site]=true
 	game.activities.restore(activity_fixture)
 	results.checks.near_interaction=game.can_interact()
 	game.interact()

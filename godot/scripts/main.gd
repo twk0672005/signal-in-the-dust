@@ -170,7 +170,7 @@ func _process(delta: float) -> void:
 		ui.update_readout(target_distance(), elapsed, contact.progress, can_interact(), rover.current_speed_mps(), rover.max_speed_mps(), rover.camera_mode, ecology_snapshot())
 		_update_survey_readout()
 		if phase == "exploring" and _survey_message_seconds<=0.0:
-			ui.set_message("survey_all" if activities.count()==4 else "survey_guidance")
+			ui.set_message("survey_all" if activities.count()==4 and activities.field_count()==8 else ("field_guidance" if activities.count()==4 else "survey_guidance"))
 		_publish_snapshot()
 
 func _survey_completed(id: String) -> void:
@@ -325,7 +325,7 @@ func _target_visible(point: Vector3, allowed: Node = null) -> bool:
 
 func interaction_target() -> String:
 	if phase != "exploring" or absf(rover.speed) >= 2.0: return "none"
-	if activities.count()==4 and target_distance() <= 9.5 and _target_visible(contact.global_position+Vector3(0,2,0),contact):
+	if activities.count()==4 and activities.field_count()==8 and target_distance() <= 9.5 and _target_visible(contact.global_position+Vector3(0,2,0),contact):
 		return "contact"
 	var survey_id:=_nearby_survey()
 	if not survey_id.is_empty(): return "survey:"+survey_id
