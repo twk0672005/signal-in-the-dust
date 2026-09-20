@@ -9,7 +9,8 @@
 - [x] Repair expanded southern horizon intrusion;4352 sampled vertices pass geometry boundary checks and actual recaptures.
 - [ ] Add light/energy-gradient responses and connect ecology to the longer player journey.
 - [ ] Build enough activities and optional routes for approximately30minutes; 800m road length and region-name checks are insufficient.
-- [ ] Complete player save/resume for the longer session, interaction onboarding, and full reset/revisit cases.
+- [x] Complete native player Continue/New flow, defensive backup saves, fixture isolation and separate-process relaunch.17/9 native checks plus actual Enter-menu relaunch pass.
+- [ ] Verify Web persistent storage/reload and full30-minute persistence journey.
 - [ ] Capture actual first/third-person routes and four habitats; profile export-like hardware and resolve p99/worst-frame spikes.
 - [x] Export current ecology/horizon Web candidate; artifact hashes verified and gzip decodes exactly to raw WASM.
 - [ ] Verify real browser controls/audio/loading/errors; reconcile current Sites process/remote state before any push. No assumption that historical process IDs remain live.
