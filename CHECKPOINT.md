@@ -13,3 +13,11 @@ Private Site last confirmed v4/9f5ddf9.6e510e3 atmosphere source was pushed but 
 Next PRODUCT priority: expand each region into substantial observation/puzzle/racing exploration sequences and connect side routes; current8short interactions cannot deliver30minutes. Use measured player timing. Do not substitute counters or artificial waits.
 Test history correction: bare--check-only without--script started the game; syntax errors also prevented test exit. Do not describe this as a proven Godot fixture hang. Always parse named scripts, bound process time, and collect the actual exec session.
 Goal tool currently reports active objective自主工作模式 (fresh read this turn), not the stale blocked goal. Keep active until real market gates pass. Required external gates: independent human and requested macOS/browser evidence.
+
+## Wake receipt — 2026-09-20T22:07Z
+- [x] Corrected eight field-note coordinates after a real-input obstruction was found.
+- [x] Native keyboard route completed all 8 field sites with W/A/D/SPACE/E, no teleport, in 93.238 seconds.
+- [x] Parser, activity logic and save-flow checks pass after the reachability fix.
+- [x] Private Sites v8 deployed successfully from commit e10142d0c1cdc774d878431d07fa378bfd1b0e90; owner-only, 0 external visitors.
+- Evidence: vidence/field-reachability-20260920T220745Z/receipt.json, vidence/field-drive-20260920-r5/field-drive.json.
+- Boundary: this proves the eight field interactions, not a 30-minute human journey. Market status remains PARTIAL until three uninterrupted journeys, target-browser/platform checks and independent human playtest pass.
