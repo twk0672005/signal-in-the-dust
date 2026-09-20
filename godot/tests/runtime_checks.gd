@@ -51,7 +51,7 @@ func run() -> void:
 	key(KEY_W,false)
 	await create_timer(0.5).timeout
 	results.checks.forward=game.rover.global_position.z<before.z-0.5
-	results.checks.acceleration=game.rover.speed>2.0 and game.rover.max_speed_mps()>=8.0
+	results.checks.acceleration=game.rover.speed>6.0 and game.rover.max_speed_mps()>=16.0
 	results.checks.on_floor=game.rover.is_on_floor()
 	var heading: float=game.rover.heading
 	key(KEY_A,true)
@@ -127,3 +127,5 @@ func run() -> void:
 	game.queue_free()
 	await create_timer(0.4).timeout
 	quit(0 if results.passed else 1)
+
+

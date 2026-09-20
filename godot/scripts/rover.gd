@@ -17,12 +17,12 @@ var wheels: Array[Node3D] = []
 var look_offset := Vector2.ZERO
 var motion_clock: float = 0.0
 var last_collision_count: int = 0
-const CRUISE_SPEED: float = 8.0
-const REVERSE_SPEED: float = 3.0
-const OFF_PATH_SPEED: float = 5.5
-const ACCELERATION: float = 3.0
-const COAST_DECELERATION: float = 4.0
-const BRAKE_DECELERATION: float = 20.0
+const CRUISE_SPEED: float = 24.0
+const REVERSE_SPEED: float = 9.0
+const OFF_PATH_SPEED: float = 16.5
+const ACCELERATION: float = 9.0
+const COAST_DECELERATION: float = 12.0
+const BRAKE_DECELERATION: float = 60.0
 
 func configure(value: Node3D) -> void:
 	terrain = value
@@ -196,3 +196,5 @@ func view_direction() -> Vector3:
 
 func camera_snapshot() -> Dictionary:
 	return {"mode": camera_mode, "yaw": look_offset.x, "pitch": look_offset.y, "springLength": third_arm.spring_length if is_instance_valid(third_arm) else 0.0}
+
+

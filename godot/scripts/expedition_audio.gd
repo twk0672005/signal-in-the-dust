@@ -46,7 +46,7 @@ func set_mix(volume: float) -> void:
 			player.volume_linear = 0.0
 
 func set_drive(speed: float) -> void:
-	_drive = clampf(absf(speed) / 8.0, 0.0, 1.0)
+	_drive = clampf(absf(speed) / 24.0, 0.0, 1.0)
 
 func set_signal(distance: float) -> void:
 	_signal = pow(clampf(1.0 - distance / 240.0, 0.0, 1.0), 1.7)
@@ -78,3 +78,5 @@ func reset() -> void:
 		player.stop()
 		if key in ["wind", "rolling", "servo", "pulse"]:
 			player.play()
+
+

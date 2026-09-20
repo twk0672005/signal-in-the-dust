@@ -99,11 +99,11 @@ func run() -> void:
 	await place(origin,0.32)
 	press(KEY_W,true)
 	await frames(175)
-	checks.reaches_cruise_in_three_seconds = game.rover.speed > 7.5 and game.rover.speed <= 8.1
+	checks.reaches_cruise_in_three_seconds = game.rover.speed > 23.5 and game.rover.speed <= 24.1
 	detail.speed_after_2_9_seconds = game.rover.speed
 	press(KEY_W,false)
 	await frames(1)
-	checks.coasting_retains_momentum = game.rover.speed > 6.5
+	checks.coasting_retains_momentum = game.rover.speed > 20.0
 	await frames(123)
 	checks.coasting_stops_after_two_seconds = absf(game.rover.speed) < 0.15
 	detail.coast_terminal_speed = game.rover.speed
@@ -140,3 +140,4 @@ func run() -> void:
 	game.queue_free()
 	await create_timer(0.4).timeout
 	quit(0 if passed else 1)
+
