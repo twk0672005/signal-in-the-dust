@@ -77,6 +77,7 @@ var _ecology_readout: Dictionary = {}
 var _speed_bar: ProgressBar
 var _view_label: Label
 var _ecology_label: Label
+var _activity_label: Label
 var _reticle: Label
 var _interaction: Button
 var _message: Label
@@ -236,6 +237,9 @@ func _build_hud() -> void:
 	_ecology_label = _label("", 12, MUTED)
 	_ecology_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	bottom.add_child(_ecology_label)
+	_activity_label = _label("", 12, AMBER)
+	_activity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	bottom.add_child(_activity_label)
 	_interaction = _button("transmit", func() -> void: interact_requested.emit())
 	_interaction.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_interaction.custom_minimum_size.x = 260
@@ -417,6 +421,9 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 	_reticle.visible = _state == "exploring"
 	_contact_bar.visible = _state == "contact"
 	_contact_bar.value = _progress
+
+func set_activity_progress(done: int, total: int, region: String) -> void:
+	if is_instance_valid(_activity_label): _activity_label.text = ("ACTIVITIES / 活動  %d/%d  ·  %s" % [done,total,region])
 
 func set_message(key: String) -> void:
 	_message_key = key

@@ -7,7 +7,8 @@ static func _number(value: Variant, minimum: float, maximum: float) -> bool:
 
 static func valid(data: Variant) -> bool:
 	if not data is Dictionary: return false
-	if not _number(data.get("version"), 1, 1) or data.get("phase") != "exploring": return false
+	var version := int(data.get("version",0))
+	if version not in [1,2] or data.get("phase") != "exploring": return false
 	var point: Variant = data.get("position")
 	if not point is Dictionary: return false
 	if not _number(point.get("x"),-94,94) or not _number(point.get("z"),-670,180) or not _number(point.get("y"),-128,256): return false
@@ -19,6 +20,7 @@ static func valid(data: Variant) -> bool:
 	for key in observations:
 		if key not in KINDS or not observations[key] is bool: return false
 	if data.get("view","first_person") not in ["first_person","third_person"]: return false
+	if version == 2 and not data.get("activities") is Dictionary: return false
 	return true
 
 static func _read(path: String) -> Dictionary:
