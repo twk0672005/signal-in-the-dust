@@ -1,4 +1,5 @@
 extends RefCounted
+const Activities = preload("res://scripts/expedition_activities.gd")
 const MAX_BYTES := 65536
 const KINDS := ["veyra", "aeral", "root_choir"]
 
@@ -7,7 +8,9 @@ static func _number(value: Variant, minimum: float, maximum: float) -> bool:
 
 static func valid(data: Variant) -> bool:
 	if not data is Dictionary: return false
-	var version := int(data.get("version",0))
+	if not _number(data.get("version"),1,2): return false
+	if float(data.version) != floorf(float(data.version)): return false
+	var version := int(data.version)
 	if version not in [1,2] or data.get("phase") != "exploring": return false
 	var point: Variant = data.get("position")
 	if not point is Dictionary: return false
@@ -20,8 +23,15 @@ static func valid(data: Variant) -> bool:
 	for key in observations:
 		if key not in KINDS or not observations[key] is bool: return false
 	if data.get("view","first_person") not in ["first_person","third_person"]: return false
-	if version == 2 and not data.get("activities") is Dictionary: return false
+	if version == 2 and Activities.normalized(data.get("activities")).is_empty(): return false
 	return true
+
+static func migrate(data: Dictionary) -> Dictionary:
+	if not valid(data): return {}
+	var result:=data.duplicate(true)
+	result["activities"]=Activities.new().snapshot() if int(data.version)==1 else Activities.normalized(data.activities)
+	result["version"]=2
+	return result
 
 static func _read(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path): return {}
@@ -32,7 +42,7 @@ static func _read(path: String) -> Dictionary:
 	var error := parser.parse(file.get_as_text())
 	file.close()
 	if error != OK or not valid(parser.data): return {}
-	return parser.data.duplicate(true)
+	return migrate(parser.data)
 
 static func read(path: String) -> Dictionary:
 	var current := _read(path)

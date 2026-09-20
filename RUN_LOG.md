@@ -33,3 +33,6 @@ Commit396e123 pushed. Save fixture9/9 and Web rebuild passed. Version2 readback 
 
 ## 2026-09-20T07:38:59.137386+00:00 — save-flow usability and recovery repair
 Native17/9 assertions and separate-process Enter-to-Continue pass; original controller19/interaction7/runtime21 pass; Web rebuilt. Prior cache diagnosis corrected. Evidence evidence/save-flow-receipt-20260920T073859Z/receipt.json. No push/deployment this wake.
+
+## 2026-09-20T17:01:47.412144+00:00 — spatial survey content and real-input proof
+49rules, save17/interaction7/runtime22 pass. Native1.26km journey reaches ending via normal Continue in294.7game seconds. Refined markers, muted fog, localized guidance, nested-save migration. Not30minutes, not market complete. Receipt evidence/spatial-survey-receipt-20260920T170147Z/receipt.json.

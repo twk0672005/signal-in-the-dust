@@ -1,5 +1,6 @@
 extends Node3D
 ## Authored geological basin. Coordinates and height queries are shared with driving.
+const SURVEYS = preload("res://scripts/expedition_activities.gd")
 const HABITAT_FEATURES = preload("res://scripts/habitat_features.gd")
 const ECOLOGY_RESPONSE = preload("res://scripts/ecology_response.gd")
 const ROCKS_PATH := "res://assets/models/rocks.glb"
@@ -30,6 +31,7 @@ var _ecology_nodes: Array[Node3D] = []
 var _ecology_meta: Array[Dictionary] = []
 var _observed_regions: Dictionary = {}
 var build_stats: Dictionary = {}
+var _survey_materials: Dictionary = {}
 
 func path_x(z: float) -> float:
 	return 18.0 * sin((150.0 - z) * 0.012) + 4.0 * sin((150.0 - z) * 0.033)
@@ -67,6 +69,7 @@ func _ready() -> void:
 	habitats.name = "HabitatFeatures"
 	add_child(habitats)
 	habitats.build(self)
+	_build_survey_sites()
 	_build_ecology()
 	_prepare_ecology_responses()
 	_build_response()
@@ -133,35 +136,24 @@ func region_at(position: Vector3) -> String:
 func region_label(position: Vector3) -> String:
 	return {"aurora_shelf":"Aurora Shelf / 極光高原", "ember_rift":"Ember Rift / 熱泉裂谷", "veil_marsh":"Veil Marsh / 濃霧沼澤", "pale_decay":"Pale Decay / 孢子衰變"}.get(region_at(position), "Unknown")
 
-func set_region_mood(region: String, intensity: float = 1.0) -> void:
+func set_region_mood(region: String, delta: float = 0.016) -> void:
 	if not is_instance_valid(_environment): return
-	var target_color := Color(0.215,0.225,0.31)
-	var energy := 0.72
-	var begin := 95.0
-	var finish := 1400.0
-	var curve := 1.15
+	var tint:=Color(0.16,0.19,0.25)
+	var begin:=120.0
+	var finish:=1400.0
 	match region:
-		"aurora_shelf":
-			target_color = Color(0.14,0.24,0.42)
-			energy = 0.9
-			begin = 120.0; finish = 1150.0; curve = 1.35
 		"ember_rift":
-			target_color = Color(0.38,0.16,0.08)
-			energy = 0.95
-			begin = 70.0; finish = 900.0; curve = 1.05
+			tint=Color(0.23,0.18,0.16);begin=90.0;finish=1250.0
 		"veil_marsh":
-			target_color = Color(0.12,0.27,0.25)
-			energy = 0.78
-			begin = 36.0; finish = 520.0; curve = 1.7
+			tint=Color(0.15,0.20,0.20);begin=45.0;finish=850.0
 		"pale_decay":
-			target_color = Color(0.28,0.13,0.34)
-			energy = 0.86
-			begin = 85.0; finish = 760.0; curve = 1.45
-	_environment.fog_light_color = _environment.fog_light_color.lerp(target_color, clampf(intensity,0.0,1.0))
-	_environment.fog_light_energy = lerpf(_environment.fog_light_energy, energy, 0.12)
-	_environment.fog_depth_begin = lerpf(_environment.fog_depth_begin, begin, 0.12)
-	_environment.fog_depth_end = lerpf(_environment.fog_depth_end, finish, 0.12)
-	_environment.fog_depth_curve = lerpf(_environment.fog_depth_curve, curve, 0.12)
+			tint=Color(0.20,0.17,0.23);begin=85.0;finish=1100.0
+	var blend:=1.0-exp(-maxf(delta,0.0)*2.0)
+	_environment.fog_light_color=_environment.fog_light_color.lerp(tint,blend)
+	_environment.fog_light_energy=lerpf(_environment.fog_light_energy,0.72,blend)
+	_environment.fog_depth_begin=lerpf(_environment.fog_depth_begin,begin,blend)
+	_environment.fog_depth_end=lerpf(_environment.fog_depth_end,finish,blend)
+	_environment.fog_depth_curve=lerpf(_environment.fog_depth_curve,1.15,blend)
 
 func set_player_state(position: Vector3, speed: float) -> void:
 	_player_position = position
@@ -200,6 +192,51 @@ func observe_ecology(position: Vector3) -> Dictionary:
 	_observed_regions[kind] = true
 	target["observed"] = true
 	return target
+
+func survey_position(id: String) -> Vector3:
+	var p: Vector2 = SURVEYS.point(id)
+	return Vector3(p.x,height_at(p.x,p.y)+0.08,p.y)
+
+func _build_survey_sites() -> void:
+	for id in SURVEYS.SITES:
+		var node := Node3D.new()
+		node.name = "Survey_"+id
+		node.position = survey_position(id)
+		add_child(node)
+		var body:=StaticBody3D.new()
+		var collider:=CollisionShape3D.new()
+		var box:=BoxShape3D.new()
+		box.size=Vector3(2.2,2.4,0.8)
+		collider.shape=box
+		collider.position.y=1.2
+		body.add_child(collider)
+		node.add_child(body)
+		var stone := _ecology_material(Color("7d8786"),Color.BLACK,0,0.85)
+		stone.albedo_texture=load("res://assets/terrain/cc0/rock023_alb_ht.png")
+		stone.uv1_triplanar=true
+		var response := _ecology_material(Color("ad8751"),Color("d9a752"),0.6,0.45)
+		for i in 3:
+			var shard := MeshInstance3D.new()
+			var mesh := CylinderMesh.new()
+			mesh.top_radius=0.03;mesh.bottom_radius=0.23;mesh.height=1.2+0.5*i;mesh.radial_segments=5
+			shard.mesh=mesh
+			shard.material_override=stone
+			shard.position=Vector3((i-1)*0.65,mesh.height/2,0)
+			shard.rotation.z=(i-1)*0.12
+			node.add_child(shard)
+		_eco_sphere(node,Vector3(0,2.1,0),Vector3(0.20,0.10,0.20),response)
+		_survey_materials[id]=response
+
+func apply_survey_progress(data: Dictionary) -> void:
+	var core: Dictionary=data.get("completed_regions",{})
+	var extras: Dictionary=data.get("optional_observations",{})
+	for id in _survey_materials:
+		var finished: bool=core.get(id,extras.get(id,false))
+		var material: StandardMaterial3D=_survey_materials[id]
+		material.albedo_color=Color("84c9c3") if finished else Color("ad8751")
+		material.emission=material.albedo_color
+		material.emission_energy_multiplier=1.3 if finished else 0.6
+
 
 func _build_atmosphere() -> void:
 	_environment = Environment.new()
@@ -570,6 +607,8 @@ func _triangle_count(mesh: Mesh) -> int:
 
 func _place_rock(x: float, z: float, size: Vector3, small: bool, collidable: bool, hero: bool = false) -> void:
 	var footprint := maxf(size.x, size.z) * 0.55
+	for id in SURVEYS.SITES:
+		if Vector2(x,z).distance_to(SURVEYS.point(id))<8.0+footprint: return
 	if absf(x - path_x(z)) < 5.5 + footprint:
 		return
 	if Vector2(x - signal_origin().x, z + 650.0).length() < 12.0 + footprint:

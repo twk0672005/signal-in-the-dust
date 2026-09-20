@@ -16,3 +16,6 @@
 - [ ] Verify real browser controls/audio/loading/errors; reconcile current Sites process/remote state before any push. No assumption that historical process IDs remain live.
 - [ ] Independent technical/visual re-review, actual first-time human playtest, platform validation and private Sites readback before public release.
 Do not restart a validated subsystem without a concrete defect. The next implementation stage is four-region habitat/ecology work; this repair stage is only ROOT_VERIFIED_LOCAL.
+
+- [x] Replace automatic optional flags with8physical surveys, required progression/LOS/stop guards, nested-save validation and canonical migration.49rules pass.
+- [x] Drive one native engine-input journey from spawn through4+4 sites to ending using normal Continue; ~5minutes. Three uninterrupted journeys and30-minute target remain unproven.

@@ -97,6 +97,11 @@ func run() -> void:
 	game.rover.velocity=Vector3.ZERO
 	await physics_frame
 	await capture("signal-near")
+	results.checks.incomplete_surveys_block_finale=not game.can_interact()
+	# This is explicitly a contact-state fixture, not a real-input full-route claim.
+	var activity_fixture: Dictionary=game.activities.snapshot()
+	for region in activity_fixture.completed_regions: activity_fixture.completed_regions[region]=true
+	game.activities.restore(activity_fixture)
 	results.checks.near_interaction=game.can_interact()
 	game.interact()
 	results.checks.contact_started=game.phase=="contact" and game.transmit_count==1

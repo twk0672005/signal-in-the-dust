@@ -1,30 +1,59 @@
 extends SceneTree
-var output := ""
+const Tracker = preload("res://scripts/expedition_activities.gd")
+const Save = preload("res://scripts/expedition_save.gd")
 func _initialize() -> void:
+	var output:=""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--evidence-dir="): output=arg.trim_prefix("--evidence-dir=")
-	if output.is_empty(): quit(2); return
-	var tracker=load("res://scripts/expedition_activities.gd").new()
-	var checks: Dictionary = {}
-	for i in 30: tracker.tick("aurora_shelf",0.0,{},0.2)
-	checks["aurora_three_second_stillness"] = tracker.completed["aurora_shelf"]
-	tracker.tick("aurora_shelf",4.0,{},0.1)
-	checks["speed_interrupts_stillness"] = tracker.stillness == 0.0
-	tracker.tick("ember_rift",0.0,{"veyra":true},0.1)
-	tracker.tick("veil_marsh",0.0,{"aeral":true},0.1)
-	tracker.tick("pale_decay",0.0,{"root_choir":true},0.1)
-	checks["observations_complete_three_regions"] = tracker.count() == 4
-	checks["optional_routes_complete"] = tracker.optional_count() == 4
-	var saved: Dictionary = tracker.snapshot()
-	var restored=load("res://scripts/expedition_activities.gd").new()
-	checks["valid_snapshot_restores"] = restored.restore(saved) and restored.completed == tracker.completed
-	checks["invalid_snapshot_rejected"] = not restored.restore({"version":99}) and restored.completed == tracker.completed
-	restored.reset()
-	checks["reset_clears_progress"] = restored.count() == 0 and restored.stillness == 0.0
-	var passed := true
-	for value in checks.values(): passed = passed and bool(value)
+	if output.is_empty(): quit(2);return
+	var t=Tracker.new()
+	var checks: Dictionary={}
+	t.tick("aurora_shelf",0,{},30,Vector3(0,0,150))
+	checks.spawn_idle_never_completes=t.count()==0
+	var p: Vector2=Tracker.point("aurora_shelf")
+	t.tick("aurora_shelf",0,{},2.99,Vector3(p.x,0,p.y))
+	checks.requires_full_three_seconds=t.count()==0
+	t.tick("aurora_shelf",24,{},0.1,Vector3(p.x,0,p.y))
+	checks.driving_breaks_measurement=t.stillness==0
+	t.tick("aurora_shelf",0,{},3,Vector3(p.x,0,p.y))
+	checks.actual_survey_location_completes=t.completed.aurora_shelf
+	t.tick("aurora_shelf",0,{},500,Vector3(p.x,0,p.y))
+	checks.quiet_timer_capped=t.stillness==3.0
+	checks.optional_not_automatic=t.optional_count()==0
+	var observations={"veyra":true,"aeral":true,"root_choir":true}
+	for id in Tracker.SITES:
+		if id=="aurora_shelf": continue
+		var site: Dictionary=Tracker.SITES[id]
+		var point: Vector2=Tracker.point(id)
+		var position:=Vector3(point.x,0,point.y)
+		checks[id+"_remote_rejected"]=not t.record(id,site.region,position+Vector3(20,0,0),0,observations)
+		checks[id+"_fast_rejected"]=not t.record(id,site.region,position,24,observations)
+		if not str(site.kind).is_empty(): checks[id+"_requires_observation"]=not t.record(id,site.region,position,0,{})
+		checks[id+"_real_site_recorded"]=t.record(id,site.region,position,0,observations)
+		checks[id+"_one_shot"]=not t.record(id,site.region,position,0,observations)
+	var saved: Dictionary=t.snapshot()
+	var u=Tracker.new()
+	checks.complete_eight_sites=t.count()==4 and t.optional_count()==4
+	checks.roundtrip=u.restore(saved) and u.snapshot()==saved
+	var invalid: Dictionary=saved.duplicate(true)
+	invalid.completed_regions.aurora_shelf=false
+	invalid.quiet_seconds="bad"
+	checks.invalid_does_not_partially_mutate=not u.restore(invalid) and u.snapshot()==saved
+	invalid=saved.duplicate(true);invalid.optional_observations=[]
+	checks.invalid_optional_rejected=not u.restore(invalid) and u.snapshot()==saved
+	var legacy={"version":1,"completed":t.completed.duplicate(),"stillness":999.0}
+	checks.old_activity_migrates=u.restore(legacy) and u.count()==4 and u.optional_count()==0 and u.stillness==0
+	var payload={"version":2,"phase":"exploring","position":{"x":0,"y":0,"z":150},"heading":0,"elapsed":1,"distance":0,"observedEcology":{},"transmitCount":0,"activities":invalid}
+	checks.save_rejects_invalid_nested_activity=not Save.valid(payload)
+	payload.version=1;payload.erase("activities")
+	checks.legacy_outer_save_valid=Save.valid(payload)
+	var migrated: Dictionary=Save.migrate(payload)
+	checks.legacy_outer_migrates_empty=migrated.version==2 and Tracker.normalized(migrated.activities).completed_regions.aurora_shelf==false
+	u.reset();checks.reset=u.count()==0 and u.optional_count()==0 and u.stillness==0
+	var ok:=true
+	for value in checks.values(): ok=ok and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)
-	var result={"passed":passed,"checks":checks,"kind":"pure_activity_logic_not_scene_fixture"}
-	var file=FileAccess.open(output.path_join("activity-logic.json"),FileAccess.WRITE);file.store_string(JSON.stringify(result,"  "));file.close()
-	print("ACTIVITY_LOGIC "+JSON.stringify(result))
-	quit(0 if passed else 1)
+	var f:=FileAccess.open(output.path_join("survey-logic.json"),FileAccess.WRITE)
+	f.store_string(JSON.stringify({"passed":ok,"checks":checks,"kind":"pure_spatial_rules_and_save_migration_not_playthrough"},"  "));f.close()
+	print("SURVEY_LOGIC "+JSON.stringify({"passed":ok,"checks":checks}))
+	quit(0 if ok else 1)

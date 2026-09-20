@@ -28,6 +28,7 @@ var save_path: String = SAVE_PATH
 var _save_available := false
 var observed_ecology: Dictionary = {}
 var activities: RefCounted
+var _survey_message_seconds := 0.0
 
 func _ready() -> void:
 	# Every native evidence run uses its own disposable save, never the player's slot.
@@ -72,7 +73,7 @@ func _ready() -> void:
 	var available := has_saved_expedition()
 	var file_present := FileAccess.file_exists(save_path) or FileAccess.file_exists(save_path+".bak")
 	ui.set_saved_available(available, file_present and not available)
-	ui.set_activity_progress(activities.count(), activities.optional_count(), world.region_label(rover.global_position))
+	_update_survey_readout()
 	_publish_snapshot()
 	print("EXPEDITION_READY")
 
@@ -100,11 +101,13 @@ func start_expedition() -> void:
 	transmit_count = 0
 	observed_ecology.clear()
 	activities.reset()
+	_survey_message_seconds=0.0
 	reveal_audio_played = false
 	rover.reset()
 	rover.set_driving_enabled(false)
 	contact.reset()
 	world.reset()
+	world.apply_survey_progress(activities.snapshot())
 	audio.reset()
 	audio.set_paused(false)
 	_place_exterior()
@@ -132,10 +135,11 @@ func _process(delta: float) -> void:
 		if phase != "ending": elapsed += delta
 		world.set_response(contact.progress,world_clock)
 		world.set_player_state(rover.global_position, rover.speed)
-		world.set_region_mood(world.region_at(rover.global_position))
+		world.set_region_mood(world.region_at(rover.global_position),delta)
 	if phase == "exploring":
-		activities.tick(world.region_at(rover.global_position), rover.speed, observed_ecology, delta)
-		ui.set_activity_progress(activities.count(), activities.optional_count(), world.region_label(rover.global_position))
+		var survey_events: Array = activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,delta,rover.global_position)
+		for id: String in survey_events: _survey_completed(id)
+		_survey_message_seconds=maxf(0.0,_survey_message_seconds-delta)
 		save_clock += delta
 		if save_clock >= 10.0:
 			save_clock = 0.0
@@ -164,8 +168,38 @@ func _process(delta: float) -> void:
 	if readout_clock >= 0.15:
 		readout_clock = 0.0
 		ui.update_readout(target_distance(), elapsed, contact.progress, can_interact(), rover.current_speed_mps(), rover.max_speed_mps(), rover.camera_mode, ecology_snapshot())
-		if phase == "exploring": ui.set_message("near" if target_distance()<20.0 else "signal_found")
+		_update_survey_readout()
+		if phase == "exploring" and _survey_message_seconds<=0.0:
+			ui.set_message("survey_all" if activities.count()==4 else "survey_guidance")
 		_publish_snapshot()
+
+func _survey_completed(id: String) -> void:
+	world.apply_survey_progress(activities.snapshot())
+	audio.play_transmit()
+	_survey_message_seconds=3.0
+	ui.set_message("survey_recorded")
+	ui.update_readout(target_distance(),elapsed,contact.progress,can_interact(),rover.current_speed_mps(),rover.max_speed_mps(),rover.camera_mode,ecology_snapshot())
+	_update_survey_readout()
+	save_expedition()
+
+func _update_survey_readout() -> void:
+	var region: String=world.region_at(rover.global_position)
+	var target: String=activities.target(region)
+	var distance:=0.0
+	var bearing:=0.0
+	if not target.is_empty():
+		distance=Vector2(rover.position.x,rover.position.z).distance_to(ActivityScript.point(target))
+		var offset: Vector2=ActivityScript.point(target)-Vector2(rover.position.x,rover.position.z)
+		bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
+	ui.set_activity_progress(activities.count(),activities.optional_count(),region,target,distance,activities.stillness,bearing)
+	ui.set_interaction_kind(interaction_target())
+
+func _nearby_survey() -> String:
+	for id in ActivityScript.SITES:
+		if activities.can_record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology):
+			if _target_visible(world.survey_position(id)+Vector3(0,1,0),world.get_node("Survey_"+id)): return id
+	return ""
+
 
 func _input(event: InputEvent) -> void:
 	if not ready_for_play or event.is_echo(): return
@@ -241,14 +275,17 @@ func load_expedition() -> bool:
 	if absf(position.y-world.height_at(position.x,position.z)) > 5.0:
 		if phase == "menu": ui.set_saved_available(false,true)
 		return false
+	var restored_activities: RefCounted=ActivityScript.new()
+	if not restored_activities.restore(parsed["activities"]): return false
 	rover.set_driving_enabled(false)
 	rover.reset()
 	world.reset()
 	contact.reset()
 	audio.reset()
 	observed_ecology = parsed["observedEcology"].duplicate(true)
-	if parsed.has("activities"): activities.restore(parsed["activities"])
-	else: activities.reset()
+	activities=restored_activities
+	world.apply_survey_progress(activities.snapshot())
+	_survey_message_seconds=0.0
 	world._observed_regions = observed_ecology.duplicate(true)
 	transmit_count = int(parsed["transmitCount"])
 	elapsed = float(parsed["elapsed"])
@@ -288,8 +325,10 @@ func _target_visible(point: Vector3, allowed: Node = null) -> bool:
 
 func interaction_target() -> String:
 	if phase != "exploring" or absf(rover.speed) >= 2.0: return "none"
-	if target_distance() <= 9.5 and _target_visible(contact.global_position+Vector3(0,2,0),contact):
+	if activities.count()==4 and target_distance() <= 9.5 and _target_visible(contact.global_position+Vector3(0,2,0),contact):
 		return "contact"
+	var survey_id:=_nearby_survey()
+	if not survey_id.is_empty(): return "survey:"+survey_id
 	var ecology: Dictionary = world.nearest_ecology(rover.global_position)
 	if not ecology.is_empty() and float(ecology.get("distance",999.0)) <= 14.0:
 		var point: Vector3 = ecology.get("position",ecology["base"])
@@ -302,12 +341,17 @@ func can_interact() -> bool:
 func interact() -> void:
 	var target := interaction_target()
 	if target == "none": return
+	if target.begins_with("survey:"):
+		var id:=target.trim_prefix("survey:")
+		if activities.record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology):
+			_survey_completed(id)
+		return
 	if target == "ecology":
 		var observed: Dictionary = world.observe_ecology(rover.global_position)
 		if not observed.is_empty():
 			observed_ecology[str(observed.get("kind","unknown"))] = true
-			activities.tick(world.region_at(rover.global_position), rover.speed, observed_ecology, 0.0)
-			ui.set_activity_progress(activities.count(), activities.optional_count(), world.region_label(rover.global_position))
+			activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,0.0,rover.global_position)
+			_update_survey_readout()
 			ui.set_message("ecology_observed")
 			_publish_snapshot()
 		return
@@ -345,7 +389,7 @@ func metrics() -> Dictionary:
 	var ordered := frames.duplicate()
 	ordered.sort()
 	var count := ordered.size()
-	return {"sampleFrames":count,"fps":Engine.get_frames_per_second(),"p50ms":ordered[int((count-1)*0.5)] if count else 0,"p95ms":ordered[int((count-1)*0.95)] if count else 0,"p99ms":ordered[int((count-1)*0.99)] if count else 0,"worstMs":ordered[count-1] if count else 0,"drawCalls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"nodes":Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"viewport":str(get_viewport().get_visible_rect().size)}
+	return {"sampleFrames":count,"fps":Engine.get_frames_per_second(),"p50ms":ordered[int((count-1)*0.5)] if count else 0,"p95ms":ordered[int((count-1)*0.95)] if count else 0,"p99ms":ordered[int((count-1)*0.99)] if count else 0,"worstMs":ordered[count-1] if count else 0,"drawCalls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"nodes":Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"viewport":str(get_viewport().get_visible_rect().size),"activityCount":activities.count(),"optionalCount":activities.optional_count()}
 
 func _publish_snapshot() -> void:
 	if OS.has_feature("web"):

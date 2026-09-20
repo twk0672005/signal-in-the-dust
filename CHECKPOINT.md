@@ -1,21 +1,15 @@
 # Current checkpoint
-updatedAt: 2026-09-20T14:48:17.8529101Z
+updatedAt: 2026-09-20T17:01:47.412144+00:00
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
-objective: approximately30-minute four-region bilingual high-speed ecology with V cameras
 status: PARTIAL
-Current change: deterministic four-region activity tracker integrated; private Site version4 deployed.
-Source commit5e5f9ae includes the reviewed Continue UI and unsafe in-place saves. Repaired with Continue/New-confirmation menu, temp/backup writes, validation, state restoration, isolated fixture saves and corrupt-file explanation.
-Evidence: new save-flow17/17; original save9/9; controller19/19; interaction7/7; runtime21/21. Separate native processes writer30484/reader1840 proved Enter-driven Continue and restored third-person at z=-250, time156.56, Veyra observation and430m travel. Two screenshots in evidence/save-relaunch. Independent re-review: no remaining code finding.
-Normal-flow logs are clean. Only fault-injection suite intentionally logs failed backup copy. Prior assertion that remaining audio objects were ResourceLoader cache was unproven; standard cleanup with0.5s test shutdown wait now clears the warnings.
-Web export built at 2026-09-20T05:38:58.852Z, hashes verified. Web IndexedDB persistence/reload remains untested. Current out is newer than396e123.
-Receipt: evidence/save-flow-receipt-20260920T073859Z/receipt.json
-Rollback: evidence/save-flow-repair-20260920T052509Z/before and evidence/save-startup-fix-20260920T053254Z/before.
-Sites verified: version4 commit9f5ddf9 deployed privately at appdep_6aaff1c8b1e48191a75e7b8902637c2c; archive readback pass.
-Next priority after save-flow closeout: implement four-region activities and optional routes with real consequences and completion tracking, then measure player playtime. Current geography is only800m and does not constitute30minutes. Avoid spending each wake only repeating hosting/status work.
-Remaining gates: Web save persistence,30-minute meaningful content, atmospheric/creature detail, actual sustained-input journeys, export-like performance, specified Windows/macOS browsers, independent first-time human and public-site validation.
-Native App Goal remains older BLOCKED objective; do not falsely complete it. Project contract and official15min heartbeat preserve30-minute target. Record actual work, not presumed elapsed unattended time.
-
-3x speed: cruise24 m/s, reverse9 m/s, off-path16.5 m/s; controller19/19 and runtime21/21 pass. Activity fixture hung and was fully reverted; no activity code remains. Market status PARTIAL.
-
-Activity logic: pure data runner6/6. Aurora stillness3s, Ember/Veyra, Veil/Aeral, Pale/Root Choir; snapshot/reset validation. No SceneTree activity fixture. Market PARTIAL; activity pacing not yet30-minute proof.
-
+objective: approximately30-minute bilingual four-region alien exploration; preserve24m/s driving, V cameras and defensive saves.
+Current implementation:8physical survey sites with real off-road objectives, localized navigation, stopped/observation/E/LOS requirements and visible/audio completion. Four main surveys gate final contact.
+Evidence:49pure rule/migration assertions; save17/17, interaction7/7, runtime22/22. Keyboard-driving from spawn completed4+4 sites,3species and ending with one normal Continue, no teleport. Actual distance1264.3m and game time294.7s (~5min). Do not claim30min or3full journeys.
+Backing receipt: evidence/spatial-survey-receipt-20260920T170147Z/receipt.json
+Actual captures: evidence/survey-driving; evidence/survey-full-driving; evidence/spatial-survey-presentation.
+Current Web export: 2026-09-20T16:54:19.623Z; hashes verified. Native full-input route predates a UI-only immediate-count/bearing polish; updated export requires fresh Web smoke.
+Previous optional flags were not real routes. Old activity restore partially mutated on bad payloads and stillness overflow could break resume; now fixed with pure full validation and bounded timer. Outer save2; canonical activity3; older state migrated.
+Private Site last confirmed v4/9f5ddf9.6e510e3 atmosphere source was pushed but upload failed; current spatial survey revision is not yet deployed. Read exact HEAD and current deployment before any publication; no broad process stop.
+Next PRODUCT priority: expand each region into substantial observation/puzzle/racing exploration sequences and connect side routes; current8short interactions cannot deliver30minutes. Use measured player timing. Do not substitute counters or artificial waits.
+Test history correction: bare--check-only without--script started the game; syntax errors also prevented test exit. Do not describe this as a proven Godot fixture hang. Always parse named scripts, bound process time, and collect the actual exec session.
+Goal tool currently reports active objective自主工作模式 (fresh read this turn), not the stale blocked goal. Keep active until real market gates pass. Required external gates: independent human and requested macOS/browser evidence.

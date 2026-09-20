@@ -14,6 +14,28 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"survey_count": ["SURVEYS %d/4  ·  ECHOES %d/4", "測繪 %d/4  ·  回波 %d/4"],
+	"survey_quiet": ["Hold still: %.1f / 3.0 s", "停車聆聽：%.1f / 3.0 秒"],
+	"survey_recorded": ["Survey recorded. The echo spire is answering.", "測繪已記錄，回波石柱正在回應。"],
+	"survey_guidance": ["Follow the survey distance. Observe life with E; stop beside an echo spire to record.", "循測繪距離前進。E 觀察生命；在回波石柱旁停車記錄。"],
+	"survey_all": ["All four surveys recorded. Approach the signal for first contact.", "四區測繪已記錄，前往訊號源進行接觸。"],
+	"survey_region_done": ["Region recorded · continue exploring", "此區已記錄，可繼續探索"],
+	"survey_action": ["E  RECORD THIS SITE", "E  記錄此地"],
+	"observe_action": ["E  OBSERVE LIFE", "E  觀察生命"],
+	"aurora_shelf": ["Aurora Shelf", "極光高原"],
+	"ember_rift": ["Ember Rift", "熱泉裂谷"],
+	"veil_marsh": ["Veil Marsh", "濃霧沼澤"],
+	"pale_decay": ["Pale Decay", "孢子衰變"],
+	"site_aurora_shelf": ["Crystal sound survey · stop for 3 s", "冰晶聲紋測繪 · 停車三秒"],
+	"site_ember_rift": ["Thermal reading · observe Veyra first", "熱梯度測繪 · 先觀察礦脈群體"],
+	"site_veil_marsh": ["Wetland reading · observe Aeral first", "濕地測繪 · 先觀察霧膜群"],
+	"site_pale_decay": ["Shell pulse · observe Morrow first", "孢殼脈衝 · 先觀察孢殼群"],
+	"site_aurora_echo": ["Optional · ridge echo", "支線 · 高原回波"],
+	"site_ember_vent": ["Optional · outer thermal vent", "支線 · 外圍熱泉"],
+	"site_marsh_crossing": ["Optional · membrane grove", "支線 · 膜葉林"],
+	"site_spore_pulse": ["Optional · distant shell reef", "支線 · 遠方孢殼礁"],
+	"ecology_near": ["Life nearby", "附近有生命"],
+	"ecology_disturbed": ["Life disturbed · slow down", "生物受驚 · 請減速"],
 	"continue_saved": ["Continue last expedition", "繼續上次探勘"],
 	"new_run": ["New expedition", "開始新探勘"],
 	"save_invalid": ["Saved progress could not be read. You can start a new expedition.", "無法讀取上次進度，可開始新探勘。"],
@@ -78,6 +100,7 @@ var _speed_bar: ProgressBar
 var _view_label: Label
 var _ecology_label: Label
 var _activity_label: Label
+var _activity_context: Dictionary = {}
 var _reticle: Label
 var _interaction: Button
 var _message: Label
@@ -160,6 +183,7 @@ func _build() -> void:
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_overlay)
 	_build_overlay()
+	_render_activity_context()
 	update_readout(_distance, _elapsed, _progress, _can_interact, _speed_mps, _max_speed_mps, _view_mode, _ecology_readout)
 
 func _label(text: String, size: int = 14, color: Color = PAPER) -> Label:
@@ -201,6 +225,11 @@ func _build_hud() -> void:
 	_speed_bar.add_theme_stylebox_override("background", _style(Color("252b2b"), Color.TRANSPARENT, 0))
 	_speed_bar.add_theme_stylebox_override("fill", _style(AMBER, Color.TRANSPARENT, 0))
 	left.add_child(_speed_bar)
+	_activity_label = _label("",13,AMBER)
+	_activity_label.custom_minimum_size.x=340
+	_activity_label.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
+	_activity_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	left.add_child(_activity_label)
 	var right := VBoxContainer.new()
 	top.add_child(right)
 	var storm := _label(_text("storm"), 12)
@@ -237,9 +266,6 @@ func _build_hud() -> void:
 	_ecology_label = _label("", 12, MUTED)
 	_ecology_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	bottom.add_child(_ecology_label)
-	_activity_label = _label("", 12, AMBER)
-	_activity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	bottom.add_child(_activity_label)
 	_interaction = _button("transmit", func() -> void: interact_requested.emit())
 	_interaction.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_interaction.custom_minimum_size.x = 260
@@ -412,7 +438,9 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 	if not ecology_state.is_empty():
 		var active := []
 		for key in ["veyra", "aeral", "rootChoir"]:
-			if ecology_state.get(key, "quiet") != "quiet": active.append(str(ecology_state[key]))
+			if ecology_state.get(key, "quiet") != "quiet":
+				var value: String=str(ecology_state[key])
+				active.append(_text("ecology_"+value) if value in ["near","disturbed"] else value)
 		_ecology_label.text = " · ".join(active)
 	else: _ecology_label.text = ""
 	_interaction.visible = _can_interact and _state == "exploring"
@@ -422,8 +450,27 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 	_contact_bar.visible = _state == "contact"
 	_contact_bar.value = _progress
 
-func set_activity_progress(done: int, optional_done: int, region: String) -> void:
-	if is_instance_valid(_activity_label): _activity_label.text = ("ACTIVITIES / 活動  %d/4  ·  OPTIONAL / 可選 %d/4  ·  %s" % [done,optional_done,region])
+func set_activity_progress(done: int, optional_done: int, region: String, target: String = "", distance: float = 0.0, quiet: float = 0.0, bearing: float = 0.0) -> void:
+	_activity_context={"done":done,"optional":optional_done,"region":region,"target":target,"distance":distance,"quiet":quiet,"bearing":bearing}
+	_render_activity_context()
+
+func _render_activity_context() -> void:
+	if not is_instance_valid(_activity_label) or _activity_context.is_empty(): return
+	var d:=_activity_context
+	var lines: String=_text("survey_count") % [d.done,d.optional]
+	lines+="\n"+_text(d.region)
+	if not str(d.target).is_empty():
+		var direction := "^" if absf(d.bearing)<0.25 else (">" if d.bearing>0 else "<")
+		lines+="\n"+direction+" "+_text("site_"+str(d.target))+" · %d m" % roundi(d.distance)
+		if d.target=="aurora_shelf" and d.distance<=7.0:
+			lines+="\n"+(_text("survey_quiet") % snappedf(d.quiet,0.1))
+	else: lines+="\n"+_text("survey_region_done")
+	_activity_label.text=lines
+
+func set_interaction_kind(kind: String) -> void:
+	if not is_instance_valid(_interaction): return
+	_interaction.text=_text("survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
+
 
 func set_message(key: String) -> void:
 	_message_key = key

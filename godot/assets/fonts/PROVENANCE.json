@@ -5,13 +5,13 @@
     "\u00a9 2014-2021 Adobe (http://www.adobe.com/)."
   ],
   "source_sha256": "5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537",
-  "subset_sha256": "eced0706952440fadcc3211a26dffc32f8cf63bc24050a752423b58565388c8e",
-  "subset_bytes": 73904,
-  "covered_characters": 304,
+  "subset_sha256": "606bda39eac1dfdf9041f5e2a49da10a1f724b5d67e2a599cd05bf1755704d72",
+  "subset_bytes": 80996,
+  "covered_characters": 332,
   "missing_characters": [],
   "derivative_family": "Signal Sans TC",
   "tool": "fontTools 4.65.0, unpacked locally; no system installation",
   "rebuild": "python evidence/ui-audio/build_font.py; rerun when interface strings change",
   "coverage": "All current runtime GDScript text plus ASCII",
-  "updated_at": "20260920T052509Z"
+  "updated_at": "20260920T161521Z"
 }

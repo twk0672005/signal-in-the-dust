@@ -10,12 +10,11 @@ automationId: deepspacerover
 threadId: 01a0a610-615a-7af0-937e-c003b4d301bf
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 continuationProvider: current-session; official heartbeat configured separately
-lastObservedWorkAt: 2026-09-20T14:48:17.8529101Z
-lastReceipt: evidence/save-flow-receipt-20260920T073859Z/receipt.json
-nativeAppGoal: older3–5-minute objective remains BLOCKED; create_goal refused replacement because an unfinished goal exists. Do not falsely complete it to replace metadata.
+lastObservedWorkAt: 2026-09-20T17:01:47.412144+00:00
+lastReceipt: evidence/spatial-survey-receipt-20260920T170147Z/receipt.json
+nativeAppGoal: active objective自主工作模式 verified through get_goal; product target remains this full30-minute contract
 finishTarget: complete30-minute meaningful exploration and required runtime/visual/performance/human/private/public gates
 status: IN_PROGRESS / PARTIAL
 Do not mistake configured cadence for future execution. Record concrete artifacts and timestamps per wake. Public promotion remains gated by actual human/platform evidence.
 
 Latest browser receipt: evidence/ecology-web/smoke.json; actual short smoke only.
-

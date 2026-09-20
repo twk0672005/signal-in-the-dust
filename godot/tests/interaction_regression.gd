@@ -63,7 +63,7 @@ func run() -> void:
     game.reset_expedition()
     checks.reset_clears_all_observations=game.world._observed_regions.is_empty() and game.observed_ecology.is_empty()
     checks.audio_layers_loaded=game.audio._players.size()==6
-    game.audio.set_drive(4.0)
+    game.audio.set_drive(12.0)
     checks.audio_uses_new_cruise_speed=is_equal_approx(game.audio._drive,0.5)
     var ok: bool=true
     for value in checks.values():
