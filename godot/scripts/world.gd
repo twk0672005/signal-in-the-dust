@@ -133,6 +133,36 @@ func region_at(position: Vector3) -> String:
 func region_label(position: Vector3) -> String:
 	return {"aurora_shelf":"Aurora Shelf / 極光高原", "ember_rift":"Ember Rift / 熱泉裂谷", "veil_marsh":"Veil Marsh / 濃霧沼澤", "pale_decay":"Pale Decay / 孢子衰變"}.get(region_at(position), "Unknown")
 
+func set_region_mood(region: String, intensity: float = 1.0) -> void:
+	if not is_instance_valid(_environment): return
+	var target_color := Color(0.215,0.225,0.31)
+	var energy := 0.72
+	var begin := 95.0
+	var finish := 1400.0
+	var curve := 1.15
+	match region:
+		"aurora_shelf":
+			target_color = Color(0.14,0.24,0.42)
+			energy = 0.9
+			begin = 120.0; finish = 1150.0; curve = 1.35
+		"ember_rift":
+			target_color = Color(0.38,0.16,0.08)
+			energy = 0.95
+			begin = 70.0; finish = 900.0; curve = 1.05
+		"veil_marsh":
+			target_color = Color(0.12,0.27,0.25)
+			energy = 0.78
+			begin = 36.0; finish = 520.0; curve = 1.7
+		"pale_decay":
+			target_color = Color(0.28,0.13,0.34)
+			energy = 0.86
+			begin = 85.0; finish = 760.0; curve = 1.45
+	_environment.fog_light_color = _environment.fog_light_color.lerp(target_color, clampf(intensity,0.0,1.0))
+	_environment.fog_light_energy = lerpf(_environment.fog_light_energy, energy, 0.12)
+	_environment.fog_depth_begin = lerpf(_environment.fog_depth_begin, begin, 0.12)
+	_environment.fog_depth_end = lerpf(_environment.fog_depth_end, finish, 0.12)
+	_environment.fog_depth_curve = lerpf(_environment.fog_depth_curve, curve, 0.12)
+
 func set_player_state(position: Vector3, speed: float) -> void:
 	_player_position = position
 	_player_speed = speed

@@ -132,6 +132,7 @@ func _process(delta: float) -> void:
 		if phase != "ending": elapsed += delta
 		world.set_response(contact.progress,world_clock)
 		world.set_player_state(rover.global_position, rover.speed)
+		world.set_region_mood(world.region_at(rover.global_position))
 	if phase == "exploring":
 		activities.tick(world.region_at(rover.global_position), rover.speed, observed_ecology, delta)
 		ui.set_activity_progress(activities.count(), activities.optional_count(), world.region_label(rover.global_position))
