@@ -10,6 +10,10 @@ var _reveal := false
 func _exit_tree() -> void:
 	for player: AudioStreamPlayer in _players.values():
 		player.stop()
+		# Detach and free players before the parent tree tears down.
+		remove_child(player)
+		player.stream = null
+		player.free()
 	_players.clear()
 
 func _ready() -> void:

@@ -20,6 +20,8 @@ var transmit_count: int = 0
 var reset_count: int = 0
 var ready_for_play: bool = false
 var reveal_audio_played: bool = false
+var save_clock: float = 0.0
+const SAVE_PATH := "user://expedition_state.json"
 var observed_ecology: Dictionary = {}
 
 func _ready() -> void:
@@ -90,6 +92,7 @@ func start_expedition() -> void:
 
 func reset_expedition() -> void:
 	reset_count += 1
+	clear_saved_expedition()
 	start_expedition()
 
 func _set_phase(value: String) -> void:
@@ -108,6 +111,11 @@ func _process(delta: float) -> void:
 		if phase != "ending": elapsed += delta
 		world.set_response(contact.progress,world_clock)
 		world.set_player_state(rover.global_position, rover.speed)
+	if phase == "exploring":
+		save_clock += delta
+		if save_clock >= 10.0:
+			save_clock = 0.0
+			save_expedition()
 	if phase == "arrival":
 		arrival_time += delta
 		var blend: float = smoothstep(1.8,5.5,arrival_time)
@@ -162,6 +170,7 @@ func _notification(what: int) -> void:
 		pause_expedition()
 
 func _suspend() -> void:
+	if phase in ["exploring", "contact"]: save_expedition()
 	rover.set_driving_enabled(false)
 	contact.paused = true
 	world.set_paused(true)
@@ -180,6 +189,30 @@ func resume_expedition() -> void:
 	audio.set_paused(false)
 	rover.set_driving_enabled(previous_phase == "exploring")
 	_set_phase(previous_phase)
+
+func save_expedition() -> bool:
+	if phase not in ["exploring", "contact"]: return false
+	var payload := {"version":1,"phase":"exploring","position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"elapsed":elapsed,"distance":rover.distance_travelled,"observedEcology":observed_ecology,"transmitCount":transmit_count,"savedAt":Time.get_datetime_string_from_system(true)}
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file == null: return false
+	file.store_string(JSON.stringify(payload));file.close()
+	return true
+
+func has_saved_expedition() -> bool:
+	return FileAccess.file_exists(SAVE_PATH)
+
+func load_expedition() -> bool:
+	if not has_saved_expedition(): return false
+	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if file == null: return false
+	var parsed = JSON.parse_string(file.get_as_text());file.close()
+	if not parsed is Dictionary or int(parsed.get("version",0)) != 1: return false
+	var point: Dictionary = parsed.get("position",{})
+	if not point.has_all(["x","y","z"]): return false
+	world.reset();contact.reset();observed_ecology=parsed.get("observedEcology",{}).duplicate();transmit_count=int(parsed.get("transmitCount",0));elapsed=float(parsed.get("elapsed",0.0));rover.distance_travelled=float(parsed.get("distance",0.0));rover.global_position=Vector3(float(point.x),float(point.y),float(point.z));rover.heading=float(parsed.get("heading",0.0));rover.rotation.y=-rover.heading;rover.set_camera_mode(rover.camera_mode);rover.set_driving_enabled(true);contact.paused=false;world.set_paused(false);audio.set_paused(false);_set_phase("exploring");return true
+
+func clear_saved_expedition() -> void:
+	if FileAccess.file_exists(SAVE_PATH): DirAccess.remove_absolute(SAVE_PATH)
 
 func target_distance() -> float:
 	return Vector2(rover.global_position.x-contact.global_position.x,rover.global_position.z-contact.global_position.z).length()
@@ -240,7 +273,7 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology,"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings}
+	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology,"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings,"saveAvailable":has_saved_expedition()}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
