@@ -422,8 +422,8 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 	_contact_bar.visible = _state == "contact"
 	_contact_bar.value = _progress
 
-func set_activity_progress(done: int, total: int, region: String) -> void:
-	if is_instance_valid(_activity_label): _activity_label.text = ("ACTIVITIES / 活動  %d/%d  ·  %s" % [done,total,region])
+func set_activity_progress(done: int, optional_done: int, region: String) -> void:
+	if is_instance_valid(_activity_label): _activity_label.text = ("ACTIVITIES / 活動  %d/4  ·  OPTIONAL / 可選 %d/4  ·  %s" % [done,optional_done,region])
 
 func set_message(key: String) -> void:
 	_message_key = key

@@ -72,7 +72,7 @@ func _ready() -> void:
 	var available := has_saved_expedition()
 	var file_present := FileAccess.file_exists(save_path) or FileAccess.file_exists(save_path+".bak")
 	ui.set_saved_available(available, file_present and not available)
-	ui.set_activity_progress(activities.count(), 4, world.region_label(rover.global_position))
+	ui.set_activity_progress(activities.count(), activities.optional_count(), world.region_label(rover.global_position))
 	_publish_snapshot()
 	print("EXPEDITION_READY")
 
@@ -134,7 +134,7 @@ func _process(delta: float) -> void:
 		world.set_player_state(rover.global_position, rover.speed)
 	if phase == "exploring":
 		activities.tick(world.region_at(rover.global_position), rover.speed, observed_ecology, delta)
-		ui.set_activity_progress(activities.count(), 4, world.region_label(rover.global_position))
+		ui.set_activity_progress(activities.count(), activities.optional_count(), world.region_label(rover.global_position))
 		save_clock += delta
 		if save_clock >= 10.0:
 			save_clock = 0.0
@@ -306,7 +306,7 @@ func interact() -> void:
 		if not observed.is_empty():
 			observed_ecology[str(observed.get("kind","unknown"))] = true
 			activities.tick(world.region_at(rover.global_position), rover.speed, observed_ecology, 0.0)
-			ui.set_activity_progress(activities.count(), 4, world.region_label(rover.global_position))
+			ui.set_activity_progress(activities.count(), activities.optional_count(), world.region_label(rover.global_position))
 			ui.set_message("ecology_observed")
 			_publish_snapshot()
 		return

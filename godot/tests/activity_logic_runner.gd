@@ -6,7 +6,7 @@ func _initialize() -> void:
 	if output.is_empty(): quit(2); return
 	var tracker=load("res://scripts/expedition_activities.gd").new()
 	var checks: Dictionary = {}
-	for i in 15: tracker.tick("aurora_shelf",0.0,{},0.2)
+	for i in 30: tracker.tick("aurora_shelf",0.0,{},0.2)
 	checks["aurora_three_second_stillness"] = tracker.completed["aurora_shelf"]
 	tracker.tick("aurora_shelf",4.0,{},0.1)
 	checks["speed_interrupts_stillness"] = tracker.stillness == 0.0
@@ -14,6 +14,7 @@ func _initialize() -> void:
 	tracker.tick("veil_marsh",0.0,{"aeral":true},0.1)
 	tracker.tick("pale_decay",0.0,{"root_choir":true},0.1)
 	checks["observations_complete_three_regions"] = tracker.count() == 4
+	checks["optional_routes_complete"] = tracker.optional_count() == 4
 	var saved: Dictionary = tracker.snapshot()
 	var restored=load("res://scripts/expedition_activities.gd").new()
 	checks["valid_snapshot_restores"] = restored.restore(saved) and restored.completed == tracker.completed
