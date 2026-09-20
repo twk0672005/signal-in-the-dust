@@ -450,14 +450,14 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 	_contact_bar.visible = _state == "contact"
 	_contact_bar.value = _progress
 
-func set_activity_progress(done: int, optional_done: int, region: String, target: String = "", distance: float = 0.0, quiet: float = 0.0, bearing: float = 0.0) -> void:
-	_activity_context={"done":done,"optional":optional_done,"region":region,"target":target,"distance":distance,"quiet":quiet,"bearing":bearing}
+func set_activity_progress(done: int, optional_done: int, field_done: int, region: String, target: String = "", distance: float = 0.0, quiet: float = 0.0, bearing: float = 0.0) -> void:
+	_activity_context={"done":done,"optional":optional_done,"field":field_done,"region":region,"target":target,"distance":distance,"quiet":quiet,"bearing":bearing}
 	_render_activity_context()
 
 func _render_activity_context() -> void:
 	if not is_instance_valid(_activity_label) or _activity_context.is_empty(): return
 	var d:=_activity_context
-	var lines: String=_text("survey_count") % [d.done,d.optional]
+	var lines: String=(_text("survey_count") % [d.done,d.optional])+"  FIELD / 場記 %d/8" % d.get("field",0)
 	lines+="\n"+_text(d.region)
 	if not str(d.target).is_empty():
 		var direction := "^" if absf(d.bearing)<0.25 else (">" if d.bearing>0 else "<")

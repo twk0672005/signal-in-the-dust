@@ -230,8 +230,9 @@ func _build_survey_sites() -> void:
 func apply_survey_progress(data: Dictionary) -> void:
 	var core: Dictionary=data.get("completed_regions",{})
 	var extras: Dictionary=data.get("optional_observations",{})
+	var fields: Dictionary=data.get("field_notes",{})
 	for id in _survey_materials:
-		var finished: bool=core.get(id,extras.get(id,false))
+		var finished: bool=core.get(id,extras.get(id,fields.get(id,false)))
 		var material: StandardMaterial3D=_survey_materials[id]
 		material.albedo_color=Color("84c9c3") if finished else Color("ad8751")
 		material.emission=material.albedo_color

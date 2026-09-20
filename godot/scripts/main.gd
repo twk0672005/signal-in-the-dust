@@ -191,7 +191,7 @@ func _update_survey_readout() -> void:
 		distance=Vector2(rover.position.x,rover.position.z).distance_to(ActivityScript.point(target))
 		var offset: Vector2=ActivityScript.point(target)-Vector2(rover.position.x,rover.position.z)
 		bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
-	ui.set_activity_progress(activities.count(),activities.optional_count(),region,target,distance,activities.stillness,bearing)
+	ui.set_activity_progress(activities.count(),activities.optional_count(),activities.field_count(),region,target,distance,activities.stillness,bearing)
 	ui.set_interaction_kind(interaction_target())
 
 func _nearby_survey() -> String:
@@ -389,7 +389,7 @@ func metrics() -> Dictionary:
 	var ordered := frames.duplicate()
 	ordered.sort()
 	var count := ordered.size()
-	return {"sampleFrames":count,"fps":Engine.get_frames_per_second(),"p50ms":ordered[int((count-1)*0.5)] if count else 0,"p95ms":ordered[int((count-1)*0.95)] if count else 0,"p99ms":ordered[int((count-1)*0.99)] if count else 0,"worstMs":ordered[count-1] if count else 0,"drawCalls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"nodes":Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"viewport":str(get_viewport().get_visible_rect().size),"activityCount":activities.count(),"optionalCount":activities.optional_count()}
+	return {"sampleFrames":count,"fps":Engine.get_frames_per_second(),"p50ms":ordered[int((count-1)*0.5)] if count else 0,"p95ms":ordered[int((count-1)*0.95)] if count else 0,"p99ms":ordered[int((count-1)*0.99)] if count else 0,"worstMs":ordered[count-1] if count else 0,"drawCalls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"nodes":Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"viewport":str(get_viewport().get_visible_rect().size),"activityCount":activities.count(),"optionalCount":activities.optional_count(),"fieldCount":activities.field_count()}
 
 func _publish_snapshot() -> void:
 	if OS.has_feature("web"):
