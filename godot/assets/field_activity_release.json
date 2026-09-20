@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "activity_version": 4,
+  "title": "Signal in the Dust — Field Expedition 07",
+  "regions": ["aurora_shelf", "ember_rift", "veil_marsh", "pale_decay"],
+  "required_sites": 4,
+  "optional_sites": 4,
+  "field_notes": ["aurora_lode", "aurora_ridge", "ember_lake", "ember_cairn", "marsh_reed", "marsh_pool", "pale_bone", "pale_sink"],
+  "runtime_contract": "Compatibility renderer; Web single-thread; market status remains PARTIAL until independent human and platform gates pass."
+}
