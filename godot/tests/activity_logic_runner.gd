@@ -82,6 +82,20 @@ func _initialize() -> void:
 	checks.v5_escort_default=escort_restore.restore(escort_data) and not escort_restore.escort_complete
 	escort_restore.escort_complete=true;escort_restore.reset()
 	checks.escort_reset=not escort_restore.escort_complete
+	var passage_rules=preload("res://scripts/quiet_passage.gd").new()
+	passage_rules.configure([Vector2(0,-235),Vector2(0,-260)])
+	passage_rules.start();passage_rules.tick(Vector2(0,-235),3,0.1)
+	var passage_data: Dictionary=t.snapshot()
+	passage_data.passage_state=passage_rules.snapshot()
+	checks.passage_mid_restore=u.restore(passage_data) and u.passage_state.gate==1
+	var preserved: Dictionary=u.snapshot()
+	passage_data.passage_state.gate=1.5
+	checks.passage_bad_progress_rejected=not u.restore(passage_data) and u.snapshot()==preserved
+	passage_data=t.snapshot();passage_data.passage_complete=true
+	checks.passage_completion_requires_state=not u.restore(passage_data)
+	passage_data=t.snapshot();passage_data.version=6;passage_data.erase("passage_complete");passage_data.erase("passage_state")
+	checks.v6_passage_migrates=u.restore(passage_data) and not u.passage_complete and u.passage_state.is_empty()
+	u.reset();checks.passage_reset=u.passage_state.is_empty() and not u.passage_complete
 	var ok:=true
 	for value in checks.values(): ok=ok and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)

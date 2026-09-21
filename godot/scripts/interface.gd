@@ -14,6 +14,15 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"save_write_failed": ["Progress could not be saved. You can keep playing; Continue may use an older checkpoint.", "未能儲存進度。仍可繼續遊玩，但續玩可能回到較早的進度。"],
+	"passage_title": ["AERAL · VEIL PASSAGE · %d / 5", "霧翼群 · 膜葉穿行 · %d / 5"],
+	"passage_idle": ["Find the first lit membrane. Stop and press E.", "前往第一組發光膜葉，停車後按 E。"],
+	"passage_crossing": ["Pass the lit opening below 5.5 m/s. Follow its glow.", "以低於 5.5 米／秒穿過發光入口，沿光前進。"],
+	"passage_scattered": ["The flock scattered. Back away 8 m, then return quietly.", "霧翼群受驚散開，退到 8 米外再慢速返回。"],
+	"passage_gate": ["The membrane opens. Follow the next glow.", "膜葉展開，前往下一處光芒。"],
+	"passage_complete": ["The passage blooms. Aeral descend into the shelter.", "膜葉通道綻放，霧翼群降回庇護處。"],
+	"passage_distance": ["Next opening · %d m", "下一入口 · %d 米"],
+	"passage_action": ["E · ENTER VEIL PASSAGE", "E · 開始膜葉穿行"],
 	"escort_title": ["VEYRA · QUIET CROSSING", "礦脈生物 · 安靜穿越"],
 	"escort_idle": ["E · Accompany Veyra to the warm shelter.", "E · 陪伴 Veyra 前往溫暖庇護處。"],
 	"escort_travelling": ["Keep 4–24 m away and drive below 8 m/s.", "保持 4–24 米距離，車速低於 8 米／秒。"],
@@ -129,6 +138,7 @@ var _ecology_label: Label
 var _activity_label: Label
 var _activity_context: Dictionary = {}
 var _resonance_context: Dictionary = {}
+var _passage_context: Dictionary = {}
 var _escort_context: Dictionary = {}
 var _reticle: Label
 var _interaction: Button
@@ -505,10 +515,20 @@ func _render_activity_context() -> void:
 		var e:=_escort_context
 		lines+="\n\n"+_text("escort_title")+"\n"+_text("escort_"+str(e.phase))
 		if e.phase!="complete": lines+="\n"+(_text("escort_distance") % roundi(e.distance))
+	if not _passage_context.is_empty():
+		var p:=_passage_context
+		lines+="\n\n"+(_text("passage_title") % int(p.gate))+"\n"+_text("passage_"+str(p.phase))
+		if p.phase!="complete":
+			var arrow: String="^" if absf(p.bearing)<0.25 else (">" if p.bearing>0 else "<")
+			lines+="\n"+arrow+" "+(_text("passage_distance") % roundi(p.distance))
 	_activity_label.text=lines
 
 func set_resonance_context(data: Dictionary) -> void:
 	_resonance_context=data
+	_render_activity_context()
+
+func set_passage_context(data: Dictionary) -> void:
+	_passage_context=data
 	_render_activity_context()
 
 func set_escort_context(data: Dictionary) -> void:
@@ -517,7 +537,7 @@ func set_escort_context(data: Dictionary) -> void:
 
 func set_interaction_kind(kind: String) -> void:
 	if not is_instance_valid(_interaction): return
-	_interaction.text=_text("escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
+	_interaction.text=_text("passage_action" if kind=="passage" else "escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
 
 
 func set_message(key: String) -> void:

@@ -19,6 +19,8 @@
     "test:resonance": "node tools/run-native-check.mjs resonance_logic",
     "test:resonance-journey": "node tools/run-journey.mjs --resonance",
     "test:escort": "node tools/run-native-check.mjs escort_logic",
-    "test:escort-journey": "node tools/run-journey.mjs --escort"
+    "test:escort-journey": "node tools/run-journey.mjs --escort",
+    "test:passage": "node tools/run-native-check.mjs quiet_passage_checks",
+    "test:passage-journey": "node tools/run-journey.mjs --passage"
   }
 }

@@ -1,9 +1,11 @@
 # Current checkpoint
-updatedAt: 2026-09-21T04:08:07.176055+00:00
+updatedAt: 2026-09-21T05:34:15.549238+00:00
 status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
 ## Current product and latest evidence
+- NEW Veil quiet membrane passage: five ordered physical gates, fast-entry scatter/recovery, opening membranes, Aeral return, bilingual direction and schema7 mid-activity Continue. Native and local Web physical-input journeys passed. See docs/VEIL_PASSAGE.md and evidence/marsh-passage/receipt.json.
+- Current tests: passage23, activity101, controller19, interaction7, ecology23, runtime24, save9, save-flow19, resonance11, escort18. Font413 characters.
 - First-person readability repair: sensor raised8cm; three actual-render masks reduce rover coverage from22–25% to13–16%. Controller/interaction/native input journey and local Web smoke passed. See docs/CAMERA_READABILITY.md and evidence/camera-composition/receipt.json.
 - Unused concept image excluded from both export presets; source retained. Web PCK reduced by1,770,016 bytes without removing runtime terrain/model assets.
 - NEW: optional Veyra quiet crossing in Ember Rift; actual speed/distance pressure, warm rock-bed reward, and mid-activity persistence. Native and local Web journeys pass; see evidence/escort-delivery/receipt.json and docs/VEYRA_CROSSING.md. Activity schema6 includes validated origin/position/waypoint/alarm state.
@@ -43,3 +45,5 @@ root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 - npm run check; npm run test:activity-logic; npm test; npm run test:save-flow.
 
 Camera tuning is closed for this stage: final8cm lift validated after rejecting12cm live-slope clipping. Next effort should go to substantive Veil/Pale content and map/art work, not repeat this parameter sweep.
+
+Next substantive work: Pale Decay multi-step encounter and less repetitive authored environment, followed by one combined timed journey. Do not repeat completed camera/passage parameter sweeps.

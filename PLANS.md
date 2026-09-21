@@ -32,3 +32,6 @@ Do not restart a validated subsystem without a concrete defect. The next impleme
 - [ ] Expand Veil/Pale encounters and authored exploration content; combine and time the final journey before claiming30minutes.
 
 - [x] Improve first-person near-ground visibility using measured8cm sensor lift; verify controls, interactions and real input. Exclude unused concept art from downloads.
+
+- [x] Veil five-opening quiet passage, one-shot scatter, membrane/Aeral reaction, schema7 Continue, native graphical and local Web proof.
+- [ ] Complete Pale encounter, unify final content pacing and evaluate30-minute target with actual combined play.

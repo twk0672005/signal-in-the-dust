@@ -6,6 +6,8 @@ var samples: Array[Dictionary]=[]
 var started:=0
 var full_route := false
 var resonance_route := false
+var passage_route := false
+var passage_checks: Dictionary = {}
 var escort_route := false
 var escort_checks: Dictionary = {}
 var resonance_checks: Dictionary = {}
@@ -21,6 +23,7 @@ func _initialize() -> void:
 		if arg=="--full-route": full_route=true
 		if arg=="--resonance": resonance_route=true
 		if arg=="--escort": escort_route=true
+		if arg=="--passage": passage_route=true
 		if arg.begins_with("--timeout-ms="): timeout_ms=maxi(100,arg.trim_prefix("--timeout-ms=").to_int())
 	if output.is_empty(): quit(2);return
 	started=Time.get_ticks_msec()
@@ -55,7 +58,7 @@ func release_drive() -> void:
 func frame() -> void:
 	await physics_frame
 	await process_frame
-func navigate(point: Vector2) -> bool:
+func navigate(point: Vector2, maximum: float = 12.0, hard_entry: bool = false) -> bool:
 	checkpoint("navigate_"+str(point))
 	var deadline:=Time.get_ticks_msec()+45000
 	var last_sample:=0
@@ -80,7 +83,7 @@ func navigate(point: Vector2) -> bool:
 		var desired:=atan2(direction.x,-direction.y)
 		var angle:=wrapf(desired-game.rover.heading,-PI,PI)
 		var speed: float=game.rover.speed
-		var wanted:=minf(12.0,distance*0.65)
+		var wanted:=maximum if hard_entry else minf(maximum,distance*0.65)
 		press(KEY_A,angle < -0.075)
 		press(KEY_D,angle > 0.075)
 		press(KEY_W,absf(angle)<0.5 and speed<wanted)
@@ -123,6 +126,9 @@ func run() -> void:
 	while game.phase!="exploring" and Time.get_ticks_msec()<deadline: await frame()
 	if game.phase!="exploring": finish(false,"start_menu");return
 	press(KEY_V,true);await frame();press(KEY_V,false)
+	if passage_route:
+		await play_passage_route()
+		return
 	if not resumed:
 		var ok:=true
 		for z in [120.0,100.0]:
@@ -340,9 +346,62 @@ func finish(ok: bool, outcome_stage: String) -> void:
 	finishing=true
 	checkpoint(outcome_stage)
 	release_drive()
-	var result={"passed":ok,"routePassed":ok,"resonanceChecks":resonance_checks,"escortChecks":escort_checks,"escortRoute":escort_route,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(11 if escort_route else (6 if resonance_route else (18 if full_route else 3))) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
+	var result={"passed":ok,"routePassed":ok,"passageChecks":passage_checks,"passageRoute":passage_route,"resonanceChecks":resonance_checks,"escortChecks":escort_checks,"escortRoute":escort_route,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(7 if passage_route else 11 if escort_route else (6 if resonance_route else (18 if full_route else 3))) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
 	var f:=FileAccess.open(output.path_join("drive.json"),FileAccess.WRITE)
 	f.store_string(JSON.stringify(result,"  "));f.close()
 	print("SURVEY_DRIVE "+JSON.stringify({"passed":ok,"stage":stage,"seconds":result.seconds,"state":result.state}))
 	game.queue_free();await create_timer(0.5).timeout;quit(0 if ok else 1)
 
+
+func play_passage_route() -> void:
+	if not await follow_main(-215.0): finish(false,"passage_road");return
+	var route: Array[Vector2]=game.world.passage_route()
+	if not await navigate(route[0]+Vector2(0,8),4.0): finish(false,"passage_approach");return
+	await aim(route[0])
+	await capture("passage-before")
+	press(KEY_E,true);await frame();press(KEY_E,false)
+	passage_checks.started=game.passage.phase=="crossing"
+	if not passage_checks.started: finish(false,"passage_start");return
+	if not await navigate(route[0],4.0): finish(false,"passage_first");return
+	passage_checks.first_open=game.passage.gate==1
+	# Accelerate into the next opening, then demonstrate retreat and quiet recovery.
+	if not await navigate(route[1],12.0,true): finish(false,"passage_noise");return
+	passage_checks.fast_rejected=game.passage.gate==1 and game.passage.phase=="scattered"
+	samples.append({"event":"fast_entry_state","passage":game.passage.snapshot()})
+	await capture("passage-scattered")
+	if not await navigate(route[1]+Vector2(0,16),4.0): finish(false,"passage_retreat");return
+	if not await navigate(route[1],4.0): finish(false,"passage_recover");return
+	passage_checks.reentry_opens=game.passage.gate==2
+	press(KEY_ESCAPE,true);await frame();press(KEY_ESCAPE,false)
+	var previous: Dictionary=game.passage.snapshot()
+	await create_timer(0.4).timeout
+	passage_checks.pause_freezes=game.passage.snapshot()==previous and game.phase=="paused"
+	game.queue_free();await create_timer(0.5).timeout
+	game=load("res://main.tscn").instantiate();root.add_child(game);await create_timer(0.5).timeout
+	press(KEY_ENTER,true);await frame();press(KEY_ENTER,false)
+	await create_timer(0.3).timeout
+	passage_checks.mid_continue=game.phase=="exploring" and game.passage.gate==2 and not game.activities.passage_complete
+	await capture("passage-mid-continue")
+	press(KEY_V,true);await frame();press(KEY_V,false)
+	passage_checks.first_person=game.rover.camera_mode=="first_person"
+	for i in range(2,route.size()):
+		if not await navigate(route[i],4.0): finish(false,"passage_gate_"+str(i));return
+		if game.passage.gate!=i+1: finish(false,"passage_gate_not_recorded_"+str(i));return
+		if i==2: await capture("passage-first-person")
+	await create_timer(1.5).timeout
+	passage_checks.complete=game.passage.phase=="complete" and game.activities.passage_complete
+	passage_checks.membranes_open=game.world._passage_open.all(func(v): return v>0.95)
+	await capture("passage-complete")
+	passage_checks.saved=game.save_expedition()
+	game.queue_free();await create_timer(0.5).timeout
+	game=load("res://main.tscn").instantiate();root.add_child(game);await create_timer(0.5).timeout
+	press(KEY_ENTER,true);await frame();press(KEY_ENTER,false)
+	await create_timer(0.3).timeout
+	passage_checks.completed_continue=game.passage.phase=="complete" and game.activities.passage_complete
+	await capture("passage-completed-continue")
+	root.size=Vector2i(960,600)
+	await create_timer(0.3).timeout
+	await capture("passage-small-window")
+	var passed:=true
+	for value in passage_checks.values(): passed=passed and bool(value)
+	finish(passed,"passage_complete_and_continue")

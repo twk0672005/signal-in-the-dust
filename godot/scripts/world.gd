@@ -8,6 +8,8 @@ const TERRAIN_SHADER = preload("res://shaders/terrain.gdshader")
 const SKY_SHADER = preload("res://shaders/storm_sky.gdshader")
 const ROOT_SHADER = preload("res://shaders/response_roots.gdshader")
 const STRATA_SHADER = preload("res://shaders/geological_strata.gdshader")
+const PASSAGE_Z := [-235.0, -260.0, -285.0, -310.0, -330.0]
+const PASSAGE_X_OFFSETS := [-6.0, 7.0, -7.0, 6.0, -5.0]
 var _environment: Environment
 var _roots_material: ShaderMaterial
 var _small_dressing: Array[MultiMeshInstance3D] = []
@@ -37,6 +39,11 @@ var _survey_materials: Dictionary = {}
 var _resonance_crystals: Array[Node3D] = []
 var _resonance_glows: Array[StandardMaterial3D] = []
 var _resonance_open := 0.0
+var _passage_state: Dictionary = {"phase":"idle", "gate":0, "alarm":0.0}
+var _passage_gates: Array[Node3D] = []
+var _passage_wings: Array[Array] = []
+var _passage_materials: Array[StandardMaterial3D] = []
+var _passage_open: Array[float] = []
 
 func path_x(z: float) -> float:
 	return 18.0 * sin((150.0 - z) * 0.012) + 4.0 * sin((150.0 - z) * 0.033)
@@ -62,6 +69,13 @@ func spawn_origin() -> Vector3:
 func signal_origin() -> Vector3:
 	return Vector3(path_x(-650.0), height_at(path_x(-650.0), -650.0), -650.0)
 
+func passage_route() -> Array[Vector2]:
+	var route: Array[Vector2] = []
+	for i in PASSAGE_Z.size():
+		var z: float = PASSAGE_Z[i]
+		route.append(Vector2(path_x(z) + PASSAGE_X_OFFSETS[i], z))
+	return route
+
 func _ready() -> void:
 	_rng.seed = 20260915
 	_build_atmosphere()
@@ -74,6 +88,7 @@ func _ready() -> void:
 	habitats.name = "HabitatFeatures"
 	add_child(habitats)
 	habitats.build(self)
+	_build_passage_gates()
 	_build_survey_sites()
 	_build_resonance_grove()
 	_build_ecology()
@@ -98,6 +113,10 @@ func _prepare_ecology_responses() -> void:
 func _process(delta: float) -> void:
 	if _paused: return
 	_world_time += delta
+	_tick_ecology(delta)
+	_tick_passage_gates(delta)
+
+func _tick_ecology(delta: float) -> void:
 	for i in _ecology_nodes.size():
 		var node := _ecology_nodes[i]
 		var data := _ecology_meta[i]
@@ -116,8 +135,26 @@ func _process(delta: float) -> void:
 		if away.is_zero_approx(): away = Vector3.RIGHT
 		var target := base
 		if kind == "aeral":
+			var passage_phase := str(_passage_state.get("phase", "idle"))
+			var aeral_index := int(data.get("passage_index", 0))
+			if passage_phase == "complete":
+				var corridor := passage_route()[clampi(aeral_index, 0, PASSAGE_Z.size() - 1)]
+				var side := -1.0 if aeral_index % 2 == 0 else 1.0
+				var corridor_x := corridor.x + side * (9.0 + float(aeral_index % 3))
+				var corridor_z := corridor.y + (float(aeral_index % 2) - 0.5) * 4.0
+				target = Vector3(corridor_x, height_at(corridor_x, corridor_z) + 3.2, corridor_z)
+			elif passage_phase == "scattered":
+				var gate_index := clampi(int(_passage_state.get("gate", 0)), 0, PASSAGE_Z.size() - 1)
+				var gate_point := passage_route()[gate_index]
+				var from_gate := Vector3(base.x - gate_point.x, 0.0, base.z - gate_point.y)
+				var influence := 1.0 - smoothstep(16.0, 70.0, from_gate.length())
+				if from_gate.is_zero_approx(): from_gate = Vector3.RIGHT
+				var passage_alarm := clampf(float(_passage_state.get("alarm", 0.0)), 0.0, 2.0)
+				target += from_gate.normalized() * influence * (2.8 + passage_alarm * 1.4)
+				target += Vector3.UP * influence * (2.6 + passage_alarm * 1.7)
 			target += Vector3(sin(_world_time * 0.55 + phase) * 2.4, sin(_world_time * 0.8 + phase) * 0.75, cos(_world_time * 0.44 + phase) * 1.5)
-			target += away * alarm * 3.0 + Vector3.UP * alarm * 3.5
+			var response_alarm := alarm * 0.35 if passage_phase == "complete" else alarm
+			target += away * response_alarm * 3.0 + Vector3.UP * response_alarm * 3.5
 			node.rotation = Vector3(0, phase + sin(_world_time * 0.4 + phase) * 0.25, sin(_world_time * 1.2 + phase) * (0.08 + alarm * 0.28))
 		elif kind == "veyra":
 			target += away * alarm * 3.0 + Vector3(sin(_world_time * 0.7 + phase) * 0.35, 0, cos(_world_time * 0.55 + phase) * 0.35)
@@ -531,6 +568,120 @@ func _eco_rod(parent: Node3D, a: Vector3, b: Vector3, radius: float, material: M
 	var rod := _eco_cylinder(parent, (a + b) * 0.5, radius, a.distance_to(b), material)
 	rod.quaternion = Quaternion(Vector3.UP, (b - a).normalized())
 
+func _passage_material(color: Color) -> StandardMaterial3D:
+	var material := _ecology_material(color, Color("65aaa0"), 0.12, 0.64)
+	material.albedo_texture = load("res://assets/terrain/cc0/rock023_alb_ht.png")
+	material.normal_enabled = true
+	material.normal_texture = load("res://assets/terrain/cc0/rock023_nrm_rgh.png")
+	material.normal_scale = 0.32
+	material.roughness_texture = material.normal_texture
+	material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_ALPHA
+	material.uv1_triplanar = true
+	material.uv1_scale = Vector3.ONE * 0.36
+	return material
+
+func _build_passage_gates() -> void:
+	var route := passage_route()
+	var leaf_mesh := SphereMesh.new()
+	leaf_mesh.radial_segments = 8
+	leaf_mesh.rings = 6
+	var rib_material := _passage_material(Color("36544f"))
+	rib_material.emission_energy_multiplier = 0.04
+	for i in route.size():
+		var center := route[i]
+		var gate := Node3D.new()
+		gate.name = "QuietPassageGate%d" % i
+		gate.position = Vector3(center.x, height_at(center.x, center.y), center.y)
+		var previous := route[maxi(0, i - 1)]
+		var following := route[mini(route.size() - 1, i + 1)]
+		var travel := Vector3(following.x - previous.x, 0.0, following.y - previous.y).normalized()
+		gate.rotation.y = atan2(-travel.x, -travel.z)
+		add_child(gate)
+		var material := _passage_material(Color("496f67"))
+		var wings: Array[Node3D] = []
+		for side in [-1.0, 1.0]:
+			var wing := Node3D.new()
+			wing.name = "MembraneLeft" if side < 0.0 else "MembraneRight"
+			var anchor := Vector3(side * 8.6, 0.0, 0.0)
+			var world_anchor := gate.position + gate.basis * anchor
+			anchor.y = height_at(world_anchor.x, world_anchor.z) - gate.position.y
+			wing.position = anchor
+			gate.add_child(wing)
+			for leaf_index in 3:
+				var leaf := MeshInstance3D.new()
+				leaf.name = "LeafFin%d" % leaf_index
+				leaf.mesh = leaf_mesh
+				leaf.material_override = material
+				leaf.position = Vector3(side * (0.22 + leaf_index * 0.12), 1.8 + leaf_index * 0.68, (leaf_index - 1) * 1.05)
+				leaf.scale = Vector3(0.62 - leaf_index * 0.07, 2.15 + leaf_index * 0.42, 0.24)
+				leaf.rotation = Vector3(0.08 * (leaf_index - 1), side * 0.12 * leaf_index, side * (0.13 + leaf_index * 0.04))
+				wing.add_child(leaf)
+			var body := StaticBody3D.new()
+			body.name = "MembraneBankCollision"
+			var collider := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(1.6, 3.6, 2.0)
+			collider.shape = box
+			collider.position.y = 1.8
+			body.add_child(collider)
+			body.position = anchor
+			gate.add_child(body)
+			wings.append(wing)
+			# The ribs stay beyond the six-metre drive circle and visually root the soft fins.
+			_eco_rod(gate, Vector3(side * 7.2, 0.28, -2.1), Vector3(side * 9.4, 0.72, -0.55), 0.12, rib_material)
+			_eco_rod(gate, Vector3(side * 7.2, 0.28, 2.1), Vector3(side * 9.4, 0.72, 0.55), 0.12, rib_material)
+		_passage_gates.append(gate)
+		_passage_wings.append(wings)
+		_passage_materials.append(material)
+		_passage_open.append(0.0)
+	build_stats["quiet_passage_gates"] = _passage_gates.size()
+
+func set_passage_state(data: Dictionary, delta: float = 0.0, instant: bool = false) -> void:
+	var phase := str(data.get("phase", "idle"))
+	if phase not in ["idle", "crossing", "scattered", "complete"]: phase = "idle"
+	_passage_state = {
+		"phase":phase,
+		"gate":clampi(int(data.get("gate", 0)), 0, PASSAGE_Z.size()),
+		"alarm":clampf(float(data.get("alarm", 0.0)), 0.0, 2.0)
+	}
+	if instant or delta > 0.0: _tick_passage_gates(maxf(delta, 0.0), instant)
+
+func _tick_passage_gates(delta: float, instant: bool = false) -> void:
+	if _passage_gates.is_empty(): return
+	var phase := str(_passage_state.get("phase", "idle"))
+	var next_gate := clampi(int(_passage_state.get("gate", 0)), 0, PASSAGE_Z.size())
+	var alarm := clampf(float(_passage_state.get("alarm", 0.0)), 0.0, 2.0)
+	for i in _passage_gates.size():
+		var completed := phase == "complete" or i < next_gate
+		var active := not completed and i == next_gate and next_gate < PASSAGE_Z.size()
+		var scattered := phase == "scattered" and active
+		var target_open := 1.0 if completed else (-0.42 if scattered else (0.12 if active else 0.0))
+		_passage_open[i] = target_open if instant else move_toward(_passage_open[i], target_open, delta * 1.7)
+		for wing_index in _passage_wings[i].size():
+			var wing: Node3D = _passage_wings[i][wing_index]
+			var side := -1.0 if wing_index == 0 else 1.0
+			wing.rotation.y = side * (0.18 + _passage_open[i] * 0.72)
+			var breathe := 1.0 + (0.018 * (0.5 + 0.5 * sin(_world_time * 2.0 + i)) if active and not scattered else 0.0)
+			wing.scale = Vector3(breathe, 1.0 + (breathe - 1.0) * 0.6, breathe)
+		var material := _passage_materials[i]
+		if scattered:
+			material.albedo_color = Color("7a6748").lerp(Color("9a7444"), alarm * 0.16)
+			material.emission = Color("9c7442")
+			material.emission_energy_multiplier = 0.08 + alarm * 0.05
+		elif completed:
+			material.albedo_color = Color("47766c")
+			material.emission = Color("69b9ad")
+			material.emission_energy_multiplier = 0.16
+		elif active:
+			var pulse := 0.5 + 0.5 * sin(_world_time * 2.0 + i)
+			material.albedo_color = Color("496f67").lerp(Color("5d8d83"), pulse * 0.12)
+			material.emission = Color("65aaa0")
+			material.emission_energy_multiplier = 0.11 + pulse * 0.08
+		else:
+			material.albedo_color = Color("45645d")
+			material.emission = Color("56877f")
+			material.emission_energy_multiplier = 0.07
+
 func _build_ecology() -> void:
 	# Three local organisms occupy different energy gradients. They are deliberately readable silhouettes, not decorative glow props.
 	var veyra_shell := _ecology_material(Color("3d4845"), Color("a86b3f"), 0.18, 0.82)
@@ -563,7 +714,7 @@ func _build_ecology() -> void:
 		_eco_sphere(node, Vector3(0,0,0.9), Vector3(0.16,0.16,0.16), aeral_core)
 		for side in [-1.0,1.0]: _eco_rod(node, Vector3(side*0.35,0,0), Vector3(side*1.4,0.05,0.7), 0.025, aeral_membrane)
 		_ecology_nodes.append(node)
-		_ecology_meta.append({"kind":"aeral","label":"AERAL VEIL / 霧膜群","phase":float(i) * 1.1,"base":node.position})
+		_ecology_meta.append({"kind":"aeral","label":"AERAL VEIL / 霧膜群","phase":float(i) * 1.1,"base":node.position,"passage_index":i})
 	var decay_shell := _ecology_material(Color("57464d"), Color("744e86"), 0.32, 0.91)
 	var decay_spore := _ecology_material(Color("c08bce"), Color("cc70dd"), 1.2, 0.58)
 	for i in 4:
@@ -825,6 +976,7 @@ func reset() -> void:
 	if is_instance_valid(_shelter_material): _shelter_material.emission_energy_multiplier=0.12
 	_resonance_open=0.0
 	set_resonance_visual(-1,false)
+	set_passage_state({"phase":"idle", "gate":0, "alarm":0.0}, 0.0, true)
 	_world_time = 0.0
 	_player_position = spawn_origin()
 	_player_speed = 0.0

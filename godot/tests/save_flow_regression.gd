@@ -55,6 +55,11 @@ func run() -> void:
 	bad_escort=valid.duplicate(true);bad_escort.version=2;bad_escort.activities=game.activities.snapshot()
 	bad_escort.activities.escort_state=game.escort.snapshot();bad_escort.activities.escort_state.total=7
 	invalids.append(bad_escort)
+	var bad_passage: Dictionary=valid.duplicate(true)
+	bad_passage.version=2;bad_passage.activities=game.activities.snapshot()
+	bad_passage.activities.passage_state=game.passage.snapshot()
+	bad_passage.activities.passage_state.route[0].x+=1.0
+	invalids.append(bad_passage)
 	var unchanged := true
 	var position: Vector3=game.rover.position
 	for value in invalids:
@@ -81,6 +86,13 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute(rename_failure)
 	put(rename_failure+".bak",JSON.stringify(valid))
 	checks.rename_failure_keeps_backup = not Save.write(rename_failure,newer) and Save.read(rename_failure).elapsed==4.0
+	# A blocked rename is visible to players without undoing the live optional activity.
+	game._set_phase("exploring")
+	game.passage.start()
+	game.save_path=rename_failure
+	checks.write_failure_reports_older_checkpoint=not game.save_expedition() and game.ui._message_key=="save_write_failed"
+	checks.write_failure_allows_play=game.phase=="exploring" and game.passage.phase=="crossing"
+	game.save_path=path
 	Save.clear(path)
 	put(path,"corrupt")
 	game.queue_free();await create_timer(0.4).timeout

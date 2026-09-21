@@ -1,6 +1,7 @@
 extends Node3D
 
 const ExpeditionSave = preload("res://scripts/expedition_save.gd")
+const PassageScript = preload("res://scripts/quiet_passage.gd")
 const EscortScript = preload("res://scripts/quiet_escort.gd")
 const ResonanceScript = preload("res://scripts/resonance_sequence.gd")
 const ActivityScript = preload("res://scripts/expedition_activities.gd")
@@ -29,6 +30,7 @@ const SAVE_PATH := "user://expedition_state.json"
 var save_path: String = SAVE_PATH
 var _save_available := false
 var observed_ecology: Dictionary = {}
+var passage: RefCounted
 var escort: RefCounted
 var resonance: RefCounted
 var _resonance_band := -1
@@ -48,10 +50,14 @@ func _ready() -> void:
 	_install_inputs()
 	activities = ActivityScript.new()
 	resonance = ResonanceScript.new()
+	passage = PassageScript.new()
 	escort = EscortScript.new()
 	world = load("res://scripts/world.gd").new()
 	add_child(world)
 	escort.configure(_escort_route())
+	if not passage.configure(world.passage_route()):
+		push_error("Invalid authored passage route")
+		return
 	rover = RoverScript.new()
 	rover.configure(world)
 	add_child(rover)
@@ -113,6 +119,7 @@ func start_expedition() -> void:
 	activities.reset()
 	resonance.reset()
 	escort.reset()
+	passage.reset()
 	_resonance_flash=0.0
 	_resonance_band=-1
 	_resonance_feedback=""
@@ -154,6 +161,7 @@ func _process(delta: float) -> void:
 	if phase == "exploring":
 		_update_resonance(delta)
 		_update_escort(delta)
+		_update_passage(delta)
 		var survey_events: Array = activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,delta,rover.global_position)
 		for id: String in survey_events: _survey_completed(id)
 		_survey_message_seconds=maxf(0.0,_survey_message_seconds-delta)
@@ -211,6 +219,7 @@ func _update_survey_readout() -> void:
 	ui.set_activity_progress(activities.count(),activities.optional_count(),activities.field_count(),region,target,distance,activities.stillness,bearing)
 	ui.set_resonance_context(_resonance_context())
 	ui.set_escort_context(_escort_context())
+	ui.set_passage_context(_passage_context())
 	ui.set_interaction_kind(interaction_target())
 
 func _nearby_survey() -> String:
@@ -279,9 +288,13 @@ func request_new_expedition() -> void:
 func save_expedition() -> bool:
 	if phase != "exploring": return false
 	activities.escort_state=escort.snapshot()
+	activities.passage_state=passage.snapshot()
 	var payload := {"version":2,"phase":"exploring","position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"elapsed":elapsed,"distance":rover.distance_travelled,"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"transmitCount":transmit_count,"view":rover.camera_mode}
 	var success := ExpeditionSave.write(save_path,payload)
 	if success: _save_available = true
+	elif is_instance_valid(ui):
+		_survey_message_seconds=6.0
+		ui.set_message("save_write_failed")
 	return success
 
 func has_saved_expedition() -> bool:
@@ -301,6 +314,10 @@ func load_expedition() -> bool:
 		return false
 	var restored_activities: RefCounted=ActivityScript.new()
 	if not restored_activities.restore(parsed["activities"]): return false
+	var restored_passage: RefCounted=PassageScript.new()
+	if not restored_passage.configure(world.passage_route()): return false
+	if not restored_activities.passage_state.is_empty():
+		if not restored_passage.restore(restored_activities.passage_state): return false
 	var restored_escort: RefCounted=EscortScript.new()
 	restored_escort.configure(_escort_route())
 	if restored_activities.escort_state.is_empty():
@@ -320,6 +337,8 @@ func load_expedition() -> bool:
 	observed_ecology = parsed["observedEcology"].duplicate(true)
 	activities=restored_activities
 	resonance.reset(activities.resonance_complete)
+	passage=restored_passage
+	world.set_passage_state(passage.snapshot(),0.0,true)
 	escort=restored_escort
 	world.set_escort_state(escort.snapshot(),true)
 	_resonance_flash=0.0
@@ -372,6 +391,7 @@ func interaction_target() -> String:
 	if not survey_id.is_empty(): return "survey:"+survey_id
 	if _resonance_near() and not resonance.solved: return "resonance"
 	if _escort_can_start(): return "escort"
+	if _passage_can_start(): return "passage"
 	var ecology: Dictionary = world.nearest_ecology(rover.global_position)
 	if not ecology.is_empty() and float(ecology.get("distance",999.0)) <= 14.0:
 		var point: Vector3 = ecology.get("position",ecology["base"])
@@ -389,6 +409,12 @@ func interact() -> void:
 		var id:=target.trim_prefix("survey:")
 		if activities.record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology):
 			_survey_completed(id)
+		return
+	if target == "passage":
+		if not passage.start(): return
+		audio.play_transmit()
+		save_expedition()
+		_update_survey_readout()
 		return
 	if target == "escort":
 		var origin: Vector3=world._ecology_nodes[0].global_position
@@ -435,7 +461,7 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
+	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"passage":passage.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
@@ -518,3 +544,29 @@ func _update_escort(delta: float) -> void:
 		ui.set_message("escort_complete")
 		save_expedition()
 	world.set_escort_state(escort.snapshot())
+
+func _passage_can_start() -> bool:
+	if passage.phase!="idle" or absf(rover.speed)>=1.5: return false
+	var gate: Node3D=world.get_node("QuietPassageGate0")
+	return Vector2(rover.position.x-gate.position.x,rover.position.z-gate.position.z).length()<=14.0 and _target_visible(gate.position+Vector3(0,2,0),gate)
+
+func _passage_context() -> Dictionary:
+	if phase!="exploring" or world.region_at(rover.position)!="veil_marsh": return {}
+	var data: Dictionary=passage.snapshot()
+	var route: Array[Vector2]=world.passage_route()
+	var target: Vector2=route[mini(passage.gate,route.size()-1)]
+	var offset:=target-Vector2(rover.position.x,rover.position.z)
+	data.distance=offset.length()
+	data.bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
+	return data
+
+func _update_passage(delta: float) -> void:
+	var event: String=passage.tick(Vector2(rover.position.x,rover.position.z),rover.speed,delta)
+	if not event.is_empty():
+		if event=="complete": activities.passage_complete=true
+		if event in ["gate","complete"]: audio.play_resonance(2 if event=="complete" else 1)
+		if event=="scattered": audio.play_resonance(0)
+		_survey_message_seconds=3.0
+		ui.set_message("passage_"+("complete" if event=="complete" else "scattered" if event=="scattered" else "gate"))
+		save_expedition()
+	world.set_passage_state(passage.snapshot())
