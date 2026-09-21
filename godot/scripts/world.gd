@@ -60,6 +60,14 @@ var _root_terminal_shell_origins: Array[Vector3] = []
 var _root_terminal_glow: Node3D
 var _root_terminal_glow_material: StandardMaterial3D
 var _root_network_open: float = 0.0
+var _thermal_state: Dictionary = {"vent_observed":false, "route":"warm", "locked":false}
+var _thermal_vent: Node3D
+var _thermal_vent_plates: Array[Dictionary] = []
+var _thermal_steam: Array[MeshInstance3D] = []
+var _thermal_steam_material: StandardMaterial3D
+var _thermal_cue_material: StandardMaterial3D
+var _thermal_open: float = 0.0
+var _cool_bed_material: StandardMaterial3D
 
 func path_x(z: float) -> float:
 	return 18.0 * sin((150.0 - z) * 0.012) + 4.0 * sin((150.0 - z) * 0.033)
@@ -117,6 +125,7 @@ func _ready() -> void:
 	_build_resonance_grove()
 	_build_ecology()
 	_build_escort_shelter()
+	_build_thermal_route()
 	_prepare_ecology_responses()
 	_build_response()
 	_build_dust()
@@ -138,6 +147,7 @@ func _process(delta: float) -> void:
 	if _paused: return
 	_world_time += delta
 	_tick_ecology(delta)
+	_tick_thermal(delta)
 	_tick_passage_gates(delta)
 	_tick_root_network(delta)
 
@@ -185,7 +195,13 @@ func _tick_ecology(delta: float) -> void:
 			target += away * response_alarm * 3.0 + Vector3.UP * response_alarm * 3.5
 			node.rotation = Vector3(0, phase + sin(_world_time * 0.4 + phase) * 0.25, sin(_world_time * 1.2 + phase) * (0.08 + alarm * 0.28))
 		elif kind == "veyra":
-			target += away * alarm * 3.0 + Vector3(sin(_world_time * 0.7 + phase) * 0.35, 0, cos(_world_time * 0.55 + phase) * 0.35)
+			var cool_targets := [Vector2(-64.0,-143.0),Vector2(-57.0,-147.0),Vector2(-64.0,-151.0)]
+			var cool_complete := bool(_escort_state.get("complete",false)) and str(_thermal_state.get("route","warm"))=="cool"
+			if cool_complete and i>=1 and i<=3:
+				var bed_target: Vector2=cool_targets[i-1]
+				target=Vector3(bed_target.x,height_at(bed_target.x,bed_target.y)+0.35,bed_target.y)
+			else:
+				target += away * alarm * 3.0 + Vector3(sin(_world_time * 0.7 + phase) * 0.35, 0, cos(_world_time * 0.55 + phase) * 0.35)
 			target.y = height_at(target.x, target.z) + 0.35 + absf(sin(_world_time * 2.0 + phase)) * 0.08
 			if i!=0 or _escort_state.get("phase","idle")=="idle": node.rotation.y = phase + sin(_world_time * 0.7 + phase) * 0.5
 		else:
@@ -385,8 +401,130 @@ func set_escort_state(data: Dictionary, instant: bool = false) -> void:
 	_escort_state=data
 	if instant and data.phase!="idle":
 		_ecology_nodes[0].position=Vector3(data.position.x,height_at(data.position.x,data.position.z)+0.35,data.position.z)
+	if instant:
+		_apply_cool_gather(true)
+	_apply_thermal_outcome()
+
+func thermal_pulse() -> float:
+	return (1.0+sin(_world_time*TAU/6.0))*0.5
+
+func set_thermal_state(data: Dictionary, instant: bool = false) -> void:
+	var route:=str(data.get("route","warm"))
+	if route not in ["warm","cool"]: route="warm"
+	_thermal_state={"vent_observed":bool(data.get("vent_observed",false)),"route":route,"locked":bool(data.get("locked",false))}
+	if instant:
+		_thermal_open=1.0 if _thermal_state.vent_observed else 0.0
+		_apply_cool_gather(true)
+	_apply_thermal_visual()
+	_apply_thermal_outcome()
+
+func _thermal_vent_open(value: float = -1.0) -> float:
+	if value>=0.0:
+		_thermal_open=clampf(value,0.0,1.0)
+		_apply_thermal_visual()
+	return _thermal_open
+
+func _apply_cool_gather(instant: bool) -> void:
+	if not instant or _ecology_nodes.size()<4: return
+	if not bool(_escort_state.get("complete",false)) or str(_thermal_state.get("route","warm"))!="cool": return
+	var targets := [Vector2(-64.0,-143.0),Vector2(-57.0,-147.0),Vector2(-64.0,-151.0)]
+	for i in range(1,4):
+		var point: Vector2=targets[i-1]
+		_ecology_nodes[i].position=Vector3(point.x,height_at(point.x,point.y)+0.35,point.y)
+
+func _apply_thermal_outcome() -> void:
+	var complete:=bool(_escort_state.get("complete",false))
+	var route:=str(_thermal_state.get("route","warm"))
 	if is_instance_valid(_shelter_material):
-		_shelter_material.emission_energy_multiplier=0.35 if data.get("complete",false) else 0.12
+		_shelter_material.emission_energy_multiplier=(0.38+thermal_pulse()*0.08) if complete and route=="warm" else 0.12
+	if is_instance_valid(_cool_bed_material):
+		_cool_bed_material.emission_energy_multiplier=(0.52+thermal_pulse()*0.12) if complete and route=="cool" else 0.035
+
+func _tick_thermal(delta: float) -> void:
+	var target:=1.0 if bool(_thermal_state.get("vent_observed",false)) else 0.0
+	_thermal_open=move_toward(_thermal_open,target,delta*1.5)
+	_apply_thermal_visual()
+	_apply_thermal_outcome()
+
+func _apply_thermal_visual() -> void:
+	if not is_instance_valid(_thermal_vent): return
+	var pulse:=thermal_pulse()
+	for plate_data: Dictionary in _thermal_vent_plates:
+		var plate: Node3D=plate_data.node
+		var side: float=plate_data.side
+		plate.position=plate_data.closed_position+Vector3(side*_thermal_open*0.42,_thermal_open*0.22,0.0)
+		plate.rotation.z=float(plate_data.closed_rotation)+side*_thermal_open*0.62
+	var route:=str(_thermal_state.get("route","warm"))
+	var cue_color:=Color("cf8c4d") if route=="warm" else Color("63b9c6")
+	if is_instance_valid(_thermal_cue_material):
+		_thermal_cue_material.albedo_color=cue_color
+		_thermal_cue_material.emission=cue_color
+		_thermal_cue_material.emission_energy_multiplier=(0.08 if not bool(_thermal_state.get("locked",false)) else 0.16)+pulse*0.035
+	for i in _thermal_steam.size():
+		var steam:=_thermal_steam[i]
+		var phase:=float(i)*1.9
+		var lift:=fposmod(_world_time*0.24+float(i)/float(_thermal_steam.size()),1.0)
+		steam.position=Vector3(sin(_world_time*0.55+phase)*0.18,2.2+lift*2.0,cos(_world_time*0.43+phase)*0.16)
+		var puff:=0.32+lift*0.3+pulse*0.035
+		steam.scale=Vector3(puff*0.7,puff,puff*0.7)
+	if is_instance_valid(_thermal_steam_material):
+		_thermal_steam_material.albedo_color=Color(0.72,0.75,0.73,0.055+0.035*pulse)
+
+func _build_thermal_route() -> void:
+	_thermal_vent=Node3D.new()
+	_thermal_vent.name="ThermalVent"
+	_thermal_vent.position=survey_position("ember_vent")+Vector3(0,0,-3)
+	add_child(_thermal_vent)
+	var vent_rock:=_passage_material(Color("4b4038"))
+	vent_rock.emission_energy_multiplier=0.0
+	for i in 6:
+		var angle:=float(i)/6.0*TAU
+		var stone:=MeshInstance3D.new()
+		stone.mesh=_low_meshes[i%_low_meshes.size()] if not _low_meshes.is_empty() else SphereMesh.new()
+		stone.material_override=vent_rock
+		stone.position=Vector3(cos(angle)*0.85,0.34+float(i%2)*0.28,sin(angle)*0.72)
+		stone.rotation=Vector3(0.08*sin(angle),angle,0.12*cos(angle))
+		stone.scale=Vector3(0.46,0.5+float(i%2)*0.18,0.42)
+		_thermal_vent.add_child(stone)
+	for side in [-1.0,1.0]:
+		var plate:=MeshInstance3D.new()
+		plate.mesh=_low_meshes[0] if not _low_meshes.is_empty() else SphereMesh.new()
+		plate.material_override=vent_rock
+		plate.position=Vector3(side*0.46,1.1,0.0)
+		plate.rotation=Vector3(0.0,0.18*side,0.12*side)
+		plate.scale=Vector3(0.44,0.16,0.58)
+		_thermal_vent.add_child(plate)
+		_thermal_vent_plates.append({"node":plate,"side":side,"closed_position":plate.position,"closed_rotation":plate.rotation.z})
+	_thermal_cue_material=_ecology_material(Color("cf8c4d"),Color("cf8c4d"),0.08,0.45)
+	for side in [-1.0,1.0]:
+		_eco_rod(_thermal_vent,Vector3(side*0.2,0.7,-0.48),Vector3(side*0.46,1.34,-0.34),0.035,_thermal_cue_material)
+	_thermal_steam_material=_ecology_material(Color(0.72,0.75,0.73,0.07),Color.BLACK,0.0,1.0)
+	_thermal_steam_material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+	_thermal_steam_material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+	for i in 3:
+		var steam:=_eco_sphere(_thermal_vent,Vector3(0,2.2+float(i)*0.6,0),Vector3(0.3,0.45,0.3),_thermal_steam_material)
+		steam.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_thermal_steam.append(steam)
+	var bed:=Node3D.new()
+	bed.name="CoolMineralBed"
+	var bed_point:=Vector2(-60.0,-145.0)
+	bed.position=Vector3(bed_point.x,height_at(bed_point.x,bed_point.y),bed_point.y)
+	add_child(bed)
+	var bed_rock:=_passage_material(Color("354246"))
+	bed_rock.emission_energy_multiplier=0.0
+	for i in 9:
+		var angle:=float(i)/9.0*TAU
+		var stone:=MeshInstance3D.new()
+		stone.mesh=_low_meshes[i%_low_meshes.size()] if not _low_meshes.is_empty() else SphereMesh.new()
+		stone.material_override=bed_rock
+		stone.position=Vector3(cos(angle)*3.1,0.18+0.12*sin(angle*2.0),sin(angle)*2.35)
+		stone.rotation.y=angle+PI*0.5
+		stone.scale=Vector3(0.62,0.24,0.74)
+		bed.add_child(stone)
+	_cool_bed_material=_ecology_material(Color("467078"),Color("66c6d0"),0.035,0.38)
+	for i in 5:
+		var angle:=float(i)/5.0*TAU+0.35
+		_eco_rod(bed,Vector3(cos(angle)*0.35,0.16,sin(angle)*0.3),Vector3(cos(angle)*2.25,0.22,sin(angle)*1.65),0.055,_cool_bed_material)
 
 func _build_atmosphere() -> void:
 	_environment = Environment.new()
@@ -1233,11 +1371,11 @@ func set_paused(value: bool) -> void:
 
 func reset() -> void:
 	_escort_state.clear()
-	if is_instance_valid(_shelter_material): _shelter_material.emission_energy_multiplier=0.12
 	_resonance_open=0.0
 	set_resonance_visual(-1,false)
 	set_passage_state({"phase":"idle", "gate":0, "alarm":0.0}, 0.0, true)
 	_world_time = 0.0
+	set_thermal_state({"vent_observed":false,"route":"warm","locked":false},true)
 	set_root_network_state({"ports":[0, 0, 0], "powered":0, "complete":false}, true)
 	_player_position = spawn_origin()
 	_player_speed = 0.0

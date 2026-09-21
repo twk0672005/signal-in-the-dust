@@ -73,7 +73,7 @@ func _initialize() -> void:
 	checks.v4_resonance_default=resonance_restore.restore(resonance_data) and not resonance_restore.resonance_complete
 	resonance_restore.resonance_complete=true;resonance_restore.reset()
 	checks.resonance_reset=not resonance_restore.resonance_complete
-	var escort_data: Dictionary=t.snapshot();escort_data.escort_complete=true
+	var escort_data: Dictionary=t.snapshot();escort_data.escort_complete=true;escort_data.thermal_state.locked=true
 	var escort_restore=Tracker.new()
 	checks.escort_saved=escort_restore.restore(escort_data) and escort_restore.escort_complete
 	escort_data.escort_complete="bad"
@@ -121,6 +121,15 @@ func _initialize() -> void:
 	journal_data=journal_before.duplicate(true);journal_data.version=8;journal_data.erase("discovered_regions");journal_data.erase("tracked_encounter")
 	checks.v8_journal_migrates=u.restore(journal_data) and u.discovered.ember_rift and u.tracked_encounter==""
 	u.reset();checks.journal_reset=u.tracked_encounter=="" and not u.discovered.ember_rift
+	var thermal_data: Dictionary=t.snapshot()
+	thermal_data.thermal_state={"version":1,"vent_observed":true,"route":"cool","locked":false}
+	checks.thermal_choice_restores=u.restore(thermal_data) and u.thermal_state.route=="cool"
+	thermal_data.thermal_state.locked=true
+	checks.thermal_lock_requires_started_escort=not u.restore(thermal_data)
+	thermal_data=t.snapshot();thermal_data.version=9;thermal_data.erase("thermal_state")
+	checks.v9_default_warm=u.restore(thermal_data) and u.thermal_state.route=="warm" and not u.thermal_state.locked
+	thermal_data=t.snapshot();thermal_data.version=9;thermal_data.escort_complete=true;thermal_data.erase("thermal_state")
+	checks.v9_completed_warm_locked=u.restore(thermal_data) and u.thermal_state.locked and u.thermal_state.route=="warm"
 	var ok:=true
 	for value in checks.values(): ok=ok and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)

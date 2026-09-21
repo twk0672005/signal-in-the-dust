@@ -15,6 +15,19 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"thermal_title": ["MINERAL TRAILS", "礦脈路線"],
+	"thermal_hint": ["Accompany Veyra to warmth, or study the eastern vent for a cool route.", "陪 Veyra 前往暖床，或研究東側熱泉，探索冷礦脈路線。"],
+	"thermal_watch": ["Watch the plume. E reads the bright eruption.", "觀察噴流，亮起時按 E 讀取。"],
+	"thermal_read": ["Cool minerals found. E switches the route before escort starts.", "發現冷礦脈，護送開始前可按 E 切換路線。"],
+	"thermal_warm": ["Warm shelter selected. Accompany Veyra when ready.", "已選暖床路線，準備好便回去陪伴 Veyra。"],
+	"thermal_cool": ["Cool mineral trail selected. Return to Veyra.", "已選冷礦脈路線，回到 Veyra 身邊。"],
+	"thermal_locked": ["The herd follows your chosen route until arrival.", "群體會沿你選定的路線前往棲地。"],
+	"thermal_distance": ["Eastern vent · %d m", "東側熱泉 · %d 米"],
+	"thermal_observe_action": ["E · READ VENT ERUPTION", "E · 讀取熱泉噴發"],
+	"thermal_route_action": ["E · SWITCH MINERAL TRAIL", "E · 切換礦脈路線"],
+	"escort_idle_cool": ["E · Accompany Veyra along the cool mineral trail.", "E · 陪 Veyra 沿冷礦脈前進。"],
+	"escort_complete_cool": ["The cool basin glows. The herd gathers at the mineral bed.", "冷礦盆地亮起，群體聚集在新礦床。"],
+	"save_clear_failed": ["The saved expedition could not be cleared. Your previous checkpoint is still available; try again when browser storage is writable.", "未能清除已儲存的探勘。舊進度仍然保留，請在瀏覽器可寫入儲存空間後再試。"],
 	"save_write_failed": ["Progress could not be saved. You can keep playing; Continue may use an older checkpoint.", "未能儲存進度。仍可繼續遊玩，但續玩可能回到較早的進度。"],
 	"root_title": ["ROOT CHOIR · %d / 3 CONNECTED", "根脈合唱 · 已接通 %d / 3"],
 	"root_hint": ["Follow the living conduit. E turns a junction toward the next shell.", "沿活根前進，E 轉動節點，導向下一座殼礁。"],
@@ -147,6 +160,8 @@ var _config: Dictionary = {"locale": "en", "volume": 0.65, "reduced_motion": fal
 var _state := "menu"
 var _saved_available := false
 var _save_invalid := false
+var _clear_failed := false
+var _write_failed := false
 var _root: Control
 var _hud: Control
 var _overlay: Control
@@ -162,6 +177,7 @@ var _ecology_label: Label
 var _activity_label: Label
 var _activity_context: Dictionary = {}
 var _resonance_context: Dictionary = {}
+var _thermal_context: Dictionary = {}
 var _root_network_context: Dictionary = {}
 var _passage_context: Dictionary = {}
 var _escort_context: Dictionary = {}
@@ -383,6 +399,10 @@ func _build_overlay() -> void:
 	column.add_theme_constant_override("separation", 13)
 	scroll.add_child(column)
 	column.add_child(_label(_text("edition"), 12, AMBER))
+	if _clear_failed or _write_failed:
+		var warning:=_label(_text("save_clear_failed" if _clear_failed else "save_write_failed"),13,AMBER)
+		warning.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		column.add_child(warning)
 	var primary: Button
 	if _state == "menu":
 		column.add_child(_label(_text("title"), 38))
@@ -526,6 +546,16 @@ func _toggle_setting(value: bool, key: String) -> void:
 	_config[key] = value
 	_save_settings()
 
+func set_write_failed(value: bool) -> void:
+	if _write_failed==value: return
+	_write_failed=value
+	if is_instance_valid(_root) and _state in ["menu","paused","confirm_reset","confirm_new","ending"]: _build()
+
+func set_clear_failed(value: bool) -> void:
+	if _clear_failed==value: return
+	_clear_failed=value
+	if is_instance_valid(_root): _build()
+
 func set_saved_available(value: bool, failed: bool = false) -> void:
 	_saved_available = value
 	_save_invalid = failed
@@ -595,7 +625,7 @@ func _render_activity_context() -> void:
 		if r.phase!="solved": lines+="\n"+_text("resonance_leave")
 	if not _escort_context.is_empty():
 		var e:=_escort_context
-		lines+="\n\n"+_text("escort_title")+"\n"+_text("escort_"+str(e.phase))
+		lines+="\n\n"+_text("escort_title")+"\n"+_text("escort_"+str(e.phase)+("_cool" if e.get("route","warm")=="cool" and e.phase in ["idle","complete"] else ""))
 		if e.phase!="complete": lines+="\n"+(_text("escort_distance") % roundi(e.distance))
 	if not _passage_context.is_empty():
 		var p:=_passage_context
@@ -610,10 +640,19 @@ func _render_activity_context() -> void:
 			var arrow: String="^" if absf(network.bearing)<0.25 else (">" if network.bearing>0 else "<")
 			lines+="\n"+arrow+" "+(_text("root_distance") % roundi(network.distance))
 			if network.near>=0: lines+="\n"+(_text("root_port") % [network.near+1,network.ports[network.near]+1])
+	if not _thermal_context.is_empty() and not _thermal_context.locked:
+		var t:=_thermal_context
+		lines+="\n\n"+_text("thermal_title")+"\n"+_text("thermal_"+str(t.route) if t.vent_observed else "thermal_watch" if t.near else "thermal_hint")
+		var arrow: String="^" if absf(t.bearing)<0.25 else (">" if t.bearing>0 else "<")
+		lines+="\n"+arrow+" "+(_text("thermal_distance") % roundi(t.distance))
 	_activity_label.text=lines
 
 func set_resonance_context(data: Dictionary) -> void:
 	_resonance_context=data
+	_render_activity_context()
+
+func set_thermal_context(data: Dictionary) -> void:
+	_thermal_context=data
 	_render_activity_context()
 
 func set_root_network_context(data: Dictionary) -> void:
@@ -630,7 +669,7 @@ func set_escort_context(data: Dictionary) -> void:
 
 func set_interaction_kind(kind: String) -> void:
 	if not is_instance_valid(_interaction): return
-	_interaction.text=_text("root_turn" if kind.begins_with("root_relay:") else "root_pulse" if kind=="root_pulse" else "passage_action" if kind=="passage" else "escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
+	_interaction.text=_text("thermal_observe_action" if kind=="thermal_observe" else "thermal_route_action" if kind=="thermal_route" else "root_turn" if kind.begins_with("root_relay:") else "root_pulse" if kind=="root_pulse" else "passage_action" if kind=="passage" else "escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
 
 
 func set_message(key: String) -> void:

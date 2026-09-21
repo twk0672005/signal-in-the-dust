@@ -1,9 +1,9 @@
-# Godot execution stage
+# 正式 Godot 專案
 
-Godot 4.7.2.stable.official.ed1daf0bf is the pinned native engine. `godot/` is the primary engine stage after Nova clarified that GODBOT meant Godot. The Three.js root is preserved as the earlier browser baseline.
+使用 Godot4.7.2 Compatibility 開啟 project.godot。正式來源及指令見上層 README.md；Three.js 歷史版本在上層 legacy/。
 
-Run the pinned Godot binary with `--path godot`. Main scene: `res://main.tscn`.
+WASD／方向鍵駕駛，Space 煞車，V 切換第一／第三身，右鍵拖曳環視，E 觀察／互動，J 日誌，Esc 暫停，R 重新開始（途中需確認）。
 
-Controls: WASD/Arrows drive from the rover's first-person camera; E observe/deploy/dock; Escape pause; R restart at an end state. The first observation opens a life-field-note panel with the storm clock paused while reading.
+四區活動包括冰晶共鳴、暖床／冷礦脈 Veyra 護送、膜葉穿行及根脈導流。繁中／英文、Continue、新探勘及音量／畫質選項可用。
 
-The generated first-contact art is used in the menu field archive. Actual terrain, rover, lifeforms, bloom, beacon and lander are Godot 3D meshes.
+市場驗收仍為 PARTIAL。最近完整舊基線為10分33秒；30分鐘內容、最終平台／效能／真人驗收尚未完成。證據與最新私人部署以 ../CHECKPOINT.md 及 ../evidence/latest-release.json 為準。

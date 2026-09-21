@@ -1,6 +1,7 @@
 extends Node3D
 
 const ExpeditionSave = preload("res://scripts/expedition_save.gd")
+const ThermalScript = preload("res://scripts/thermal_route.gd")
 const RootScript = preload("res://scripts/root_network.gd")
 const PassageScript = preload("res://scripts/quiet_passage.gd")
 const EscortScript = preload("res://scripts/quiet_escort.gd")
@@ -31,6 +32,7 @@ const SAVE_PATH := "user://expedition_state.json"
 var save_path: String = SAVE_PATH
 var _save_available := false
 var observed_ecology: Dictionary = {}
+var thermal: RefCounted
 var root_network: RefCounted
 var passage: RefCounted
 var escort: RefCounted
@@ -52,6 +54,7 @@ func _ready() -> void:
 	_install_inputs()
 	activities = ActivityScript.new()
 	resonance = ResonanceScript.new()
+	thermal = ThermalScript.new()
 	root_network = RootScript.new()
 	passage = PassageScript.new()
 	escort = EscortScript.new()
@@ -91,7 +94,7 @@ func _ready() -> void:
 	audio.set_paused(true)
 	ready_for_play = true
 	var available := has_saved_expedition()
-	var file_present := FileAccess.file_exists(save_path) or FileAccess.file_exists(save_path+".bak")
+	var file_present := ExpeditionSave.exists(save_path)
 	ui.set_saved_available(available, file_present and not available)
 	_update_survey_readout()
 	_publish_snapshot()
@@ -111,9 +114,9 @@ func _place_exterior() -> void:
 	exterior.global_position = start + Vector3(5.5,3.2,5.8)
 	exterior.look_at(start+Vector3(0,0.85,-0.2))
 
-func start_expedition() -> void:
-	if not ready_for_play: return
-	clear_saved_expedition()
+func start_expedition() -> bool:
+	if not ready_for_play: return false
+	if not clear_saved_expedition() and has_saved_expedition(): return false
 	save_clock = 0.0
 	elapsed = 0.0
 	arrival_time = 0.0
@@ -122,7 +125,9 @@ func start_expedition() -> void:
 	observed_ecology.clear()
 	activities.reset()
 	resonance.reset()
+	thermal.reset()
 	escort.reset()
+	escort.configure(_escort_route())
 	passage.reset()
 	root_network.reset()
 	_resonance_flash=0.0
@@ -140,11 +145,12 @@ func start_expedition() -> void:
 	_place_exterior()
 	exterior.current = true
 	_set_phase("arrival")
+	return true
 
 func reset_expedition() -> void:
-	reset_count += 1
-	clear_saved_expedition()
-	start_expedition()
+	if start_expedition():
+		reset_count += 1
+		_publish_snapshot()
 
 func _set_phase(value: String) -> void:
 	phase = value
@@ -232,6 +238,7 @@ func _update_survey_readout() -> void:
 	ui.set_escort_context(_escort_context())
 	ui.set_passage_context(_passage_context())
 	ui.set_root_network_context(_root_network_context())
+	ui.set_thermal_context(_thermal_context())
 	var journal: Dictionary={"tracked":activities.tracked_encounter,"entries":{}}
 	for id in ActivityScript.REGIONS:
 		journal.entries[id]={"discovered":activities.discovered[id],"complete":_encounter_complete(id)}
@@ -308,11 +315,13 @@ func request_new_expedition() -> void:
 
 func save_expedition() -> bool:
 	if phase != "exploring": return false
+	activities.thermal_state=thermal.snapshot()
 	activities.escort_state=escort.snapshot()
 	activities.passage_state=passage.snapshot()
 	activities.root_network_state=root_network.snapshot()
 	var payload := {"version":2,"phase":"exploring","position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"elapsed":elapsed,"distance":rover.distance_travelled,"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"transmitCount":transmit_count,"view":rover.camera_mode}
 	var success := ExpeditionSave.write(save_path,payload)
+	if is_instance_valid(ui): ui.set_write_failed(not success)
 	if success: _save_available = true
 	elif is_instance_valid(ui):
 		_survey_message_seconds=6.0
@@ -343,8 +352,10 @@ func load_expedition() -> bool:
 	if not restored_passage.configure(world.passage_route()): return false
 	if not restored_activities.passage_state.is_empty():
 		if not restored_passage.restore(restored_activities.passage_state): return false
+	var restored_thermal: RefCounted=ThermalScript.new()
+	if not restored_thermal.restore(restored_activities.thermal_state): return false
 	var restored_escort: RefCounted=EscortScript.new()
-	restored_escort.configure(_escort_route())
+	restored_escort.configure(_escort_route(restored_thermal.route))
 	if restored_activities.escort_state.is_empty():
 		restored_escort.reset(restored_activities.escort_complete)
 	else:
@@ -352,7 +363,7 @@ func load_expedition() -> bool:
 		var origin:=Vector2(saved_escort.origin.x,saved_escort.origin.z)
 		var point_escort:=Vector2(saved_escort.position.x,saved_escort.position.z)
 		if absf(point_escort.x)>94.0 or point_escort.y < -670.0 or point_escort.y>180.0: return false
-		if saved_escort.phase not in ["idle","complete"] and origin.distance_to(_escort_route()[0])>24.0: return false
+		if saved_escort.phase not in ["idle","complete"] and origin.distance_to(_escort_route(restored_thermal.route)[0])>24.0: return false
 		if not restored_escort.restore(saved_escort): return false
 	rover.set_driving_enabled(false)
 	rover.reset()
@@ -366,6 +377,8 @@ func load_expedition() -> bool:
 	world.set_root_network_state(root_network.snapshot(),true)
 	passage=restored_passage
 	world.set_passage_state(passage.snapshot(),0.0,true)
+	thermal=restored_thermal
+	world.set_thermal_state(thermal.snapshot(),true)
 	escort=restored_escort
 	world.set_escort_state(escort.snapshot(),true)
 	_resonance_flash=0.0
@@ -393,9 +406,21 @@ func load_expedition() -> bool:
 	_set_phase("exploring")
 	return true
 
-func clear_saved_expedition() -> void:
-	ExpeditionSave.clear(save_path)
-	_save_available = false
+func clear_saved_expedition() -> bool:
+	var cleared:=ExpeditionSave.clear(save_path)
+	if not cleared:
+		_save_available=has_saved_expedition()
+		if is_instance_valid(ui):
+			ui.set_clear_failed(_save_available)
+			ui.set_write_failed(not _save_available)
+		_survey_message_seconds=6.0
+		if is_instance_valid(ui): ui.set_message("save_clear_failed" if _save_available else "save_write_failed")
+		return false
+	_save_available=false
+	if is_instance_valid(ui):
+		ui.set_clear_failed(false)
+		ui.set_write_failed(false)
+	return true
 
 func target_distance() -> float:
 	return Vector2(rover.global_position.x-contact.global_position.x,rover.global_position.z-contact.global_position.z).length()
@@ -417,6 +442,9 @@ func interaction_target() -> String:
 	var survey_id:=_nearby_survey()
 	if not survey_id.is_empty(): return "survey:"+survey_id
 	if _resonance_near() and not resonance.solved: return "resonance"
+	if _thermal_near():
+		if thermal.vent_observed: return "thermal_route"
+		if world.thermal_pulse()>=0.75: return "thermal_observe"
 	if _escort_can_start(): return "escort"
 	if _passage_can_start(): return "passage"
 	var root_target:=_root_network_interaction()
@@ -452,9 +480,23 @@ func interact() -> void:
 		save_expedition()
 		_update_survey_readout()
 		return
+	if target in ["thermal_observe","thermal_route"]:
+		var changed: bool=thermal.observe(world.thermal_pulse()) if target=="thermal_observe" else thermal.toggle_route()
+		if changed:
+			escort.configure(_escort_route())
+			world.set_thermal_state(thermal.snapshot())
+			audio.play_resonance(1 if thermal.route=="cool" else 0)
+			_survey_message_seconds=4.0
+			ui.set_message("thermal_read" if target=="thermal_observe" else "thermal_"+thermal.route)
+			save_expedition()
+			_update_survey_readout()
+		return
 	if target == "escort":
 		var origin: Vector3=world._ecology_nodes[0].global_position
-		escort.start(Vector2(origin.x,origin.z))
+		if not escort.start(Vector2(origin.x,origin.z)): return
+		thermal.lock_route()
+		world.set_thermal_state(thermal.snapshot())
+		save_expedition()
 		audio.play_transmit()
 		_update_survey_readout()
 		return
@@ -497,7 +539,7 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
+	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
@@ -551,7 +593,10 @@ func _resonance_reply(band: int) -> void:
 	_update_survey_readout()
 	_publish_snapshot()
 
-func _escort_route() -> Array[Vector2]:
+func _escort_route(route_choice: String = "") -> Array[Vector2]:
+	var selected: String=thermal.route if route_choice.is_empty() else route_choice
+	if selected=="cool":
+		return [Vector2(world.path_x(-105),-105),Vector2(-20,-95),Vector2(-48,-55),Vector2(-72,-65),Vector2(-74,-112),Vector2(-63,-145),Vector2(-60,-145)]
 	var points: Array[Vector2]=[]
 	# The animal first visits the northern warm seam, then crosses to the southern shelter.
 	for z in [-105.0,-75.0,-45.0,-65.0,-90.0,-115.0,-140.0,-157.0]:
@@ -570,6 +615,7 @@ func _escort_context() -> Dictionary:
 	var data: Dictionary=escort.snapshot()
 	var animal: Vector3=world._ecology_nodes[0].global_position
 	data["distance"]=Vector2(animal.x-rover.position.x,animal.z-rover.position.z).length()
+	data["route"]=thermal.route
 	return data
 
 func _update_escort(delta: float) -> void:
@@ -577,7 +623,7 @@ func _update_escort(delta: float) -> void:
 		activities.escort_complete=true
 		audio.play_transmit()
 		_survey_message_seconds=4.0
-		ui.set_message("escort_complete")
+		ui.set_message("escort_complete_cool" if thermal.route=="cool" else "escort_complete")
 		save_expedition()
 	world.set_escort_state(escort.snapshot())
 
@@ -665,3 +711,18 @@ func _on_encounter_selected(region: String) -> void:
 	resume_expedition()
 	save_expedition()
 	_update_survey_readout()
+
+func _thermal_near() -> bool:
+	if thermal.locked or escort.phase!="idle" or absf(rover.speed)>=1.5: return false
+	var point: Vector3=world.survey_position("ember_vent")
+	return Vector2(point.x-rover.position.x,point.z-rover.position.z).length()<=8.0 and _target_visible(point+Vector3(0,2,0),world.get_node("Survey_ember_vent"))
+
+func _thermal_context() -> Dictionary:
+	if phase!="exploring" or world.region_at(rover.position)!="ember_rift": return {}
+	var data: Dictionary=thermal.snapshot()
+	var offset: Vector2=ActivityScript.point("ember_vent")-Vector2(rover.position.x,rover.position.z)
+	data.distance=offset.length()
+	data.bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
+	data.pulse=world.thermal_pulse()
+	data.near=_thermal_near()
+	return data

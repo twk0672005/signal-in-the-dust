@@ -1,4 +1,5 @@
 extends RefCounted
+const ThermalRules = preload("res://scripts/thermal_route.gd")
 const RootRules = preload("res://scripts/root_network.gd")
 const PassageRules = preload("res://scripts/quiet_passage.gd")
 const EscortRules = preload("res://scripts/quiet_escort.gd")
@@ -24,6 +25,7 @@ const SITES := {
  "pale_bone":{"region":"pale_decay","z":-430.0,"offset":-10.0,"kind":"","tier":"field"},
  "pale_sink":{"region":"pale_decay","z":-470.0,"offset":10.0,"kind":"","tier":"field"}
 }
+var thermal_state: Dictionary = {}
 var discovered: Dictionary = {}
 var tracked_encounter := ""
 var root_network_state: Dictionary = {}
@@ -50,7 +52,7 @@ static func _flags(value: Variant, keys: Array) -> bool:
   if not value.has(key) or not value[key] is bool: return false
  return true
 static func normalized(data: Variant) -> Dictionary:
- if not data is Dictionary or not _number(data.get("version"),1,9): return {}
+ if not data is Dictionary or not _number(data.get("version"),1,10): return {}
  if float(data.version)!=floorf(float(data.version)): return {}
  var version: int=int(data.version)
  var done: Variant=data.get("completed_regions") if version>=3 else data.get("completed")
@@ -94,13 +96,20 @@ static func normalized(data: Variant) -> Dictionary:
  if not progress.is_empty():
   progress=EscortRules.normalized(progress)
   if progress.is_empty() or progress.complete!=escort: return {}
+ var escort_active: bool=escort or (not progress.is_empty() and progress.phase!="idle")
+ var thermal: Variant=data.get("thermal_state",{}) if version>=10 else {}
+ if not thermal is Dictionary: return {}
+ if thermal.is_empty(): thermal={"version":1,"vent_observed":false,"route":"warm","locked":escort_active}
+ else:
+  thermal=ThermalRules.normalized(thermal)
+  if thermal.is_empty() or thermal.locked!=escort_active: return {}
  var resonance: Variant=data.get("resonance_complete") if version>=5 else false
  if not resonance is bool: return {}
  var quiet: Variant=data.get("quiet_seconds") if version>=3 else data.get("stillness",0.0)
  if not _number(quiet,0,1e9): return {}
  var region: Variant=data.get("current_region","aurora_shelf")
  if not region is String or region not in REGIONS: return {}
- return {"version":9,"discovered_regions":discovery.duplicate(true),"tracked_encounter":tracked,"root_network_state":network.duplicate(true),"passage_state":passage.duplicate(true),"passage_complete":passage_done,"escort_state":progress.duplicate(true),"escort_complete":escort,"resonance_complete":resonance,"completed_regions":done.duplicate(true),"optional_observations":extras.duplicate(true),"field_notes":notes.duplicate(true),"current_region":region,"quiet_seconds":minf(float(quiet),3.0) if version>=3 else 0.0}
+ return {"version":10,"thermal_state":thermal.duplicate(true),"discovered_regions":discovery.duplicate(true),"tracked_encounter":tracked,"root_network_state":network.duplicate(true),"passage_state":passage.duplicate(true),"passage_complete":passage_done,"escort_state":progress.duplicate(true),"escort_complete":escort,"resonance_complete":resonance,"completed_regions":done.duplicate(true),"optional_observations":extras.duplicate(true),"field_notes":notes.duplicate(true),"current_region":region,"quiet_seconds":minf(float(quiet),3.0) if version>=3 else 0.0}
 func done(id: String) -> bool:
  return bool(completed.get(id,optional.get(id,field.get(id,false))))
 func ready(id: String, observed: Dictionary) -> bool:
@@ -151,10 +160,11 @@ func field_count() -> int:
  for value in field.values(): result+=int(value)
  return result
 func snapshot() -> Dictionary:
- return {"version":9,"discovered_regions":discovered.duplicate(true),"tracked_encounter":tracked_encounter,"root_network_state":root_network_state.duplicate(true),"passage_state":passage_state.duplicate(true),"passage_complete":passage_complete,"escort_state":escort_state.duplicate(true),"escort_complete":escort_complete,"resonance_complete":resonance_complete,"completed_regions":completed.duplicate(true),"optional_observations":optional.duplicate(true),"field_notes":field.duplicate(true),"current_region":current_region,"quiet_seconds":stillness}
+ return {"version":10,"thermal_state":thermal_state.duplicate(true),"discovered_regions":discovered.duplicate(true),"tracked_encounter":tracked_encounter,"root_network_state":root_network_state.duplicate(true),"passage_state":passage_state.duplicate(true),"passage_complete":passage_complete,"escort_state":escort_state.duplicate(true),"escort_complete":escort_complete,"resonance_complete":resonance_complete,"completed_regions":completed.duplicate(true),"optional_observations":optional.duplicate(true),"field_notes":field.duplicate(true),"current_region":current_region,"quiet_seconds":stillness}
 func restore(data: Variant) -> bool:
  var incoming:=normalized(data)
  if incoming.is_empty(): return false
+ thermal_state=incoming.thermal_state
  discovered=incoming.discovered_regions
  tracked_encounter=incoming.tracked_encounter
  root_network_state=incoming.root_network_state
@@ -166,6 +176,7 @@ func restore(data: Variant) -> bool:
  completed=incoming.completed_regions;optional=incoming.optional_observations;field=incoming.field_notes;current_region=incoming.current_region;stillness=incoming.quiet_seconds
  return true
 func reset() -> void:
+ thermal_state={"version":1,"vent_observed":false,"route":"warm","locked":false}
  tracked_encounter=""
  for id in REGIONS: discovered[id]=false
  root_network_state.clear()

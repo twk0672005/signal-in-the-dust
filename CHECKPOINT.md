@@ -1,9 +1,12 @@
 # Current checkpoint
-updatedAt: 2026-09-21T07:36:17.262985+00:00
+updatedAt: 2026-09-21T09:30:34.889646+00:00
 status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
 ## Current product
+- NEW Ember thermal choice: original warm escort or vent-observed cool mineral route, locked during escort, distinct saved bed/herd outcome. docs/EMBER_THERMAL_ROUTES.md; evidence/thermal-route/receipt.json.
+- Fixed actual Web pause/reload rollback: synchronous small-save adapter with validated backup, legacy migration and reset tombstone. Three immediate mid-route reloads match exactly; failed-clear/corruption/storage-disabled fixtures pass. Native FileAccess retained.
+- Activity schema10; thermal15rules, activity116;12regression suites. Font472characters. Read latest-release.json for deployment, not older hardcoded versions.
 - Godot4.7.2 Compatibility, single-thread Web, zh_TW/en,24m/s cruise, first/third-person V, correct steering, real terrain/rock collision and defensive Continue/New/Reset.
 -4required surveys+8field notes unlock the finale;4echoes and4new encounters remain optional. Aurora resonance, Ember Veyra escort, Veil quiet passage and Pale root routing are implemented and individually tested.
 - NEW J exploration journal: discovered-region encounters, manual compass tracking, main-survey fallback, pause/resume and schema9 persistence. Native14/Web9checks pass. docs/COMBINED_JOURNEY.md.
@@ -15,14 +18,14 @@ root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 - First-person sensor8cm lift reduces body obstruction; tuning closed. docs/CAMERA_READABILITY.md.
 - Main-road membrane collision fixed by moving banks9m from road center. Preserve6m activity openings. Side banks still intentionally collide; side-echo return driver goes around, not through them.
 - Headless screenshot waits repaired; never run renderer-capture waits headless. Every input journey has a process and in-engine watchdog and a fresh isolated save directory.
-- Root JSON numeric validation accepts integral decoded floats. Latest schema9 migrates older activities atomically. Save failures warn while allowing play.
+- Root JSON numeric validation accepts integral decoded floats. Latest schema10 migrates older activities atomically. Save failures warn while allowing play.
 
 ## Release
 - Read evidence/latest-release.json for exact hosted status. At wake start privatev12/c63bb39 was succeeded. Journal candidate is a later revision; do not assume it is hosted without tool readback.
 - Owner-only; no public promotion before human/platform/market gates. Root owns Sites lifecycle. Preserve preview PID18752 unless fresh evidence shows ownership changed.
 
 ## Next work
-1. Add a meaningful Ember ecological route choice and saved visible outcome; use actual vent/mineral observation instead of more identical E counters.
+1. Ember route choice is implemented. Next add region-specific two-stage field investigations and authored side loops; preserve the measured10m33s baseline and remeasure final content.
 2. Expand region-specific field investigations and authored side loops, then repeat combined timing against30-minute target.
 3. Improve prop variation and near/mid/far habitat detail; current world remains sparse/repetitive.
 4. Three final full journeys, full Web combined persistence, Windows Chrome/Edge/Firefox and macOS Chrome/Safari, export performance, independent first-time human acceptance.
