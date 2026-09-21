@@ -45,7 +45,7 @@ func _ready() -> void:
 			wheels.append(part)
 	camera_rig = Node3D.new()
 	camera_rig.name = "SensorMount"
-	camera_rig.position = Vector3(0, 1.52, -0.43)
+	camera_rig.position = Vector3(0, 1.48, -0.43)
 	add_child(camera_rig)
 	camera = Camera3D.new()
 	camera.name = "FirstPersonCamera"

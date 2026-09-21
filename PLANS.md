@@ -31,4 +31,4 @@ Do not restart a validated subsystem without a concrete defect. The next impleme
 - [x] Add distinct Ember Veyra escort with speed/proximity response, native and local Web mid-activity Continue, and warm authored rock shelter.
 - [ ] Expand Veil/Pale encounters and authored exploration content; combine and time the final journey before claiming30minutes.
 
-- [x] Improve first-person near-ground visibility using measured12cm sensor lift; verify controls, interactions and real input. Exclude unused concept art from downloads.
+- [x] Improve first-person near-ground visibility using measured8cm sensor lift; verify controls, interactions and real input. Exclude unused concept art from downloads.

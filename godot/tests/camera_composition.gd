@@ -27,7 +27,7 @@ func run() -> void:
 	game.ready_for_play=false
 	game.rover.set_camera_mode("first_person")
 	var poses=[{"id":"spawn","z":150.0,"offset":0.0,"yaw":0.0},{"id":"ridge","z":30.0,"offset":4.0,"yaw":0.0},{"id":"rift","z":-108.0,"offset":0.0,"yaw":0.25}]
-	var layouts=[{"id":"before","mount":Vector3(0,1.4,-0.43),"pitch":-0.1},{"id":"after","mount":Vector3(0,1.52,-0.43),"pitch":-0.1}]
+	var layouts=[{"id":"before","mount":Vector3(0,1.4,-0.43),"pitch":-0.1},{"id":"after","mount":Vector3(0,1.48,-0.43),"pitch":-0.1}]
 	var meshes: Array=game.rover.model.find_children("*","MeshInstance3D",true,false)
 	var materials: Array=[]
 	for mesh in meshes: materials.append(mesh.material_override)

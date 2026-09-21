@@ -4,8 +4,8 @@ status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
 ## Current product and latest evidence
-- First-person readability repair: sensor raised12cm; three actual-render masks reduce rover coverage from22–25% to10–12%. Controller/interaction/native input journey and local Web smoke passed. See docs/CAMERA_READABILITY.md and evidence/camera-composition/receipt.json.
-- Unused concept image excluded from both export presets; source retained. Web PCK reduced by1,770,032 bytes without removing runtime terrain/model assets.
+- First-person readability repair: sensor raised8cm; three actual-render masks reduce rover coverage from22–25% to13–16%. Controller/interaction/native input journey and local Web smoke passed. See docs/CAMERA_READABILITY.md and evidence/camera-composition/receipt.json.
+- Unused concept image excluded from both export presets; source retained. Web PCK reduced by1,770,016 bytes without removing runtime terrain/model assets.
 - NEW: optional Veyra quiet crossing in Ember Rift; actual speed/distance pressure, warm rock-bed reward, and mid-activity persistence. Native and local Web journeys pass; see evidence/escort-delivery/receipt.json and docs/VEYRA_CROSSING.md. Activity schema6 includes validated origin/position/waypoint/alarm state.
 - Escort rules18, activity migration96, font391 current UI characters; full30-minute content and market art still missing.
 - Added optional Aurora crystal resonance: E listens/replays, 1/2/3 answer three rounds, outward-opening crystals and saved completion. Native real-input/mouse/pause/Continue route passed. Activity schema5; previous saves migrate. See docs/AURORA_RESONANCE.md and evidence/resonance-delivery/receipt.json.
@@ -41,3 +41,5 @@ root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 - npm run test:journey (headless input route with unique evidence folder; 15-minute internal watchdog and 930-second process bound).
 - npm run test:journey -- --graphical (1440x900 actual screenshot route).
 - npm run check; npm run test:activity-logic; npm test; npm run test:save-flow.
+
+Camera tuning is closed for this stage: final8cm lift validated after rejecting12cm live-slope clipping. Next effort should go to substantive Veil/Pale content and map/art work, not repeat this parameter sweep.
