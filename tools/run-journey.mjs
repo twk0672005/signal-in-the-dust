@@ -15,7 +15,7 @@ writeFileSync(resolve(evidence,'stderr.log'),r.stderr||'');
 let receipt=null;
 try { receipt=JSON.parse(readFileSync(resolve(evidence,'drive.json'),'utf8')); } catch {}
 const passed=r.status===0 && !r.error && receipt?.passed===true;
-const result={passed,evidence,wallSeconds:(Date.now()-start)/1000,exitCode:r.status,error:r.error?.message??null,rendering:graphical?'graphical':'headless',stage:receipt?.stage??'no_receipt',args};
+const result={passed,routePassed:receipt?.routePassed??false,fullRouteRequested:receipt?.fullRouteRequested??true,visualCaptureStatus:receipt?.visualCaptureStatus??"incomplete",routeSeconds:receipt?.seconds??null,evidence,wallSeconds:(Date.now()-start)/1000,exitCode:r.status,error:r.error?.message??null,rendering:graphical?'graphical':'headless',stage:receipt?.stage??'no_receipt',args};
 writeFileSync(resolve(evidence,'runner.json'),JSON.stringify(result,null,2));
 console.log(JSON.stringify(result,null,2));
 process.exit(passed?0:1);

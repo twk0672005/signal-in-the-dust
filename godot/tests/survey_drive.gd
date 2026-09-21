@@ -26,7 +26,7 @@ func _process(_delta: float) -> bool:
 		release_drive()
 		DirAccess.make_dir_recursive_absolute(output)
 		var f:=FileAccess.open(output.path_join("drive.json"),FileAccess.WRITE)
-		f.store_string(JSON.stringify({"passed":false,"routePassed":false,"stage":"total_timeout_"+stage,"fullRouteRequested":full_route,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot() if is_instance_valid(game) else {},"captures":captures}));f.close()
+		f.store_string(JSON.stringify({"passed":false,"routePassed":false,"stage":"total_timeout_"+stage,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else "incomplete","fullRouteRequested":full_route,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot() if is_instance_valid(game) else {},"captures":captures}));f.close()
 		print("DRIVE_TIMEOUT "+stage)
 		# Quit synchronously without freeing nodes underneath suspended route coroutines.
 		quit(1)
@@ -34,8 +34,9 @@ func _process(_delta: float) -> bool:
 	return false
 func checkpoint(value: String, announce: bool = true) -> void:
 	stage=value
-	var f:=FileAccess.open(output.path_join("progress.json"),FileAccess.WRITE)
+	var f:=FileAccess.open(output.path_join("progress.json.tmp"),FileAccess.WRITE)
 	f.store_string(JSON.stringify({"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot()}));f.close()
+	DirAccess.rename_absolute(output.path_join("progress.json.tmp"),output.path_join("progress.json"))
 	if announce: print("DRIVE_STAGE "+stage)
 func press(code: int, down: bool) -> void:
 	if held.get(code,false)==down: return
@@ -83,6 +84,7 @@ func navigate(point: Vector2) -> bool:
 			last_sample=Time.get_ticks_msec()
 			checkpoint(stage,false)
 		await frame()
+	navigation_failure="waypoint_timeout"
 	release_drive();return false
 func aim(point: Vector2) -> void:
 	for i in 240:
@@ -205,7 +207,7 @@ func finish(ok: bool, outcome_stage: String) -> void:
 	finishing=true
 	checkpoint(outcome_stage)
 	release_drive()
-	var result={"passed":ok,"routePassed":ok,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else "captured"),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
+	var result={"passed":ok,"routePassed":ok,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(18 if full_route else 3) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
 	var f:=FileAccess.open(output.path_join("drive.json"),FileAccess.WRITE)
 	f.store_string(JSON.stringify(result,"  "));f.close()
 	print("SURVEY_DRIVE "+JSON.stringify({"passed":ok,"stage":stage,"seconds":result.seconds,"state":result.state}))
