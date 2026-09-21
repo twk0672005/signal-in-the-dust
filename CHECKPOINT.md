@@ -1,9 +1,11 @@
 # Current checkpoint
-updatedAt: 2026-09-21T02:38:49.477323+00:00
+updatedAt: 2026-09-21T04:08:07.176055+00:00
 status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
 ## Current product and latest evidence
+- First-person readability repair: sensor raised12cm; three actual-render masks reduce rover coverage from22–25% to10–12%. Controller/interaction/native input journey and local Web smoke passed. See docs/CAMERA_READABILITY.md and evidence/camera-composition/receipt.json.
+- Unused concept image excluded from both export presets; source retained. Web PCK reduced by1,770,032 bytes without removing runtime terrain/model assets.
 - NEW: optional Veyra quiet crossing in Ember Rift; actual speed/distance pressure, warm rock-bed reward, and mid-activity persistence. Native and local Web journeys pass; see evidence/escort-delivery/receipt.json and docs/VEYRA_CROSSING.md. Activity schema6 includes validated origin/position/waypoint/alarm state.
 - Escort rules18, activity migration96, font391 current UI characters; full30-minute content and market art still missing.
 - Added optional Aurora crystal resonance: E listens/replays, 1/2/3 answer three rounds, outward-opening crystals and saved completion. Native real-input/mouse/pause/Continue route passed. Activity schema5; previous saves migrate. See docs/AURORA_RESONANCE.md and evidence/resonance-delivery/receipt.json.
