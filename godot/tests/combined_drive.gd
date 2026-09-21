@@ -148,7 +148,8 @@ func run() -> void:
 	if not await record_fields("ember_rift"): finish(false,"ember_fields");return
 	if not await escort_encounter() or not await road_here(): finish(false,"ember_escort");return
 	mark("ember_complete")
-	if not await follow_main(-265.0) or not await observe("aeral",4): finish(false,"veil_observe");return
+	if not await follow_main(-210.0) or not await use_site("marsh_reed"): finish(false,"veil_sampler");return
+	if not await study_aeral_pair(): finish(false,"veil_pair");return
 	if not await use_site("veil_marsh"): finish(false,"veil_required");return
 	if not await use_site("marsh_crossing") or not await road_here(): finish(false,"veil_echo");return
 	if not await record_fields("veil_marsh"): finish(false,"veil_fields");return
@@ -182,7 +183,7 @@ func finish(ok: bool, outcome_stage: String) -> void:
 	if finishing: return
 	finishing=true
 	release_drive();checkpoint(outcome_stage)
-	var result={"passed":ok,"routePassed":ok,"fullRouteRequested":true,"combinedRoute":true,"checks":combined_checks,"milestones":milestones,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("captured" if ok and captures.size()==19 and captures.all(func(c): return c.status=="captured") else "incomplete"),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_physical_key_events_continuous_all_encounters_and16sites_no_teleport_no_load_no_human"}
+	var result={"passed":ok,"routePassed":ok,"fullRouteRequested":true,"combinedRoute":true,"checks":combined_checks,"milestones":milestones,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("captured" if ok and captures.size()==21 and captures.all(func(c): return c.status=="captured") else "incomplete"),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_physical_key_events_continuous_all_encounters_and16sites_no_teleport_no_load_no_human"}
 	var file:=FileAccess.open(output.path_join("drive.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(result,"  "));file.close()
 	print("COMBINED_DRIVE "+JSON.stringify({"passed":ok,"stage":stage,"seconds":result.seconds,"checks":combined_checks}))

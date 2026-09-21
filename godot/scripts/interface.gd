@@ -15,6 +15,15 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"study_title": ["WETLAND · BEFORE / AFTER", "濕地 · 反應對照"],
+	"study_prepare": ["Activate the sampler at the reed field station.", "先在膜葉場記點啟動採樣器。"],
+	"study_alarm": ["Approach Aeral with throttle, then brake and press E to record its alarm.", "加速接近 Aeral，煞車後按 E 記錄受驚反應。"],
+	"study_quiet": ["Stay quiet until the flock settles. Press E to record recovery.", "保持安靜，待群體平復後按 E 記錄恢復反應。"],
+	"study_return": ["Both responses recorded. Validate at the wetland basin field station.", "兩種反應已記錄，前往濕地盆地場記點驗證。"],
+	"study_complete": ["The wetland canopy opens around the living pool.", "濕地植被在活水窪四周展開。"],
+	"study_startled": ["Alarm response recorded. Let the flock recover naturally.", "已記錄受驚反應，讓群體自然恢復。"],
+	"study_recovered": ["Recovery recorded. Return to the basin sampler.", "已記錄恢復反應，返回盆地採樣器。"],
+	"site_study_aeral": ["Aeral reaction study", "Aeral 反應對照"],
 	"thermal_title": ["MINERAL TRAILS", "礦脈路線"],
 	"thermal_hint": ["Accompany Veyra to warmth, or study the eastern vent for a cool route.", "陪 Veyra 前往暖床，或研究東側熱泉，探索冷礦脈路線。"],
 	"thermal_watch": ["Watch the plume. E reads the bright eruption.", "觀察噴流，亮起時按 E 讀取。"],
@@ -177,6 +186,7 @@ var _ecology_label: Label
 var _activity_label: Label
 var _activity_context: Dictionary = {}
 var _resonance_context: Dictionary = {}
+var _wetland_context: Dictionary = {}
 var _thermal_context: Dictionary = {}
 var _root_network_context: Dictionary = {}
 var _passage_context: Dictionary = {}
@@ -645,10 +655,16 @@ func _render_activity_context() -> void:
 		lines+="\n\n"+_text("thermal_title")+"\n"+_text("thermal_"+str(t.route) if t.vent_observed else "thermal_watch" if t.near else "thermal_hint")
 		var arrow: String="^" if absf(t.bearing)<0.25 else (">" if t.bearing>0 else "<")
 		lines+="\n"+arrow+" "+(_text("thermal_distance") % roundi(t.distance))
+	if not _wetland_context.is_empty():
+		lines+="\n\n"+_text("study_title")+"\n"+_text("study_"+str(_wetland_context.phase))
 	_activity_label.text=lines
 
 func set_resonance_context(data: Dictionary) -> void:
 	_resonance_context=data
+	_render_activity_context()
+
+func set_wetland_context(data: Dictionary) -> void:
+	_wetland_context=data
 	_render_activity_context()
 
 func set_thermal_context(data: Dictionary) -> void:

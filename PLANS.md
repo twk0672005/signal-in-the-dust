@@ -1,3 +1,7 @@
+# User-requested wrap-up and handoff
+
+Nova requested that the current version be wrapped up and published to the existing Codex Site. Do not expand features after delivery. Remaining market targets below are backlog, not active continuation instructions.
+
 # Current autonomous implementation plan
 
 Target: approximately30minutes of meaningful bilingual four-region exploration. MARKET remainsPARTIAL until all gates have direct evidence.
@@ -21,3 +25,6 @@ Current next slice: region-specific two-stage field investigations and reconnect
 
 - [x] Ember thermal warm/cool choice and persisted visible habitat outcome.
 - [x] Repair Web immediate-reload rollback; validate migration, backup, corrupted/temp files, failed clear and blocked-storage play/recovery.
+
+- [x] Wetland two-stage observation, licensed Ground037 shore, shallow pool, migration and actual native/Web checks.
+- [ ] Publish exact candidate and stop heartbeat after successful readback.

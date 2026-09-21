@@ -103,6 +103,7 @@ func run() -> void:
 	for region in activity_fixture.completed_regions: activity_fixture.completed_regions[region]=true
 	game.activities.restore(activity_fixture)
 	results.checks.main_surveys_without_fields_block_finale=not game.can_interact()
+	activity_fixture.wetland_study={"version":1,"prepared":true,"startled":true,"recovered":true}
 	for site in activity_fixture.field_notes: activity_fixture.field_notes[site]=true
 	activity_fixture.field_notes.pale_sink=false
 	game.activities.restore(activity_fixture)

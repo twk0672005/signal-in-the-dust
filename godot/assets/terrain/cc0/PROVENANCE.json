@@ -16,6 +16,24 @@
       "source": "https://ambientcg.com/view?id=Rock023",
       "license": "CC0-1.0",
       "localSource": "research\\terrain3d-1.0.2\\demo\\assets\\textures\\rock023_nrm_rgh.png"
+    },
+    {
+      "file": "ground037_alb_ht.png",
+      "sha256": "dd93b05e107b15ebd3b94075cb31068a12e490a1fa5e58df3c9cbd54dc33e492",
+      "bytes": 3339714,
+      "source": "https://ambientcg.com/view?id=Ground037",
+      "license": "CC0-1.0",
+      "localSource": "research\\terrain3d-1.0.2\\demo\\assets\\textures\\ground037_alb_ht.png",
+      "copiedAt": "2026-09-21T10:15:26.177785+00:00"
+    },
+    {
+      "file": "ground037_nrm_rgh.png",
+      "sha256": "02608f96e151ad203724bbc16c5f8df657818c63cb5782725b1bcfe307073975",
+      "bytes": 3294410,
+      "source": "https://ambientcg.com/view?id=Ground037",
+      "license": "CC0-1.0",
+      "localSource": "research\\terrain3d-1.0.2\\demo\\assets\\textures\\ground037_nrm_rgh.png",
+      "copiedAt": "2026-09-21T10:15:26.183300+00:00"
     }
   ],
   "channels": "alb_ht RGB=sRGB albedo, A=height (unused); nrm_rgh RGB=tangent normal, A=roughness; alpha not transparency"

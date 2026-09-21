@@ -26,6 +26,8 @@
     "test:root-network-journey": "node tools/run-journey.mjs --root-network",
     "test:combined-journey": "node tools/run-journey.mjs --combined",
     "test:thermal": "node tools/run-native-check.mjs thermal_checks",
-    "test:thermal-journey": "node tools/run-journey.mjs --thermal"
+    "test:thermal-journey": "node tools/run-journey.mjs --thermal",
+    "test:wetland-study": "node tools/run-native-check.mjs wetland_checks",
+    "test:wetland-journey": "node tools/run-journey.mjs --wetland"
   }
 }

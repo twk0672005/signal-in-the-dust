@@ -19,6 +19,7 @@ var captures: Array[Dictionary] = []
 var total_deadline := 0
 var timeout_ms := 900000
 var navigation_failure := ""
+var unexpected_pauses := 0
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--evidence-dir="): output=arg.trim_prefix("--evidence-dir=")
@@ -68,6 +69,11 @@ func navigate(point: Vector2, maximum: float = 12.0, hard_entry: bool = false) -
 	var last_movement:=Time.get_ticks_msec()
 	var anchor: Vector3=game.rover.position
 	while Time.get_ticks_msec()<deadline:
+		if game.phase=="paused" and unexpected_pauses<3:
+			unexpected_pauses+=1
+			samples.append({"event":"unexpected_pause_resumed_with_escape","count":unexpected_pauses,"seconds":(Time.get_ticks_msec()-started)/1000.0})
+			press(KEY_ESCAPE,true);await frame();press(KEY_ESCAPE,false)
+			await create_timer(0.2).timeout
 		if game.phase!="exploring":
 			navigation_failure="phase_"+game.phase
 			release_drive();return false
@@ -330,6 +336,8 @@ func play_escort_route() -> void:
 func record_fields(region: String) -> bool:
 	for id in game.activities.FIELD:
 		if game.activities.SITES[id].region!=region or game.activities.done(id): continue
+		if id=="marsh_pool" and not game.activities.wetland_study.recovered:
+			if not await study_aeral_pair(): return false
 		var point: Vector2=game.activities.point(id)
 		# Return to the road at the current latitude before changing latitude.
 		var z: float=game.rover.position.z
@@ -352,7 +360,7 @@ func finish(ok: bool, outcome_stage: String) -> void:
 	finishing=true
 	checkpoint(outcome_stage)
 	release_drive()
-	var result={"passed":ok,"routePassed":ok,"rootNetworkChecks":root_network_checks,"rootNetworkRoute":root_network_route,"passageChecks":passage_checks,"passageRoute":passage_route,"resonanceChecks":resonance_checks,"escortChecks":escort_checks,"escortRoute":escort_route,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(8 if root_network_route else 7 if passage_route else 11 if escort_route else (6 if resonance_route else (18 if full_route else 3))) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
+	var result={"passed":ok,"routePassed":ok,"rootNetworkChecks":root_network_checks,"rootNetworkRoute":root_network_route,"passageChecks":passage_checks,"passageRoute":passage_route,"resonanceChecks":resonance_checks,"escortChecks":escort_checks,"escortRoute":escort_route,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(8 if root_network_route else 7 if passage_route else 11 if escort_route else (6 if resonance_route else (20 if full_route else 3))) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_route_with_declared_pause_and_continue_checks_no_teleport_not_independent_human"}
 	var f:=FileAccess.open(output.path_join("drive.json"),FileAccess.WRITE)
 	f.store_string(JSON.stringify(result,"  "));f.close()
 	print("SURVEY_DRIVE "+JSON.stringify({"passed":ok,"stage":stage,"seconds":result.seconds,"state":result.state}))
@@ -477,3 +485,34 @@ func play_root_network_route() -> void:
 	var passed:=true
 	for value in root_network_checks.values(): passed=passed and bool(value)
 	finish(passed,"root_network_complete_continue_reset")
+
+func study_aeral_pair(capture_pair: bool = true) -> bool:
+	if not game.activities.wetland_study.prepared: return false
+	if not await follow_main(-265.0): return false
+	var bird: Node3D=game.world._ecology_nodes[4]
+	var point:=Vector2(bird.position.x,bird.position.z)+Vector2(0,4)
+	if not await navigate(point,12.0,true): return false
+	for attempt in 60:
+		var nearest: Dictionary=game.world.nearest_ecology(game.rover.position)
+		await aim(Vector2(bird.position.x,bird.position.z))
+		if game.interaction_target()=="ecology":
+			var alarm: float=game.world._ecology_reactions[int(nearest.index)].alert
+			press(KEY_E,true);await frame();press(KEY_E,false);await create_timer(0.15).timeout
+			if game.activities.wetland_study.startled:
+				samples.append({"event":"alarm_observation","alert":alarm,"position":str(game.rover.position)})
+				break
+		if attempt==10:
+			# Actual throttle stimulus, then brake; never write the ecology response state.
+			press(KEY_W,true);await create_timer(0.9).timeout;press(KEY_W,false)
+			press(KEY_SPACE,true);await create_timer(0.3).timeout;press(KEY_SPACE,false)
+		await frame()
+	if not game.activities.wetland_study.startled: return false
+	if capture_pair: await capture("study-alarm-observed")
+	var deadline:=Time.get_ticks_msec()+15000
+	while not game.activities.wetland_study.recovered and Time.get_ticks_msec()<deadline:
+		await aim(Vector2(bird.position.x,bird.position.z))
+		if game.interaction_target()=="ecology":
+			press(KEY_E,true);await frame();press(KEY_E,false)
+		await create_timer(0.25).timeout
+	if capture_pair: await capture("study-recovery-observed")
+	return game.activities.wetland_study.recovered

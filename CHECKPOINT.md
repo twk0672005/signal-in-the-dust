@@ -1,9 +1,12 @@
 # Current checkpoint
-updatedAt: 2026-09-21T09:30:34.889646+00:00
-status: PARTIAL / IN_PROGRESS
+updatedAt: 2026-09-21T11:27:35.949241+00:00
+status: WRAP_UP / PARTIAL
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
 ## Current product
+- USER SCOPE CHANGE: Nova requested wrap-up and existing Codex Sites publication. Finish this candidate only; no further feature expansion. Disable heartbeat after successful deployment.
+- NEW wetland paired study and shallow pool using verified Ground037. Native9/Web8/guidance7checks pass; schema11 preserves old completed field notes. docs/WETLAND_STUDY.md and DELIVERY.md.
+- Latest receipt: evidence/wetland-study/receipt.json; source/artifact deployment readback remains evidence/latest-release.json.
 - NEW Ember thermal choice: original warm escort or vent-observed cool mineral route, locked during escort, distinct saved bed/herd outcome. docs/EMBER_THERMAL_ROUTES.md; evidence/thermal-route/receipt.json.
 - Fixed actual Web pause/reload rollback: synchronous small-save adapter with validated backup, legacy migration and reset tombstone. Three immediate mid-route reloads match exactly; failed-clear/corruption/storage-disabled fixtures pass. Native FileAccess retained.
 - Activity schema10; thermal15rules, activity116;12regression suites. Font472characters. Read latest-release.json for deployment, not older hardcoded versions.
@@ -24,7 +27,7 @@ root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 - Read evidence/latest-release.json for exact hosted status. At wake start privatev12/c63bb39 was succeeded. Journal candidate is a later revision; do not assume it is hosted without tool readback.
 - Owner-only; no public promotion before human/platform/market gates. Root owns Sites lifecycle. Preserve preview PID18752 unless fresh evidence shows ownership changed.
 
-## Next work
+## Backlog after handoff — requires fresh direction
 1. Ember route choice is implemented. Next add region-specific two-stage field investigations and authored side loops; preserve the measured10m33s baseline and remeasure final content.
 2. Expand region-specific field investigations and authored side loops, then repeat combined timing against30-minute target.
 3. Improve prop variation and near/mid/far habitat detail; current world remains sparse/repetitive.

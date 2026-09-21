@@ -8,6 +8,9 @@ const TERRAIN_SHADER = preload("res://shaders/terrain.gdshader")
 const SKY_SHADER = preload("res://shaders/storm_sky.gdshader")
 const ROOT_SHADER = preload("res://shaders/response_roots.gdshader")
 const STRATA_SHADER = preload("res://shaders/geological_strata.gdshader")
+const WETLAND_SHADER = preload("res://shaders/wetland_pool.gdshader")
+const GROUND037_ALBEDO_PATH := "res://assets/terrain/cc0/ground037_alb_ht.png"
+const GROUND037_NORMAL_PATH := "res://assets/terrain/cc0/ground037_nrm_rgh.png"
 const PASSAGE_Z := [-235.0, -260.0, -285.0, -310.0, -330.0]
 const PASSAGE_X_OFFSETS := [-6.0, 7.0, -7.0, 6.0, -5.0]
 const ROOT_NETWORK_Z := [-405.0, -455.0, -520.0, -595.0]
@@ -68,11 +71,20 @@ var _thermal_steam_material: StandardMaterial3D
 var _thermal_cue_material: StandardMaterial3D
 var _thermal_open: float = 0.0
 var _cool_bed_material: StandardMaterial3D
+var _wetland_state: Dictionary = {"prepared":false, "startled":false, "recovered":false, "complete":false}
+var _wetland_root: Node3D
+var _wetland_plants: Array[Dictionary] = []
+var _wetland_vein_materials: Array[StandardMaterial3D] = []
+var _wetland_water_material: ShaderMaterial
+var _wetland_reader_material: StandardMaterial3D
+var _wetland_reader_label: Label3D
+var _wetland_open: float = 0.0
+var _wetland_alarm: float = 0.0
 
 func path_x(z: float) -> float:
 	return 18.0 * sin((150.0 - z) * 0.012) + 4.0 * sin((150.0 - z) * 0.033)
 
-func height_at(x: float, z: float) -> float:
+func _base_height_at(x: float, z: float) -> float:
 	var d := absf(x - path_x(z))
 	var banks := smoothstep(5.5, 33.0, d)
 	var base := 0.8 * sin(z * 0.023) + 0.38 * sin(z * 0.064)
@@ -86,6 +98,20 @@ func height_at(x: float, z: float) -> float:
 	else: zone_wave = sin(x * 0.08 + z * 0.07) * 0.8 + 0.35
 	var signal_clear := 1.0 - smoothstep(11.0, 24.0, Vector2(x - path_x(-650.0), z + 650.0).length())
 	return base + zone_wave + (banks * (shelf + broken) + flank) * (1.0 - signal_clear)
+
+func _wetland_center() -> Vector2:
+	return Vector2(path_x(-342.0) - 32.0, -342.0)
+
+func height_at(x: float, z: float) -> float:
+	var base_height := _base_height_at(x, z)
+	var center := _wetland_center()
+	var distance := Vector2(x - center.x, z - center.y).length()
+	if distance >= 10.0:
+		return base_height
+	# The coarse 2.5 x 4.7 m terrain sampling needs a broad, flat-bottomed bowl.
+	# Outside ten metres the blend is exactly zero, preserving every established route height.
+	var basin_floor := _base_height_at(center.x, center.y) - 1.2
+	return lerpf(basin_floor, base_height, smoothstep(3.4, 10.0, distance))
 
 func spawn_origin() -> Vector3:
 	return Vector3(path_x(150.0), height_at(path_x(150.0), 150.0), 150.0)
@@ -115,6 +141,7 @@ func _ready() -> void:
 	_build_horizon()
 	_build_landmarks()
 	_build_rocks()
+	_build_wetland_pool()
 	_build_root_network()
 	var habitats := HABITAT_FEATURES.new()
 	habitats.name = "HabitatFeatures"
@@ -150,6 +177,7 @@ func _process(delta: float) -> void:
 	_tick_thermal(delta)
 	_tick_passage_gates(delta)
 	_tick_root_network(delta)
+	_tick_wetland(delta)
 
 func _tick_ecology(delta: float) -> void:
 	for i in _ecology_nodes.size():
@@ -1232,6 +1260,199 @@ func _build_rocks() -> void:
 	build_stats["rock_triangles_all_instances"] = rock_triangles
 	build_stats["rock_batches"] = _rock_meshes.size() * 3
 
+func _wetland_ground_material(color: Color) -> StandardMaterial3D:
+	var material := _ecology_material(color, Color("6e9f86"), 0.025, 0.86)
+	var albedo_path := GROUND037_ALBEDO_PATH if ResourceLoader.exists(GROUND037_ALBEDO_PATH) else "res://assets/terrain/dust_albedo.png"
+	var normal_path := GROUND037_NORMAL_PATH if ResourceLoader.exists(GROUND037_NORMAL_PATH) else "res://assets/terrain/geology_normal.png"
+	material.albedo_texture = load(albedo_path)
+	material.normal_enabled = true
+	material.normal_texture = load(normal_path)
+	material.normal_scale = 0.24
+	if normal_path == GROUND037_NORMAL_PATH:
+		material.roughness_texture = material.normal_texture
+		material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_ALPHA
+	material.uv1_triplanar = true
+	material.uv1_scale = Vector3.ONE * 0.42
+	return material
+
+func _build_wetland_pool() -> void:
+	var center := _wetland_center()
+	_wetland_root = Node3D.new()
+	_wetland_root.name = "PairedMarshStudy"
+	_wetland_root.position = Vector3(center.x, height_at(center.x, center.y), center.y)
+	add_child(_wetland_root)
+
+	# A real terrain depression contains the water. The water body itself is deliberately cheap and opaque.
+	var water := MeshInstance3D.new()
+	water.name = "ContainedShallowWater"
+	var water_mesh := CylinderMesh.new()
+	water_mesh.top_radius = 4.2
+	water_mesh.bottom_radius = 4.2
+	water_mesh.height = 0.08
+	water_mesh.radial_segments = 32
+	water.mesh = water_mesh
+	water.position.y = 0.64
+	_wetland_water_material = ShaderMaterial.new()
+	_wetland_water_material.shader = WETLAND_SHADER
+	water.material_override = _wetland_water_material
+	water.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_wetland_root.add_child(water)
+
+	var rock_material := _passage_material(Color("4e5d58"))
+	rock_material.emission_energy_multiplier = 0.015
+	var shore_material := _wetland_ground_material(Color("4c665b"))
+	var plant_material := _wetland_ground_material(Color("315b50"))
+	plant_material.emission = Color("6aa88f")
+	plant_material.emission_energy_multiplier = 0.045
+	for i in 11:
+		var angle := float(i) / 11.0 * TAU + sin(float(i) * 2.31) * 0.12
+		var radius := 5.1 + float(i % 4) * 0.48 + sin(float(i) * 1.73) * 0.28
+		var local := Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
+		var rock_scale := Vector3(0.54 + float(i % 3) * 0.17, 0.22 + float((i + 1) % 3) * 0.08, 0.46 + float((i + 2) % 4) * 0.12)
+		_root_ground_rock(_wetland_root, local, rock_scale, rock_material, 60 + i)
+		var patch_angle := angle + 0.17
+		var patch_radius := radius - 0.55
+		var patch_x := cos(patch_angle) * patch_radius
+		var patch_z := sin(patch_angle) * patch_radius
+		var patch_world_x := center.x + patch_x
+		var patch_world_z := center.y + patch_z
+		var patch := _eco_sphere(
+			_wetland_root,
+			Vector3(patch_x, height_at(patch_world_x, patch_world_z) - _wetland_root.position.y + 0.035, patch_z),
+			Vector3(0.72 + float(i % 2) * 0.24, 0.045, 0.46 + float(i % 3) * 0.12),
+			shore_material
+		)
+		patch.name = "Ground037ShorePatch%02d" % i
+
+	for i in 9:
+		var angle := float(i) / 9.0 * TAU + 0.29
+		var radius := 5.5 + float(i % 3) * 0.78
+		var local_x := cos(angle) * radius
+		var local_z := sin(angle) * radius
+		var world_x := center.x + local_x
+		var world_z := center.y + local_z
+		var plant := Node3D.new()
+		plant.name = "MembranePlant%02d" % i
+		plant.position = Vector3(local_x, height_at(world_x, world_z) - _wetland_root.position.y, local_z)
+		plant.rotation.y = -angle + PI * 0.5
+		_wetland_root.add_child(plant)
+		_eco_rod(plant, Vector3.ZERO, Vector3(0.0, 0.75 + float(i % 3) * 0.11, 0.0), 0.045, plant_material)
+		var lobes: Array[MeshInstance3D] = []
+		var closed: Array[float] = []
+		var opened: Array[float] = []
+		for lobe_index in 3:
+			var side := float(lobe_index - 1)
+			var lobe := _eco_sphere(
+				plant,
+				Vector3(side * 0.16, 0.78 + float(lobe_index % 2) * 0.18, 0.0),
+				Vector3(0.24 + float(i % 2) * 0.035, 0.7 + float(lobe_index) * 0.1, 0.065),
+				plant_material
+			)
+			lobe.name = "MembraneLobe%d" % lobe_index
+			var closed_angle := side * 0.12
+			var open_angle := side * (0.58 + float(i % 3) * 0.08)
+			lobe.rotation.z = closed_angle
+			lobes.append(lobe)
+			closed.append(closed_angle)
+			opened.append(open_angle)
+		_wetland_plants.append({"node":plant, "lobes":lobes, "closed":closed, "opened":opened, "phase":float(i) * 0.91})
+
+	for i in 6:
+		var angle := float(i) / 6.0 * TAU + 0.18
+		var vein_material := _ecology_material(Color("345f59"), Color("70b6a5"), 0.025, 0.42)
+		_wetland_vein_materials.append(vein_material)
+		_eco_rod(
+			_wetland_root,
+			Vector3(cos(angle) * 0.45, 0.695, sin(angle) * 0.45),
+			Vector3(cos(angle) * (3.2 + float(i % 2) * 0.45), 0.695, sin(angle) * (3.2 + float(i % 2) * 0.45)),
+			0.026,
+			vein_material
+		)
+
+	_build_wetland_reader(plant_material)
+	build_stats["wetland_pool_radius"] = 4.2
+	build_stats["wetland_bowl_radius"] = 10.0
+	build_stats["wetland_membrane_plants"] = _wetland_plants.size()
+
+func _build_wetland_reader(material: StandardMaterial3D) -> void:
+	var field := SURVEYS.point("marsh_reed")
+	var reader := Node3D.new()
+	reader.name = "MarshPairedReaderSeed"
+	var x := field.x + 2.8
+	var z := field.y + 1.2
+	reader.position = Vector3(x, height_at(x, z) + 0.08, z)
+	add_child(reader)
+	_wetland_reader_material = material.duplicate() as StandardMaterial3D
+	_wetland_reader_material.emission_energy_multiplier = 0.025
+	_eco_rod(reader, Vector3.ZERO, Vector3(0.0, 0.85, 0.0), 0.055, _wetland_reader_material)
+	_eco_sphere(reader, Vector3(0.0, 0.98, 0.0), Vector3(0.26, 0.14, 0.26), _wetland_reader_material)
+	_wetland_reader_label = Label3D.new()
+	_wetland_reader_label.name = "PairedStudyReadout"
+	_wetland_reader_label.text = "-- / 2"
+	_wetland_reader_label.font_size = 36
+	_wetland_reader_label.pixel_size = 0.009
+	_wetland_reader_label.position = Vector3(0.0, 1.65, 0.0)
+	_wetland_reader_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	reader.add_child(_wetland_reader_label)
+
+func set_wetland_study_state(data: Dictionary, instant: bool = false) -> void:
+	_wetland_state = {
+		"prepared":bool(data.get("prepared", false)),
+		"startled":bool(data.get("startled", false)),
+		"recovered":bool(data.get("recovered", false)),
+		"complete":bool(data.get("complete", false))
+	}
+	if instant:
+		_wetland_open = 1.0 if _wetland_state.complete else 0.0
+		_wetland_alarm = 1.0 if _wetland_state.startled and not _wetland_state.recovered else 0.0
+	_apply_wetland_readout()
+	_tick_wetland(0.0, instant)
+
+func _apply_wetland_readout() -> void:
+	if not is_instance_valid(_wetland_reader_label): return
+	if _wetland_state.complete:
+		_wetland_reader_label.text = "2 / 2"
+	elif _wetland_state.recovered:
+		_wetland_reader_label.text = "2 / 2"
+	elif _wetland_state.startled:
+		_wetland_reader_label.text = "1 / 2"
+	elif _wetland_state.prepared:
+		_wetland_reader_label.text = "0 / 2"
+	else:
+		_wetland_reader_label.text = "-- / 2"
+	var active: bool = bool(_wetland_state.prepared) or bool(_wetland_state.startled) or bool(_wetland_state.recovered) or bool(_wetland_state.complete)
+	_wetland_reader_material.albedo_color = Color("79a98f") if active else Color("315b50")
+	_wetland_reader_material.emission_energy_multiplier = 0.18 if active else 0.025
+
+func _tick_wetland(delta: float, instant: bool = false) -> void:
+	if not is_instance_valid(_wetland_root): return
+	var target_open := 1.0 if bool(_wetland_state.get("complete", false)) else 0.0
+	var target_alarm := 1.0 if bool(_wetland_state.get("startled", false)) and not bool(_wetland_state.get("recovered", false)) else 0.0
+	_wetland_open = target_open if instant else move_toward(_wetland_open, target_open, delta * 0.52)
+	_wetland_alarm = target_alarm if instant else move_toward(_wetland_alarm, target_alarm, delta * 1.4)
+	var response := _wetland_open * (1.0 - _wetland_alarm)
+	if is_instance_valid(_wetland_water_material):
+		_wetland_water_material.set_shader_parameter("world_time", _world_time)
+		_wetland_water_material.set_shader_parameter("response", response)
+		_wetland_water_material.set_shader_parameter("alarm", _wetland_alarm)
+	for i in _wetland_plants.size():
+		var data: Dictionary = _wetland_plants[i]
+		var plant: Node3D = data.node
+		var pulse := 0.5 + 0.5 * sin(_world_time * 1.05 + float(data.phase))
+		var living_scale := response * pulse * 0.035
+		plant.scale = Vector3(1.0 + living_scale, lerpf(1.0, 0.66, _wetland_alarm) + living_scale, 1.0 + living_scale)
+		var lobes: Array = data.lobes
+		for lobe_index in lobes.size():
+			var lobe: MeshInstance3D = lobes[lobe_index]
+			var closed_angle: float = data.closed[lobe_index]
+			var open_angle: float = data.opened[lobe_index]
+			lobe.rotation.z = lerpf(closed_angle, open_angle, response)
+	for i in _wetland_vein_materials.size():
+		var vein: StandardMaterial3D = _wetland_vein_materials[i]
+		var vein_pulse := 0.5 + 0.5 * sin(_world_time * 1.25 - float(i) * 0.72)
+		vein.emission_energy_multiplier = 0.025 + response * (0.11 + vein_pulse * 0.09)
+		vein.albedo_color = Color("6e6551") if _wetland_alarm > 0.5 else Color("345f59").lerp(Color("508b79"), response * 0.45)
+
 func _triangle_count(mesh: Mesh) -> int:
 	var triangles := 0
 	for s in mesh.get_surface_count():
@@ -1250,6 +1471,8 @@ func _place_rock(x: float, z: float, size: Vector3, small: bool, collidable: boo
 	var type := _rng.randi_range(0, _rock_meshes.size() - 1)
 	var yaw := _rng.randf_range(-PI, PI)
 	var basis := Basis.from_euler(Vector3(_rng.randf_range(-0.13, 0.13), yaw, _rng.randf_range(-0.12, 0.12))).scaled(size)
+	# Consume the original random draws before omitting a pond rock; other placements stay stable.
+	if Vector2(x, z).distance_to(_wetland_center()) < 10.0 + footprint: return
 	var bounds := _rock_meshes[type].get_aabb()
 	var position := Vector3(x, height_at(x, z) - bounds.position.y * size.y - size.y * 0.12, z)
 	var transform := Transform3D(basis, position)
@@ -1375,6 +1598,7 @@ func reset() -> void:
 	set_resonance_visual(-1,false)
 	set_passage_state({"phase":"idle", "gate":0, "alarm":0.0}, 0.0, true)
 	_world_time = 0.0
+	set_wetland_study_state({"prepared":false,"startled":false,"recovered":false,"complete":false}, true)
 	set_thermal_state({"vent_observed":false,"route":"warm","locked":false},true)
 	set_root_network_state({"ports":[0, 0, 0], "powered":0, "complete":false}, true)
 	_player_position = spawn_origin()

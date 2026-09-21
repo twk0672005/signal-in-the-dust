@@ -29,6 +29,8 @@ func _initialize() -> void:
 		checks[id+"_remote_rejected"]=not t.record(id,site.region,position+Vector3(20,0,0),0,observations)
 		checks[id+"_fast_rejected"]=not t.record(id,site.region,position,24,observations)
 		if not str(site.kind).is_empty(): checks[id+"_requires_observation"]=not t.record(id,site.region,position,0,{})
+		if id=="marsh_pool":
+			t.wetland_study.observe("aeral",0.9);t.wetland_study.observe("aeral",0.0)
 		checks[id+"_real_site_recorded"]=t.record(id,site.region,position,0,observations)
 		checks[id+"_one_shot"]=not t.record(id,site.region,position,0,observations)
 	var saved: Dictionary=t.snapshot()
@@ -130,6 +132,21 @@ func _initialize() -> void:
 	checks.v9_default_warm=u.restore(thermal_data) and u.thermal_state.route=="warm" and not u.thermal_state.locked
 	thermal_data=t.snapshot();thermal_data.version=9;thermal_data.escort_complete=true;thermal_data.erase("thermal_state")
 	checks.v9_completed_warm_locked=u.restore(thermal_data) and u.thermal_state.locked and u.thermal_state.route=="warm"
+	var study_data: Dictionary=t.snapshot()
+	study_data.wetland_study.recovered=false
+	checks.finished_pool_requires_recovered=not u.restore(study_data)
+	study_data=t.snapshot();study_data.version=10;study_data.erase("wetland_study")
+	checks.legacy_complete_fields_preserved=u.restore(study_data) and u.field.marsh_pool and u.wetland_study.recovered
+	study_data.field_notes.marsh_reed=false
+	checks.legacy_pool_before_reed_preserved=u.restore(study_data) and u.wetland_study.recovered and not u.field.marsh_reed
+	u.reset();var pool_point: Vector2=Tracker.point("marsh_pool")
+	checks.pool_locked_without_study=not u.can_record("marsh_pool","veil_marsh",Vector3(pool_point.x,0,pool_point.y),0,{})
+	var reed_point: Vector2=Tracker.point("marsh_reed")
+	checks.reed_arms_sampler=u.record("marsh_reed","veil_marsh",Vector3(reed_point.x,0,reed_point.y),0,{}) and u.wetland_study.prepared
+	u.wetland_study.observe("aeral",0.9)
+	checks.pool_still_requires_recovery=not u.can_record("marsh_pool","veil_marsh",Vector3(pool_point.x,0,pool_point.y),0,{})
+	u.wetland_study.observe("aeral",0)
+	checks.pool_after_pair=u.record("marsh_pool","veil_marsh",Vector3(pool_point.x,0,pool_point.y),0,{})
 	var ok:=true
 	for value in checks.values(): ok=ok and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)

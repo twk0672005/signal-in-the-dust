@@ -173,6 +173,7 @@ func _process(delta: float) -> void:
 		_update_resonance(delta)
 		_update_escort(delta)
 		_update_passage(delta)
+		world.set_wetland_study_state(_wetland_world_state())
 		var survey_events: Array = activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,delta,rover.global_position)
 		for id: String in survey_events: _survey_completed(id)
 		_survey_message_seconds=maxf(0.0,_survey_message_seconds-delta)
@@ -225,11 +226,16 @@ func _update_survey_readout() -> void:
 	if not tracked.is_empty() and _encounter_complete(tracked):
 		activities.tracked_encounter=""
 		tracked=""
+	if tracked.is_empty() and region=="veil_marsh" and activities.wetland_study.prepared and not activities.field.marsh_pool:
+		target="marsh_pool" if activities.wetland_study.recovered else "study_aeral"
 	if not tracked.is_empty(): target="encounter_"+tracked
 	var distance:=0.0
 	var bearing:=0.0
 	if not target.is_empty():
 		var point: Vector2=ActivityScript.point(target) if tracked.is_empty() else _encounter_point(tracked)
+		if target=="study_aeral":
+			var animal: Vector3=world._ecology_nodes[4].global_position
+			point=Vector2(animal.x,animal.z)
 		distance=Vector2(rover.position.x,rover.position.z).distance_to(point)
 		var offset: Vector2=point-Vector2(rover.position.x,rover.position.z)
 		bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
@@ -239,6 +245,7 @@ func _update_survey_readout() -> void:
 	ui.set_passage_context(_passage_context())
 	ui.set_root_network_context(_root_network_context())
 	ui.set_thermal_context(_thermal_context())
+	ui.set_wetland_context(_wetland_context())
 	var journal: Dictionary={"tracked":activities.tracked_encounter,"entries":{}}
 	for id in ActivityScript.REGIONS:
 		journal.entries[id]={"discovered":activities.discovered[id],"complete":_encounter_complete(id)}
@@ -372,6 +379,7 @@ func load_expedition() -> bool:
 	audio.reset()
 	observed_ecology = parsed["observedEcology"].duplicate(true)
 	activities=restored_activities
+	world.set_wetland_study_state(_wetland_world_state(),true)
 	resonance.reset(activities.resonance_complete)
 	root_network=restored_network
 	world.set_root_network_state(root_network.snapshot(),true)
@@ -511,7 +519,13 @@ func interact() -> void:
 			observed_ecology[str(observed.get("kind","unknown"))] = true
 			activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,0.0,rover.global_position)
 			_update_survey_readout()
-			ui.set_message("ecology_observed")
+			var study_event: String=activities.wetland_study.observe(str(observed.get("kind","")),float(world._ecology_reactions[int(observed.index)].alert))
+			ui.set_message("study_"+study_event if not study_event.is_empty() else "ecology_observed")
+			if not study_event.is_empty():
+				_survey_message_seconds=4.0
+				audio.play_resonance(0 if study_event=="startled" else 2)
+				save_expedition()
+				_update_survey_readout()
 			_publish_snapshot()
 		return
 	save_expedition()
@@ -539,7 +553,7 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
+	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
@@ -725,4 +739,15 @@ func _thermal_context() -> Dictionary:
 	data.bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
 	data.pulse=world.thermal_pulse()
 	data.near=_thermal_near()
+	return data
+
+func _wetland_world_state() -> Dictionary:
+	var data: Dictionary=activities.wetland_study.snapshot()
+	data.complete=activities.field.marsh_pool
+	return data
+
+func _wetland_context() -> Dictionary:
+	if phase!="exploring" or world.region_at(rover.position)!="veil_marsh": return {}
+	var data:=_wetland_world_state()
+	data.phase="complete" if data.complete else "return" if data.recovered else "quiet" if data.startled else "alarm" if data.prepared else "prepare"
 	return data
