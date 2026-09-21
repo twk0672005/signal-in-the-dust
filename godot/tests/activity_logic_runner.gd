@@ -63,6 +63,16 @@ func _initialize() -> void:
 	u.field.aurora_lode=false
 	checks.guides_back_to_missing_field=u.target("pale_decay")=="aurora_lode"
 	u.reset();checks.reset=u.count()==0 and u.optional_count()==0 and u.field_count()==0 and u.stillness==0
+	var resonance_data: Dictionary=t.snapshot()
+	resonance_data.resonance_complete=true
+	var resonance_restore=Tracker.new()
+	checks.resonance_saved=resonance_restore.restore(resonance_data) and resonance_restore.resonance_complete
+	resonance_data.resonance_complete="bad"
+	checks.bad_resonance_rejected=not resonance_restore.restore(resonance_data) and resonance_restore.resonance_complete
+	resonance_data=t.snapshot();resonance_data.version=4;resonance_data.erase("resonance_complete")
+	checks.v4_resonance_default=resonance_restore.restore(resonance_data) and not resonance_restore.resonance_complete
+	resonance_restore.resonance_complete=true;resonance_restore.reset()
+	checks.resonance_reset=not resonance_restore.resonance_complete
 	var ok:=true
 	for value in checks.values(): ok=ok and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)

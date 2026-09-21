@@ -14,10 +14,10 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	for key in ["wind", "rolling", "servo", "pulse", "transmit", "response"]:
+	for key in ["wind", "rolling", "servo", "pulse", "transmit", "response", "resonance"]:
 		var player := AudioStreamPlayer.new()
 		player.name = key.capitalize()
-		player.stream = load("res://assets/audio/" + key + ".wav")
+		player.stream = load("res://assets/audio/" + ("transmit" if key=="resonance" else key) + ".wav")
 		player.playback_type = AudioServer.PLAYBACK_TYPE_SAMPLE if OS.has_feature("web") else AudioServer.PLAYBACK_TYPE_STREAM
 		player.volume_db = -80.0
 		if key in ["wind", "rolling", "servo", "pulse"]:
@@ -32,7 +32,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var duck := 0.16 if _paused else 1.0
-	var gains := {"wind": 0.29 if _reveal else 0.42, "rolling": _drive * 0.33, "servo": _drive * 0.13, "pulse": _signal * (0.13 if _reveal else 0.32), "transmit": 0.58, "response": 0.68}
+	var gains := {"wind": 0.29 if _reveal else 0.42, "rolling": _drive * 0.33, "servo": _drive * 0.13, "pulse": _signal * (0.13 if _reveal else 0.32), "transmit": 0.58, "response": 0.68, "resonance":0.42}
 	for key in _players:
 		var player: AudioStreamPlayer = _players[key]
 		var target: float = float(gains[key]) * _volume * duck
@@ -63,7 +63,7 @@ func play_reveal() -> void:
 func set_paused(value: bool) -> void:
 	_paused = value
 	# Ambience ducks; time-critical response retains its position while paused.
-	for key in ["transmit", "response"]:
+	for key in ["transmit", "response", "resonance"]:
 		if _players.has(key):
 			_players[key].stream_paused = value
 
@@ -80,3 +80,8 @@ func reset() -> void:
 			player.play()
 
 
+
+func play_resonance(band: int) -> void:
+	if _paused or not _players.has("resonance"): return
+	_players.resonance.pitch_scale=[0.75,1.0,1.5][clampi(band,0,2)]
+	_players.resonance.play()

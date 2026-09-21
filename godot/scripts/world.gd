@@ -32,6 +32,9 @@ var _ecology_meta: Array[Dictionary] = []
 var _observed_regions: Dictionary = {}
 var build_stats: Dictionary = {}
 var _survey_materials: Dictionary = {}
+var _resonance_crystals: Array[Node3D] = []
+var _resonance_glows: Array[StandardMaterial3D] = []
+var _resonance_open := 0.0
 
 func path_x(z: float) -> float:
 	return 18.0 * sin((150.0 - z) * 0.012) + 4.0 * sin((150.0 - z) * 0.033)
@@ -70,6 +73,7 @@ func _ready() -> void:
 	add_child(habitats)
 	habitats.build(self)
 	_build_survey_sites()
+	_build_resonance_grove()
 	_build_ecology()
 	_prepare_ecology_responses()
 	_build_response()
@@ -238,6 +242,43 @@ func apply_survey_progress(data: Dictionary) -> void:
 		material.emission=material.albedo_color
 		material.emission_energy_multiplier=1.3 if finished else 0.6
 
+
+func _build_resonance_grove() -> void:
+	var grove:=Node3D.new()
+	grove.name="ResonanceGrove"
+	grove.position=survey_position("aurora_echo")
+	add_child(grove)
+	var shades: Array[Color]=[Color("759da7"),Color("8b84ac"),Color("aea477")]
+	for band in 3:
+		var crystal:=Node3D.new()
+		crystal.position=Vector3((band-1)*2.2,0,-2.2)
+		grove.add_child(crystal)
+		var glow:=_ecology_material(shades[band],shades[band],0.25,0.38)
+		glow.albedo_texture=load("res://assets/terrain/cc0/rock023_alb_ht.png")
+		glow.uv1_triplanar=true
+		for tip in 3:
+			var shard:=MeshInstance3D.new()
+			var mesh:=CylinderMesh.new()
+			mesh.top_radius=0.02;mesh.bottom_radius=0.24;mesh.height=2.2+0.55*band+0.22*tip;mesh.radial_segments=6
+			shard.mesh=mesh;shard.material_override=glow
+			shard.position=Vector3((tip-1)*0.38,mesh.height/2,0)
+			shard.rotation.z=(tip-1)*0.18
+			crystal.add_child(shard)
+		var number:=Label3D.new()
+		number.name="BandNumber";number.text=str(band+1);number.font_size=48;number.pixel_size=0.012
+		number.position=Vector3(0,3.7+band*0.5,0)
+		number.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		crystal.add_child(number)
+		_resonance_crystals.append(crystal);_resonance_glows.append(glow)
+
+func set_resonance_visual(band: int, complete: bool, delta: float = 0.0) -> void:
+	_resonance_open=move_toward(_resonance_open,1.0 if complete else 0.0,maxf(0.0,delta)*0.6)
+	for i in _resonance_crystals.size():
+		var crystal:=_resonance_crystals[i]
+		crystal.rotation.z=(1-i)*0.42*_resonance_open
+		crystal.scale=Vector3.ONE*(1.0+_resonance_open*0.25)
+		crystal.get_node("BandNumber").visible=not complete
+		_resonance_glows[i].emission_energy_multiplier=1.6 if i==band else (0.65 if complete else 0.18)
 
 func _build_atmosphere() -> void:
 	_environment = Environment.new()
@@ -737,6 +778,8 @@ func set_paused(value: bool) -> void:
 	if is_instance_valid(_dust): _dust.speed_scale = 0.0 if value else 1.0
 
 func reset() -> void:
+	_resonance_open=0.0
+	set_resonance_visual(-1,false)
 	_world_time = 0.0
 	_player_position = spawn_origin()
 	_player_speed = 0.0

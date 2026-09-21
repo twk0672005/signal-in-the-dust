@@ -24,3 +24,6 @@ Do not restart a validated subsystem without a concrete defect. The next impleme
 - [x] Repair mandatory target guidance, bilingual field labels, font coverage, fractional save-version rejection; restore negative regression coverage.
 - [x] Real Web canvas cold start and physical-key movement / V / pause / reload-Continue smoke. Remaining platform and long-persistence gates stay open.
 - [ ] Create meaningful ecological multi-step content; current all-content route is ~6.5min and does not meet 30min.
+
+- [x] Add first optional multi-step activity: Aurora crystal resonance, observable cues, numeric response, retry, physical pose reward and saved completion; native input journey verified.
+- [ ] Validate broader Web/platform activity experience; expand the remaining habitats with distinct substantial content before claiming 30 minutes.

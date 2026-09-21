@@ -14,6 +14,15 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"resonance_title": ["CRYSTAL RESONANCE · %d / 3", "冰晶共鳴 · %d / 3"],
+	"resonance_idle": ["E · Hear the crystals. Reply with 1 / 2 / 3.", "E · 聆聽冰晶，以 1／2／3 回應。"],
+	"resonance_listening": ["Listen and watch the numbered crystals.", "留意音高及冰晶上的數字順序。"],
+	"resonance_answer": ["Your reply · 1 / 2 / 3 · %d / %d", "輪到你回應 · 1／2／3 · %d / %d"],
+	"resonance_solved": ["The grove unfolds. Your rhythm is remembered.", "晶簇展開，記住了你的節奏。"],
+	"resonance_retry": ["Different rhythm. Listen again; E replays.", "節奏不同，再聆聽一次；E 可重播。"],
+	"resonance_band": ["Tone %d", "音階 %d"],
+	"resonance_action": ["E · LISTEN / REPLAY", "E · 聆聽／重播"],
+	"resonance_leave": ["Leaving the grove restarts this challenge.", "離開晶簇會重新開始這項挑戰。"],
 	"site_aurora_lode": ["Field note · crystal seam", "場記 · 冰晶礦脈"],
 	"site_aurora_ridge": ["Field note · wind ridge", "場記 · 風蝕脊"],
 	"site_ember_lake": ["Field note · thermal basin", "場記 · 熱泉盆地"],
@@ -111,6 +120,7 @@ var _view_label: Label
 var _ecology_label: Label
 var _activity_label: Label
 var _activity_context: Dictionary = {}
+var _resonance_context: Dictionary = {}
 var _reticle: Label
 var _interaction: Button
 var _message: Label
@@ -475,11 +485,22 @@ func _render_activity_context() -> void:
 		if d.target=="aurora_shelf" and d.distance<=7.0:
 			lines+="\n"+(_text("survey_quiet") % snappedf(d.quiet,0.1))
 	else: lines+="\n"+_text("survey_region_done")
+	if not _resonance_context.is_empty():
+		var r:=_resonance_context
+		lines+="\n\n"+(_text("resonance_title") % mini(3,int(r.round_index)+1))
+		lines+="\n"+(_text("resonance_answer") % [r.matched,r.length] if r.phase=="answer" else _text("resonance_"+str(r.phase)))
+		if int(r.get("band",-1))>=0: lines+="\n"+(_text("resonance_band") % (int(r.band)+1))
+		if r.get("feedback","")=="retry": lines+="\n"+_text("resonance_retry")
+		if r.phase!="solved": lines+="\n"+_text("resonance_leave")
 	_activity_label.text=lines
+
+func set_resonance_context(data: Dictionary) -> void:
+	_resonance_context=data
+	_render_activity_context()
 
 func set_interaction_kind(kind: String) -> void:
 	if not is_instance_valid(_interaction): return
-	_interaction.text=_text("survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
+	_interaction.text=_text("resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
 
 
 func set_message(key: String) -> void:

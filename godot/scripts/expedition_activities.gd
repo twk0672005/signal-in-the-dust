@@ -21,6 +21,7 @@ const SITES := {
  "pale_bone":{"region":"pale_decay","z":-430.0,"offset":-10.0,"kind":"","tier":"field"},
  "pale_sink":{"region":"pale_decay","z":-470.0,"offset":10.0,"kind":"","tier":"field"}
 }
+var resonance_complete := false
 var completed: Dictionary = {}
 var optional: Dictionary = {}
 var field: Dictionary = {}
@@ -39,7 +40,7 @@ static func _flags(value: Variant, keys: Array) -> bool:
   if not value.has(key) or not value[key] is bool: return false
  return true
 static func normalized(data: Variant) -> Dictionary:
- if not data is Dictionary or not _number(data.get("version"),1,4): return {}
+ if not data is Dictionary or not _number(data.get("version"),1,5): return {}
  if float(data.version)!=floorf(float(data.version)): return {}
  var version: int=int(data.version)
  var done: Variant=data.get("completed_regions") if version>=3 else data.get("completed")
@@ -55,11 +56,13 @@ static func normalized(data: Variant) -> Dictionary:
   var migrated: Dictionary={}
   for id in FIELD: migrated[id]=false
   notes=migrated
+ var resonance: Variant=data.get("resonance_complete") if version>=5 else false
+ if not resonance is bool: return {}
  var quiet: Variant=data.get("quiet_seconds") if version>=3 else data.get("stillness",0.0)
  if not _number(quiet,0,1e9): return {}
  var region: Variant=data.get("current_region","aurora_shelf")
  if not region is String or region not in REGIONS: return {}
- return {"version":4,"completed_regions":done.duplicate(true),"optional_observations":extras.duplicate(true),"field_notes":notes.duplicate(true),"current_region":region,"quiet_seconds":minf(float(quiet),3.0) if version>=3 else 0.0}
+ return {"version":5,"resonance_complete":resonance,"completed_regions":done.duplicate(true),"optional_observations":extras.duplicate(true),"field_notes":notes.duplicate(true),"current_region":region,"quiet_seconds":minf(float(quiet),3.0) if version>=3 else 0.0}
 func done(id: String) -> bool:
  return bool(completed.get(id,optional.get(id,field.get(id,false))))
 func ready(id: String, observed: Dictionary) -> bool:
@@ -109,13 +112,15 @@ func field_count() -> int:
  for value in field.values(): result+=int(value)
  return result
 func snapshot() -> Dictionary:
- return {"version":4,"completed_regions":completed.duplicate(true),"optional_observations":optional.duplicate(true),"field_notes":field.duplicate(true),"current_region":current_region,"quiet_seconds":stillness}
+ return {"version":5,"resonance_complete":resonance_complete,"completed_regions":completed.duplicate(true),"optional_observations":optional.duplicate(true),"field_notes":field.duplicate(true),"current_region":current_region,"quiet_seconds":stillness}
 func restore(data: Variant) -> bool:
  var incoming:=normalized(data)
  if incoming.is_empty(): return false
+ resonance_complete=incoming.resonance_complete
  completed=incoming.completed_regions;optional=incoming.optional_observations;field=incoming.field_notes;current_region=incoming.current_region;stillness=incoming.quiet_seconds
  return true
 func reset() -> void:
+ resonance_complete=false
  for id in REGIONS: completed[id]=false
  for id in OPTIONAL: optional[id]=false
  for id in FIELD: field[id]=false

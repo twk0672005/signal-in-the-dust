@@ -1,6 +1,7 @@
 extends Node3D
 
 const ExpeditionSave = preload("res://scripts/expedition_save.gd")
+const ResonanceScript = preload("res://scripts/resonance_sequence.gd")
 const ActivityScript = preload("res://scripts/expedition_activities.gd")
 const RoverScript = preload("res://scripts/rover.gd")
 const ContactScript = preload("res://scripts/contact.gd")
@@ -27,6 +28,10 @@ const SAVE_PATH := "user://expedition_state.json"
 var save_path: String = SAVE_PATH
 var _save_available := false
 var observed_ecology: Dictionary = {}
+var resonance: RefCounted
+var _resonance_band := -1
+var _resonance_flash := 0.0
+var _resonance_feedback := ""
 var activities: RefCounted
 var _survey_message_seconds := 0.0
 
@@ -40,6 +45,7 @@ func _ready() -> void:
 				save_path = directory.path_join("fixture-expedition.json")
 	_install_inputs()
 	activities = ActivityScript.new()
+	resonance = ResonanceScript.new()
 	world = load("res://scripts/world.gd").new()
 	add_child(world)
 	rover = RoverScript.new()
@@ -78,7 +84,7 @@ func _ready() -> void:
 	print("EXPEDITION_READY")
 
 func _install_inputs() -> void:
-	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"toggle_camera":[KEY_V],"interact":[KEY_E],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R]}
+	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"toggle_camera":[KEY_V],"interact":[KEY_E],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R],"resonance_1":[KEY_1],"resonance_2":[KEY_2],"resonance_3":[KEY_3]}
 	for action in bindings:
 		if not InputMap.has_action(action): InputMap.add_action(action)
 		for key in bindings[action]:
@@ -101,6 +107,10 @@ func start_expedition() -> void:
 	transmit_count = 0
 	observed_ecology.clear()
 	activities.reset()
+	resonance.reset()
+	_resonance_flash=0.0
+	_resonance_band=-1
+	_resonance_feedback=""
 	_survey_message_seconds=0.0
 	reveal_audio_played = false
 	rover.reset()
@@ -137,6 +147,7 @@ func _process(delta: float) -> void:
 		world.set_player_state(rover.global_position, rover.speed)
 		world.set_region_mood(world.region_at(rover.global_position),delta)
 	if phase == "exploring":
+		_update_resonance(delta)
 		var survey_events: Array = activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,delta,rover.global_position)
 		for id: String in survey_events: _survey_completed(id)
 		_survey_message_seconds=maxf(0.0,_survey_message_seconds-delta)
@@ -192,6 +203,7 @@ func _update_survey_readout() -> void:
 		var offset: Vector2=ActivityScript.point(target)-Vector2(rover.position.x,rover.position.z)
 		bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
 	ui.set_activity_progress(activities.count(),activities.optional_count(),activities.field_count(),region,target,distance,activities.stillness,bearing)
+	ui.set_resonance_context(_resonance_context())
 	ui.set_interaction_kind(interaction_target())
 
 func _nearby_survey() -> String:
@@ -211,6 +223,10 @@ func _input(event: InputEvent) -> void:
 		rover.toggle_camera_mode()
 		ui.set_view_message(rover.camera_mode)
 		_publish_snapshot()
+		get_viewport().set_input_as_handled()
+	elif phase=="exploring" and _resonance_near() and (event.is_action_pressed("resonance_1") or event.is_action_pressed("resonance_2") or event.is_action_pressed("resonance_3")):
+		var band:=0 if event.is_action_pressed("resonance_1") else (1 if event.is_action_pressed("resonance_2") else 2)
+		_resonance_reply(band)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("restart_mission") and phase != "menu":
 		if phase == "ending": reset_expedition()
@@ -284,6 +300,10 @@ func load_expedition() -> bool:
 	audio.reset()
 	observed_ecology = parsed["observedEcology"].duplicate(true)
 	activities=restored_activities
+	resonance.reset(activities.resonance_complete)
+	_resonance_flash=0.0
+	_resonance_band=-1
+	_resonance_feedback=""
 	world.apply_survey_progress(activities.snapshot())
 	_survey_message_seconds=0.0
 	world._observed_regions = observed_ecology.duplicate(true)
@@ -329,6 +349,7 @@ func interaction_target() -> String:
 		return "contact"
 	var survey_id:=_nearby_survey()
 	if not survey_id.is_empty(): return "survey:"+survey_id
+	if _resonance_near() and not resonance.solved: return "resonance"
 	var ecology: Dictionary = world.nearest_ecology(rover.global_position)
 	if not ecology.is_empty() and float(ecology.get("distance",999.0)) <= 14.0:
 		var point: Vector3 = ecology.get("position",ecology["base"])
@@ -345,6 +366,11 @@ func interact() -> void:
 		var id:=target.trim_prefix("survey:")
 		if activities.record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology):
 			_survey_completed(id)
+		return
+	if target == "resonance":
+		resonance.start()
+		_resonance_feedback=""
+		_update_survey_readout()
 		return
 	if target == "ecology":
 		var observed: Dictionary = world.observe_ecology(rover.global_position)
@@ -380,7 +406,7 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
+	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"resonance":resonance.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
@@ -394,3 +420,42 @@ func metrics() -> Dictionary:
 func _publish_snapshot() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.__EXPEDITION_STATE__="+JSON.stringify(snapshot())+";window.__EXPEDITION_METRICS__="+JSON.stringify(metrics())+";document.body.dataset.phase="+JSON.stringify(phase)+";",true)
+
+func _resonance_in_grove() -> bool:
+	return activities.done("aurora_echo") and absf(rover.speed)<1.5 and activities.near("aurora_echo",rover.global_position)
+
+func _resonance_near() -> bool:
+	return _resonance_in_grove() and (resonance.phase!="idle" or _target_visible(world.survey_position("aurora_echo")+Vector3(0,1,0),world.get_node("Survey_aurora_echo")))
+
+func _resonance_context() -> Dictionary:
+	if not _resonance_near(): return {}
+	var data: Dictionary=resonance.snapshot()
+	data["band"]=_resonance_band
+	data["feedback"]=_resonance_feedback
+	return data
+
+func _update_resonance(delta: float) -> void:
+	_resonance_flash=maxf(0.0,_resonance_flash-delta)
+	if _resonance_flash<=0.0: _resonance_band=-1
+	if _resonance_in_grove():
+		for event: Dictionary in resonance.tick(delta):
+			if event.kind=="tone":
+				_resonance_band=int(event.band);_resonance_flash=0.5
+				audio.play_resonance(_resonance_band)
+	elif not resonance.solved and resonance.phase!="idle":
+		resonance.reset();_resonance_feedback=""
+	world.set_resonance_visual(_resonance_band,activities.resonance_complete,delta)
+
+func _resonance_reply(band: int) -> void:
+	var outcome: String=resonance.respond(band)
+	if outcome=="ignored": return
+	_resonance_feedback=outcome
+	_resonance_band=band;_resonance_flash=0.35
+	audio.play_resonance(band)
+	if outcome=="solved":
+		activities.resonance_complete=true
+		_survey_message_seconds=4.0
+		ui.set_message("resonance_solved")
+		save_expedition()
+	_update_survey_readout()
+	_publish_snapshot()

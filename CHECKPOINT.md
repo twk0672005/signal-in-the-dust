@@ -4,6 +4,8 @@ status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
 ## Current product and latest evidence
+- Added optional Aurora crystal resonance: E listens/replays, 1/2/3 answer three rounds, outward-opening crystals and saved completion. Native real-input/mouse/pause/Continue route passed. Activity schema5; previous saves migrate. See docs/AURORA_RESONANCE.md and evidence/resonance-delivery/receipt.json.
+- Main content target is still unmet; do not claim 30 minutes from this short activity.
 - Godot 4.7.2 Compatibility; first/third-person, 24 m/s cruise, 4 required surveys, 4 optional echoes, 8 field notes, 3 observed species.
 - Finale currently requires 4 surveys + 8 fields. Optional echoes remain optional for players; all-content test visits all 16 sites.
 - Three injected-keyboard all-content routes reached ending without teleport: 389.013s headless, 393.421s graphical, third ~389s via new command. See evidence/journey-recovery/receipt.json. One graphical route, not three human/platform runs.
@@ -11,6 +13,9 @@ root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 - Browser cold start reached real Godot menu; physical-key CDP movement >93m, V, pause and reload/Continue restored location/distance/camera. evidence/web-recovery-2355/cdp-input.json. HeadlessChrome 152 only, not the requested platform matrix.
 - 88 pure activity assertions, 24 runtime assertions, 17 defensive save-flow assertions. Intentional timeout writes failure and exits1: evidence/journey-timeout-proof/drive.json.
 - Font regenerated for 351 interface characters; no missing glyphs. Preserve original OFL source.
+
+## Latest resonance Web evidence
+- Local Web puzzle completed after obstacle detour with physical-key CDP events: echo, listen, wrong replay, solve, reload and persisted completion. evidence/web-resonance/web-resonance-complete.json. This is a continued test, not a clean uninterrupted run.
 
 ## Corrections to earlier claims
 - 30 minutes is the target, not implemented playtime. Player shell duration promise removed; existing current route is approximately 6.5 minutes even covering all activities.

@@ -62,7 +62,7 @@ func run() -> void:
     game.world.observe_ecology(organism.global_position)
     game.reset_expedition()
     checks.reset_clears_all_observations=game.world._observed_regions.is_empty() and game.observed_ecology.is_empty()
-    checks.audio_layers_loaded=game.audio._players.size()==6
+    checks.audio_layers_loaded=game.audio._players.has_all(["wind","rolling","servo","pulse","transmit","response","resonance"])
     game.audio.set_drive(12.0)
     checks.audio_uses_new_cruise_speed=is_equal_approx(game.audio._drive,0.5)
     var ok: bool=true

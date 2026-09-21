@@ -5,6 +5,8 @@ var held: Dictionary={}
 var samples: Array[Dictionary]=[]
 var started:=0
 var full_route := false
+var resonance_route := false
+var resonance_checks: Dictionary = {}
 var stage := "boot"
 var finishing := false
 var captures: Array[Dictionary] = []
@@ -15,6 +17,7 @@ func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--evidence-dir="): output=arg.trim_prefix("--evidence-dir=")
 		if arg=="--full-route": full_route=true
+		if arg=="--resonance": resonance_route=true
 		if arg.begins_with("--timeout-ms="): timeout_ms=maxi(100,arg.trim_prefix("--timeout-ms=").to_int())
 	if output.is_empty(): quit(2);return
 	started=Time.get_ticks_msec()
@@ -135,6 +138,9 @@ func run() -> void:
 		await create_timer(0.3).timeout
 		await capture("optional-after")
 		if not game.activities.optional.aurora_echo: finish(false,"first_optional");return
+		if resonance_route:
+			await play_resonance_route()
+			return
 		for p in [Vector2(-42,95),Vector2(game.world.path_x(95),95)]:
 			if not await navigate(p): finish(false,"return_to_main");return
 	if not full_route: finish(true,"complete");return
@@ -182,6 +188,58 @@ func run() -> void:
 	await create_timer(25.0).timeout
 	await capture("ending")
 	finish(game.phase=="ending" and game.activities.count()==4 and game.activities.optional_count()==4 and game.activities.field_count()==8,"full_route_complete")
+func await_answer() -> bool:
+	var limit:=Time.get_ticks_msec()+10000
+	while Time.get_ticks_msec()<limit:
+		if game.resonance.phase=="answer": return true
+		await frame()
+	return false
+
+func play_resonance_route() -> void:
+	checkpoint("resonance_begin")
+	press(KEY_E,true);await frame();press(KEY_E,false)
+	await create_timer(0.8).timeout
+	await capture("resonance-listening")
+	resonance_checks.started=game.resonance.phase=="listening"
+	press(KEY_V,true);await frame();press(KEY_V,false)
+	var mouse:=InputEventMouseButton.new()
+	mouse.button_index=MOUSE_BUTTON_RIGHT;mouse.pressed=true;Input.parse_input_event(mouse)
+	await frame()
+	var motion:=InputEventMouseMotion.new();motion.relative=Vector2(600,0);Input.parse_input_event(motion)
+	for i in 8: await frame()
+	resonance_checks.camera_turn_preserves=game.resonance.phase=="listening" and absf(game.rover.look_offset.x)>1.0
+	mouse=InputEventMouseButton.new();mouse.button_index=MOUSE_BUTTON_RIGHT;mouse.pressed=false;Input.parse_input_event(mouse)
+	press(KEY_ESCAPE,true);await frame();press(KEY_ESCAPE,false)
+	var frozen: float=game.resonance.clock
+	await create_timer(0.35).timeout
+	resonance_checks.pause_freezes=game.resonance.clock==frozen and game.phase=="paused"
+	press(KEY_ESCAPE,true);await frame();press(KEY_ESCAPE,false)
+	if not await await_answer(): finish(false,"resonance_no_answer");return
+	press(KEY_2,true);await frame();press(KEY_2,false)
+	resonance_checks.wrong_replays=game.resonance.phase=="listening" and not game.resonance.solved
+	for sequence in [[KEY_1,KEY_3,KEY_2],[KEY_2,KEY_1,KEY_3,KEY_2],[KEY_3,KEY_2,KEY_1,KEY_3,KEY_1]]:
+		if not await await_answer(): finish(false,"resonance_retry_timeout");return
+		for code in sequence:
+			press(code,true);await frame();press(code,false)
+			await create_timer(0.15).timeout
+	await create_timer(2.0).timeout
+	resonance_checks.solved=game.resonance.solved and game.activities.resonance_complete
+	resonance_checks.world_opens=game.world._resonance_open>0.95
+	await capture("resonance-solved")
+	resonance_checks.saved=game.save_expedition()
+	game.queue_free();await create_timer(0.5).timeout
+	game=load("res://main.tscn").instantiate();root.add_child(game)
+	await create_timer(0.5).timeout
+	resonance_checks.continue_available=game.has_saved_expedition()
+	press(KEY_ENTER,true);await frame();press(KEY_ENTER,false)
+	await create_timer(2.0).timeout
+	resonance_checks.continue_restores=game.phase=="exploring" and game.resonance.solved and game.activities.resonance_complete
+	resonance_checks.continue_restores_pose=game.world._resonance_open>0.95
+	await capture("resonance-continued")
+	var passed:=true
+	for value in resonance_checks.values(): passed=passed and bool(value)
+	finish(passed,"resonance_complete_and_continue")
+
 func record_fields(region: String) -> bool:
 	for id in game.activities.FIELD:
 		if game.activities.SITES[id].region!=region or game.activities.done(id): continue
@@ -207,7 +265,7 @@ func finish(ok: bool, outcome_stage: String) -> void:
 	finishing=true
 	checkpoint(outcome_stage)
 	release_drive()
-	var result={"passed":ok,"routePassed":ok,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(18 if full_route else 3) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
+	var result={"passed":ok,"routePassed":ok,"resonanceChecks":resonance_checks,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(6 if resonance_route else (18 if full_route else 3)) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
 	var f:=FileAccess.open(output.path_join("drive.json"),FileAccess.WRITE)
 	f.store_string(JSON.stringify(result,"  "));f.close()
 	print("SURVEY_DRIVE "+JSON.stringify({"passed":ok,"stage":stage,"seconds":result.seconds,"state":result.state}))
