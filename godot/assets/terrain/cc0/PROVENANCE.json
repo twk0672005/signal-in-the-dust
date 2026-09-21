@@ -36,5 +36,9 @@
       "copiedAt": "2026-09-21T10:15:26.183300+00:00"
     }
   ],
-  "channels": "alb_ht RGB=sRGB albedo, A=height (unused); nrm_rgh RGB=tangent normal, A=roughness; alpha not transparency"
+  "channels": "alb_ht RGB=sRGB albedo, A=height (unused); nrm_rgh RGB=tangent normal, A=roughness; alpha not transparency",
+  "runtimeImport": {
+    "Ground037": "512px size limit, lossless compression, mipmaps enabled, packed alpha retained; original1024px PNGs unchanged",
+    "reason": "Reduce Web download/texture memory during final handoff after31MB archive upload timed out"
+  }
 }

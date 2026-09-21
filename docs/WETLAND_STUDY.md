@@ -17,7 +17,7 @@ The compass follows Aeral while a sample is missing and the basin once both samp
 - Fresh local Web input journey: 152.442s,8checks; `evidence/web-wetland-final/web-wetland.json`. Includes cold start, both observations, field validation, two reloads and clean console.
 - Focused navigation fixture:7checks; `evidence/wetland-study/guidance/guidance.json`. Native graphics preceded the guidance-only fix; finalWeb uses it.
 - Thirteen regression suites pass; study15rules, activity123assertions. Font490characters. Stored logs under `evidence/wetland-study/`.
-- Web PCK 20,907,176bytes, below the configured25MiBsingle-asset limit. Gzip matches raw WASM; all manifest/source-asset hashes verified.
+- Final Web PCK14,991,672bytes. Ground037 runtime import is512px; original1024px PNGs remain byte-identical. Native final visual fixture inspected; final Web cold-start/driving/pause/Continue smoke passes. The152.442s full study run preceded this texture-only change. Evidence: `evidence/handoff-final-web/smoke.json`, `evidence/wetland-study/final-512/visual.json`.
 
 The first Web driver went straight from the sampler into a nearby physical obstacle. It was corrected to return to the clear road; the failure and continued run are retained separately. No collision or game progress was bypassed. The final fresh run passed.
 

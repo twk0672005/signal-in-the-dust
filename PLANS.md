@@ -21,7 +21,7 @@ Target: approximately30minutes of meaningful bilingual four-region exploration. 
 - [ ] Independent first-time human acceptance before market/public promotion.
 - [ ] Exact source/artifact/private/public readback for final release; use evidence/latest-release.json for actual deployed version.
 
-Current next slice: region-specific two-stage field investigations and reconnecting authored side loops. Ember observe→choose route→saved ecological outcome is implemented. Preserve24m/s, avoid artificial idle padding, and keep Terrain3D isolated pending actualWebproof.
+Current next action: publish this verified handoff candidate, read back deployment, pause heartbeat. Further content expansion requires fresh direction.
 
 - [x] Ember thermal warm/cool choice and persisted visible habitat outcome.
 - [x] Repair Web immediate-reload rollback; validate migration, backup, corrupted/temp files, failed clear and blocked-storage play/recovery.
