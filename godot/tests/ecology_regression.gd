@@ -62,6 +62,20 @@ func run() -> void:
 		clean = clean and record.alert == 0.0 and record.pulse == 0.0 and record.recovery == 0.0
 	for node: Node3D in world._ecology_nodes: clean = clean and node.scale == Vector3.ONE
 	checks.reset_clears_reactions_and_pose = clean and world._observed_regions.is_empty()
+	var road_clear:=true
+	var opening_clear:=true
+	for gate: Node3D in world._passage_gates:
+		for body in gate.get_children():
+			if not body is StaticBody3D: continue
+			var shape: CollisionShape3D=body.get_child(0)
+			var half: Vector3=shape.shape.size*0.5
+			for x in [-half.x,half.x]:
+				for z in [-half.z,half.z]:
+					var corner: Vector3=shape.global_transform*Vector3(x,0,z)
+					road_clear=road_clear and absf(corner.x-world.path_x(corner.z))>=6.5
+					opening_clear=opening_clear and Vector2(corner.x-gate.position.x,corner.z-gate.position.z).length()>=6.0
+	checks.membrane_banks_leave_main_road_clear=road_clear
+	checks.membrane_banks_leave_activity_openings_clear=opening_clear
 	finish()
 
 func finish() -> void:

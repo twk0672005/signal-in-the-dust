@@ -96,6 +96,18 @@ func _initialize() -> void:
 	passage_data=t.snapshot();passage_data.version=6;passage_data.erase("passage_complete");passage_data.erase("passage_state")
 	checks.v6_passage_migrates=u.restore(passage_data) and not u.passage_complete and u.passage_state.is_empty()
 	u.reset();checks.passage_reset=u.passage_state.is_empty() and not u.passage_complete
+	var root_rules=preload("res://scripts/root_network.gd").new()
+	root_rules.turn(0)
+	var root_data: Dictionary=t.snapshot();root_data.root_network_state=root_rules.snapshot()
+	checks.root_mid_restore=u.restore(root_data) and u.root_network_state.powered==1
+	var root_preserved: Dictionary=u.snapshot()
+	root_data.root_network_state.ports=[1,1.5,0]
+	checks.root_fractional_rejected=not u.restore(root_data) and u.snapshot()==root_preserved
+	root_data=t.snapshot();root_data.root_network_state=[]
+	checks.root_malformed_rejected=not u.restore(root_data)
+	root_data=t.snapshot();root_data.version=7;root_data.erase("root_network_state")
+	checks.v7_root_default=u.restore(root_data) and u.root_network_state.is_empty()
+	u.reset();checks.root_reset=u.root_network_state.is_empty()
 	var ok:=true
 	for value in checks.values(): ok=ok and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)

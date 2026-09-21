@@ -15,6 +15,15 @@ const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
 	"save_write_failed": ["Progress could not be saved. You can keep playing; Continue may use an older checkpoint.", "未能儲存進度。仍可繼續遊玩，但續玩可能回到較早的進度。"],
+	"root_title": ["ROOT CHOIR · %d / 3 CONNECTED", "根脈合唱 · 已接通 %d / 3"],
+	"root_hint": ["Follow the living conduit. E turns a junction toward the next shell.", "沿活根前進，E 轉動節點，導向下一座殼礁。"],
+	"root_changed": ["Trace the lit root. Dark downstream roots need another direction.", "追蹤發光根脈，下游熄暗時需要調整方向。"],
+	"root_ready": ["All junctions carry the signal. Reach the root crown and press E.", "所有節點已接通，前往根冠並按 E 發送。"],
+	"root_complete": ["The root crown unfolds. Morrow answer across the basin.", "根冠展開，孢殼生物隔著盆地回應。"],
+	"root_port": ["Junction %d · Direction %d / 3", "節點 %d · 方向 %d / 3"],
+	"root_distance": ["Next junction / crown · %d m", "下一節點／根冠 · %d 米"],
+	"root_turn": ["E · TURN ROOT JUNCTION", "E · 轉動根脈節點"],
+	"root_pulse": ["E · AWAKEN ROOT CROWN", "E · 喚醒根冠"],
 	"passage_title": ["AERAL · VEIL PASSAGE · %d / 5", "霧翼群 · 膜葉穿行 · %d / 5"],
 	"passage_idle": ["Find the first lit membrane. Stop and press E.", "前往第一組發光膜葉，停車後按 E。"],
 	"passage_crossing": ["Pass the lit opening below 5.5 m/s. Follow its glow.", "以低於 5.5 米／秒穿過發光入口，沿光前進。"],
@@ -138,6 +147,7 @@ var _ecology_label: Label
 var _activity_label: Label
 var _activity_context: Dictionary = {}
 var _resonance_context: Dictionary = {}
+var _root_network_context: Dictionary = {}
 var _passage_context: Dictionary = {}
 var _escort_context: Dictionary = {}
 var _reticle: Label
@@ -521,10 +531,21 @@ func _render_activity_context() -> void:
 		if p.phase!="complete":
 			var arrow: String="^" if absf(p.bearing)<0.25 else (">" if p.bearing>0 else "<")
 			lines+="\n"+arrow+" "+(_text("passage_distance") % roundi(p.distance))
+	if not _root_network_context.is_empty():
+		var network:=_root_network_context
+		lines+="\n\n"+(_text("root_title") % network.powered)+"\n"+_text("root_complete" if network.complete else "root_ready" if network.powered==3 else "root_hint")
+		if not network.complete:
+			var arrow: String="^" if absf(network.bearing)<0.25 else (">" if network.bearing>0 else "<")
+			lines+="\n"+arrow+" "+(_text("root_distance") % roundi(network.distance))
+			if network.near>=0: lines+="\n"+(_text("root_port") % [network.near+1,network.ports[network.near]+1])
 	_activity_label.text=lines
 
 func set_resonance_context(data: Dictionary) -> void:
 	_resonance_context=data
+	_render_activity_context()
+
+func set_root_network_context(data: Dictionary) -> void:
+	_root_network_context=data
 	_render_activity_context()
 
 func set_passage_context(data: Dictionary) -> void:
@@ -537,7 +558,7 @@ func set_escort_context(data: Dictionary) -> void:
 
 func set_interaction_kind(kind: String) -> void:
 	if not is_instance_valid(_interaction): return
-	_interaction.text=_text("passage_action" if kind=="passage" else "escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
+	_interaction.text=_text("root_turn" if kind.begins_with("root_relay:") else "root_pulse" if kind=="root_pulse" else "passage_action" if kind=="passage" else "escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
 
 
 func set_message(key: String) -> void:

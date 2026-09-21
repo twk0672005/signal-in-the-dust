@@ -35,3 +35,11 @@ Do not restart a validated subsystem without a concrete defect. The next impleme
 
 - [x] Veil five-opening quiet passage, one-shot scatter, membrane/Aeral reaction, schema7 Continue, native graphical and local Web proof.
 - [ ] Complete Pale encounter, unify final content pacing and evaluate30-minute target with actual combined play.
+
+- [x] Pale physical root routing, downstream visual response, branch-crown revision, schema8 Continue/reset and native/local Web proof.
+- [x] Repair Veil main-road collision caught by actual cross-region drive; preserve quiet passage route.
+- [ ] Combine and time all4encounters+16survey sites; improve pacing/art against observed30-minute gap.
+
+- [x] Pale physical root routing, downstream visual response, branch-crown revision, schema8 Continue/reset and native/local Web proof.
+- [x] Repair Veil main-road collision caught by actual cross-region drive; preserve quiet passage route.
+- [ ] Combine and time all4encounters+16survey sites; improve pacing/art against observed30-minute gap.

@@ -1,9 +1,15 @@
 # Current checkpoint
-updatedAt: 2026-09-21T05:34:15.549238+00:00
+updatedAt: 2026-09-21T06:32:49.541506+00:00
 status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
 ## Current product and latest evidence
+- NEW Pale Root Choir routing: three physical junctions, upstream/downstream propagation, explicit crown pulse, branch growth, schema8 JSON-safe Continue/reset. Native and final local Web journeys passed; docs/ROOT_CHOIR_ROUTING.md and evidence/root-network/receipt.json.
+- Actual road blocker fixed: Veil gate2 membrane bank intruded main road. Banks now reserve9m lateral road offset, collider clearance regression and passage real-keyboard rerun pass.
+- Latest checks: root17, activity106, ecology25; other suites retained. Font433characters. Four optional encounter types now exist, but no combined30-minute proof.
+- NEW Pale Root Choir routing: three physical junctions, upstream/downstream propagation, explicit crown pulse, branch growth, schema8 JSON-safe Continue/reset. Native and final local Web journeys passed; docs/ROOT_CHOIR_ROUTING.md and evidence/root-network/receipt.json.
+- Actual road blocker fixed: Veil gate2 membrane bank intruded main road. Banks now reserve9m lateral road offset, collider clearance regression and passage real-keyboard rerun pass.
+- Latest checks: root17, activity106, ecology25; other suites retained. Font433characters. Four optional encounter types now exist, but no combined30-minute proof.
 - NEW Veil quiet membrane passage: five ordered physical gates, fast-entry scatter/recovery, opening membranes, Aeral return, bilingual direction and schema7 mid-activity Continue. Native and local Web physical-input journeys passed. See docs/VEIL_PASSAGE.md and evidence/marsh-passage/receipt.json.
 - Current tests: passage23, activity101, controller19, interaction7, ecology23, runtime24, save9, save-flow19, resonance11, escort18. Font413 characters.
 - First-person readability repair: sensor raised8cm; three actual-render masks reduce rover coverage from22–25% to13–16%. Controller/interaction/native input journey and local Web smoke passed. See docs/CAMERA_READABILITY.md and evidence/camera-composition/receipt.json.
@@ -47,3 +53,7 @@ root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 Camera tuning is closed for this stage: final8cm lift validated after rejecting12cm live-slope clipping. Next effort should go to substantive Veil/Pale content and map/art work, not repeat this parameter sweep.
 
 Next substantive work: Pale Decay multi-step encounter and less repetitive authored environment, followed by one combined timed journey. Do not repeat completed camera/passage parameter sweeps.
+
+Next: combined all-encounter +16site journey with real timing, then pacing and authored habitat detail. Do not add isolated journey durations or repeat camera sweeps.
+
+Next: combined all-encounter +16site journey with real timing, then pacing and authored habitat detail. Do not add isolated journey durations or repeat camera sweeps.

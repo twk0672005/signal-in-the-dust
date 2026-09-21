@@ -6,6 +6,8 @@ var samples: Array[Dictionary]=[]
 var started:=0
 var full_route := false
 var resonance_route := false
+var root_network_route := false
+var root_network_checks: Dictionary = {}
 var passage_route := false
 var passage_checks: Dictionary = {}
 var escort_route := false
@@ -24,6 +26,7 @@ func _initialize() -> void:
 		if arg=="--resonance": resonance_route=true
 		if arg=="--escort": escort_route=true
 		if arg=="--passage": passage_route=true
+		if arg=="--root-network": root_network_route=true
 		if arg.begins_with("--timeout-ms="): timeout_ms=maxi(100,arg.trim_prefix("--timeout-ms=").to_int())
 	if output.is_empty(): quit(2);return
 	started=Time.get_ticks_msec()
@@ -126,6 +129,9 @@ func run() -> void:
 	while game.phase!="exploring" and Time.get_ticks_msec()<deadline: await frame()
 	if game.phase!="exploring": finish(false,"start_menu");return
 	press(KEY_V,true);await frame();press(KEY_V,false)
+	if root_network_route:
+		await play_root_network_route()
+		return
 	if passage_route:
 		await play_passage_route()
 		return
@@ -346,7 +352,7 @@ func finish(ok: bool, outcome_stage: String) -> void:
 	finishing=true
 	checkpoint(outcome_stage)
 	release_drive()
-	var result={"passed":ok,"routePassed":ok,"passageChecks":passage_checks,"passageRoute":passage_route,"resonanceChecks":resonance_checks,"escortChecks":escort_checks,"escortRoute":escort_route,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(7 if passage_route else 11 if escort_route else (6 if resonance_route else (18 if full_route else 3))) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
+	var result={"passed":ok,"routePassed":ok,"rootNetworkChecks":root_network_checks,"rootNetworkRoute":root_network_route,"passageChecks":passage_checks,"passageRoute":passage_route,"resonanceChecks":resonance_checks,"escortChecks":escort_checks,"escortRoute":escort_route,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(8 if root_network_route else 7 if passage_route else 11 if escort_route else (6 if resonance_route else (18 if full_route else 3))) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
 	var f:=FileAccess.open(output.path_join("drive.json"),FileAccess.WRITE)
 	f.store_string(JSON.stringify(result,"  "));f.close()
 	print("SURVEY_DRIVE "+JSON.stringify({"passed":ok,"stage":stage,"seconds":result.seconds,"state":result.state}))
@@ -405,3 +411,69 @@ func play_passage_route() -> void:
 	var passed:=true
 	for value in passage_checks.values(): passed=passed and bool(value)
 	finish(passed,"passage_complete_and_continue")
+
+func root_turn() -> void:
+	press(KEY_E,true);await frame();press(KEY_E,false)
+	await create_timer(0.25).timeout
+
+func play_root_network_route() -> void:
+	var points: Array[Vector2]=game.world.root_network_points()
+	if not await follow_main(-390.0): finish(false,"root_approach");return
+	if not await navigate(points[0]): finish(false,"root_first_node");return
+	await aim(points[0]);await capture("root-before")
+	await root_turn()
+	root_network_checks.first_powered=game.root_network.powered_count()==1
+	await capture("root-first-connected")
+	await root_turn()
+	root_network_checks.wrong_disconnects=game.root_network.powered_count()==0 and not game.root_network.complete
+	await capture("root-upstream-dark")
+	await root_turn();await root_turn()
+	root_network_checks.correct_reconnects=game.root_network.powered_count()==1
+	for i in range(1,3):
+		if not await navigate(Vector2(game.world.path_x(game.rover.position.z),game.rover.position.z)): finish(false,"root_return_road");return
+		if not await follow_main(points[i].y): finish(false,"root_road_"+str(i));return
+		if not await navigate(points[i]): finish(false,"root_junction_"+str(i));return
+		await aim(points[i])
+		await root_turn()
+		if i==1: await root_turn()
+		root_network_checks["powered_"+str(i)]=game.root_network.powered_count()==i+1
+		if i==1:
+			press(KEY_ESCAPE,true);await frame();press(KEY_ESCAPE,false)
+			var previous: Dictionary=game.root_network.snapshot()
+			var visual: float=game.world._root_network_open
+			await create_timer(0.35).timeout
+			root_network_checks.pause_freezes=game.root_network.snapshot()==previous and game.world._root_network_open==visual and game.phase=="paused"
+			game.queue_free();await create_timer(0.5).timeout
+			game=load("res://main.tscn").instantiate();root.add_child(game);await create_timer(0.5).timeout
+			press(KEY_ENTER,true);await frame();press(KEY_ENTER,false);await create_timer(0.3).timeout
+			root_network_checks.mid_continue=game.phase=="exploring" and game.root_network.snapshot()==previous
+			await capture("root-mid-continue")
+			press(KEY_V,true);await frame();press(KEY_V,false)
+		else:
+			root_network_checks.first_person=game.rover.camera_mode=="first_person"
+			await capture("root-first-person")
+	if not await navigate(Vector2(game.world.path_x(game.rover.position.z),game.rover.position.z)): finish(false,"root_final_return");return
+	if not await follow_main(points[3].y): finish(false,"root_terminal_road");return
+	if not await navigate(points[3]): finish(false,"root_terminal");return
+	await aim(points[3]);await capture("root-terminal-before")
+	root_network_checks.awaiting_explicit_pulse=not game.root_network.complete and game.interaction_target()=="root_pulse"
+	await root_turn();await create_timer(3.0).timeout
+	root_network_checks.completed=game.root_network.complete
+	root_network_checks.crown_open=game.world._root_network_open>0.95
+	await capture("root-crown-open")
+	root_network_checks.saved=game.save_expedition()
+	game.queue_free();await create_timer(0.5).timeout
+	game=load("res://main.tscn").instantiate();root.add_child(game);await create_timer(0.5).timeout
+	press(KEY_ENTER,true);await frame();press(KEY_ENTER,false);await create_timer(0.3).timeout
+	root_network_checks.completed_continue=game.phase=="exploring" and game.root_network.complete and game.world._root_network_open>0.95
+	await capture("root-completed-continue")
+	# Confirm reset uses the real player prompt and resets the optional world state too.
+	press(KEY_R,true);await frame();press(KEY_R,false)
+	root_network_checks.reset_confirmation=game.phase=="confirm_reset"
+	await create_timer(0.2).timeout
+	press(KEY_TAB,true);await frame();press(KEY_TAB,false)
+	press(KEY_ENTER,true);await frame();press(KEY_ENTER,false);await create_timer(0.3).timeout
+	root_network_checks.reset_clears=not game.root_network.complete and game.root_network.powered_count()==0 and game.world._root_network_open==0.0
+	var passed:=true
+	for value in root_network_checks.values(): passed=passed and bool(value)
+	finish(passed,"root_network_complete_continue_reset")

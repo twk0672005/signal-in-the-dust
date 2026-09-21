@@ -10,6 +10,9 @@ const ROOT_SHADER = preload("res://shaders/response_roots.gdshader")
 const STRATA_SHADER = preload("res://shaders/geological_strata.gdshader")
 const PASSAGE_Z := [-235.0, -260.0, -285.0, -310.0, -330.0]
 const PASSAGE_X_OFFSETS := [-6.0, 7.0, -7.0, 6.0, -5.0]
+const ROOT_NETWORK_Z := [-405.0, -455.0, -520.0, -595.0]
+const ROOT_NETWORK_X_OFFSETS := [20.0, -22.0, 24.0, -16.0]
+const ROOT_NETWORK_SOLUTION := [1, 2, 1]
 var _environment: Environment
 var _roots_material: ShaderMaterial
 var _small_dressing: Array[MultiMeshInstance3D] = []
@@ -44,6 +47,19 @@ var _passage_gates: Array[Node3D] = []
 var _passage_wings: Array[Array] = []
 var _passage_materials: Array[StandardMaterial3D] = []
 var _passage_open: Array[float] = []
+var _root_network_state: Dictionary = {"ports":[0, 0, 0], "powered":0, "complete":false}
+var _root_relays: Array[Node3D] = []
+var _root_relay_rotors: Array[Node3D] = []
+var _root_selector_materials: Array[StandardMaterial3D] = []
+var _root_port_angles: Array[Array] = []
+var _root_conduits: Array[Array] = []
+var _root_conduit_materials: Array[Array] = []
+var _root_network_endpoints: Array[Array] = []
+var _root_terminal_shells: Array[Node3D] = []
+var _root_terminal_shell_origins: Array[Vector3] = []
+var _root_terminal_glow: Node3D
+var _root_terminal_glow_material: StandardMaterial3D
+var _root_network_open: float = 0.0
 
 func path_x(z: float) -> float:
 	return 18.0 * sin((150.0 - z) * 0.012) + 4.0 * sin((150.0 - z) * 0.033)
@@ -76,6 +92,13 @@ func passage_route() -> Array[Vector2]:
 		route.append(Vector2(path_x(z) + PASSAGE_X_OFFSETS[i], z))
 	return route
 
+func root_network_points() -> Array[Vector2]:
+	var points: Array[Vector2] = []
+	for i in ROOT_NETWORK_Z.size():
+		var z: float = ROOT_NETWORK_Z[i]
+		points.append(Vector2(path_x(z) + ROOT_NETWORK_X_OFFSETS[i], z))
+	return points
+
 func _ready() -> void:
 	_rng.seed = 20260915
 	_build_atmosphere()
@@ -84,6 +107,7 @@ func _ready() -> void:
 	_build_horizon()
 	_build_landmarks()
 	_build_rocks()
+	_build_root_network()
 	var habitats := HABITAT_FEATURES.new()
 	habitats.name = "HabitatFeatures"
 	add_child(habitats)
@@ -115,6 +139,7 @@ func _process(delta: float) -> void:
 	_world_time += delta
 	_tick_ecology(delta)
 	_tick_passage_gates(delta)
+	_tick_root_network(delta)
 
 func _tick_ecology(delta: float) -> void:
 	for i in _ecology_nodes.size():
@@ -131,6 +156,9 @@ func _tick_ecology(delta: float) -> void:
 			reaction.step(node.global_position.distance_to(_player_position), _player_speed, delta)
 		var alarm: float = reaction.alert
 		var pulse: float = reaction.pulse_amount()
+		if kind == "root_choir" and bool(_root_network_state.get("complete", false)):
+			# Completion is presentation-only: the choir breathes without altering observation state.
+			pulse = maxf(pulse, 0.34 + 0.16 * sin(_world_time * 1.8 + phase))
 		var away := Vector3(base.x - _player_position.x, 0, base.z - _player_position.z).normalized()
 		if away.is_zero_approx(): away = Vector3.RIGHT
 		var target := base
@@ -604,6 +632,11 @@ func _build_passage_gates() -> void:
 			wing.name = "MembraneLeft" if side < 0.0 else "MembraneRight"
 			var anchor := Vector3(side * 8.6, 0.0, 0.0)
 			var world_anchor := gate.position + gate.basis * anchor
+			# An offset gate must leave both its own opening and the main driving road clear.
+			var road_x:=path_x(world_anchor.z)
+			if absf(world_anchor.x-road_x)<9.0:
+				world_anchor.x=road_x+side*9.0
+				anchor=gate.basis.inverse()*(world_anchor-gate.position)
 			anchor.y = height_at(world_anchor.x, world_anchor.z) - gate.position.y
 			wing.position = anchor
 			gate.add_child(wing)
@@ -681,6 +714,233 @@ func _tick_passage_gates(delta: float, instant: bool = false) -> void:
 			material.albedo_color = Color("45645d")
 			material.emission = Color("56877f")
 			material.emission_energy_multiplier = 0.07
+
+func _root_network_material(color: Color, emission: Color = Color("936846"), energy: float = 0.04) -> StandardMaterial3D:
+	var material := _passage_material(color)
+	material.emission = emission
+	material.emission_energy_multiplier = energy
+	material.uv1_scale = Vector3.ONE * 0.48
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	return material
+
+func _root_ground_rock(parent: Node3D, local_position: Vector3, scale: Vector3, material: Material, salt: int) -> MeshInstance3D:
+	var instance := MeshInstance3D.new()
+	var mesh: Mesh
+	if _low_meshes.is_empty():
+		mesh = SphereMesh.new()
+	else:
+		mesh = _low_meshes[posmod(salt, _low_meshes.size())]
+	instance.mesh = mesh
+	instance.scale = scale
+	instance.material_override = material
+	instance.rotation = Vector3(0.06 * sin(float(salt)), float(salt) * 0.73, 0.05 * cos(float(salt)))
+	var world_x := parent.position.x + local_position.x
+	var world_z := parent.position.z + local_position.z
+	var bounds := mesh.get_aabb()
+	instance.position = Vector3(
+		local_position.x,
+		height_at(world_x, world_z) - parent.position.y - bounds.position.y * scale.y,
+		local_position.z
+	)
+	parent.add_child(instance)
+	return instance
+
+func _root_stump_endpoint(relay_index: int, port: int) -> Vector2:
+	var center := root_network_points()[relay_index]
+	var side := 1.0 if ROOT_NETWORK_X_OFFSETS[relay_index] > 0.0 else -1.0
+	var z := center.y - 10.0 + float(port) * 9.0 + float(relay_index % 2) * 2.0
+	var x := center.x + side * (7.0 + float(port) * 1.7)
+	if absf(x - path_x(z)) < 10.0:
+		x = path_x(z) + side * (10.0 + float(port))
+	return Vector2(x, z)
+
+func _root_conduit_mesh(start: Vector2, endpoint: Vector2, bend: float, salt: int) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var travel := endpoint - start
+	var normal := Vector2(-travel.y, travel.x).normalized()
+	const SEGMENTS := 28
+	for segment in SEGMENTS:
+		var quad: Array[Vector3] = []
+		var quad_uv: Array[Vector2] = []
+		for step in 2:
+			var t := float(segment + step) / float(SEGMENTS)
+			var curve := sin(t * PI) * bend + sin(t * TAU * 2.0 + float(salt)) * sin(t * PI) * 0.32
+			var center := start.lerp(endpoint, t) + normal * curve
+			var width := lerpf(0.2, 0.11, t) * (0.9 + 0.1 * sin(t * 19.0 + float(salt)))
+			for side in [-1.0, 1.0]:
+				var point: Vector2 = center + normal * width * side
+				quad.append(Vector3(point.x, height_at(point.x, point.y) + 0.105, point.y))
+				quad_uv.append(Vector2(t * 8.0, (side + 1.0) * 0.5))
+		for index: int in [0, 1, 2, 1, 3, 2]:
+			st.set_uv(quad_uv[index])
+			st.add_vertex(quad[index])
+	st.generate_normals()
+	return st.commit()
+
+func _build_root_network() -> void:
+	var points := root_network_points()
+	var shell_material := _root_network_material(Color("4b3a3f"), Color("795841"), 0.035)
+	for relay_index in 3:
+		var center: Vector2 = points[relay_index]
+		var relay := Node3D.new()
+		relay.name = "RootRelay%d" % relay_index
+		relay.position = Vector3(center.x, height_at(center.x, center.y), center.y)
+		add_child(relay)
+		_root_ground_rock(relay, Vector3.ZERO, Vector3(2.5, 0.62, 1.8), shell_material, relay_index + 2)
+		for lobe in 3:
+			var lobe_angle := float(lobe) * TAU / 3.0 + float(relay_index) * 0.47
+			var lobe_position := Vector3(cos(lobe_angle) * (1.8 + lobe * 0.25), 0.0, sin(lobe_angle) * (1.8 + lobe * 0.25))
+			_root_ground_rock(relay, lobe_position, Vector3(1.1 + lobe * 0.16, 0.36 + lobe * 0.07, 0.72), shell_material, relay_index * 5 + lobe + 4)
+		var selector_material := _root_network_material(Color("76523b"), Color("b77b45"), 0.16)
+		var rotor := Node3D.new()
+		rotor.name = "PortRotor"
+		rotor.position.y = 0.42
+		relay.add_child(rotor)
+		_eco_sphere(rotor, Vector3(0.0, 0.14, 0.0), Vector3(0.72, 0.2, 0.72), selector_material)
+		_eco_rod(rotor, Vector3(0.0, 0.13, 0.1), Vector3(0.0, 0.15, -2.8), 0.13, selector_material)
+		_eco_sphere(rotor, Vector3(0.0, 0.15, -2.8), Vector3(0.3, 0.16, 0.42), selector_material)
+		_root_relays.append(relay)
+		_root_relay_rotors.append(rotor)
+		_root_selector_materials.append(selector_material)
+		var conduit_row: Array = []
+		var material_row: Array = []
+		var endpoint_row: Array = []
+		var angle_row: Array = []
+		for port in 3:
+			var endpoint: Vector2 = points[relay_index + 1] if port == ROOT_NETWORK_SOLUTION[relay_index] else _root_stump_endpoint(relay_index, port)
+			endpoint_row.append(endpoint)
+			var direction := (endpoint - center).normalized()
+			angle_row.append(atan2(-direction.x, -direction.y))
+			var conduit_material := _root_network_material(Color("332b2d"), Color("9a6840"), 0.025)
+			var conduit := MeshInstance3D.new()
+			conduit.name = "RootConduit%d_%d" % [relay_index, port]
+			var bend_sign := -1.0 if (relay_index + port) % 2 == 0 else 1.0
+			conduit.mesh = _root_conduit_mesh(center, endpoint, bend_sign * (2.2 + port * 0.45), relay_index * 3 + port)
+			conduit.material_override = conduit_material
+			conduit.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			add_child(conduit)
+			conduit_row.append(conduit)
+			material_row.append(conduit_material)
+			var marker_position := Vector3(direction.x * 3.2, 0.0, direction.y * 3.2)
+			marker_position.y = height_at(relay.position.x + marker_position.x, relay.position.z + marker_position.z) - relay.position.y + 0.13
+			_eco_sphere(relay, marker_position, Vector3(0.42, 0.13, 0.58), conduit_material)
+			if port != ROOT_NETWORK_SOLUTION[relay_index]:
+				var stump := Node3D.new()
+				stump.name = "RootStump%d_%d" % [relay_index, port]
+				stump.position = Vector3(endpoint.x, height_at(endpoint.x, endpoint.y), endpoint.y)
+				add_child(stump)
+				_root_ground_rock(stump, Vector3.ZERO, Vector3(1.45, 0.42, 1.05), shell_material, relay_index * 7 + port + 12)
+				for twig in 2:
+					var twig_angle := float(twig) * 1.7 + relay_index
+					_eco_rod(stump, Vector3(0.0, 0.16, 0.0), Vector3(cos(twig_angle) * 1.6, 0.18, sin(twig_angle) * 1.6), 0.07, shell_material)
+		_root_conduits.append(conduit_row)
+		_root_conduit_materials.append(material_row)
+		_root_network_endpoints.append(endpoint_row)
+		_root_port_angles.append(angle_row)
+	var terminal_point: Vector2 = points[3]
+	var terminal := Node3D.new()
+	terminal.name = "RootTerminal"
+	terminal.position = Vector3(terminal_point.x, height_at(terminal_point.x, terminal_point.y), terminal_point.y)
+	add_child(terminal)
+	for pad in 5:
+		var pad_angle := float(pad) / 5.0 * TAU + 0.35
+		var pad_position := Vector3(cos(pad_angle) * (2.2 + 0.25 * (pad % 2)), 0.0, sin(pad_angle) * (2.2 + 0.25 * (pad % 2)))
+		_root_ground_rock(terminal, pad_position, Vector3(1.45, 0.34 + 0.05 * (pad % 2), 0.85), shell_material, pad + 31)
+		_eco_rod(terminal, Vector3(0.0, 0.16, 0.0), Vector3(pad_position.x, 0.18, pad_position.z), 0.09, shell_material)
+	var shell_mesh: Mesh = _low_meshes[0] if not _low_meshes.is_empty() else SphereMesh.new()
+	for shell_index in 2:
+		var side := -1.0 if shell_index == 0 else 1.0
+		var shell := Node3D.new()
+		shell.name = "TerminalShellLeft" if side < 0.0 else "TerminalShellRight"
+		shell.position = Vector3(side * 1.1, 0.0, 0.0)
+		terminal.add_child(shell)
+		var shell_piece := MeshInstance3D.new()
+		shell_piece.mesh = shell_mesh
+		shell_piece.scale = Vector3(1.65, 0.65, 1.1)
+		shell_piece.position.y = -shell_mesh.get_aabb().position.y * shell_piece.scale.y
+		shell_piece.rotation.y = side * 0.34
+		shell_piece.material_override = shell_material
+		shell.add_child(shell_piece)
+		_root_terminal_shells.append(shell)
+		_root_terminal_shell_origins.append(shell.position)
+	_root_terminal_glow_material = _root_network_material(Color("315a58"), Color("6bc9c0"), 0.08)
+	_root_terminal_glow = Node3D.new()
+	_root_terminal_glow.name = "RootTerminalGlow"
+	_root_terminal_glow.position.y=0.35
+	terminal.add_child(_root_terminal_glow)
+	_eco_rod(_root_terminal_glow,Vector3.ZERO,Vector3(0,1.65,0),0.11,_root_terminal_glow_material)
+	for branch in 5:
+		var angle:=branch*TAU/5.0+0.4
+		var stem:=Vector3(0,0.5+branch*0.18,0)
+		var elbow:=stem+Vector3(cos(angle)*0.48,0.48,sin(angle)*0.48)
+		var tip:=elbow+Vector3(cos(angle)*0.27,0.43,sin(angle)*0.27)
+		_eco_rod(_root_terminal_glow,stem,elbow,0.065,_root_terminal_glow_material)
+		_eco_rod(_root_terminal_glow,elbow,tip,0.045,_root_terminal_glow_material)
+		_eco_sphere(_root_terminal_glow,tip,Vector3(0.12,0.24,0.12),_root_terminal_glow_material)
+	build_stats["root_network_relays"] = _root_relays.size()
+	build_stats["root_network_conduits"] = 9
+
+func set_root_network_state(data: Dictionary, instant: bool = false) -> void:
+	var incoming_ports = data.get("ports", [0, 0, 0])
+	var ports: Array[int] = []
+	for i in 3:
+		var value := int(incoming_ports[i]) if incoming_ports is Array and incoming_ports.size() > i else 0
+		ports.append(clampi(value, 0, 2))
+	_root_network_state = {
+		"ports":ports,
+		"powered":clampi(int(data.get("powered", 0)), 0, 3),
+		"complete":bool(data.get("complete", false))
+	}
+	if instant:
+		_root_network_open = 1.0 if _root_network_state.complete else 0.0
+		_tick_root_network(0.0, true)
+
+func _tick_root_network(delta: float, instant: bool = false) -> void:
+	if _root_relays.is_empty(): return
+	var ports: Array = _root_network_state.get("ports", [0, 0, 0])
+	var powered_count := clampi(int(_root_network_state.get("powered", 0)), 0, 3)
+	var complete := bool(_root_network_state.get("complete", false))
+	var pulse := 0.5 + 0.5 * sin(_world_time * 2.2)
+	for relay_index in _root_relays.size():
+		var selected_port := clampi(int(ports[relay_index]), 0, 2)
+		var target_angle := float(_root_port_angles[relay_index][selected_port])
+		var rotor := _root_relay_rotors[relay_index]
+		rotor.rotation.y = target_angle if instant else lerp_angle(rotor.rotation.y, target_angle, 1.0 - exp(-delta * 5.0))
+		var relay_powered := relay_index < powered_count or complete
+		var selector_material := _root_selector_materials[relay_index]
+		selector_material.albedo_color = Color("4d8b87") if relay_powered else Color("76523b")
+		selector_material.emission = Color("6bc9c0") if relay_powered else Color("b77b45")
+		selector_material.emission_energy_multiplier = (0.25 + pulse * 0.1) if relay_powered else (0.12 + pulse * 0.05)
+		for port in 3:
+			var material: StandardMaterial3D = _root_conduit_materials[relay_index][port]
+			var energized: bool = (port == selected_port and relay_index < powered_count) or (complete and port == ROOT_NETWORK_SOLUTION[relay_index])
+			var selected: bool = port == selected_port and relay_index == powered_count and not complete
+			if energized:
+				material.albedo_color = Color("426e6b")
+				material.emission = Color("65c5bc")
+				material.emission_energy_multiplier = 0.25 + pulse * 0.12
+			elif selected:
+				material.albedo_color = Color("65462f")
+				material.emission = Color("b87842")
+				material.emission_energy_multiplier = 0.12 + pulse * 0.08
+			else:
+				material.albedo_color = Color("332b2d")
+				material.emission = Color("805235")
+				material.emission_energy_multiplier = 0.025
+	var target_open := 1.0 if complete else 0.0
+	_root_network_open = target_open if instant else move_toward(_root_network_open, target_open, delta * 0.55)
+	for shell_index in _root_terminal_shells.size():
+		var side := -1.0 if shell_index == 0 else 1.0
+		var shell := _root_terminal_shells[shell_index]
+		shell.position = _root_terminal_shell_origins[shell_index] + Vector3(side * _root_network_open * 1.45, _root_network_open * 0.28, 0.0)
+		shell.rotation.z = side * (0.08 + _root_network_open * 0.5)
+	if is_instance_valid(_root_terminal_glow):
+		var glow_scale := lerpf(0.45, 0.9, _root_network_open)
+		if complete: glow_scale *= 1.0 + pulse * 0.045
+		_root_terminal_glow.scale = Vector3.ONE * glow_scale
+		_root_terminal_glow_material.albedo_color = Color("315a58").lerp(Color("528f84"), _root_network_open)
+		_root_terminal_glow_material.emission_energy_multiplier = lerpf(0.08, 0.32 + pulse * 0.10, _root_network_open)
 
 func _build_ecology() -> void:
 	# Three local organisms occupy different energy gradients. They are deliberately readable silhouettes, not decorative glow props.
@@ -978,6 +1238,7 @@ func reset() -> void:
 	set_resonance_visual(-1,false)
 	set_passage_state({"phase":"idle", "gate":0, "alarm":0.0}, 0.0, true)
 	_world_time = 0.0
+	set_root_network_state({"ports":[0, 0, 0], "powered":0, "complete":false}, true)
 	_player_position = spawn_origin()
 	_player_speed = 0.0
 	_observed_regions.clear()

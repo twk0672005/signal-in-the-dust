@@ -21,6 +21,8 @@
     "test:escort": "node tools/run-native-check.mjs escort_logic",
     "test:escort-journey": "node tools/run-journey.mjs --escort",
     "test:passage": "node tools/run-native-check.mjs quiet_passage_checks",
-    "test:passage-journey": "node tools/run-journey.mjs --passage"
+    "test:passage-journey": "node tools/run-journey.mjs --passage",
+    "test:root-network": "node tools/run-native-check.mjs root_network_checks",
+    "test:root-network-journey": "node tools/run-journey.mjs --root-network"
   }
 }

@@ -1,6 +1,7 @@
 extends Node3D
 
 const ExpeditionSave = preload("res://scripts/expedition_save.gd")
+const RootScript = preload("res://scripts/root_network.gd")
 const PassageScript = preload("res://scripts/quiet_passage.gd")
 const EscortScript = preload("res://scripts/quiet_escort.gd")
 const ResonanceScript = preload("res://scripts/resonance_sequence.gd")
@@ -30,6 +31,7 @@ const SAVE_PATH := "user://expedition_state.json"
 var save_path: String = SAVE_PATH
 var _save_available := false
 var observed_ecology: Dictionary = {}
+var root_network: RefCounted
 var passage: RefCounted
 var escort: RefCounted
 var resonance: RefCounted
@@ -50,6 +52,7 @@ func _ready() -> void:
 	_install_inputs()
 	activities = ActivityScript.new()
 	resonance = ResonanceScript.new()
+	root_network = RootScript.new()
 	passage = PassageScript.new()
 	escort = EscortScript.new()
 	world = load("res://scripts/world.gd").new()
@@ -120,6 +123,7 @@ func start_expedition() -> void:
 	resonance.reset()
 	escort.reset()
 	passage.reset()
+	root_network.reset()
 	_resonance_flash=0.0
 	_resonance_band=-1
 	_resonance_feedback=""
@@ -220,6 +224,7 @@ func _update_survey_readout() -> void:
 	ui.set_resonance_context(_resonance_context())
 	ui.set_escort_context(_escort_context())
 	ui.set_passage_context(_passage_context())
+	ui.set_root_network_context(_root_network_context())
 	ui.set_interaction_kind(interaction_target())
 
 func _nearby_survey() -> String:
@@ -289,6 +294,7 @@ func save_expedition() -> bool:
 	if phase != "exploring": return false
 	activities.escort_state=escort.snapshot()
 	activities.passage_state=passage.snapshot()
+	activities.root_network_state=root_network.snapshot()
 	var payload := {"version":2,"phase":"exploring","position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"elapsed":elapsed,"distance":rover.distance_travelled,"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"transmitCount":transmit_count,"view":rover.camera_mode}
 	var success := ExpeditionSave.write(save_path,payload)
 	if success: _save_available = true
@@ -314,6 +320,9 @@ func load_expedition() -> bool:
 		return false
 	var restored_activities: RefCounted=ActivityScript.new()
 	if not restored_activities.restore(parsed["activities"]): return false
+	var restored_network: RefCounted=RootScript.new()
+	if not restored_activities.root_network_state.is_empty():
+		if not restored_network.restore(restored_activities.root_network_state): return false
 	var restored_passage: RefCounted=PassageScript.new()
 	if not restored_passage.configure(world.passage_route()): return false
 	if not restored_activities.passage_state.is_empty():
@@ -337,6 +346,8 @@ func load_expedition() -> bool:
 	observed_ecology = parsed["observedEcology"].duplicate(true)
 	activities=restored_activities
 	resonance.reset(activities.resonance_complete)
+	root_network=restored_network
+	world.set_root_network_state(root_network.snapshot(),true)
 	passage=restored_passage
 	world.set_passage_state(passage.snapshot(),0.0,true)
 	escort=restored_escort
@@ -392,6 +403,8 @@ func interaction_target() -> String:
 	if _resonance_near() and not resonance.solved: return "resonance"
 	if _escort_can_start(): return "escort"
 	if _passage_can_start(): return "passage"
+	var root_target:=_root_network_interaction()
+	if root_target!="none": return root_target
 	var ecology: Dictionary = world.nearest_ecology(rover.global_position)
 	if not ecology.is_empty() and float(ecology.get("distance",999.0)) <= 14.0:
 		var point: Vector3 = ecology.get("position",ecology["base"])
@@ -409,6 +422,13 @@ func interact() -> void:
 		var id:=target.trim_prefix("survey:")
 		if activities.record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology):
 			_survey_completed(id)
+		return
+	if target.begins_with("root_relay:"):
+		var index:=int(target.trim_prefix("root_relay:"))
+		if root_network.turn(index): _root_network_changed(false,index)
+		return
+	if target=="root_pulse":
+		if root_network.pulse(): _root_network_changed(true,0)
 		return
 	if target == "passage":
 		if not passage.start(): return
@@ -461,7 +481,7 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"passage":passage.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
+	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
@@ -570,3 +590,35 @@ func _update_passage(delta: float) -> void:
 		ui.set_message("passage_"+("complete" if event=="complete" else "scattered" if event=="scattered" else "gate"))
 		save_expedition()
 	world.set_passage_state(passage.snapshot())
+
+func _root_network_interaction() -> String:
+	if root_network.complete or absf(rover.speed)>=1.5: return "none"
+	for index in 4:
+		var landmark: Node3D=world.get_node("RootRelay"+str(index) if index<3 else "RootTerminal")
+		var offset:=Vector2(landmark.position.x-rover.position.x,landmark.position.z-rover.position.z)
+		if offset.length()<=8.0 and _target_visible(landmark.position+Vector3(0,2,0),landmark):
+			if index<3: return "root_relay:"+str(index)
+			if root_network.powered_count()==3: return "root_pulse"
+	return "none"
+
+func _root_network_context() -> Dictionary:
+	if phase!="exploring" or world.region_at(rover.position)!="pale_decay": return {}
+	var data: Dictionary=root_network.snapshot()
+	var points: Array[Vector2]=world.root_network_points()
+	var target: Vector2=points[root_network.powered_count()]
+	var offset:=target-Vector2(rover.position.x,rover.position.z)
+	data.distance=offset.length()
+	data.bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
+	data.near=-1
+	for i in 3:
+		if points[i].distance_to(Vector2(rover.position.x,rover.position.z))<=10: data.near=i
+	return data
+
+func _root_network_changed(complete: bool, index: int) -> void:
+	world.set_root_network_state(root_network.snapshot())
+	audio.play_resonance(2 if complete else root_network.ports[index])
+	_survey_message_seconds=4.0
+	ui.set_message("root_complete" if complete else "root_changed")
+	save_expedition()
+	_update_survey_readout()
+	_publish_snapshot()
