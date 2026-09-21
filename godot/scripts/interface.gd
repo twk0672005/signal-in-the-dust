@@ -14,6 +14,14 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"escort_title": ["VEYRA · QUIET CROSSING", "礦脈生物 · 安靜穿越"],
+	"escort_idle": ["E · Accompany Veyra to the warm shelter.", "E · 陪伴 Veyra 前往溫暖庇護處。"],
+	"escort_travelling": ["Keep 4–24 m away and drive below 8 m/s.", "保持 4–24 米距離，車速低於 8 米／秒。"],
+	"escort_alarmed": ["Too loud or too close. Stop and give it space.", "太吵或太近了，停車並留出空間。"],
+	"escort_waiting": ["Veyra is waiting. Return within 24 m.", "Veyra 正在等你，回到牠的 24 米範圍內。"],
+	"escort_complete": ["Veyra reached shelter. The mineral bed warms.", "Veyra 抵達庇護處，礦床亮起暖光。"],
+	"escort_distance": ["Companion distance · %d m", "同行距離 · %d 米"],
+	"escort_action": ["E · ACCOMPANY VEYRA", "E · 陪伴 VEYRA"],
 	"resonance_title": ["CRYSTAL RESONANCE · %d / 3", "冰晶共鳴 · %d / 3"],
 	"resonance_idle": ["E · Hear the crystals. Reply with 1 / 2 / 3.", "E · 聆聽冰晶，以 1／2／3 回應。"],
 	"resonance_listening": ["Listen and watch the numbered crystals.", "留意音高及冰晶上的數字順序。"],
@@ -121,6 +129,7 @@ var _ecology_label: Label
 var _activity_label: Label
 var _activity_context: Dictionary = {}
 var _resonance_context: Dictionary = {}
+var _escort_context: Dictionary = {}
 var _reticle: Label
 var _interaction: Button
 var _message: Label
@@ -492,15 +501,23 @@ func _render_activity_context() -> void:
 		if int(r.get("band",-1))>=0: lines+="\n"+(_text("resonance_band") % (int(r.band)+1))
 		if r.get("feedback","")=="retry": lines+="\n"+_text("resonance_retry")
 		if r.phase!="solved": lines+="\n"+_text("resonance_leave")
+	if not _escort_context.is_empty():
+		var e:=_escort_context
+		lines+="\n\n"+_text("escort_title")+"\n"+_text("escort_"+str(e.phase))
+		if e.phase!="complete": lines+="\n"+(_text("escort_distance") % roundi(e.distance))
 	_activity_label.text=lines
 
 func set_resonance_context(data: Dictionary) -> void:
 	_resonance_context=data
 	_render_activity_context()
 
+func set_escort_context(data: Dictionary) -> void:
+	_escort_context=data
+	_render_activity_context()
+
 func set_interaction_kind(kind: String) -> void:
 	if not is_instance_valid(_interaction): return
-	_interaction.text=_text("resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
+	_interaction.text=_text("escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
 
 
 func set_message(key: String) -> void:

@@ -27,3 +27,6 @@ Do not restart a validated subsystem without a concrete defect. The next impleme
 
 - [x] Add first optional multi-step activity: Aurora crystal resonance, observable cues, numeric response, retry, physical pose reward and saved completion; native input journey verified.
 - [ ] Validate broader Web/platform activity experience; expand the remaining habitats with distinct substantial content before claiming 30 minutes.
+
+- [x] Add distinct Ember Veyra escort with speed/proximity response, native and local Web mid-activity Continue, and warm authored rock shelter.
+- [ ] Expand Veil/Pale encounters and authored exploration content; combine and time the final journey before claiming30minutes.

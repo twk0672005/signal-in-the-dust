@@ -10,8 +10,8 @@ automationId: deepspacerover
 threadId: 01a0a610-615a-7af0-937e-c003b4d301bf
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 continuationProvider: current-session; official heartbeat configured separately
-lastObservedWorkAt: 2026-09-21T01:25:07.254298+00:00
-lastReceipt: evidence/resonance-delivery/receipt.json
+lastObservedWorkAt: 2026-09-21T02:38:49.477323+00:00
+lastReceipt: evidence/escort-delivery/receipt.json
 nativeAppGoal: observed blocked; generic objective; project foreground work continues; no completion claim
 finishTarget: complete30-minute meaningful exploration and required runtime/visual/performance/human/private/public gates
 status: IN_PROGRESS / PARTIAL

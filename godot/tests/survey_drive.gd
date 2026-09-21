@@ -6,6 +6,8 @@ var samples: Array[Dictionary]=[]
 var started:=0
 var full_route := false
 var resonance_route := false
+var escort_route := false
+var escort_checks: Dictionary = {}
 var resonance_checks: Dictionary = {}
 var stage := "boot"
 var finishing := false
@@ -18,6 +20,7 @@ func _initialize() -> void:
 		if arg.begins_with("--evidence-dir="): output=arg.trim_prefix("--evidence-dir=")
 		if arg=="--full-route": full_route=true
 		if arg=="--resonance": resonance_route=true
+		if arg=="--escort": escort_route=true
 		if arg.begins_with("--timeout-ms="): timeout_ms=maxi(100,arg.trim_prefix("--timeout-ms=").to_int())
 	if output.is_empty(): quit(2);return
 	started=Time.get_ticks_msec()
@@ -143,7 +146,7 @@ func run() -> void:
 			return
 		for p in [Vector2(-42,95),Vector2(game.world.path_x(95),95)]:
 			if not await navigate(p): finish(false,"return_to_main");return
-	if not full_route: finish(true,"complete");return
+	if not full_route and not escort_route: finish(true,"complete");return
 	if not await record_fields("aurora_shelf"): finish(false,"fields_aurora");return
 	for row in [
 		{"region":"ember_rift","kind":"veyra","node":0,"approach":-90.0,"side":"ember_vent"},
@@ -170,6 +173,9 @@ func run() -> void:
 		press(KEY_E,true);await frame();press(KEY_E,false)
 		if not game.activities.completed[row.region]: finish(false,"record_"+row.region);return
 		await capture(row.region+"-required")
+		if escort_route and row.region=="ember_rift":
+			await play_escort_route()
+			return
 		var side: Vector2=game.activities.point(row.side)
 		if not await navigate(side): finish(false,"optional_"+row.region);return
 		await aim(side)
@@ -240,6 +246,75 @@ func play_resonance_route() -> void:
 	for value in resonance_checks.values(): passed=passed and bool(value)
 	finish(passed,"resonance_complete_and_continue")
 
+func play_escort_route() -> void:
+	var animal: Node3D=game.world._ecology_nodes[0]
+	if not await navigate(Vector2(animal.position.x,animal.position.z)+Vector2(0,8)):
+		finish(false,"escort_approach");return
+	for i in 600:
+		await aim(Vector2(animal.position.x,animal.position.z))
+		if game.interaction_target()=="escort": break
+		await frame()
+	press(KEY_E,true);await frame();press(KEY_E,false)
+	escort_checks.started=game.escort.phase!="idle"
+	if not escort_checks.started: finish(false,"escort_start");return
+	await capture("escort-start")
+	press(KEY_ESCAPE,true);await frame();press(KEY_ESCAPE,false)
+	var frozen: Vector2=game.escort.position
+	await create_timer(0.35).timeout
+	escort_checks.pause_freezes=game.escort.position==frozen and game.phase=="paused"
+	press(KEY_ESCAPE,true);await frame();press(KEY_ESCAPE,false)
+	press(KEY_W,true);await create_timer(1.4).timeout;press(KEY_W,false)
+	press(KEY_SPACE,true);await create_timer(0.3).timeout;press(KEY_SPACE,false)
+	escort_checks.throttle_frightens=game.escort.alarm>0.0
+	await capture("escort-alarmed")
+	var end:=Time.get_ticks_msec()+180000
+	var mid_resume_tested:=false
+	var last_sample:=0
+	while game.escort.phase!="complete" and Time.get_ticks_msec()<end:
+		if game.escort.travelled>60.0 and not mid_resume_tested:
+			release_drive()
+			press(KEY_ESCAPE,true);await frame();press(KEY_ESCAPE,false)
+			var previous: Dictionary=game.escort.snapshot()
+			game.queue_free();await create_timer(0.5).timeout
+			game=load("res://main.tscn").instantiate();root.add_child(game);await create_timer(0.5).timeout
+			press(KEY_ENTER,true);await frame();press(KEY_ENTER,false)
+			await frame()
+			escort_checks.mid_escort_restores=game.escort.phase!="idle" and game.escort.travelled>=float(previous.travelled)-0.1 and not game.activities.escort_complete
+			escort_checks.mid_position_restores=game.escort.position.distance_to(Vector2(previous.position.x,previous.position.z))<2.0
+			mid_resume_tested=true
+			await capture("escort-mid-continued")
+		var guide: Vector2=game.escort.position
+		var desired:=guide+Vector2(8,8)
+		var here:=Vector2(game.rover.position.x,game.rover.position.z)
+		var offset:=desired-here
+		var distance:=offset.length()
+		var angle:=wrapf(atan2(offset.x,-offset.y)-game.rover.heading,-PI,PI)
+		var wanted:=clampf((distance-1.0)*1.5,0,6.0)
+		press(KEY_A,distance>1.0 and angle < -0.1)
+		press(KEY_D,distance>1.0 and angle > 0.1)
+		press(KEY_W,absf(angle)<0.6 and game.rover.speed<wanted and distance>1.0)
+		press(KEY_SPACE,absf(angle)>0.9 or game.rover.speed>wanted+0.4 or distance<=1.0)
+		if Time.get_ticks_msec()-last_sample>1000:
+			checkpoint("escort_"+game.escort.phase,false)
+			samples.append({"rover":str(game.rover.position),"escort":game.escort.snapshot(),"speed":game.rover.speed})
+			last_sample=Time.get_ticks_msec()
+		await frame()
+	release_drive();press(KEY_SPACE,true);await create_timer(0.5).timeout;press(KEY_SPACE,false)
+	escort_checks.completed=game.escort.phase=="complete" and game.activities.escort_complete
+	escort_checks.travelled_route=game.escort.travelled>150.0
+	escort_checks.shelter_warms=game.world._shelter_material.emission_energy_multiplier>0.2
+	await capture("escort-completed")
+	escort_checks.saved=game.save_expedition()
+	game.queue_free();await create_timer(0.5).timeout
+	game=load("res://main.tscn").instantiate();root.add_child(game);await create_timer(0.5).timeout
+	press(KEY_ENTER,true);await frame();press(KEY_ENTER,false)
+	await create_timer(2.0).timeout
+	escort_checks.continue_restores=game.phase=="exploring" and game.escort.phase=="complete" and game.activities.escort_complete
+	await capture("escort-continued")
+	var passed:=true
+	for value in escort_checks.values(): passed=passed and bool(value)
+	finish(passed,"escort_complete_and_continue")
+
 func record_fields(region: String) -> bool:
 	for id in game.activities.FIELD:
 		if game.activities.SITES[id].region!=region or game.activities.done(id): continue
@@ -265,7 +340,7 @@ func finish(ok: bool, outcome_stage: String) -> void:
 	finishing=true
 	checkpoint(outcome_stage)
 	release_drive()
-	var result={"passed":ok,"routePassed":ok,"resonanceChecks":resonance_checks,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(6 if resonance_route else (18 if full_route else 3)) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
+	var result={"passed":ok,"routePassed":ok,"resonanceChecks":resonance_checks,"escortChecks":escort_checks,"escortRoute":escort_route,"resonanceRoute":resonance_route,"fullRouteRequested":full_route,"navigationFailure":navigation_failure,"visualCaptureStatus":"not_run_headless" if DisplayServer.get_name()=="headless" else ("failed" if captures.any(func(c): return c.status!="captured") else ("captured" if ok and captures.size()==(11 if escort_route else (6 if resonance_route else (18 if full_route else 3))) else "incomplete")),"stage":stage,"seconds":(Time.get_ticks_msec()-started)/1000.0,"state":game.snapshot(),"samples":samples,"captures":captures,"rendering":DisplayServer.get_name(),"kind":"native_injected_keyboard_uninterrupted_route_no_teleport_not_independent_human"}
 	var f:=FileAccess.open(output.path_join("drive.json"),FileAccess.WRITE)
 	f.store_string(JSON.stringify(result,"  "));f.close()
 	print("SURVEY_DRIVE "+JSON.stringify({"passed":ok,"stage":stage,"seconds":result.seconds,"state":result.state}))

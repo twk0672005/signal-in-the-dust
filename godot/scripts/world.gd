@@ -31,6 +31,8 @@ var _ecology_nodes: Array[Node3D] = []
 var _ecology_meta: Array[Dictionary] = []
 var _observed_regions: Dictionary = {}
 var build_stats: Dictionary = {}
+var _escort_state: Dictionary = {}
+var _shelter_material: StandardMaterial3D
 var _survey_materials: Dictionary = {}
 var _resonance_crystals: Array[Node3D] = []
 var _resonance_glows: Array[StandardMaterial3D] = []
@@ -75,6 +77,7 @@ func _ready() -> void:
 	_build_survey_sites()
 	_build_resonance_grove()
 	_build_ecology()
+	_build_escort_shelter()
 	_prepare_ecology_responses()
 	_build_response()
 	_build_dust()
@@ -102,7 +105,11 @@ func _process(delta: float) -> void:
 		var phase: float = data["phase"]
 		var base: Vector3 = data["base"]
 		var kind: String = data["kind"]
-		reaction.step(node.global_position.distance_to(_player_position), _player_speed, delta)
+		if i==0 and _escort_state.get("phase","idle")!="idle":
+			reaction.step(INF,0.0,delta)
+			reaction.alert=clampf(float(_escort_state.alarm),0.0,1.0)
+		else:
+			reaction.step(node.global_position.distance_to(_player_position), _player_speed, delta)
 		var alarm: float = reaction.alert
 		var pulse: float = reaction.pulse_amount()
 		var away := Vector3(base.x - _player_position.x, 0, base.z - _player_position.z).normalized()
@@ -115,12 +122,20 @@ func _process(delta: float) -> void:
 		elif kind == "veyra":
 			target += away * alarm * 3.0 + Vector3(sin(_world_time * 0.7 + phase) * 0.35, 0, cos(_world_time * 0.55 + phase) * 0.35)
 			target.y = height_at(target.x, target.z) + 0.35 + absf(sin(_world_time * 2.0 + phase)) * 0.08
-			node.rotation.y = phase + sin(_world_time * 0.7 + phase) * 0.5
+			if i!=0 or _escort_state.get("phase","idle")=="idle": node.rotation.y = phase + sin(_world_time * 0.7 + phase) * 0.5
 		else:
 			node.rotation.y = phase + sin(_world_time * 0.2 + phase) * 0.12
+		if i==0 and not _escort_state.is_empty() and _escort_state.phase!="idle":
+			var point: Dictionary=_escort_state.position
+			target=Vector3(float(point.x),height_at(float(point.x),float(point.z))+0.35,float(point.z))
+			var direction:=target-node.position
+			if Vector2(direction.x,direction.z).length()>0.05:
+				node.rotation.y=lerp_angle(node.rotation.y,atan2(-direction.x,-direction.z),1.0-exp(-delta*4.0))
+			alarm=maxf(alarm,float(_escort_state.alarm))
+			# A frightened animal visibly folds down; it waits rather than clipping through rocks while fleeing.
 		node.position = node.position.lerp(target, 1.0 - exp(-delta * 5.0))
 		var width := 1.0 + pulse * 0.12
-		node.scale = Vector3(width, (1.0 - alarm * 0.55 if kind == "root_choir" else 1.0) + pulse * 0.1, width)
+		node.scale = Vector3(width, (1.0 - alarm * (0.55 if kind=="root_choir" else 0.3) if kind=="root_choir" or (i==0 and not _escort_state.is_empty()) else 1.0) + pulse * 0.1, width)
 		for entry: Dictionary in _ecology_glow[i]:
 			entry["material"].emission_energy_multiplier = float(entry["energy"]) * (1.0 + pulse * 2.0 - alarm * 0.65)
 
@@ -279,6 +294,34 @@ func set_resonance_visual(band: int, complete: bool, delta: float = 0.0) -> void
 		crystal.scale=Vector3.ONE*(1.0+_resonance_open*0.25)
 		crystal.get_node("BandNumber").visible=not complete
 		_resonance_glows[i].emission_energy_multiplier=1.6 if i==band else (0.65 if complete else 0.18)
+
+func _build_escort_shelter() -> void:
+	var shelter:=Node3D.new()
+	shelter.name="WarmMineralShelter"
+	var z: float=-157.0
+	shelter.position=Vector3(path_x(z),height_at(path_x(z),z),z)
+	add_child(shelter)
+	_shelter_material=_ecology_material(Color("7f6848"),Color("c68a46"),0.12,0.83)
+	_shelter_material.albedo_texture=load("res://assets/terrain/cc0/rock023_alb_ht.png")
+	_shelter_material.uv1_triplanar=true
+	for side in [-1.0,1.0]:
+		for step in 3:
+			var stone:=MeshInstance3D.new()
+			stone.mesh=_low_meshes[step%_low_meshes.size()] if not _low_meshes.is_empty() else SphereMesh.new()
+			stone.scale=Vector3(0.65+step*0.12,0.45+step*0.08,0.75)
+			var local_x: float=side*(2.2+step*0.2)
+			var local_z: float=-1.0+step
+			var foot: float=height_at(shelter.position.x+local_x,z+local_z)-shelter.position.y
+			stone.position=Vector3(local_x,foot-stone.mesh.get_aabb().position.y*stone.scale.y,local_z)
+			stone.material_override=_shelter_material
+			shelter.add_child(stone)
+
+func set_escort_state(data: Dictionary, instant: bool = false) -> void:
+	_escort_state=data
+	if instant and data.phase!="idle":
+		_ecology_nodes[0].position=Vector3(data.position.x,height_at(data.position.x,data.position.z)+0.35,data.position.z)
+	if is_instance_valid(_shelter_material):
+		_shelter_material.emission_energy_multiplier=0.35 if data.get("complete",false) else 0.12
 
 func _build_atmosphere() -> void:
 	_environment = Environment.new()
@@ -778,6 +821,8 @@ func set_paused(value: bool) -> void:
 	if is_instance_valid(_dust): _dust.speed_scale = 0.0 if value else 1.0
 
 func reset() -> void:
+	_escort_state.clear()
+	if is_instance_valid(_shelter_material): _shelter_material.emission_energy_multiplier=0.12
 	_resonance_open=0.0
 	set_resonance_visual(-1,false)
 	_world_time = 0.0

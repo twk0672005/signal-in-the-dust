@@ -73,6 +73,15 @@ func _initialize() -> void:
 	checks.v4_resonance_default=resonance_restore.restore(resonance_data) and not resonance_restore.resonance_complete
 	resonance_restore.resonance_complete=true;resonance_restore.reset()
 	checks.resonance_reset=not resonance_restore.resonance_complete
+	var escort_data: Dictionary=t.snapshot();escort_data.escort_complete=true
+	var escort_restore=Tracker.new()
+	checks.escort_saved=escort_restore.restore(escort_data) and escort_restore.escort_complete
+	escort_data.escort_complete="bad"
+	checks.bad_escort_rejected=not escort_restore.restore(escort_data) and escort_restore.escort_complete
+	escort_data=t.snapshot();escort_data.version=5;escort_data.erase("escort_complete")
+	checks.v5_escort_default=escort_restore.restore(escort_data) and not escort_restore.escort_complete
+	escort_restore.escort_complete=true;escort_restore.reset()
+	checks.escort_reset=not escort_restore.escort_complete
 	var ok:=true
 	for value in checks.values(): ok=ok and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)

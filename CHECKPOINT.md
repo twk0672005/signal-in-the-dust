@@ -1,9 +1,11 @@
 # Current checkpoint
-updatedAt: 2026-09-21T00:08:02.660030+00:00
+updatedAt: 2026-09-21T02:38:49.477323+00:00
 status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
 ## Current product and latest evidence
+- NEW: optional Veyra quiet crossing in Ember Rift; actual speed/distance pressure, warm rock-bed reward, and mid-activity persistence. Native and local Web journeys pass; see evidence/escort-delivery/receipt.json and docs/VEYRA_CROSSING.md. Activity schema6 includes validated origin/position/waypoint/alarm state.
+- Escort rules18, activity migration96, font391 current UI characters; full30-minute content and market art still missing.
 - Added optional Aurora crystal resonance: E listens/replays, 1/2/3 answer three rounds, outward-opening crystals and saved completion. Native real-input/mouse/pause/Continue route passed. Activity schema5; previous saves migrate. See docs/AURORA_RESONANCE.md and evidence/resonance-delivery/receipt.json.
 - Main content target is still unmet; do not claim 30 minutes from this short activity.
 - Godot 4.7.2 Compatibility; first/third-person, 24 m/s cruise, 4 required surveys, 4 optional echoes, 8 field notes, 3 observed species.

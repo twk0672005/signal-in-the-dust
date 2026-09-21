@@ -24,3 +24,10 @@ PLANS.md、RUN_CONTRACT.md、CHECKPOINT.md 記錄本輪狀態。
 完成三段後晶簇會展開，Continue 會保留完成結果。Esc 暫停；V 切换視角；離開晶簇會重新開始未完成的挑戰。
 
 這是一項新增短活動，並不代表整體已達 30 分鐘。驗證及授權見 docs/AURORA_RESONANCE.md。
+
+## Veyra 安靜穿越（可選護送）
+
+完成熱泉裂谷的主線測繪及 Veyra 觀察後，停車面向第一隻 Veyra，按 E 開始陪伴。
+保持 4–24 米距離，車速低於 8 米／秒；太吵或太近時，先停車並留出空間。
+走遠了牠會等你。Pause／Continue 支援護送途中的位置和進度，抵達庇護處後礦床會亮起暖光。
+詳見 docs/VEYRA_CROSSING.md；整體仍未完成30分鐘市場驗收。

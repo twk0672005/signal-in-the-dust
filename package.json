@@ -17,6 +17,8 @@
     "test:activity-logic": "node tools/run-native-check.mjs activity_logic_runner",
     "test:journey": "node tools/run-journey.mjs",
     "test:resonance": "node tools/run-native-check.mjs resonance_logic",
-    "test:resonance-journey": "node tools/run-journey.mjs --resonance"
+    "test:resonance-journey": "node tools/run-journey.mjs --resonance",
+    "test:escort": "node tools/run-native-check.mjs escort_logic",
+    "test:escort-journey": "node tools/run-journey.mjs --escort"
   }
 }

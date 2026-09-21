@@ -47,6 +47,14 @@ func run() -> void:
 	invalids[3].position.x=100000
 	invalids[4].observedEcology=[]
 	invalids[5].elapsed="wrong"
+	var bad_escort: Dictionary=valid.duplicate(true)
+	bad_escort.version=2;bad_escort.activities=game.activities.snapshot()
+	bad_escort.activities.escort_state=game.escort.snapshot()
+	bad_escort.activities.escort_state.position.x=9000.0
+	invalids.append(bad_escort)
+	bad_escort=valid.duplicate(true);bad_escort.version=2;bad_escort.activities=game.activities.snapshot()
+	bad_escort.activities.escort_state=game.escort.snapshot();bad_escort.activities.escort_state.total=7
+	invalids.append(bad_escort)
 	var unchanged := true
 	var position: Vector3=game.rover.position
 	for value in invalids:
@@ -54,6 +62,7 @@ func run() -> void:
 		unchanged = not game.load_expedition() and unchanged
 		unchanged = game.rover.position==position and game.observed_ecology.get("veyra",false) and unchanged
 	checks.invalid_files_leave_game_unchanged=unchanged
+	Save.clear(path)
 	put(path+".tmp",JSON.stringify(valid))
 	checks.uncommitted_tmp_is_not_loaded=Save.read(path).is_empty()
 	Save.clear(path);Save.write(path,valid)
