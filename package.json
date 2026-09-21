@@ -23,6 +23,7 @@
     "test:passage": "node tools/run-native-check.mjs quiet_passage_checks",
     "test:passage-journey": "node tools/run-journey.mjs --passage",
     "test:root-network": "node tools/run-native-check.mjs root_network_checks",
-    "test:root-network-journey": "node tools/run-journey.mjs --root-network"
+    "test:root-network-journey": "node tools/run-journey.mjs --root-network",
+    "test:combined-journey": "node tools/run-journey.mjs --combined"
   }
 }

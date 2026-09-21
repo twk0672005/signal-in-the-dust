@@ -108,6 +108,19 @@ func _initialize() -> void:
 	root_data=t.snapshot();root_data.version=7;root_data.erase("root_network_state")
 	checks.v7_root_default=u.restore(root_data) and u.root_network_state.is_empty()
 	u.reset();checks.root_reset=u.root_network_state.is_empty()
+	u.reset();u.tick("ember_rift",0,{},0,Vector3.ZERO)
+	checks.entered_region_discovered=u.discovered.ember_rift and not u.discovered.pale_decay
+	u.tracked_encounter="ember_rift"
+	var journal_data: Dictionary=JSON.parse_string(JSON.stringify(u.snapshot()))
+	checks.tracked_journal_roundtrip=u.restore(journal_data) and u.tracked_encounter=="ember_rift"
+	var journal_before: Dictionary=u.snapshot()
+	journal_data.tracked_encounter="pale_decay"
+	checks.unknown_region_not_trackable=not u.restore(journal_data) and u.snapshot()==journal_before
+	journal_data=journal_before.duplicate(true);journal_data.discovered_regions.ember_rift="bad"
+	checks.bad_discovery_rejected=not u.restore(journal_data)
+	journal_data=journal_before.duplicate(true);journal_data.version=8;journal_data.erase("discovered_regions");journal_data.erase("tracked_encounter")
+	checks.v8_journal_migrates=u.restore(journal_data) and u.discovered.ember_rift and u.tracked_encounter==""
+	u.reset();checks.journal_reset=u.tracked_encounter=="" and not u.discovered.ember_rift
 	var ok:=true
 	for value in checks.values(): ok=ok and bool(value)
 	DirAccess.make_dir_recursive_absolute(output)

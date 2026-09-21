@@ -81,6 +81,7 @@ func _ready() -> void:
 	ui.start_requested.connect(request_new_expedition)
 	ui.continue_saved_requested.connect(load_expedition)
 	ui.resume_requested.connect(resume_expedition)
+	ui.encounter_selected.connect(_on_encounter_selected)
 	ui.reset_requested.connect(reset_expedition)
 	ui.interact_requested.connect(interact)
 	ui.locale_changed.connect(_on_locale)
@@ -97,7 +98,7 @@ func _ready() -> void:
 	print("EXPEDITION_READY")
 
 func _install_inputs() -> void:
-	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"toggle_camera":[KEY_V],"interact":[KEY_E],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R],"resonance_1":[KEY_1],"resonance_2":[KEY_2],"resonance_3":[KEY_3]}
+	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"toggle_camera":[KEY_V],"interact":[KEY_E],"expedition_journal":[KEY_J],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R],"resonance_1":[KEY_1],"resonance_2":[KEY_2],"resonance_3":[KEY_3]}
 	for action in bindings:
 		if not InputMap.has_action(action): InputMap.add_action(action)
 		for key in bindings[action]:
@@ -214,17 +215,27 @@ func _survey_completed(id: String) -> void:
 func _update_survey_readout() -> void:
 	var region: String=world.region_at(rover.global_position)
 	var target: String=activities.target(region)
+	var tracked: String=activities.tracked_encounter
+	if not tracked.is_empty() and _encounter_complete(tracked):
+		activities.tracked_encounter=""
+		tracked=""
+	if not tracked.is_empty(): target="encounter_"+tracked
 	var distance:=0.0
 	var bearing:=0.0
 	if not target.is_empty():
-		distance=Vector2(rover.position.x,rover.position.z).distance_to(ActivityScript.point(target))
-		var offset: Vector2=ActivityScript.point(target)-Vector2(rover.position.x,rover.position.z)
+		var point: Vector2=ActivityScript.point(target) if tracked.is_empty() else _encounter_point(tracked)
+		distance=Vector2(rover.position.x,rover.position.z).distance_to(point)
+		var offset: Vector2=point-Vector2(rover.position.x,rover.position.z)
 		bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
 	ui.set_activity_progress(activities.count(),activities.optional_count(),activities.field_count(),region,target,distance,activities.stillness,bearing)
 	ui.set_resonance_context(_resonance_context())
 	ui.set_escort_context(_escort_context())
 	ui.set_passage_context(_passage_context())
 	ui.set_root_network_context(_root_network_context())
+	var journal: Dictionary={"tracked":activities.tracked_encounter,"entries":{}}
+	for id in ActivityScript.REGIONS:
+		journal.entries[id]={"discovered":activities.discovered[id],"complete":_encounter_complete(id)}
+	ui.set_journal_context(journal)
 	ui.set_interaction_kind(interaction_target())
 
 func _nearby_survey() -> String:
@@ -239,6 +250,11 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause_mission"):
 		if phase in ["paused","confirm_reset"]: resume_expedition()
 		elif phase in ["arrival","exploring","contact"]: pause_expedition()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("expedition_journal") and phase=="exploring":
+		pause_expedition()
+		_update_survey_readout()
+		ui.show_state("journal")
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("toggle_camera") and phase in ["exploring", "contact"]:
 		rover.toggle_camera_mode()
@@ -622,3 +638,30 @@ func _root_network_changed(complete: bool, index: int) -> void:
 	save_expedition()
 	_update_survey_readout()
 	_publish_snapshot()
+
+func _encounter_complete(region: String) -> bool:
+	match region:
+		"aurora_shelf": return resonance.solved
+		"ember_rift": return escort.phase=="complete"
+		"veil_marsh": return passage.phase=="complete"
+		"pale_decay": return root_network.complete
+	return false
+
+func _encounter_point(region: String) -> Vector2:
+	match region:
+		"aurora_shelf": return ActivityScript.point("aurora_echo")
+		"ember_rift":
+			if observed_ecology.get("veyra",false) and not activities.completed.ember_rift: return ActivityScript.point("ember_rift")
+			var animal: Vector3=world._ecology_nodes[0].global_position
+			return Vector2(animal.x,animal.z)
+		"veil_marsh": return world.passage_route()[mini(passage.gate,4)]
+		"pale_decay": return world.root_network_points()[root_network.powered_count()]
+	return Vector2.ZERO
+
+func _on_encounter_selected(region: String) -> void:
+	if phase!="paused": return
+	if region!="" and (region not in ActivityScript.REGIONS or not activities.discovered.get(region,false) or _encounter_complete(region)): return
+	activities.tracked_encounter=region
+	resume_expedition()
+	save_expedition()
+	_update_survey_readout()

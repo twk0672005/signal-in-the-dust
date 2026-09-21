@@ -5,6 +5,7 @@ signal start_requested
 signal resume_requested
 signal reset_requested
 signal interact_requested
+signal encounter_selected(region: String)
 signal locale_changed(value: String)
 signal settings_changed(config: Dictionary)
 
@@ -79,6 +80,10 @@ const COPY := {
 	"site_ember_vent": ["Optional · outer thermal vent", "支線 · 外圍熱泉"],
 	"site_marsh_crossing": ["Optional · membrane grove", "支線 · 膜葉林"],
 	"site_spore_pulse": ["Optional · distant shell reef", "支線 · 遠方孢殼礁"],
+	"site_encounter_aurora_shelf": ["Crystal resonance", "冰晶共鳴"],
+	"site_encounter_ember_rift": ["Veyra escort", "護送 Veyra"],
+	"site_encounter_veil_marsh": ["Veil passage", "膜葉穿行"],
+	"site_encounter_pale_decay": ["Root routing", "根脈導流"],
 	"ecology_near": ["Life nearby", "附近有生命"],
 	"ecology_disturbed": ["Life disturbed · slow down", "生物受驚 · 請減速"],
 	"continue_saved": ["Continue last expedition", "繼續上次探勘"],
@@ -93,7 +98,7 @@ const COPY := {
 	"intro": ["Something beneath the storm is listening.\nFollow its signal. Let it hear you.", "風暴之下，有什麼正在聆聽。\n循著訊號前進，讓它聽見你。"],
 	"duration": ["Explore the four regions. Stop and listen.", "探索四大地區，停車聆聽生命。"],
 	"begin": ["Begin expedition", "開始探勘"],
-	"controls": ["WASD / arrows   Drive     SPACE   Brake\nRight-drag   Look     V   Camera     E   Observe / transmit     ESC   Pause", "WASD / 方向鍵   駕駛     空白鍵   煞車\n按住滑鼠右鍵拖曳   環顧     V   視角     E   觀察／發送     ESC   暫停"],
+	"controls": ["WASD / arrows   Drive     SPACE   Brake\nRight-drag   Look     V   Camera     E   Observe / transmit\nJ   Journal     ESC   Pause", "WASD / 方向鍵   駕駛     空白鍵   煞車\n按住滑鼠右鍵拖曳   環顧     V   視角     E   觀察／發送\nJ   日誌     ESC   暫停"],
 	"volume": ["Sound", "音量"],
 	"motion": ["Reduced motion", "減少動態效果"],
 	"quality": ["Low graphics", "低畫質"],
@@ -114,6 +119,16 @@ const COPY := {
 	"paused": ["Expedition paused", "探勘已暫停"],
 	"resume": ["Continue expedition", "繼續探勘"],
 	"restart": ["Restart expedition", "重新開始探勘"],
+	"journal": ["Expedition journal", "探勘日誌"],
+	"journal_title": ["4 ECOLOGICAL ENCOUNTERS", "4 項生態邂逅"],
+	"journal_brief": ["Optional encounters are separate from regional surveys. Track one when you want to seek it out.", "生態邂逅屬於區域測繪之外的支線，想前往時可選擇追蹤。"],
+	"journal_unknown": ["UNKNOWN", "未知"],
+	"journal_available": ["AVAILABLE", "可探索"],
+	"journal_complete": ["COMPLETE", "已完成"],
+	"journal_track": ["TRACK", "追蹤"],
+	"journal_tracking": ["TRACKING", "追蹤中"],
+	"journal_track_surveys": ["TRACK MAIN SURVEYS", "追蹤主線測繪"],
+	"journal_back": ["ESC · BACK TO EXPEDITION", "ESC · 返回探勘"],
 	"confirm_reset": ["Return to the beginning?", "返回旅程起點？"],
 	"reset_detail": ["Your current expedition will restart.\nYour language and settings will be kept.", "目前的探勘進度將會重置。\n語言與設定會保留。"],
 	"confirm": ["Yes, restart", "確定重新開始"],
@@ -124,7 +139,7 @@ const COPY := {
 	"transmitting": ["Pulse sent. Waiting for a response…", "脈衝已發送，等待回應……"],
 	"response": ["This is not an echo.", "這並非回音。"],
 	"ecology_observed": ["The organism changes its rhythm.", "生物改變了節奏。"],
-	"pause_hint": ["ESC  Pause", "ESC  暫停"],
+	"pause_hint": ["ESC  Pause · J  Journal", "ESC  暫停 · J  日誌"],
 	"muted": ["Muted", "靜音"],
 }
 
@@ -150,6 +165,7 @@ var _resonance_context: Dictionary = {}
 var _root_network_context: Dictionary = {}
 var _passage_context: Dictionary = {}
 var _escort_context: Dictionary = {}
+var _journal_context: Dictionary = {"entries": {}, "tracked": ""}
 var _reticle: Label
 var _interaction: Button
 var _message: Label
@@ -350,13 +366,22 @@ func _build_overlay() -> void:
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
 	panel.offset_left = 64
 	panel.offset_right = 534
-	panel.offset_top = -290 if _state == "menu" else -235
-	panel.offset_bottom = 290 if _state == "menu" else 235
+	var desired_panel_height := 580.0 if _state == "menu" else (640.0 if _state == "journal" else 470.0)
+	var panel_height := minf(desired_panel_height, maxf(320.0, get_viewport().get_visible_rect().size.y - 48.0))
+	panel.offset_top = -panel_height * 0.5
+	panel.offset_bottom = panel_height * 0.5
 	panel.add_theme_stylebox_override("panel", _style(Color(0.055, 0.063, 0.064, 0.88), Color(0.55, 0.48, 0.36, 0.30), 26))
 	_overlay.add_child(panel)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel.add_child(scroll)
 	var column := VBoxContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 13)
-	panel.add_child(column)
+	scroll.add_child(column)
 	column.add_child(_label(_text("edition"), 12, AMBER))
 	var primary: Button
 	if _state == "menu":
@@ -379,9 +404,22 @@ func _build_overlay() -> void:
 		column.add_child(_label(_text("paused"), 28))
 		primary = _button("resume", func() -> void: resume_requested.emit())
 		column.add_child(primary)
+		column.add_child(_button("journal", func() -> void: show_state("journal")))
 		column.add_child(_button("restart", func() -> void: show_state("confirm_reset")))
 		_build_settings(column)
 		column.add_child(_label(_text("controls"), 12, MUTED))
+	elif _state == "journal":
+		column.add_child(_label(_text("journal_title"), 28))
+		var brief := _label(_text("journal_brief"), 13, MUTED)
+		brief.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		column.add_child(brief)
+		_build_journal_entries(column)
+		var surveys := _button("journal_track_surveys", _select_journal_encounter.bind(""))
+		surveys.name = "JournalTrackSurveys"
+		column.add_child(surveys)
+		primary = _button("resume", func() -> void: resume_requested.emit())
+		column.add_child(primary)
+		column.add_child(_label(_text("journal_back"), 12, MUTED))
 	elif _state == "confirm_new":
 		column.add_child(_label(_text("confirm_reset"),25))
 		column.add_child(_label(_text("reset_detail"),14,MUTED))
@@ -447,6 +485,37 @@ func _build_settings(parent: VBoxContainer) -> void:
 		check.toggled.connect(_toggle_setting.bind(pair[0]))
 		options.add_child(check)
 
+func _build_journal_entries(parent: VBoxContainer) -> void:
+	var entries: Dictionary = _journal_context.get("entries", {})
+	var tracked := str(_journal_context.get("tracked", ""))
+	for region in ["aurora_shelf", "ember_rift", "veil_marsh", "pale_decay"]:
+		var entry: Dictionary = entries.get(region, {})
+		var discovered := bool(entry.get("discovered", false))
+		var complete := bool(entry.get("complete", false))
+		var row := PanelContainer.new()
+		row.add_theme_stylebox_override("panel", _style(Color(0.10, 0.11, 0.105, 0.78), Color(0.42, 0.39, 0.33, 0.55), 12))
+		parent.add_child(row)
+		var content := HBoxContainer.new()
+		content.add_theme_constant_override("separation", 12)
+		row.add_child(content)
+		var names := VBoxContainer.new()
+		names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		content.add_child(names)
+		names.add_child(_label(_text(region), 15, PAPER if discovered else MUTED))
+		names.add_child(_label(_text("site_encounter_" + region) if discovered else "—", 12, MUTED))
+		var status_key := "journal_complete" if complete else ("journal_available" if discovered else "journal_unknown")
+		var status := _label(_text(status_key), 11, SIGNAL if complete else (AMBER if discovered else MUTED))
+		status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		content.add_child(status)
+		if discovered and not complete:
+			var track := _button("journal_tracking" if tracked == region else "journal_track", _select_journal_encounter.bind(region))
+			track.name = "JournalTrack_" + region
+			track.custom_minimum_size = Vector2(104, 38)
+			content.add_child(track)
+
+func _select_journal_encounter(region: String) -> void:
+	encounter_selected.emit(region)
+
 func _change_locale(value: String) -> void:
 	_config.locale = value
 	_save_settings()
@@ -463,11 +532,14 @@ func set_saved_available(value: bool, failed: bool = false) -> void:
 	if _state == "menu" and is_instance_valid(_root): _build()
 
 func show_state(state: String) -> void:
-	if not state in ["menu", "arrival", "exploring", "contact", "ending", "paused", "confirm_reset", "confirm_new"]:
+	if not state in ["menu", "arrival", "exploring", "contact", "ending", "paused", "journal", "confirm_reset", "confirm_new"]:
 		return
 	_state = state
 	if is_instance_valid(_root):
 		_build()
+
+func set_journal_context(data: Dictionary) -> void:
+	_journal_context = data.duplicate(true)
 
 func update_readout(distance: float, elapsed: float, contact_progress: float, can_interact: bool, speed_mps: float = 0.0, max_speed_mps: float = 8.0, view_mode: String = "first_person", ecology_state: Dictionary = {}) -> void:
 	_speed_mps = speed_mps

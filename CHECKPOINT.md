@@ -1,59 +1,37 @@
 # Current checkpoint
-updatedAt: 2026-09-21T06:32:49.541506+00:00
+updatedAt: 2026-09-21T07:36:17.262985+00:00
 status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
 
-## Current product and latest evidence
-- NEW Pale Root Choir routing: three physical junctions, upstream/downstream propagation, explicit crown pulse, branch growth, schema8 JSON-safe Continue/reset. Native and final local Web journeys passed; docs/ROOT_CHOIR_ROUTING.md and evidence/root-network/receipt.json.
-- Actual road blocker fixed: Veil gate2 membrane bank intruded main road. Banks now reserve9m lateral road offset, collider clearance regression and passage real-keyboard rerun pass.
-- Latest checks: root17, activity106, ecology25; other suites retained. Font433characters. Four optional encounter types now exist, but no combined30-minute proof.
-- NEW Pale Root Choir routing: three physical junctions, upstream/downstream propagation, explicit crown pulse, branch growth, schema8 JSON-safe Continue/reset. Native and final local Web journeys passed; docs/ROOT_CHOIR_ROUTING.md and evidence/root-network/receipt.json.
-- Actual road blocker fixed: Veil gate2 membrane bank intruded main road. Banks now reserve9m lateral road offset, collider clearance regression and passage real-keyboard rerun pass.
-- Latest checks: root17, activity106, ecology25; other suites retained. Font433characters. Four optional encounter types now exist, but no combined30-minute proof.
-- NEW Veil quiet membrane passage: five ordered physical gates, fast-entry scatter/recovery, opening membranes, Aeral return, bilingual direction and schema7 mid-activity Continue. Native and local Web physical-input journeys passed. See docs/VEIL_PASSAGE.md and evidence/marsh-passage/receipt.json.
-- Current tests: passage23, activity101, controller19, interaction7, ecology23, runtime24, save9, save-flow19, resonance11, escort18. Font413 characters.
-- First-person readability repair: sensor raised8cm; three actual-render masks reduce rover coverage from22–25% to13–16%. Controller/interaction/native input journey and local Web smoke passed. See docs/CAMERA_READABILITY.md and evidence/camera-composition/receipt.json.
-- Unused concept image excluded from both export presets; source retained. Web PCK reduced by1,770,016 bytes without removing runtime terrain/model assets.
-- NEW: optional Veyra quiet crossing in Ember Rift; actual speed/distance pressure, warm rock-bed reward, and mid-activity persistence. Native and local Web journeys pass; see evidence/escort-delivery/receipt.json and docs/VEYRA_CROSSING.md. Activity schema6 includes validated origin/position/waypoint/alarm state.
-- Escort rules18, activity migration96, font391 current UI characters; full30-minute content and market art still missing.
-- Added optional Aurora crystal resonance: E listens/replays, 1/2/3 answer three rounds, outward-opening crystals and saved completion. Native real-input/mouse/pause/Continue route passed. Activity schema5; previous saves migrate. See docs/AURORA_RESONANCE.md and evidence/resonance-delivery/receipt.json.
-- Main content target is still unmet; do not claim 30 minutes from this short activity.
-- Godot 4.7.2 Compatibility; first/third-person, 24 m/s cruise, 4 required surveys, 4 optional echoes, 8 field notes, 3 observed species.
-- Finale currently requires 4 surveys + 8 fields. Optional echoes remain optional for players; all-content test visits all 16 sites.
-- Three injected-keyboard all-content routes reached ending without teleport: 389.013s headless, 393.421s graphical, third ~389s via new command. See evidence/journey-recovery/receipt.json. One graphical route, not three human/platform runs.
-- Native 1440x900 actual captures: evidence/journey-graphical-2350/. The map remains visually sparse and the cockpit/landmarks need work. MARKET is not visually accepted.
-- Browser cold start reached real Godot menu; physical-key CDP movement >93m, V, pause and reload/Continue restored location/distance/camera. evidence/web-recovery-2355/cdp-input.json. HeadlessChrome 152 only, not the requested platform matrix.
-- 88 pure activity assertions, 24 runtime assertions, 17 defensive save-flow assertions. Intentional timeout writes failure and exits1: evidence/journey-timeout-proof/drive.json.
-- Font regenerated for 351 interface characters; no missing glyphs. Preserve original OFL source.
+## Current product
+- Godot4.7.2 Compatibility, single-thread Web, zh_TW/en,24m/s cruise, first/third-person V, correct steering, real terrain/rock collision and defensive Continue/New/Reset.
+-4required surveys+8field notes unlock the finale;4echoes and4new encounters remain optional. Aurora resonance, Ember Veyra escort, Veil quiet passage and Pale root routing are implemented and individually tested.
+- NEW J exploration journal: discovered-region encounters, manual compass tracking, main-survey fallback, pause/resume and schema9 persistence. Native14/Web9checks pass. docs/COMBINED_JOURNEY.md.
+- One continuous all-content graphical input journey passed:633.1s (10m33s),19screens,4encounters+16sites+3species+ending. No teleport or Continue. This is NOT30-minute or novice-human proof.
+- Current receipt: evidence/combined-route/receipt.json. Exact launched source hashes are recorded under evidence/journey-graphical-2026-09-21T07-19-43-025Z/provenance.json.
+- Eleven regression suites pass. Activity112, ecology25, controller19, interaction7, runtime24, save9, save-flow19, resonance11, escort18, passage23, roots17. Font445characters.
 
-## Latest resonance Web evidence
-- Local Web puzzle completed after obstacle detour with physical-key CDP events: echo, listen, wrong replay, solve, reload and persisted completion. evidence/web-resonance/web-resonance-complete.json. This is a continued test, not a clean uninterrupted run.
-
-## Corrections to earlier claims
-- 30 minutes is the target, not implemented playtime. Player shell duration promise removed; existing current route is approximately 6.5 minutes even covering all activities.
-- Prior local browser reads of desktop_required were shell checks, not successful game cold starts.
-- Headless driver awaited rendering during screenshots. Save/resume was not proven to cause the stall. The persistent repaired driver now skips headless captures and records stages each second, with in-engine and process timeouts.
-- The native app Goal tool was observed blocked with generic objective '自主工作模式'; prior docs claiming active were stale. Foreground project work continues under the authorized contract; do not invent Goal completion or unattended duration.
+## Important prior repairs
+- First-person sensor8cm lift reduces body obstruction; tuning closed. docs/CAMERA_READABILITY.md.
+- Main-road membrane collision fixed by moving banks9m from road center. Preserve6m activity openings. Side banks still intentionally collide; side-echo return driver goes around, not through them.
+- Headless screenshot waits repaired; never run renderer-capture waits headless. Every input journey has a process and in-engine watchdog and a fresh isolated save directory.
+- Root JSON numeric validation accepts integral decoded floats. Latest schema9 migrates older activities atomically. Save failures warn while allowing play.
 
 ## Release
-- Last confirmed before this source repair: private Sites v10 / 57bb86c25d23f6fbaa71498dc1d710787037bdc9, deployment appgdep_6ab0653428e081919179a7b399fb4beb succeeded.
-- Read evidence/latest-release.json when present for the subsequent deployment receipt. It is outside source commits to avoid rebuilding solely for receipt bookkeeping.
-- No existing push/owned Godot job is assumed live. Reconcile actual status before publishing. Existing preview PID18752 was left untouched.
+- Read evidence/latest-release.json for exact hosted status. At wake start privatev12/c63bb39 was succeeded. Journal candidate is a later revision; do not assume it is hosted without tool readback.
+- Owner-only; no public promotion before human/platform/market gates. Root owns Sites lifecycle. Preserve preview PID18752 unless fresh evidence shows ownership changed.
 
-## Next product work
-- Main missing gate is content, not another counter: build distinct multi-step ecological observation/puzzle sequences and authored side trails using reviewed assets, then measure real pacing. Do not add mandatory idle waits or reduce the authorized vehicle speed to fill time.
-- Retain existing reversible candidate and snapshots; integrate new content in one region first before extending to four.
-- Still missing: ~30-minute meaningful content, 3 human-like full journeys on final content, full save persistence journey, Windows Chrome/Edge/Firefox and macOS Chrome/Safari, export performance and independent first-time human review.
+## Next work
+1. Add a meaningful Ember ecological route choice and saved visible outcome; use actual vent/mineral observation instead of more identical E counters.
+2. Expand region-specific field investigations and authored side loops, then repeat combined timing against30-minute target.
+3. Improve prop variation and near/mid/far habitat detail; current world remains sparse/repetitive.
+4. Three final full journeys, full Web combined persistence, Windows Chrome/Edge/Firefox and macOS Chrome/Safari, export performance, independent first-time human acceptance.
 
-## Reproduce
-- npm run test:journey (headless input route with unique evidence folder; 15-minute internal watchdog and 930-second process bound).
-- npm run test:journey -- --graphical (1440x900 actual screenshot route).
-- npm run check; npm run test:activity-logic; npm test; npm run test:save-flow.
+## Continuation truth
+- Official heartbeat delivers work; only observed receipts count. Do not claim elapsed unattended work from cadence alone.
+- Native app Goal was previously observed blocked with generic objective. Foreground authorized project work continues; do not mark complete from a child-stage pass.
 
-Camera tuning is closed for this stage: final8cm lift validated after rejecting12cm live-slope clipping. Next effort should go to substantive Veil/Pale content and map/art work, not repeat this parameter sweep.
-
-Next substantive work: Pale Decay multi-step encounter and less repetitive authored environment, followed by one combined timed journey. Do not repeat completed camera/passage parameter sweeps.
-
-Next: combined all-encounter +16site journey with real timing, then pacing and authored habitat detail. Do not add isolated journey durations or repeat camera sweeps.
-
-Next: combined all-encounter +16site journey with real timing, then pacing and authored habitat detail. Do not add isolated journey durations or repeat camera sweeps.
+## Commands
+- npm run test:combined-journey -- --graphical
+- npm run test:passage-journey / test:root-network-journey / test:resonance-journey / test:escort-journey
+- npm run check; npm run test:activity-logic; npm test; npm run test:save-flow; npm run build

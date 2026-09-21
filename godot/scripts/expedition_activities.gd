@@ -24,6 +24,8 @@ const SITES := {
  "pale_bone":{"region":"pale_decay","z":-430.0,"offset":-10.0,"kind":"","tier":"field"},
  "pale_sink":{"region":"pale_decay","z":-470.0,"offset":10.0,"kind":"","tier":"field"}
 }
+var discovered: Dictionary = {}
+var tracked_encounter := ""
 var root_network_state: Dictionary = {}
 var passage_state: Dictionary = {}
 var passage_complete := false
@@ -48,7 +50,7 @@ static func _flags(value: Variant, keys: Array) -> bool:
   if not value.has(key) or not value[key] is bool: return false
  return true
 static func normalized(data: Variant) -> Dictionary:
- if not data is Dictionary or not _number(data.get("version"),1,8): return {}
+ if not data is Dictionary or not _number(data.get("version"),1,9): return {}
  if float(data.version)!=floorf(float(data.version)): return {}
  var version: int=int(data.version)
  var done: Variant=data.get("completed_regions") if version>=3 else data.get("completed")
@@ -64,6 +66,14 @@ static func normalized(data: Variant) -> Dictionary:
   var migrated: Dictionary={}
   for id in FIELD: migrated[id]=false
   notes=migrated
+ var discovery: Variant=data.get("discovered_regions",{}) if version>=9 else {}
+ var tracked: Variant=data.get("tracked_encounter", "") if version>=9 else ""
+ if not tracked is String or (tracked!="" and tracked not in REGIONS): return {}
+ if version>=9:
+  if not _flags(discovery,REGIONS): return {}
+  if tracked!="" and not discovery[tracked]: return {}
+ else:
+  for id in REGIONS: discovery[id]=bool(done.get(id,false)) or data.get("current_region", "aurora_shelf")==id
  var network: Variant=data.get("root_network_state",{}) if version>=8 else {}
  if not network is Dictionary: return {}
  if not network.is_empty():
@@ -90,7 +100,7 @@ static func normalized(data: Variant) -> Dictionary:
  if not _number(quiet,0,1e9): return {}
  var region: Variant=data.get("current_region","aurora_shelf")
  if not region is String or region not in REGIONS: return {}
- return {"version":8,"root_network_state":network.duplicate(true),"passage_state":passage.duplicate(true),"passage_complete":passage_done,"escort_state":progress.duplicate(true),"escort_complete":escort,"resonance_complete":resonance,"completed_regions":done.duplicate(true),"optional_observations":extras.duplicate(true),"field_notes":notes.duplicate(true),"current_region":region,"quiet_seconds":minf(float(quiet),3.0) if version>=3 else 0.0}
+ return {"version":9,"discovered_regions":discovery.duplicate(true),"tracked_encounter":tracked,"root_network_state":network.duplicate(true),"passage_state":passage.duplicate(true),"passage_complete":passage_done,"escort_state":progress.duplicate(true),"escort_complete":escort,"resonance_complete":resonance,"completed_regions":done.duplicate(true),"optional_observations":extras.duplicate(true),"field_notes":notes.duplicate(true),"current_region":region,"quiet_seconds":minf(float(quiet),3.0) if version>=3 else 0.0}
 func done(id: String) -> bool:
  return bool(completed.get(id,optional.get(id,field.get(id,false))))
 func ready(id: String, observed: Dictionary) -> bool:
@@ -103,6 +113,7 @@ func tick(region: String, speed: float, observed: Dictionary, delta: float, posi
  var events: Array[String]=[]
  if region not in REGIONS or not is_finite(speed) or not is_finite(delta) or delta<0: return events
  current_region=region
+ discovered[region]=true
  if region=="aurora_shelf" and absf(speed)<1.5 and near("aurora_shelf",position): stillness=minf(3.0,stillness+delta)
  else: stillness=0.0
  if stillness>=3.0 and not completed["aurora_shelf"]: completed["aurora_shelf"]=true;events.append("aurora_shelf")
@@ -140,10 +151,12 @@ func field_count() -> int:
  for value in field.values(): result+=int(value)
  return result
 func snapshot() -> Dictionary:
- return {"version":8,"root_network_state":root_network_state.duplicate(true),"passage_state":passage_state.duplicate(true),"passage_complete":passage_complete,"escort_state":escort_state.duplicate(true),"escort_complete":escort_complete,"resonance_complete":resonance_complete,"completed_regions":completed.duplicate(true),"optional_observations":optional.duplicate(true),"field_notes":field.duplicate(true),"current_region":current_region,"quiet_seconds":stillness}
+ return {"version":9,"discovered_regions":discovered.duplicate(true),"tracked_encounter":tracked_encounter,"root_network_state":root_network_state.duplicate(true),"passage_state":passage_state.duplicate(true),"passage_complete":passage_complete,"escort_state":escort_state.duplicate(true),"escort_complete":escort_complete,"resonance_complete":resonance_complete,"completed_regions":completed.duplicate(true),"optional_observations":optional.duplicate(true),"field_notes":field.duplicate(true),"current_region":current_region,"quiet_seconds":stillness}
 func restore(data: Variant) -> bool:
  var incoming:=normalized(data)
  if incoming.is_empty(): return false
+ discovered=incoming.discovered_regions
+ tracked_encounter=incoming.tracked_encounter
  root_network_state=incoming.root_network_state
  passage_state=incoming.passage_state
  passage_complete=incoming.passage_complete
@@ -153,6 +166,8 @@ func restore(data: Variant) -> bool:
  completed=incoming.completed_regions;optional=incoming.optional_observations;field=incoming.field_notes;current_region=incoming.current_region;stillness=incoming.quiet_seconds
  return true
 func reset() -> void:
+ tracked_encounter=""
+ for id in REGIONS: discovered[id]=false
  root_network_state.clear()
  passage_state.clear()
  passage_complete=false
