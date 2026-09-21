@@ -14,6 +14,15 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
+	"site_aurora_lode": ["Field note · crystal seam", "場記 · 冰晶礦脈"],
+	"site_aurora_ridge": ["Field note · wind ridge", "場記 · 風蝕脊"],
+	"site_ember_lake": ["Field note · thermal basin", "場記 · 熱泉盆地"],
+	"site_ember_cairn": ["Field note · mineral stack", "場記 · 礦石堆"],
+	"site_marsh_reed": ["Field note · membrane reeds", "場記 · 膜葉叢"],
+	"site_marsh_pool": ["Field note · still pool", "場記 · 靜水窪"],
+	"site_pale_bone": ["Field note · shell remains", "場記 · 孢殼遺骸"],
+	"site_pale_sink": ["Field note · root hollow", "場記 · 根脈窪地"],
+	"field_count": ["FIELD %d/8", "場記 %d/8"],
 	"survey_count": ["SURVEYS %d/4  ·  ECHOES %d/4", "測繪 %d/4  ·  回波 %d/4"],
 	"survey_quiet": ["Hold still: %.1f / 3.0 s", "停車聆聽：%.1f / 3.0 秒"],
 	"survey_recorded": ["Survey recorded. The echo spire is answering.", "測繪已記錄，回波石柱正在回應。"],
@@ -458,7 +467,7 @@ func set_activity_progress(done: int, optional_done: int, field_done: int, regio
 func _render_activity_context() -> void:
 	if not is_instance_valid(_activity_label) or _activity_context.is_empty(): return
 	var d:=_activity_context
-	var lines: String=(_text("survey_count") % [d.done,d.optional])+"  FIELD / 場記 %d/8" % d.get("field",0)
+	var lines: String=(_text("survey_count") % [d.done,d.optional])+"  "+(_text("field_count") % d.get("field",0))
 	lines+="\n"+_text(d.region)
 	if not str(d.target).is_empty():
 		var direction := "^" if absf(d.bearing)<0.25 else (">" if d.bearing>0 else "<")

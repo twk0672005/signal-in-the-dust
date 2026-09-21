@@ -40,10 +40,11 @@ static func _flags(value: Variant, keys: Array) -> bool:
  return true
 static func normalized(data: Variant) -> Dictionary:
  if not data is Dictionary or not _number(data.get("version"),1,4): return {}
+ if float(data.version)!=floorf(float(data.version)): return {}
  var version: int=int(data.version)
  var done: Variant=data.get("completed_regions") if version>=3 else data.get("completed")
  var extras: Variant=data.get("optional_observations") if version>=3 else data.get("optional",{})
- if version < 3 and (not extras is Dictionary or extras.is_empty()):
+ if version < 3 and not data.has("optional"):
   extras={}
   for id in OPTIONAL: extras[id]=false
  var notes: Variant=data.get("field_notes",{})
@@ -58,7 +59,7 @@ static func normalized(data: Variant) -> Dictionary:
  if not _number(quiet,0,1e9): return {}
  var region: Variant=data.get("current_region","aurora_shelf")
  if not region is String or region not in REGIONS: return {}
- return {"version":4,"completed_regions":done.duplicate(true),"optional_observations":extras.duplicate(true),"field_notes":notes.duplicate(true),"current_region":region,"quiet_seconds":minf(float(quiet),3.0)}
+ return {"version":4,"completed_regions":done.duplicate(true),"optional_observations":extras.duplicate(true),"field_notes":notes.duplicate(true),"current_region":region,"quiet_seconds":minf(float(quiet),3.0) if version>=3 else 0.0}
 func done(id: String) -> bool:
  return bool(completed.get(id,optional.get(id,field.get(id,false))))
 func ready(id: String, observed: Dictionary) -> bool:
@@ -86,12 +87,15 @@ func record(id: String, region: String, position: Vector3, speed: float, observe
  return true
 func target(region: String) -> String:
  if region not in REGIONS: return ""
- if not completed[region]: return region
- var optional_id: String=OPTIONAL[REGIONS.find(region)]
- if not optional[optional_id]: return optional_id
- for id in FIELD:
-  if SITES[id].region==region and not field[id]: return id
- return ""
+ # Mandatory objectives take priority, including unfinished regions behind the rover.
+ var start: int=REGIONS.find(region)
+ for step in REGIONS.size():
+  var candidate: String=REGIONS[(start+step)%REGIONS.size()]
+  if not completed[candidate]: return candidate
+  for id in FIELD:
+   if SITES[id].region==candidate and not field[id]: return id
+ var optional_id: String=OPTIONAL[start]
+ return optional_id if not optional[optional_id] else ""
 func count() -> int:
  var result:=0
  for value in completed.values(): result+=int(value)

@@ -1,0 +1,21 @@
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+const root=resolve(import.meta.dirname,'..');
+const graphical=process.argv.includes('--graphical');
+const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+const evidence=resolve(root,'evidence',`journey-${graphical?'graphical':'headless'}-${stamp}`);
+mkdirSync(evidence,{recursive:true});
+const engine=process.env.GODOT_BIN || 'C:/Users/tsang/AppData/Local/Microsoft/WinGet/Packages/GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe/Godot_v4.7.2-stable_win64_console.exe';
+const args=[...(graphical?['--resolution','1440x900']:['--headless']),'--path',resolve(root,'godot'),'--script','res://tests/survey_drive.gd','--','--full-route','--evidence-dir='+evidence];
+const start=Date.now();
+const r=spawnSync(engine,args,{encoding:'utf8',timeout:930000,maxBuffer:4*1024*1024});
+writeFileSync(resolve(evidence,'stdout.log'),r.stdout||'');
+writeFileSync(resolve(evidence,'stderr.log'),r.stderr||'');
+let receipt=null;
+try { receipt=JSON.parse(readFileSync(resolve(evidence,'drive.json'),'utf8')); } catch {}
+const passed=r.status===0 && !r.error && receipt?.passed===true;
+const result={passed,evidence,wallSeconds:(Date.now()-start)/1000,exitCode:r.status,error:r.error?.message??null,rendering:graphical?'graphical':'headless',stage:receipt?.stage??'no_receipt',args};
+writeFileSync(resolve(evidence,'runner.json'),JSON.stringify(result,null,2));
+console.log(JSON.stringify(result,null,2));
+process.exit(passed?0:1);

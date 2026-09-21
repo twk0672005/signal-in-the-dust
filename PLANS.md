@@ -19,3 +19,8 @@ Do not restart a validated subsystem without a concrete defect. The next impleme
 
 - [x] Replace automatic optional flags with8physical surveys, required progression/LOS/stop guards, nested-save validation and canonical migration.49rules pass.
 - [x] Drive one native engine-input journey from spawn through4+4 sites to ending using normal Continue; ~5minutes. Three uninterrupted journeys and30-minute target remain unproven.
+
+- [x] Repair renderer-dependent test stall, retain reproducible all-content route, and complete three injected-keyboard runs (~6.5min); one graphical.
+- [x] Repair mandatory target guidance, bilingual field labels, font coverage, fractional save-version rejection; restore negative regression coverage.
+- [x] Real Web canvas cold start and physical-key movement / V / pause / reload-Continue smoke. Remaining platform and long-persistence gates stay open.
+- [ ] Create meaningful ecological multi-step content; current all-content route is ~6.5min and does not meet 30min.

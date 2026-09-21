@@ -1,23 +1,34 @@
 # Current checkpoint
-updatedAt: 2026-09-20T17:01:47.412144+00:00
+updatedAt: 2026-09-21T00:08:02.660030+00:00
+status: PARTIAL / IN_PROGRESS
 root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
-status: PARTIAL
-objective: approximately30-minute bilingual four-region alien exploration; preserve24m/s driving, V cameras and defensive saves.
-Current implementation:8physical survey sites with real off-road objectives, localized navigation, stopped/observation/E/LOS requirements and visible/audio completion. Four main surveys gate final contact.
-Evidence:49pure rule/migration assertions; save17/17, interaction7/7, runtime22/22. Keyboard-driving from spawn completed4+4 sites,3species and ending with one normal Continue, no teleport. Actual distance1264.3m and game time294.7s (~5min). Do not claim30min or3full journeys.
-Backing receipt: evidence/spatial-survey-receipt-20260920T170147Z/receipt.json
-Actual captures: evidence/survey-driving; evidence/survey-full-driving; evidence/spatial-survey-presentation.
-Current Web export: 2026-09-20T16:54:19.623Z; hashes verified. Native full-input route predates a UI-only immediate-count/bearing polish; updated export requires fresh Web smoke.
-Previous optional flags were not real routes. Old activity restore partially mutated on bad payloads and stillness overflow could break resume; now fixed with pure full validation and bounded timer. Outer save2; canonical activity3; older state migrated.
-Private Site last confirmed v4/9f5ddf9.6e510e3 atmosphere source was pushed but upload failed; current spatial survey revision is not yet deployed. Read exact HEAD and current deployment before any publication; no broad process stop.
-Next PRODUCT priority: expand each region into substantial observation/puzzle/racing exploration sequences and connect side routes; current8short interactions cannot deliver30minutes. Use measured player timing. Do not substitute counters or artificial waits.
-Test history correction: bare--check-only without--script started the game; syntax errors also prevented test exit. Do not describe this as a proven Godot fixture hang. Always parse named scripts, bound process time, and collect the actual exec session.
-Goal tool currently reports active objective自主工作模式 (fresh read this turn), not the stale blocked goal. Keep active until real market gates pass. Required external gates: independent human and requested macOS/browser evidence.
 
-## Wake receipt — 2026-09-20T22:07Z
-- [x] Corrected eight field-note coordinates after a real-input obstruction was found.
-- [x] Native keyboard route completed all 8 field sites with W/A/D/SPACE/E, no teleport, in 93.238 seconds.
-- [x] Parser, activity logic and save-flow checks pass after the reachability fix.
-- [x] Private Sites v8 deployed successfully from commit e10142d0c1cdc774d878431d07fa378bfd1b0e90; owner-only, 0 external visitors.
-- Evidence: vidence/field-reachability-20260920T220745Z/receipt.json, vidence/field-drive-20260920-r5/field-drive.json.
-- Boundary: this proves the eight field interactions, not a 30-minute human journey. Market status remains PARTIAL until three uninterrupted journeys, target-browser/platform checks and independent human playtest pass.
+## Current product and latest evidence
+- Godot 4.7.2 Compatibility; first/third-person, 24 m/s cruise, 4 required surveys, 4 optional echoes, 8 field notes, 3 observed species.
+- Finale currently requires 4 surveys + 8 fields. Optional echoes remain optional for players; all-content test visits all 16 sites.
+- Three injected-keyboard all-content routes reached ending without teleport: 389.013s headless, 393.421s graphical, third ~389s via new command. See evidence/journey-recovery/receipt.json. One graphical route, not three human/platform runs.
+- Native 1440x900 actual captures: evidence/journey-graphical-2350/. The map remains visually sparse and the cockpit/landmarks need work. MARKET is not visually accepted.
+- Browser cold start reached real Godot menu; physical-key CDP movement >93m, V, pause and reload/Continue restored location/distance/camera. evidence/web-recovery-2355/cdp-input.json. HeadlessChrome 152 only, not the requested platform matrix.
+- 88 pure activity assertions, 24 runtime assertions, 17 defensive save-flow assertions. Intentional timeout writes failure and exits1: evidence/journey-timeout-proof/drive.json.
+- Font regenerated for 351 interface characters; no missing glyphs. Preserve original OFL source.
+
+## Corrections to earlier claims
+- 30 minutes is the target, not implemented playtime. Player shell duration promise removed; existing current route is approximately 6.5 minutes even covering all activities.
+- Prior local browser reads of desktop_required were shell checks, not successful game cold starts.
+- Headless driver awaited rendering during screenshots. Save/resume was not proven to cause the stall. The persistent repaired driver now skips headless captures and records stages each second, with in-engine and process timeouts.
+- The native app Goal tool was observed blocked with generic objective '自主工作模式'; prior docs claiming active were stale. Foreground project work continues under the authorized contract; do not invent Goal completion or unattended duration.
+
+## Release
+- Last confirmed before this source repair: private Sites v10 / 57bb86c25d23f6fbaa71498dc1d710787037bdc9, deployment appgdep_6ab0653428e081919179a7b399fb4beb succeeded.
+- Read evidence/latest-release.json when present for the subsequent deployment receipt. It is outside source commits to avoid rebuilding solely for receipt bookkeeping.
+- No existing push/owned Godot job is assumed live. Reconcile actual status before publishing. Existing preview PID18752 was left untouched.
+
+## Next product work
+- Main missing gate is content, not another counter: build distinct multi-step ecological observation/puzzle sequences and authored side trails using reviewed assets, then measure real pacing. Do not add mandatory idle waits or reduce the authorized vehicle speed to fill time.
+- Retain existing reversible candidate and snapshots; integrate new content in one region first before extending to four.
+- Still missing: ~30-minute meaningful content, 3 human-like full journeys on final content, full save persistence journey, Windows Chrome/Edge/Firefox and macOS Chrome/Safari, export performance and independent first-time human review.
+
+## Reproduce
+- npm run test:journey (headless input route with unique evidence folder; 15-minute internal watchdog and 930-second process bound).
+- npm run test:journey -- --graphical (1440x900 actual screenshot route).
+- npm run check; npm run test:activity-logic; npm test; npm run test:save-flow.
