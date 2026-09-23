@@ -1,3 +1,5 @@
+2026-09-23 active scope: GitHub Pages release + mobile landscape touch controls, actual touch regression, raw/static host validation, public deployment readback. No additional content expansion or heartbeat restart.
+
 # User-requested wrap-up and handoff
 
 Nova requested that the current version be wrapped up and published to the existing Codex Site. Do not expand features after delivery. Remaining market targets below are backlog, not active continuation instructions.

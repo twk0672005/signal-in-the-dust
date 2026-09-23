@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="A quiet first-person rover expedition. Approach a living alien signal and make first contact. 繁體中文 / English.">
 <meta name="theme-color" content="#10171d">
 <title>$GODOT_PROJECT_NAME</title>
@@ -15,6 +15,57 @@ $GODOT_HEAD_INCLUDE
 <canvas id="canvas" tabindex="0" aria-label="Signal in the Dust exploration game"></canvas>
 <noscript>JavaScript is required to play. / 請啟用 JavaScript 以開始探索。</noscript>
 <section id="veil" aria-label="Loading"><div id="card"><div class="eyebrow">FIRST CONTACT · 首次接觸</div><h1>Signal<br>in the Dust</h1><p id="intro"></p><progress id="progress" aria-label="Loading progress"></progress><p id="status" role="status" aria-live="polite"></p><button id="retry" type="button"></button><p id="technical"></p></div></section>
+<script>
+/* Touch adapter: normal player actions, pointer-owned holds, no save/state mutation. */
+(() => {
+  const mobile = matchMedia('(pointer:coarse)').matches && !matchMedia('(hover:hover)').matches;
+  window.__EXPEDITION_TOUCH__ = mobile;
+  if (!mobile) return;
+  const canvas = document.getElementById('canvas');
+  const panel = document.createElement('nav'); panel.id='touch-controls'; panel.setAttribute('aria-label','Touch controls');
+  const groups=[['tools',[['expedition_journal','Journal','日誌'],['toggle_camera','View','視角'],['pause_mission','Pause','暫停']]],['steer',[['turn_left','◀','◀'],['turn_right','▶','▶']]],['pedals',[['drive_reverse','Reverse','倒車'],['brake','Brake','煞車'],['drive_forward','Drive','前進']]],['actions',[['interact','Observe · E','互動 · E'],['slow','Crawl','慢行']]],['tones',[['resonance_1','1','1'],['resonance_2','2','2'],['resonance_3','3','3']]]];
+  const held=new Map(); let slow=false, locale='', lastPhase='';
+  const continuous=new Set(['turn_left','turn_right','drive_forward','drive_reverse','brake']);
+  function send(action,pressed,strength=1){ if(typeof window.expeditionTouch==='function')window.expeditionTouch(action,pressed,strength); }
+  function release(id){const action=held.get(id);if(!action)return;held.delete(id);if(![...held.values()].includes(action))send(action,false);}
+  function releaseAll(){for(const id of [...held.keys()])release(id);panel.querySelectorAll('button').forEach(b=>b.classList.remove('held'));}
+  for(const [group,items] of groups){
+    const row=document.createElement('div');row.className='touch-'+group;
+    for(const [action,en,zh] of items){
+      const b=document.createElement('button');b.type='button';b.dataset.action=action;b.dataset.en=en;b.dataset.zh=zh;b.textContent=en;b.setAttribute('aria-label',en);
+      b.addEventListener('pointerdown',e=>{
+        e.preventDefault();b.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});
+        if(action==='slow'){slow=!slow;b.setAttribute('aria-pressed',String(slow));if([...held.values()].includes('drive_forward'))send('drive_forward',true,slow?.18:1);return;}
+        if(continuous.has(action)){held.set(e.pointerId,action);b.classList.add('held');send(action,true,action==='drive_forward'&&slow?.18:1);}
+        else{releaseAll();send(action,true);send(action,false);}
+      });
+      for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,e=>{release(e.pointerId);b.classList.remove('held');});
+      row.appendChild(b);
+    }panel.appendChild(row);
+  }
+  const rotate=document.createElement('div');rotate.id='rotate-phone';rotate.innerHTML='<div>↻<p>Rotate your phone to play<br>請將手機轉為橫向遊玩</p></div>';
+  document.body.append(panel,rotate);
+  const style=document.createElement('style');style.textContent=`
+  canvas{touch-action:none}#touch-controls{position:fixed;inset:0;z-index:5;pointer-events:none;display:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  #touch-controls>div{position:absolute;display:flex;gap:8px}#touch-controls button{pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;min-width:54px;min-height:50px;padding:8px;border:1px solid #b69c73;background:#111d26dc;color:#f4ead9;font-size:14px;border-radius:12px}#touch-controls button.held,#touch-controls button[aria-pressed=true]{background:#bd9558;color:#10171d}
+  .touch-tools{right:max(12px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top))}.touch-steer{left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom))}.touch-steer button{font-size:24px!important;width:66px;height:60px}.touch-pedals{right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom))}.touch-pedals button{height:60px}.touch-actions{left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom))}.touch-tones{right:14px;top:72px}
+  #rotate-phone{display:none;position:fixed;inset:0;z-index:30;background:#10171df5;color:#e9d7b4;align-items:center;justify-content:center;text-align:center;font:48px system-ui}#rotate-phone p{font-size:20px;padding:24px}
+  @media(orientation:portrait){#rotate-phone{display:flex}}
+  @media(max-height:360px){#touch-controls button{min-height:44px}.touch-pedals button,.touch-steer button{height:50px}}
+  `;document.head.appendChild(style);
+  window.addEventListener('blur',releaseAll);
+  document.addEventListener('visibilitychange',()=>{releaseAll();if(document.hidden&&['arrival','exploring','contact'].includes(window.__EXPEDITION_STATE__?.phase)){send('pause_only',true);}});
+  window.addEventListener('resize',()=>{releaseAll();if(innerHeight>innerWidth&&['arrival','exploring','contact'].includes(window.__EXPEDITION_STATE__?.phase)){send('pause_only',true);}});
+  setInterval(()=>{
+    const s=window.__EXPEDITION_STATE__;if(!s)return;
+    if(lastPhase!==s.phase){releaseAll();lastPhase=s.phase;}
+    panel.style.display=['exploring','contact'].includes(s.phase)?'block':'none';
+    panel.querySelector('.touch-tones').style.display=s.resonance?.phase==='answer'||s.resonance?.phase==='listening'?'flex':'none';
+    if(locale!==s.settings?.locale){locale=s.settings?.locale;for(const b of panel.querySelectorAll('button'))b.textContent=locale==='zh_TW'?b.dataset.zh:b.dataset.en;}
+  },100);
+})();
+
+</script>
 <script src="$GODOT_URL"></script>
 <script>
 'use strict';
@@ -27,9 +78,8 @@ document.getElementById('intro').textContent=copy.intro;status.textContent=copy.
 window.__EXPEDITION_ERRORS__=[];
 function fail(message,error){document.body.dataset.phase='error';veil.classList.remove('hidden');progress.classList.add('hidden');status.textContent=message;retry.style.display='inline-block';if(error){window.__EXPEDITION_ERRORS__.push(String(error));console.error(error);}}
 const touchOnly=matchMedia('(pointer:coarse)').matches && !matchMedia('(hover:hover)').matches;
-const mobile=touchOnly || Math.min(innerWidth,innerHeight)<700;
-if(mobile){progress.classList.add('hidden');status.textContent=copy.mobile;document.body.dataset.phase='desktop_required';}
-else if(typeof Engine==='undefined'||Engine.getMissingFeatures({threads:false}).length){fail(copy.support);}
+const mobile=touchOnly;
+if(typeof Engine==='undefined'||Engine.getMissingFeatures({threads:false}).length){fail(copy.support);}
 else{
  // Sites may serve precompressed bytes without honoring _headers. Decode only
  // this engine asset, then restore fetch after startup. Raw exports also work.

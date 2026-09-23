@@ -166,6 +166,7 @@ const COPY := {
 }
 
 var _config: Dictionary = {"locale": "en", "volume": 0.65, "reduced_motion": false, "low_quality": false}
+var _mobile := false
 var _state := "menu"
 var _saved_available := false
 var _save_invalid := false
@@ -203,6 +204,8 @@ var _progress := 0.0
 var _can_interact := false
 
 func _ready() -> void:
+	_mobile = OS.has_feature("web") and bool(JavaScriptBridge.eval("window.__EXPEDITION_TOUCH__ === true",true))
+	if _mobile: _config.low_quality = true
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 10
 	_config.locale = "zh_TW" if OS.get_locale_language().begins_with("zh") else "en"
@@ -211,7 +214,7 @@ func _ready() -> void:
 		_config.locale = "zh_TW" if saved.get_value("settings", "locale", _config.locale) == "zh_TW" else "en"
 		_config.volume = clampf(float(saved.get_value("settings", "volume", 0.65)), 0.0, 1.0)
 		_config.reduced_motion = bool(saved.get_value("settings", "reduced_motion", false))
-		_config.low_quality = bool(saved.get_value("settings", "low_quality", false))
+		_config.low_quality = bool(saved.get_value("settings", "low_quality", _mobile))
 	_build()
 
 func _text(key: String) -> String:
@@ -296,16 +299,17 @@ func _button(key: String, action: Callable) -> Button:
 func _build_hud() -> void:
 	var top := HBoxContainer.new()
 	top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	top.offset_left = 36
-	top.offset_top = 28
-	top.offset_right = -36
+	top.offset_left = 16 if _mobile else 36
+	top.offset_top = 12 if _mobile else 28
+	top.offset_right = -16 if _mobile else -36
 	_hud.add_child(top)
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(left)
-	left.add_child(_label(_text("goal"), 14, AMBER))
+	if not _mobile: left.add_child(_label(_text("goal"), 14, AMBER))
 	_distance_label = _label("", 25)
 	left.add_child(_distance_label)
+	_distance_label.visible = not _mobile
 	_speed_label = _label("", 16, PAPER)
 	left.add_child(_speed_label)
 	_speed_bar = ProgressBar.new()
@@ -317,12 +321,13 @@ func _build_hud() -> void:
 	_speed_bar.add_theme_stylebox_override("fill", _style(AMBER, Color.TRANSPARENT, 0))
 	left.add_child(_speed_bar)
 	_activity_label = _label("",13,AMBER)
-	_activity_label.custom_minimum_size.x=340
+	_activity_label.custom_minimum_size.x=310 if _mobile else 340
 	_activity_label.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
 	_activity_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	left.add_child(_activity_label)
 	var right := VBoxContainer.new()
 	top.add_child(right)
+	right.visible = not _mobile
 	var storm := _label(_text("storm"), 12)
 	storm.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(storm)
@@ -347,8 +352,8 @@ func _build_hud() -> void:
 	bottom.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	bottom.offset_left = -320
 	bottom.offset_right = 320
-	bottom.offset_top = -132
-	bottom.offset_bottom = -40
+	bottom.offset_top = -125 if _mobile else -132
+	bottom.offset_bottom = -76 if _mobile else -40
 	bottom.add_theme_constant_override("separation", 8)
 	_hud.add_child(bottom)
 	_message = _label(_text(_message_key), 14)
@@ -360,6 +365,7 @@ func _build_hud() -> void:
 	_interaction = _button("transmit", func() -> void: interact_requested.emit())
 	_interaction.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_interaction.custom_minimum_size.x = 260
+	_interaction.visible = not _mobile
 	_interaction.add_theme_color_override("font_color", SIGNAL)
 	bottom.add_child(_interaction)
 	_contact_bar = ProgressBar.new()
@@ -390,8 +396,8 @@ func _build_overlay() -> void:
 		return
 	var panel := PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
-	panel.offset_left = 64
-	panel.offset_right = 534
+	panel.offset_left = 20 if _mobile else 64
+	panel.offset_right = 490 if _mobile else 534
 	var desired_panel_height := 580.0 if _state == "menu" else (640.0 if _state == "journal" else 470.0)
 	var panel_height := minf(desired_panel_height, maxf(320.0, get_viewport().get_visible_rect().size.y - 48.0))
 	panel.offset_top = -panel_height * 0.5
@@ -415,7 +421,7 @@ func _build_overlay() -> void:
 		column.add_child(warning)
 	var primary: Button
 	if _state == "menu":
-		column.add_child(_label(_text("title"), 38))
+		column.add_child(_label(_text("title"), 26 if _mobile else 38))
 		column.add_child(_label(_text("intro"), 16))
 		column.add_child(_label(_text("duration"), 12, MUTED))
 		if _saved_available:
@@ -427,7 +433,7 @@ func _build_overlay() -> void:
 			primary = _button("begin", func() -> void: start_requested.emit())
 			column.add_child(primary)
 		if _save_invalid: column.add_child(_label(_text("save_invalid"),12,AMBER))
-		column.add_child(_label(_text("controls"), 12, MUTED))
+		column.add_child(_label(("Touch controls · landscape · Crawl for observation" if _config.locale == "en" else "橫向遊玩 · 觸控駕駛 · 慢行觀察") if _mobile else _text("controls"), 12, MUTED))
 		_build_settings(column)
 		column.add_child(_label(_text("headphones"), 12, MUTED))
 	elif _state == "paused":
@@ -437,7 +443,7 @@ func _build_overlay() -> void:
 		column.add_child(_button("journal", func() -> void: show_state("journal")))
 		column.add_child(_button("restart", func() -> void: show_state("confirm_reset")))
 		_build_settings(column)
-		column.add_child(_label(_text("controls"), 12, MUTED))
+		column.add_child(_label(("Touch controls · landscape · Crawl for observation" if _config.locale == "en" else "橫向遊玩 · 觸控駕駛 · 慢行觀察") if _mobile else _text("controls"), 12, MUTED))
 	elif _state == "journal":
 		column.add_child(_label(_text("journal_title"), 28))
 		var brief := _label(_text("journal_brief"), 13, MUTED)
@@ -604,7 +610,7 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 				active.append(_text("ecology_"+value) if value in ["near","disturbed"] else value)
 		_ecology_label.text = " · ".join(active)
 	else: _ecology_label.text = ""
-	_interaction.visible = _can_interact and _state == "exploring"
+	_interaction.visible = _can_interact and _state == "exploring" and not _mobile
 	_reticle.text = "+" if _can_interact else "·"
 	_reticle.modulate = SIGNAL if _can_interact else Color(1, 1, 1, 0.35)
 	_reticle.visible = _state == "exploring"

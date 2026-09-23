@@ -9,6 +9,8 @@ const ResonanceScript = preload("res://scripts/resonance_sequence.gd")
 const ActivityScript = preload("res://scripts/expedition_activities.gd")
 const RoverScript = preload("res://scripts/rover.gd")
 const ContactScript = preload("res://scripts/contact.gd")
+var _touch_callback: JavaScriptObject
+var touch_enabled := false
 var world: Node3D
 var rover: CharacterBody3D
 var contact: Node3D
@@ -52,6 +54,12 @@ func _ready() -> void:
 				DirAccess.make_dir_recursive_absolute(directory)
 				save_path = directory.path_join("fixture-expedition.json")
 	_install_inputs()
+	if OS.has_feature("web"):
+		touch_enabled = bool(JavaScriptBridge.eval("window.__EXPEDITION_TOUCH__ === true",true))
+		if touch_enabled:
+			get_tree().root.content_scale_size = Vector2i(840,390)
+			_touch_callback = JavaScriptBridge.create_callback(_on_touch_action)
+			JavaScriptBridge.get_interface("window").expeditionTouch = _touch_callback
 	activities = ActivityScript.new()
 	resonance = ResonanceScript.new()
 	thermal = ThermalScript.new()
@@ -99,6 +107,23 @@ func _ready() -> void:
 	_update_survey_readout()
 	_publish_snapshot()
 	print("EXPEDITION_READY")
+
+func _on_touch_action(args: Array) -> void:
+	if args.size() != 3 or not touch_enabled or not ready_for_play: return
+	var action := str(args[0])
+	if action == "pause_only":
+		if phase in ["arrival","exploring","contact"]: pause_expedition()
+		return
+	if action not in ["drive_forward","drive_reverse","turn_left","turn_right","brake","toggle_camera","interact","expedition_journal","pause_mission","resonance_1","resonance_2","resonance_3"]: return
+	var pressed := bool(args[1])
+	if pressed and phase not in ["exploring","contact","arrival"]: return
+	var strength := clampf(float(args[2]),0.0,1.0)
+	if not is_finite(strength): return
+	var event := InputEventAction.new()
+	event.action = action
+	event.pressed = pressed
+	event.strength = strength
+	Input.parse_input_event(event)
 
 func _install_inputs() -> void:
 	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"toggle_camera":[KEY_V],"interact":[KEY_E],"expedition_journal":[KEY_J],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R],"resonance_1":[KEY_1],"resonance_2":[KEY_2],"resonance_3":[KEY_3]}
@@ -553,7 +578,7 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
+	return {"ready":true,"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}

@@ -1,3 +1,5 @@
+Latest scope 2026-09-23: GitHub Pages public playable preview plus mobile landscape touch support. No automatic heartbeat restart. Previous Sites upload remains historical; publication target is now GitHub.
+
 # Autonomous run contract
 objective: Wrap up the current verified candidate and deliver it on the existing owner-only Codex Site per Nova latest request
 runMode: USER_REQUESTED_HANDOFF

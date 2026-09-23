@@ -1,3 +1,11 @@
+# 2026-09-23 更新：GitHub Pages 與手機觸控
+
+Nova已授權改用GitHub Pages公開可玩預覽，並加入手機橫向遊玩。最終網址與部署收據見 evidence/github-pages-release.json；下面Codex Sites資料為歷史交付背景。
+
+手機：橫向持機，螢幕方向鍵轉向，前進／倒車／煞車；慢行切換低速觀察。互動/E、視角、日誌、暫停及冰晶1/2/3均有觸控按鈕。選單可手指捲動。直向時顯示旋轉提示並暫停，切回橫向後按繼續。
+
+新網址與舊Codex Site儲存空間分開，舊站進度不會自動移轉。手機以Chromium觸控模擬驗證；沒有冒充Android/iPhone真機或Safari實測。市場狀態仍PARTIAL，完整效能／平台／真人及30分鐘內容目標未完成。
+
 # Signal in the Dust — 收尾交付
 
 ## 開啟遊戲

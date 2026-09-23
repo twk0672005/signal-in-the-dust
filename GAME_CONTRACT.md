@@ -1,3 +1,5 @@
+2026-09-23 latest override: Nova authorizes GitHub Pages public playable preview and mobile landscape touch support. Prior private-Sites/desktop-only wording is historical; MARKET remains PARTIAL.
+
 # Product contract — 2026-09-19
 Goal: approximately 30 minutes of meaningful player exploration in four connected Godot regions, with English/Traditional Chinese, throttle driving, speedometer and V first/third-person cameras.
 Regions: Aurora Shelf (frost/aurora), Ember Rift (geothermal crystals), Veil Marsh (fog/luminous wetland), Pale Decay (spore/decaying geology).
