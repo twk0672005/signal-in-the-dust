@@ -1,0 +1,50 @@
+{
+  "file": "godot/assets/visual_flora/pods.glb",
+  "bytes": 7925684,
+  "sha256": "ca9f7ff6a5aaf2fe0faf03632e6a50c9b5dd994f1be44cee163c7b9c6859c5d9",
+  "triangles": 97418,
+  "vertices": 57384,
+  "meshNodes": 18,
+  "materials": 8,
+  "images": 22,
+  "normalMappedMaterials": 7,
+  "alphaModes": [
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE"
+  ],
+  "missingUV": 0,
+  "missingNormals": 0,
+  "animations": 0,
+  "skins": 0,
+  "family": "pods",
+  "boundsBlenderXYZ": {
+    "min": [
+      -1.8495558500289917,
+      -2.188936948776245,
+      -0.31845128536224365
+    ],
+    "max": [
+      2.348365306854248,
+      1.7653250694274902,
+      4.2115607261657715
+    ],
+    "size": [
+      4.19792115688324,
+      3.9542620182037354,
+      4.530012011528015
+    ]
+  },
+  "sourceBlend": "art-source/visual_flora/pods.blend",
+  "sourceBlendSha256": "c12aa6e3c0b1c49a48d555f794a46b5f71f43edbec152a117f8c546ed70beb2f",
+  "seed": 231125,
+  "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+  "blender": "5.2.1 LTS",
+  "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+  "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+}

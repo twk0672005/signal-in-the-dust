@@ -14,6 +14,7 @@ var third_camera: Camera3D
 var camera_mode: String = "first_person"
 var model: Node3D
 var wheels: Array[Node3D] = []
+var _headlamps: Array[SpotLight3D] = []
 var look_offset := Vector2.ZERO
 var motion_clock: float = 0.0
 var last_collision_count: int = 0
@@ -21,6 +22,7 @@ const CRUISE_SPEED: float = 24.0
 const REVERSE_SPEED: float = 9.0
 const OFF_PATH_SPEED: float = 16.5
 const ACCELERATION: float = 9.0
+const BOOST_MULTIPLIER: float = 1.4
 const COAST_DECELERATION: float = 12.0
 const BRAKE_DECELERATION: float = 60.0
 
@@ -43,6 +45,7 @@ func _ready() -> void:
 		add_child(model)
 		for part in model.find_children("wheel_*", "Node3D", true, false):
 			wheels.append(part)
+	_build_headlamps()
 	camera_rig = Node3D.new()
 	camera_rig.name = "SensorMount"
 	camera_rig.position = Vector3(0, 1.48, -0.43)
@@ -74,6 +77,38 @@ func _ready() -> void:
 	third_arm.add_child(third_camera)
 	reset()
 
+func _build_headlamps() -> void:
+	var lens := StandardMaterial3D.new()
+	lens.albedo_color = Color(0.65, 0.78, 0.83)
+	lens.roughness = 0.2
+	lens.metallic = 0.25
+	lens.emission_enabled = true
+	lens.emission = Color(0.64, 0.79, 0.85)
+	lens.emission_energy_multiplier = 1.1
+	for side in [-1.0, 1.0]:
+		var glass := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(0.2, 0.08, 0.055)
+		glass.mesh = box
+		glass.material_override = lens
+		glass.position = Vector3(side * 0.58, 0.68, -1.17)
+		add_child(glass)
+		var light := SpotLight3D.new()
+		light.name = "TerrainLampLeft" if side < 0.0 else "TerrainLampRight"
+		light.position = glass.position + Vector3(0, 0, -0.08)
+		light.rotation_degrees.x = -8.0
+		light.light_color = Color(0.72, 0.84, 0.92)
+		light.light_energy = 1.65
+		light.spot_range = 32.0
+		light.spot_angle = 31.0
+		light.spot_attenuation = 1.2
+		light.shadow_enabled = false
+		add_child(light)
+		_headlamps.append(light)
+
+func set_low_quality(value: bool) -> void:
+	for lamp in _headlamps: lamp.visible = not value
+
 func reset() -> void:
 	heading = 0.0
 	speed = 0.0
@@ -90,7 +125,7 @@ func reset() -> void:
 	clear_inputs()
 
 func clear_inputs() -> void:
-	for action in ["drive_forward", "drive_reverse", "turn_left", "turn_right", "brake"]:
+	for action in ["drive_forward", "drive_reverse", "turn_left", "turn_right", "brake", "drive_boost"]:
 		Input.action_release(action)
 
 func set_driving_enabled(value: bool) -> void:
@@ -115,8 +150,12 @@ func toggle_camera_mode() -> String:
 func current_speed_mps() -> float:
 	return speed
 
+func is_boosting() -> bool:
+	return driving and Input.is_action_pressed("drive_boost") and Input.get_axis("drive_reverse", "drive_forward") > 0.1 and not Input.is_action_pressed("brake")
+
 func max_speed_mps() -> float:
-	return CRUISE_SPEED if absf(global_position.x - terrain.path_x(global_position.z)) < 4.5 else OFF_PATH_SPEED
+	var base: float = CRUISE_SPEED if absf(global_position.x - terrain.path_x(global_position.z)) < 4.5 else OFF_PATH_SPEED
+	return base * BOOST_MULTIPLIER if is_boosting() else base
 
 func brake_intensity() -> float:
 	return clampf(absf(speed) / CRUISE_SPEED, 0.0, 1.0)
@@ -132,6 +171,7 @@ func _physics_process(delta: float) -> void:
 	var opposing := absf(speed) > 0.1 and throttle * speed < 0.0
 	var rate := BRAKE_DECELERATION if braking or opposing else (ACCELERATION if absf(throttle) > 0.01 else COAST_DECELERATION)
 	if opposing: target_speed = 0.0
+	if is_boosting() and not opposing: rate *= 1.7
 	speed = move_toward(speed, target_speed, delta * rate)
 	var steering_factor := lerpf(1.0, 0.58, clampf(absf(speed) / CRUISE_SPEED, 0.0, 1.0))
 	heading += steer * delta * 1.55 * steering_factor * (-1.0 if speed < -0.1 else 1.0)
@@ -196,5 +236,4 @@ func view_direction() -> Vector3:
 
 func camera_snapshot() -> Dictionary:
 	return {"mode": camera_mode, "yaw": look_offset.x, "pitch": look_offset.y, "springLength": third_arm.spring_length if is_instance_valid(third_arm) else 0.0}
-
 

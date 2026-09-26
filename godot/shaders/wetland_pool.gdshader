@@ -12,11 +12,17 @@ void fragment() {
 	float slow_ripple = sin(radius * 17.0 - world_time * (0.58 + response * 0.22));
 	float crossing_ripple = sin((p.x * 7.0 + p.y * 5.0) + world_time * 0.36);
 	float living = (slow_ripple * 0.5 + crossing_ripple * 0.5) * response;
-	vec3 quiet_color = vec3(0.075, 0.16, 0.15);
+	vec3 quiet_color = vec3(0.035, 0.105, 0.14);
 	vec3 living_color = vec3(0.12, 0.285, 0.245) + living * vec3(0.012, 0.025, 0.02);
 	vec3 alarm_color = vec3(0.25, 0.18, 0.105);
 	ALBEDO = mix(mix(quiet_color, living_color, response), alarm_color, alarm * 0.62);
-	ROUGHNESS = mix(0.46, 0.32, response);
-	SPECULAR = 0.34;
+	float wave_x=sin(UV.x*130.0+world_time*.7+sin(UV.y*41.0))*.065;
+	float wave_y=cos(UV.y*111.0+world_time*.45+sin(UV.x*38.0))*.05;
+	NORMAL_MAP=normalize(vec3(wave_x,wave_y,1.0))*.5+.5;
+	NORMAL_MAP_DEPTH=.8;
+	float edge=smoothstep(.58,1.0,radius);
+	ALBEDO=mix(ALBEDO,vec3(.08,.17,.19),edge*.48);
+	ROUGHNESS = .18+edge*.13;
+	METALLIC=.2;SPECULAR = 0.65;
 	EMISSION = vec3(0.035, 0.10, 0.085) * response * (0.22 + 0.08 * slow_ripple);
 }

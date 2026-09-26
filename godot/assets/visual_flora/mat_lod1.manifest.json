@@ -1,0 +1,15 @@
+{
+  "family": "mat",
+  "file": "godot/assets/visual_flora/mat_lod1.glb",
+  "sourceGlbSha256": "b28323714a86c0467ae9d54db707ddb502e00dc3cc5ca718c38863302b689f7d",
+  "sha256": "c0c1feb8a1b24ce72b511c1c67217ceff9747f414376dc36207d77eb3396eac0",
+  "bytes": 3986588,
+  "triangles": 20570,
+  "meshes": 5,
+  "materials": 5,
+  "decimationRatio": 0.24,
+  "blender": "5.2.1 LTS",
+  "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+  "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+  "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+}

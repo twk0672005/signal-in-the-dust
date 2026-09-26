@@ -1,0 +1,15 @@
+{
+  "family": "pods",
+  "file": "godot/assets/visual_flora/pods_lod1.glb",
+  "sourceGlbSha256": "ca9f7ff6a5aaf2fe0faf03632e6a50c9b5dd994f1be44cee163c7b9c6859c5d9",
+  "sha256": "7b5a5f7a933e16ead3946aa5933935b2f6f3b1ba192237c231a4c23a5f3f62cb",
+  "bytes": 6354236,
+  "triangles": 23370,
+  "meshes": 8,
+  "materials": 8,
+  "decimationRatio": 0.24,
+  "blender": "5.2.1 LTS",
+  "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+  "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+  "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+}

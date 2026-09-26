@@ -25,11 +25,13 @@ void fragment() {
     vec3 neutral = vec3(dot(base,vec3(.2126,.7152,.0722)));
     vec3 frost = mix(base,neutral*.92+vec3(.025,.04,.055),.65);
     vec3 ember = base*vec3(.96,.78,.68);
-    vec3 marsh = mix(base,neutral*vec3(.58,.76,.71),.7);
+    vec3 marsh = mix(base,neutral*vec3(.54,.72,.79),.65);
     vec3 decay = mix(base,neutral*vec3(.85,.78,.89),.78);
     ALBEDO = mix(mix(mix(frost,ember,e),marsh,m),decay,d);
-    ROUGHNESS = mix(texture(rough_map,uv).r,.55,m*(1.0-d)*banks);
-    SPECULAR = 0.2;
+    float moisture=smoothstep(.36,.72,grain)*m*(1.0-d);
+    ALBEDO*=mix(1.0,.70,moisture);
+    ROUGHNESS = mix(texture(rough_map,uv).r,.26,moisture);
+    SPECULAR = .3;
     NORMAL_MAP = texture(normal_map,uv).rgb;
     NORMAL_MAP_DEPTH = mix(0.75,0.19,dust);
 }

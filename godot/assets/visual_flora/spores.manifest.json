@@ -1,0 +1,47 @@
+{
+  "file": "godot/assets/visual_flora/spores.glb",
+  "bytes": 6015700,
+  "sha256": "682acf9a6a24a4248fcf2a4f2ad259300c78f632c9d0ecdf4fc7c72d1a14f384",
+  "triangles": 130290,
+  "vertices": 69727,
+  "meshNodes": 21,
+  "materials": 5,
+  "images": 12,
+  "normalMappedMaterials": 4,
+  "alphaModes": [
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE"
+  ],
+  "missingUV": 0,
+  "missingNormals": 0,
+  "animations": 0,
+  "skins": 0,
+  "family": "spores",
+  "boundsBlenderXYZ": {
+    "min": [
+      -2.3628573417663574,
+      -1.1527469158172607,
+      -0.1872200220823288
+    ],
+    "max": [
+      2.356363296508789,
+      1.158764123916626,
+      1.8293490409851074
+    ],
+    "size": [
+      4.7192206382751465,
+      2.3115110397338867,
+      2.016569063067436
+    ]
+  },
+  "sourceBlend": "art-source/visual_flora/spores.blend",
+  "sourceBlendSha256": "4e200e9f9ee4d841238fa2146938333b1298e5e00284a2a1e8c9490f1740e8d6",
+  "seed": 231428,
+  "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+  "blender": "5.2.1 LTS",
+  "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+  "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+}

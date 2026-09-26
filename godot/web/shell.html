@@ -1,20 +1,70 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="A quiet first-person rover expedition. Approach a living alien signal and make first contact. 繁體中文 / English.">
-<meta name="theme-color" content="#10171d">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="A quiet rover expedition through a living alien ecology. Explore at your own pace. English / 繁體中文.">
+<meta name="theme-color" content="#080d1e">
 <title>$GODOT_PROJECT_NAME</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2310171d'/%3E%3Cpath d='M15 35V18l9-8 9 8v17M24 18v17' fill='none' stroke='%23d2ac73' stroke-width='3'/%3E%3C/svg%3E">
-<style>
-*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#10171d;color:#eee8dc;font-family:Inter,'Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif}canvas{display:block;width:100%;height:100%;outline:none}button{font:inherit;cursor:pointer;border:1px solid #cfa96a;background:#cfa96a;color:#15191b;padding:13px 24px;min-height:48px;border-radius:3px}button:focus-visible{outline:3px solid #f8ecd4;outline-offset:5px}#veil{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#10171d;z-index:10;padding:24px}#card{width:min(480px,100%)}.eyebrow{font-size:13px;letter-spacing:.18em;color:#cfa96a;margin-bottom:22px}h1{font-size:clamp(34px,5vw,52px);line-height:1.08;font-weight:450;letter-spacing:-.045em;margin:0 0 22px}p{font-size:16px;line-height:1.65;color:#b9bdba}progress{display:block;accent-color:#cfa96a;width:100%;height:4px;margin:30px 0 16px;border:0;background:#323a3d}#status{min-height:2.6em}#retry{display:none}#technical{font-size:13px;color:#979e9e;overflow-wrap:anywhere}#technical:empty{display:none}.hidden{display:none!important}noscript{position:fixed;inset:0;background:#10171d;padding:10vh 10vw;z-index:20}a{color:#d2ac73}
-</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080d1e'/%3E%3Cpath d='M12 21v6m6-12v18m6-24v30m6-24v18m6-12v6' stroke='%23a5e4ee' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preload" as="image" href="assets/aeral-hero-v1.png" fetchpriority="high">
+<link rel="stylesheet" href="showcase.css">
 $GODOT_HEAD_INCLUDE
 </head>
-<body data-phase="loading">
-<canvas id="canvas" tabindex="0" aria-label="Signal in the Dust exploration game"></canvas>
+<body data-shell-phase="home">
+<canvas id="canvas" tabindex="0" aria-label="Signal in the Dust exploration game" aria-hidden="true" inert></canvas>
 <noscript>JavaScript is required to play. / 請啟用 JavaScript 以開始探索。</noscript>
-<section id="veil" aria-label="Loading"><div id="card"><div class="eyebrow">FIRST CONTACT · 首次接觸</div><h1>Signal<br>in the Dust</h1><p id="intro"></p><progress id="progress" aria-label="Loading progress"></progress><p id="status" role="status" aria-live="polite"></p><button id="retry" type="button"></button><p id="technical"></p></div></section>
+<main id="veil">
+  <img class="hero-art" src="assets/aeral-hero-v1.png" alt="" fetchpriority="high" width="1672" height="941">
+  <div class="art-shade" aria-hidden="true"></div>
+  <header class="entry-header">
+    <div class="wordmark"><span class="signal-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>SIGNAL IN THE DUST</span></div>
+    <nav class="entry-tools" aria-label="Preferences">
+      <button id="language-toggle" class="text-button language-button" type="button" data-copy="language">繁中</button>
+      <button id="open-settings" class="text-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1 1 3-2 2 2 2-1 3 3 1 1 3h6l1-3 3-1-1-3 2-2-2-2 1-3-3-1-1-3Z"/></svg><span class="settings-label" data-copy="settings">Settings</span></button>
+    </nav>
+  </header>
+  <section id="home" class="home" aria-labelledby="title">
+    <div class="home-copy">
+      <p class="eyebrow" data-copy="eyebrow">An invitation to wander</p>
+      <h1 id="title">Signal<br>in the Dust</h1>
+      <p class="title-sub" data-copy="subtitle" lang="zh-Hant">塵境回聲</p>
+      <p class="intro" data-copy="intro">Beyond the familiar, a living world waits. Take the rover. Follow your curiosity.</p>
+      <div class="entry-actions">
+        <button id="start" class="primary-button" type="button"><span data-copy="start">Start exploring</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+        <button id="continue" class="secondary-button" type="button" data-copy="continue">Continue</button>
+      </div>
+      <p class="notice"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 21h8m-4-5v5"/></svg><span data-copy="desktop">For the richest detail, explore on a desktop. Mobile play uses landscape.</span></p>
+      <p id="home-message" class="home-message" role="status" hidden></p>
+    </div>
+  </section>
+  <footer id="home-footer" class="entry-footer">
+    <div class="footer-left"><span data-copy="footer">A quiet journey through an alien ecology.</span><span data-copy="controls">Keyboard &amp; mouse · Landscape touch</span></div>
+    <div class="place-caption"><strong><i class="small-dot" aria-hidden="true"></i><span data-copy="habitat">VEIL MARSH</span></strong><span data-copy="art">Aeral · Concept artwork</span></div>
+  </footer>
+  <section id="loading" class="loading" aria-labelledby="loading-title" hidden>
+    <div class="loading-card">
+      <div class="planet" aria-hidden="true"><div class="orbit"></div><div class="scan"></div><div class="scan scan-inner"></div><span class="loading-symbol">S / D</span></div>
+      <h2 id="loading-title" tabindex="-1" data-copy="loadingTitle">A world is coming into view</h2>
+      <p id="status" role="status" aria-live="polite"></p>
+      <div id="progress-line" class="progress-line"><progress id="progress" max="100" aria-label="Download progress"></progress><span id="percent" class="percent" aria-hidden="true">—</span></div>
+      <p id="phase-detail" class="phase-detail"></p>
+      <button id="pause-animation" class="text-button quiet-button" type="button" data-copy="stopMotion">Pause animation</button>
+      <div id="error-actions" class="error-actions" hidden><button id="retry" class="primary-button" type="button" data-copy="retry">Try again</button><button id="return-home" class="secondary-button" type="button" data-copy="home">Return home</button></div>
+    </div>
+    <div class="loading-footer" data-copy="loadingFooter">Take a moment. There is no hurry here.</div>
+  </section>
+</main>
+<dialog id="settings-dialog" aria-labelledby="settings-title" aria-describedby="settings-note">
+  <div class="dialog-heading"><h2 id="settings-title" data-copy="settingsTitle">Make yourself at home</h2><button id="close-settings" class="close-button" type="button" aria-label="Close settings">×</button></div>
+  <p id="settings-note" class="settings-note" data-copy="settingsNote">Saved preferences stay in place unless you change them here.</p>
+  <label class="setting"><span data-copy="localeLabel">Language</span><select id="setting-locale"><option value="" data-copy="saved">Use saved preference</option><option value="en">English</option><option value="zh_TW">繁體中文</option></select></label>
+  <label class="setting"><span data-copy="volumeLabel">Sound</span><span class="volume-control"><input id="setting-volume" type="range" min="0" max="100" value="70" aria-describedby="volume-value"><output id="volume-value" for="setting-volume">—</output></span></label>
+  <label class="setting"><span data-copy="motionLabel">Reduced motion</span><select id="setting-motion"><option value="" data-copy="saved">Use saved preference</option><option value="true" data-copy="on">On</option><option value="false" data-copy="off">Off</option></select></label>
+  <label class="setting"><span data-copy="qualityLabel">Visual detail</span><select id="setting-quality"><option value="" data-copy="saved">Use saved preference</option><option value="false" data-copy="high">Full</option><option value="true" data-copy="low">Lighter</option></select></label>
+  <p class="notice"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 21h8m-4-5v5"/></svg><span data-copy="desktop">For the richest detail, explore on a desktop. Mobile play uses landscape.</span></p>
+  <div class="dialog-footer"><button id="restore-settings" class="text-button" type="button" data-copy="restore">Keep saved preferences</button><button id="settings-done" class="primary-button" type="button" data-copy="done">Done</button></div>
+</dialog>
 <script>
 /* Touch adapter: normal player actions, pointer-owned holds, no save/state mutation. */
 (() => {
@@ -23,9 +73,9 @@ $GODOT_HEAD_INCLUDE
   if (!mobile) return;
   const canvas = document.getElementById('canvas');
   const panel = document.createElement('nav'); panel.id='touch-controls'; panel.setAttribute('aria-label','Touch controls');
-  const groups=[['tools',[['expedition_journal','Journal','日誌'],['toggle_camera','View','視角'],['pause_mission','Pause','暫停']]],['steer',[['turn_left','◀','◀'],['turn_right','▶','▶']]],['pedals',[['drive_reverse','Reverse','倒車'],['brake','Brake','煞車'],['drive_forward','Drive','前進']]],['actions',[['interact','Observe · E','互動 · E'],['slow','Crawl','慢行']]],['tones',[['resonance_1','1','1'],['resonance_2','2','2'],['resonance_3','3','3']]]];
+  const groups=[['tools',[['expedition_journal','Journal','日誌'],['toggle_camera','View','視角'],['pause_mission','Pause','暫停']]],['steer',[['turn_left','◀','◀'],['turn_right','▶','▶']]],['pedals',[['drive_reverse','Reverse','倒車'],['brake','Brake','煞車'],['drive_forward','Drive','前進'],['drive_boost','Boost','加速']]],['actions',[['interact','Observe','互動'],['slow','Crawl','慢行']]],['tones',[['resonance_1','1','1'],['resonance_2','2','2'],['resonance_3','3','3']]]];
   const held=new Map(); let slow=false, locale='', lastPhase='';
-  const continuous=new Set(['turn_left','turn_right','drive_forward','drive_reverse','brake']);
+  const continuous=new Set(['turn_left','turn_right','drive_forward','drive_reverse','brake','drive_boost']);
   function send(action,pressed,strength=1){ if(typeof window.expeditionTouch==='function')window.expeditionTouch(action,pressed,strength); }
   function release(id){const action=held.get(id);if(!action)return;held.delete(id);if(![...held.values()].includes(action))send(action,false);}
   function releaseAll(){for(const id of [...held.keys()])release(id);panel.querySelectorAll('button').forEach(b=>b.classList.remove('held'));}
@@ -50,59 +100,26 @@ $GODOT_HEAD_INCLUDE
   #touch-controls>div{position:absolute;display:flex;gap:8px}#touch-controls button{pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;min-width:54px;min-height:50px;padding:8px;border:1px solid #b69c73;background:#111d26dc;color:#f4ead9;font-size:14px;border-radius:12px}#touch-controls button.held,#touch-controls button[aria-pressed=true]{background:#bd9558;color:#10171d}
   .touch-tools{right:max(12px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top))}.touch-steer{left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom))}.touch-steer button{font-size:24px!important;width:66px;height:60px}.touch-pedals{right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom))}.touch-pedals button{height:60px}.touch-actions{left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom))}.touch-tones{right:14px;top:72px}
   #rotate-phone{display:none;position:fixed;inset:0;z-index:30;background:#10171df5;color:#e9d7b4;align-items:center;justify-content:center;text-align:center;font:48px system-ui}#rotate-phone p{font-size:20px;padding:24px}
-  @media(orientation:portrait){#rotate-phone{display:flex}}
+  @media(orientation:portrait){body[data-shell-phase="game"] #rotate-phone{display:flex}}
   @media(max-height:360px){#touch-controls button{min-height:44px}.touch-pedals button,.touch-steer button{height:50px}}
   `;document.head.appendChild(style);
   window.addEventListener('blur',releaseAll);
+  window.addEventListener('expedition-shell-blocked',releaseAll);
   document.addEventListener('visibilitychange',()=>{releaseAll();if(document.hidden&&['arrival','exploring','contact'].includes(window.__EXPEDITION_STATE__?.phase)){send('pause_only',true);}});
   window.addEventListener('resize',()=>{releaseAll();if(innerHeight>innerWidth&&['arrival','exploring','contact'].includes(window.__EXPEDITION_STATE__?.phase)){send('pause_only',true);}});
   setInterval(()=>{
     const s=window.__EXPEDITION_STATE__;if(!s)return;
     if(lastPhase!==s.phase){releaseAll();lastPhase=s.phase;}
-    panel.style.display=['exploring','contact'].includes(s.phase)?'block':'none';
+    panel.style.display=document.body.dataset.shellPhase==='game'&&innerWidth>=innerHeight&&['exploring','contact'].includes(s.phase)?'block':'none';
     panel.querySelector('.touch-tones').style.display=s.resonance?.phase==='answer'||s.resonance?.phase==='listening'?'flex':'none';
-    if(locale!==s.settings?.locale){locale=s.settings?.locale;for(const b of panel.querySelectorAll('button'))b.textContent=locale==='zh_TW'?b.dataset.zh:b.dataset.en;}
+    if(locale!==s.settings?.locale){locale=s.settings?.locale;for(const b of panel.querySelectorAll('button')){b.textContent=locale==='zh_TW'?b.dataset.zh:b.dataset.en;b.setAttribute('aria-label',b.textContent);}}
   },100);
 })();
 
-</script>
-<script src="$GODOT_URL"></script>
-<script>
-'use strict';
-const config=$GODOT_CONFIG;
-const zh=/^zh/i.test(navigator.language);
-const copy=zh?{intro:'駕駛一輛小小的探測車，聆聽塵土下的回聲。',loading:'正在準備遠征…',compile:'正在喚醒探測車…',retry:'重新載入',error:'遠征暫時未能啟動。請重新載入再試。',support:'此瀏覽器未能提供所需的 3D 圖像支援。請使用已啟用硬件加速的桌面瀏覽器。',mobile:'這段遠征需要鍵盤與滑鼠。請在桌面電腦開啟此連結，探索四個外星地區。',lost:'圖像連線已中斷。重新載入即可開始新的遠征。'}:{intro:'A small rover. A living signal beneath the dust.',loading:'Preparing the expedition…',compile:'Waking the rover…',retry:'Reload expedition',error:'The expedition could not start. Reload to try again.',support:'This browser cannot provide the required 3D graphics. Use a desktop browser with hardware acceleration enabled.',mobile:'This expedition needs a keyboard and mouse. Open this link on a desktop computer to explore four alien regions.',lost:'The graphics connection was interrupted. Reload to begin a new expedition.'};
-document.documentElement.lang=zh?'zh-Hant':'en';
-const veil=document.getElementById('veil'),progress=document.getElementById('progress'),status=document.getElementById('status'),retry=document.getElementById('retry');
-document.getElementById('intro').textContent=copy.intro;status.textContent=copy.loading;retry.textContent=copy.retry;retry.addEventListener('click',()=>location.reload());
-window.__EXPEDITION_ERRORS__=[];
-function fail(message,error){document.body.dataset.phase='error';veil.classList.remove('hidden');progress.classList.add('hidden');status.textContent=message;retry.style.display='inline-block';if(error){window.__EXPEDITION_ERRORS__.push(String(error));console.error(error);}}
-const touchOnly=matchMedia('(pointer:coarse)').matches && !matchMedia('(hover:hover)').matches;
-const mobile=touchOnly;
-if(typeof Engine==='undefined'||Engine.getMissingFeatures({threads:false}).length){fail(copy.support);}
-else{
- // Sites may serve precompressed bytes without honoring _headers. Decode only
- // this engine asset, then restore fetch after startup. Raw exports also work.
- const originalFetch=window.fetch.bind(window);
- const wasmUrl=new URL(config.executable+'.wasm',location.href).href;
- window.fetch=async function(resource,options){
-  const response=await originalFetch(resource,options);
-  const requested=new URL(resource instanceof Request?resource.url:resource,location.href).href;
-  if(requested!==wasmUrl||!response.ok)return response;
-  const bytes=new Uint8Array(await response.arrayBuffer());
-  const headers=new Headers({'Content-Type':'application/wasm'});
-  if(bytes[0]===0x1f&&bytes[1]===0x8b){
-   if(typeof DecompressionStream==='undefined')throw new Error('This browser cannot decode the game package.');
-   return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')),{status:200,headers});
-  }
-  return new Response(bytes,{status:200,headers});
- };
- const engine=new Engine(config);
- const guard=setTimeout(()=>fail(copy.error,'startup timeout'),90000);
- engine.startGame({canvas:document.getElementById('canvas'),onProgress:(current,total)=>{if(total>0){progress.max=total;progress.value=current;status.textContent=current>=total?copy.compile:copy.loading;}else progress.removeAttribute('value');},onPrintError:(...args)=>{const message=args.join(' ');window.__EXPEDITION_ERRORS__.push(message);console.error(message);}}).then(()=>{clearTimeout(guard);window.fetch=originalFetch;veil.classList.add('hidden');document.getElementById('canvas').focus();}).catch(error=>{clearTimeout(guard);window.fetch=originalFetch;fail(copy.error,error);});
- document.getElementById('canvas').addEventListener('webglcontextlost',()=>fail(copy.lost));
- document.getElementById('canvas').addEventListener('contextmenu',event=>event.preventDefault());
-}
-</script>
-</body></html>
 
+</script>
+<script id="engine-source" type="application/json" data-src="$GODOT_URL">{}</script>
+<script>window.__EXPEDITION_ENGINE_CONFIG__=$GODOT_CONFIG;</script>
+<script src="showcase.js" defer></script>
+</body>
+</html>

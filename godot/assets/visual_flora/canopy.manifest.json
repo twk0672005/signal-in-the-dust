@@ -1,0 +1,48 @@
+{
+  "file": "godot/assets/visual_flora/canopy.glb",
+  "bytes": 8443860,
+  "sha256": "a66fe5373aa5d09aab0866a8e0ad2c28a5e3b8e9642c9c5cc7f7aa13cc21b7b1",
+  "triangles": 158618,
+  "vertices": 100216,
+  "meshNodes": 14,
+  "materials": 6,
+  "images": 15,
+  "normalMappedMaterials": 5,
+  "alphaModes": [
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE"
+  ],
+  "missingUV": 0,
+  "missingNormals": 0,
+  "animations": 0,
+  "skins": 0,
+  "family": "canopy",
+  "boundsBlenderXYZ": {
+    "min": [
+      -15.997364044189453,
+      -8.908367156982422,
+      -0.8298391103744507
+    ],
+    "max": [
+      17.405691146850586,
+      11.036384582519531,
+      23.21552848815918
+    ],
+    "size": [
+      33.40305519104004,
+      19.944751739501953,
+      24.04536759853363
+    ]
+  },
+  "sourceBlend": "art-source/visual_flora/canopy.blend",
+  "sourceBlendSha256": "9a785baba5bf7bcc8193d8667acae98522c80b554e9c67215d49715b3fa27530",
+  "seed": 230923,
+  "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+  "blender": "5.2.1 LTS",
+  "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+  "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+}

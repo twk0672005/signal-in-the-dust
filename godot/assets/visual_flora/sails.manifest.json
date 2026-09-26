@@ -1,0 +1,49 @@
+{
+  "file": "godot/assets/visual_flora/sails.glb",
+  "bytes": 6856704,
+  "sha256": "2d65afa2e71ef442ce8a52adefa2da7ed68ccc348aa2c6db8aacb98c8da34257",
+  "triangles": 80496,
+  "vertices": 48729,
+  "meshNodes": 20,
+  "materials": 7,
+  "images": 18,
+  "normalMappedMaterials": 6,
+  "alphaModes": [
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "BLEND",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE"
+  ],
+  "missingUV": 0,
+  "missingNormals": 0,
+  "animations": 0,
+  "skins": 0,
+  "family": "sails",
+  "boundsBlenderXYZ": {
+    "min": [
+      -2.0795750617980957,
+      -2.3842594623565674,
+      -0.3394598960876465
+    ],
+    "max": [
+      3.396497964859009,
+      3.05139422416687,
+      7.226415157318115
+    ],
+    "size": [
+      5.4760730266571045,
+      5.4356536865234375,
+      7.565875053405762
+    ]
+  },
+  "sourceBlend": "art-source/visual_flora/sails.blend",
+  "sourceBlendSha256": "1f11bd92e0691753db1d2e26fed73aee9ecb8f0e9a38037b55d540e18422fde8",
+  "seed": 231024,
+  "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+  "blender": "5.2.1 LTS",
+  "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+  "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+}

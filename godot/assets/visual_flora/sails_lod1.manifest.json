@@ -1,0 +1,15 @@
+{
+  "family": "sails",
+  "file": "godot/assets/visual_flora/sails_lod1.glb",
+  "sourceGlbSha256": "2d65afa2e71ef442ce8a52adefa2da7ed68ccc348aa2c6db8aacb98c8da34257",
+  "sha256": "0bfa4b4588bdadf91b6a37805ce2c0c70c87e8cd04a05c7dfc29815f056a5acb",
+  "bytes": 5663828,
+  "triangles": 19303,
+  "meshes": 7,
+  "materials": 7,
+  "decimationRatio": 0.24,
+  "blender": "5.2.1 LTS",
+  "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+  "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+  "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+}

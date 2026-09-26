@@ -1,7 +1,9 @@
 extends Node3D
 ## Authored geological basin. Coordinates and height queries are shared with driving.
 const SURVEYS = preload("res://scripts/expedition_activities.gd")
-const HABITAT_FEATURES = preload("res://scripts/habitat_features.gd")
+const HABITAT_FEATURES = preload("res://scripts/living_habitat.gd")
+const CREATURE_VISUAL = preload("res://scripts/creature_visual.gd")
+var _living_habitat:Node3D
 const ECOLOGY_RESPONSE = preload("res://scripts/ecology_response.gd")
 const ROCKS_PATH := "res://assets/models/rocks.glb"
 const TERRAIN_SHADER = preload("res://shaders/terrain.gdshader")
@@ -147,6 +149,7 @@ func _ready() -> void:
 	habitats.name = "HabitatFeatures"
 	add_child(habitats)
 	habitats.build(self)
+	_living_habitat=habitats
 	_build_passage_gates()
 	_build_survey_sites()
 	_build_resonance_grove()
@@ -173,6 +176,7 @@ func _prepare_ecology_responses() -> void:
 func _process(delta: float) -> void:
 	if _paused: return
 	_world_time += delta
+	if is_instance_valid(_living_habitat):_living_habitat.tick(delta,false)
 	_tick_ecology(delta)
 	_tick_thermal(delta)
 	_tick_passage_gates(delta)
@@ -245,6 +249,8 @@ func _tick_ecology(delta: float) -> void:
 		node.position = node.position.lerp(target, 1.0 - exp(-delta * 5.0))
 		var width := 1.0 + pulse * 0.12
 		node.scale = Vector3(width, (1.0 - alarm * (0.55 if kind=="root_choir" else 0.3) if kind=="root_choir" or (i==0 and not _escort_state.is_empty()) else 1.0) + pulse * 0.1, width)
+		var detailed=node.get_node_or_null("DetailedVisual")
+		if detailed!=null:detailed.pose(_world_time+phase,alarm,pulse,1.0)
 		for entry: Dictionary in _ecology_glow[i]:
 			entry["material"].emission_energy_multiplier = float(entry["energy"]) * (1.0 + pulse * 2.0 - alarm * 0.65)
 
@@ -266,14 +272,14 @@ func region_label(position: Vector3) -> String:
 
 func set_region_mood(region: String, delta: float = 0.016) -> void:
 	if not is_instance_valid(_environment): return
-	var tint:=Color(0.16,0.19,0.25)
+	var tint:=Color(0.12,0.16,0.25)
 	var begin:=120.0
 	var finish:=1400.0
 	match region:
 		"ember_rift":
-			tint=Color(0.23,0.18,0.16);begin=90.0;finish=1250.0
+			tint=Color(0.20,0.14,0.18);begin=80.0;finish=850.0
 		"veil_marsh":
-			tint=Color(0.15,0.20,0.20);begin=45.0;finish=850.0
+			tint=Color(0.11,0.18,0.25);begin=65.0;finish=680.0
 		"pale_decay":
 			tint=Color(0.20,0.17,0.23);begin=85.0;finish=1100.0
 	var blend:=1.0-exp(-maxf(delta,0.0)*2.0)
@@ -564,11 +570,11 @@ func _build_atmosphere() -> void:
 	sky.radiance_size = Sky.RADIANCE_SIZE_64
 	_environment.sky = sky
 	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	_environment.ambient_light_color = Color(0.43, 0.47, 0.59)
-	_environment.ambient_light_energy = 0.62
+	_environment.ambient_light_color = Color(0.48, 0.57, 0.76)
+	_environment.ambient_light_energy = 0.48
 	_environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	_environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	_environment.tonemap_exposure = 1.05
+	_environment.tonemap_exposure = 0.9
 	_environment.fog_enabled = true
 	_environment.fog_mode = Environment.FOG_MODE_DEPTH
 	_environment.fog_light_color = Color(0.215, 0.225, 0.31)
@@ -583,14 +589,18 @@ func _build_atmosphere() -> void:
 	add_child(world_environment)
 	var sun := DirectionalLight3D.new()
 	sun.name = "LowWarmSun"
-	sun.rotation_degrees = Vector3(-15.0, -55.0, 0.0)
-	sun.light_color = Color(1.0, 0.84, 0.68)
-	sun.light_energy = 1.3
+	sun.rotation_degrees = Vector3(-36.0, -40.0, 0.0)
+	sun.light_color = Color(0.72, 0.81, 1.0)
+	sun.light_energy = 0.85
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 140.0
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	sun.shadow_bias = 0.06
 	add_child(sun)
+	for location in [Vector2(path_x(-242)-13,-242),Vector2(path_x(-328)-25,-328),Vector2(path_x(-88)+16,-88)]:
+		var fill:=OmniLight3D.new();fill.position=Vector3(location.x,height_at(location.x,location.y)+3.0,location.y)
+		fill.light_color=Color("dbac72") if location.y>-150 else Color("65c1ce")
+		fill.light_energy=.7;fill.omni_range=18;fill.shadow_enabled=false;add_child(fill)
 
 func _build_material() -> void:
 	_terrain_material = ShaderMaterial.new()
@@ -1110,7 +1120,9 @@ func _tick_root_network(delta: float, instant: bool = false) -> void:
 
 func _build_ecology() -> void:
 	# Three local organisms occupy different energy gradients. They are deliberately readable silhouettes, not decorative glow props.
-	var veyra_shell := _ecology_material(Color("3d4845"), Color("a86b3f"), 0.18, 0.82)
+	var veyra_shell := _ecology_material(Color("536265"), Color("a86b3f"), 0.08, 0.72)
+	veyra_shell.albedo_texture=load("res://assets/terrain/cc0/rock023_alb_ht.png")
+	veyra_shell.normal_enabled=true;veyra_shell.normal_texture=load("res://assets/terrain/cc0/rock023_nrm_rgh.png");veyra_shell.uv1_triplanar=true
 	var veyra_core := _ecology_material(Color("b56b42"), Color("e47d42"), 1.0, 0.48)
 	for i in 4:
 		var node := Node3D.new()
@@ -1119,12 +1131,16 @@ func _build_ecology() -> void:
 		var x := path_x(z) + 7.0 + sin(i * 2.1) * 2.0
 		node.position = Vector3(x, height_at(x, z) + 0.35, z)
 		add_child(node)
-		_eco_sphere(node, Vector3(0,0.25,0), Vector3(0.9,0.34,1.25), veyra_shell)
+		_eco_sphere(node, Vector3(0,.65,0), Vector3(1.0,.6,1.55), veyra_shell)
 		_eco_sphere(node, Vector3(0,0.48,-0.72), Vector3(0.42,0.24,0.32), veyra_core)
 		for side in [-1.0,1.0]:
 			for leg in 3:
 				var zoff := -0.62 + leg * 0.62
-				_eco_rod(node, Vector3(side * 0.3,0.12,zoff), Vector3(side * 1.05,-0.08,zoff + 0.16), 0.035, veyra_shell)
+				_eco_rod(node, Vector3(side * .65,.5,zoff), Vector3(side * 1.2,-0.08,zoff + 0.16), 0.14, veyra_shell)
+		for plate_index in 4:
+			if not _low_meshes.is_empty():
+				var plate:=MeshInstance3D.new();plate.mesh=_low_meshes[plate_index%_low_meshes.size()];plate.material_override=veyra_shell
+				plate.position=Vector3(0,1.02,-1.0+plate_index*.55);plate.scale=Vector3(1.6,.35,.8);node.add_child(plate)
 		_ecology_nodes.append(node)
 		_ecology_meta.append({"kind":"veyra","label":"VEYRA / 礦脈群體","phase":float(i) * 1.7,"base":node.position})
 	var aeral_membrane := _ecology_material(Color("76644e"), Color("dca66d"), 0.7, 0.52)
@@ -1136,9 +1152,14 @@ func _build_ecology() -> void:
 		var x := path_x(z) - 5.5 + cos(i * 1.8) * 3.0
 		node.position = Vector3(x, height_at(x,z) + 5.0 + (i % 2) * 1.6, z)
 		add_child(node)
-		_eco_sphere(node, Vector3.ZERO, Vector3(0.9,0.16,1.8), aeral_membrane)
-		_eco_sphere(node, Vector3(0,0,0.9), Vector3(0.16,0.16,0.16), aeral_core)
-		for side in [-1.0,1.0]: _eco_rod(node, Vector3(side*0.35,0,0), Vector3(side*1.4,0.05,0.7), 0.025, aeral_membrane)
+		if i==0:
+			var detailed:=CREATURE_VISUAL.new();detailed.name="DetailedVisual"
+			node.add_child(detailed);detailed.configure("aeral");detailed.scale=Vector3.ONE*.56
+		else:
+			_eco_sphere(node,Vector3.ZERO,Vector3(.45,.22,.8),aeral_membrane)
+			for side in [-1.0,1.0]:
+				var fin:=_eco_sphere(node,Vector3(side*.75,0,.1),Vector3(.9,.045,.7),aeral_membrane)
+				fin.rotation.z=side*.2
 		_ecology_nodes.append(node)
 		_ecology_meta.append({"kind":"aeral","label":"AERAL VEIL / 霧膜群","phase":float(i) * 1.1,"base":node.position,"passage_index":i})
 	var decay_shell := _ecology_material(Color("57464d"), Color("744e86"), 0.32, 0.91)
@@ -1285,12 +1306,15 @@ func _build_wetland_pool() -> void:
 	# A real terrain depression contains the water. The water body itself is deliberately cheap and opaque.
 	var water := MeshInstance3D.new()
 	water.name = "ContainedShallowWater"
-	var water_mesh := CylinderMesh.new()
-	water_mesh.top_radius = 4.2
-	water_mesh.bottom_radius = 4.2
-	water_mesh.height = 0.08
-	water_mesh.radial_segments = 32
-	water.mesh = water_mesh
+	var water_surface:=SurfaceTool.new();water_surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in 64:
+		var a:float=i/64.0*TAU;var b:float=(i+1)/64.0*TAU
+		var ra:float=4.05+sin(a*3.0)*.18+sin(a*7.0)*.10
+		var rb:float=4.05+sin(b*3.0)*.18+sin(b*7.0)*.10
+		for p in [Vector3.ZERO,Vector3(cos(b)*rb,0,sin(b)*rb),Vector3(cos(a)*ra,0,sin(a)*ra)]:
+			water_surface.set_uv(Vector2(p.x,p.z)/8.4+Vector2(.5,.5));water_surface.add_vertex(p)
+	water_surface.generate_normals();water_surface.generate_tangents()
+	water.mesh=water_surface.commit()
 	water.position.y = 0.64
 	_wetland_water_material = ShaderMaterial.new()
 	_wetland_water_material.shader = WETLAND_SHADER
@@ -1582,6 +1606,7 @@ func set_response(progress: float, elapsed: float) -> void:
 
 func set_low_quality(value: bool) -> void:
 	_low_quality = value
+	if is_instance_valid(_living_habitat):_living_habitat.set_low_quality(value)
 	for instance in _small_dressing:
 		instance.visible = not value
 	if _dust:
@@ -1590,6 +1615,7 @@ func set_low_quality(value: bool) -> void:
 
 func set_paused(value: bool) -> void:
 	_paused = value
+	if is_instance_valid(_living_habitat):_living_habitat.set_paused(value)
 	if is_instance_valid(_dust): _dust.speed_scale = 0.0 if value else 1.0
 
 func reset() -> void:

@@ -1,6 +1,7 @@
 extends Node3D
 
 const ExpeditionSave = preload("res://scripts/expedition_save.gd")
+const ShowcaseBoot = preload("res://scripts/showcase_boot.gd")
 const ThermalScript = preload("res://scripts/thermal_route.gd")
 const RootScript = preload("res://scripts/root_network.gd")
 const PassageScript = preload("res://scripts/quiet_passage.gd")
@@ -10,6 +11,9 @@ const ActivityScript = preload("res://scripts/expedition_activities.gd")
 const RoverScript = preload("res://scripts/rover.gd")
 const ContactScript = preload("res://scripts/contact.gd")
 var _touch_callback: JavaScriptObject
+var _web_launch_callback: JavaScriptObject
+var _web_boot = ShowcaseBoot.new()
+var _web_launch_pending := false
 var touch_enabled := false
 var world: Node3D
 var rover: CharacterBody3D
@@ -94,9 +98,14 @@ func _ready() -> void:
 	ui.resume_requested.connect(resume_expedition)
 	ui.encounter_selected.connect(_on_encounter_selected)
 	ui.reset_requested.connect(reset_expedition)
+	ui.menu_requested.connect(_on_menu_requested)
+	ui.explore_requested.connect(_continue_exploring)
 	ui.interact_requested.connect(interact)
 	ui.locale_changed.connect(_on_locale)
 	ui.settings_changed.connect(_on_settings)
+	var map_road := PackedVector2Array()
+	for z in range(-670, 181, 8): map_road.append(Vector2(world.path_x(float(z)), float(z)))
+	ui.set_map_road(map_road)
 	_on_settings(ui.get_settings())
 	ui.show_state("menu")
 	audio.set_paused(true)
@@ -107,6 +116,64 @@ func _ready() -> void:
 	_update_survey_readout()
 	_publish_snapshot()
 	print("EXPEDITION_READY")
+	_install_web_launch()
+
+func _install_web_launch() -> void:
+	if not OS.has_feature("web"): return
+	_web_launch_callback = JavaScriptBridge.create_callback(_on_web_launch)
+	JavaScriptBridge.get_interface("window").expeditionLaunch = _web_launch_callback
+	var serialized: Variant = JavaScriptBridge.eval("JSON.stringify(window.__EXPEDITION_BOOT_REQUEST__ || null)", true)
+	if serialized is String and serialized.length() <= 8192:
+		_begin_web_launch.call_deferred(JSON.parse_string(serialized))
+
+func _on_web_launch(args: Array) -> void:
+	if args.size() != 1 or not args[0] is String or args[0].length() > 8192: return
+	_begin_web_launch.call_deferred(JSON.parse_string(args[0]))
+
+func _begin_web_launch(value: Variant) -> void:
+	if not ready_for_play: return
+	var request: Dictionary = _web_boot.begin(value)
+	if request.is_empty(): return
+	if phase != "menu":
+		_set_web_boot_stage("error")
+		return
+	_web_launch_pending = true
+	ui.apply_startup_settings(request.settings)
+	_publish_web_boot()
+	if request.action == "continue":
+		if not load_expedition():
+			_web_launch_pending = false
+			_set_web_boot_stage("continue-unavailable")
+	else:
+		request_new_expedition()
+		if ui.current_state() == "confirm_new":
+			_set_web_boot_stage("confirm-new")
+		elif phase == "menu":
+			_web_launch_pending = false
+			_set_web_boot_stage("error")
+
+func _set_web_boot_stage(value: String) -> void:
+	_web_boot.set_stage(value)
+	_publish_web_boot()
+	if value in ["playing", "confirm-new"]:
+		_web_boot_after_frame.call_deferred(_web_boot.request_id, value)
+
+func _web_boot_after_frame(id: String, expected_stage: String) -> void:
+	# Headless tests do not have a rendered frame and must not manufacture one.
+	if DisplayServer.get_name() == "headless": return
+	await RenderingServer.frame_post_draw
+	if _web_boot.rendered(id, expected_stage):
+		if expected_stage == "playing": _web_launch_pending = false
+		_publish_web_boot()
+
+func _publish_web_boot() -> void:
+	if OS.has_feature("web") and not _web_boot.request_id.is_empty():
+		JavaScriptBridge.eval("window.__EXPEDITION_BOOT_STATUS__=" + JSON.stringify(_web_boot.snapshot(_save_available)) + ";", true)
+
+func _on_menu_requested() -> void:
+	if phase != "menu": return
+	_web_launch_pending = false
+	if not _web_boot.request_id.is_empty(): _set_web_boot_stage("home")
 
 func _on_touch_action(args: Array) -> void:
 	if args.size() != 3 or not touch_enabled or not ready_for_play: return
@@ -114,7 +181,7 @@ func _on_touch_action(args: Array) -> void:
 	if action == "pause_only":
 		if phase in ["arrival","exploring","contact"]: pause_expedition()
 		return
-	if action not in ["drive_forward","drive_reverse","turn_left","turn_right","brake","toggle_camera","interact","expedition_journal","pause_mission","resonance_1","resonance_2","resonance_3"]: return
+	if action not in ["drive_forward","drive_reverse","turn_left","turn_right","brake","drive_boost","toggle_camera","interact","expedition_journal","pause_mission","resonance_1","resonance_2","resonance_3"]: return
 	var pressed := bool(args[1])
 	if pressed and phase not in ["exploring","contact","arrival"]: return
 	var strength := clampf(float(args[2]),0.0,1.0)
@@ -126,7 +193,7 @@ func _on_touch_action(args: Array) -> void:
 	Input.parse_input_event(event)
 
 func _install_inputs() -> void:
-	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"toggle_camera":[KEY_V],"interact":[KEY_E],"expedition_journal":[KEY_J],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R],"resonance_1":[KEY_1],"resonance_2":[KEY_2],"resonance_3":[KEY_3]}
+	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"drive_boost":[KEY_SHIFT],"toggle_camera":[KEY_V],"interact":[KEY_E],"expedition_journal":[KEY_J],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R],"resonance_1":[KEY_1],"resonance_2":[KEY_2],"resonance_3":[KEY_3]}
 	for action in bindings:
 		if not InputMap.has_action(action): InputMap.add_action(action)
 		for key in bindings[action]:
@@ -142,6 +209,7 @@ func _place_exterior() -> void:
 func start_expedition() -> bool:
 	if not ready_for_play: return false
 	if not clear_saved_expedition() and has_saved_expedition(): return false
+	ui.reset_guidance()
 	save_clock = 0.0
 	elapsed = 0.0
 	arrival_time = 0.0
@@ -181,9 +249,12 @@ func _set_phase(value: String) -> void:
 	phase = value
 	ui.show_state(phase)
 	_publish_snapshot()
+	if _web_launch_pending and phase in ["arrival", "exploring"]:
+		_set_web_boot_stage("playing")
 
 func _process(delta: float) -> void:
 	if not ready_for_play: return
+	ui.tick_guidance(delta)
 	if delta > 0.0:
 		frames.append(delta*1000.0)
 		if frames.size() > 3600: frames.pop_front()
@@ -231,8 +302,8 @@ func _process(delta: float) -> void:
 		readout_clock = 0.0
 		ui.update_readout(target_distance(), elapsed, contact.progress, can_interact(), rover.current_speed_mps(), rover.max_speed_mps(), rover.camera_mode, ecology_snapshot())
 		_update_survey_readout()
-		if phase == "exploring" and _survey_message_seconds<=0.0:
-			ui.set_message("survey_all" if activities.count()==4 and activities.field_count()==8 else ("field_guidance" if activities.count()==4 else "survey_guidance"))
+		if phase == "exploring":
+			ui.suggest_guidance(world.region_at(rover.global_position), ecology_snapshot())
 		_publish_snapshot()
 
 func _survey_completed(id: String) -> void:
@@ -265,6 +336,9 @@ func _update_survey_readout() -> void:
 		var offset: Vector2=point-Vector2(rover.position.x,rover.position.z)
 		bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
 	ui.set_activity_progress(activities.count(),activities.optional_count(),activities.field_count(),region,target,distance,activities.stillness,bearing)
+	# Optional manual journal tracking earns one marker; the old mandatory task wall does not.
+	var map_target := _encounter_point(tracked) if not tracked.is_empty() else Vector2.ZERO
+	ui.set_navigation(Vector2(rover.position.x, rover.position.z), rover.heading, map_target, not tracked.is_empty())
 	ui.set_resonance_context(_resonance_context())
 	ui.set_escort_context(_escort_context())
 	ui.set_passage_context(_passage_context())
@@ -287,7 +361,8 @@ func _nearby_survey() -> String:
 func _input(event: InputEvent) -> void:
 	if not ready_for_play or event.is_echo(): return
 	if event.is_action_pressed("pause_mission"):
-		if phase in ["paused","confirm_reset"]: resume_expedition()
+		if phase == "paused" and ui.current_state() == "settings": ui.show_state("paused")
+		elif phase in ["paused","confirm_reset"]: resume_expedition()
 		elif phase in ["arrival","exploring","contact"]: pause_expedition()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("expedition_journal") and phase=="exploring":
@@ -346,7 +421,8 @@ func request_new_expedition() -> void:
 	else: start_expedition()
 
 func save_expedition() -> bool:
-	if phase != "exploring": return false
+	# Contact is optional. Preserve the last explorable position through its closing scene.
+	if phase not in ["exploring", "contact", "ending"]: return false
 	activities.thermal_state=thermal.snapshot()
 	activities.escort_state=escort.snapshot()
 	activities.passage_state=passage.snapshot()
@@ -470,7 +546,7 @@ func _target_visible(point: Vector3, allowed: Node = null) -> bool:
 
 func interaction_target() -> String:
 	if phase != "exploring" or absf(rover.speed) >= 2.0: return "none"
-	if activities.count()==4 and activities.field_count()==8 and target_distance() <= 9.5 and _target_visible(contact.global_position+Vector3(0,2,0),contact):
+	if target_distance() <= 9.5 and _target_visible(contact.global_position+Vector3(0,2,0),contact):
 		return "contact"
 	var survey_id:=_nearby_survey()
 	if not survey_id.is_empty(): return "survey:"+survey_id
@@ -562,8 +638,17 @@ func interact() -> void:
 	ui.set_message("transmitting")
 
 func _on_contact_completed() -> void:
-	clear_saved_expedition()
+	save_expedition()
 	_set_phase("ending")
+
+func _continue_exploring() -> void:
+	if phase != "ending": return
+	contact.reset()
+	world.set_paused(false)
+	audio.set_paused(false)
+	rover.set_driving_enabled(true)
+	_set_phase("exploring")
+	save_expedition()
 
 func _on_locale(value: String) -> void:
 	settings["locale"] = value
@@ -572,13 +657,14 @@ func _on_locale(value: String) -> void:
 func _on_settings(value: Dictionary) -> void:
 	settings = value.duplicate()
 	rover.reduced_motion = bool(settings.get("reduced_motion",false))
+	rover.set_low_quality(bool(settings.get("low_quality",false)))
 	world.set_low_quality(bool(settings.get("low_quality",false)))
 	audio.set_mix(float(settings.get("volume",0.5)))
 	_publish_snapshot()
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
+	return {"ready":true,"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"boosting":rover.is_boosting(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
@@ -587,7 +673,7 @@ func metrics() -> Dictionary:
 	var ordered := frames.duplicate()
 	ordered.sort()
 	var count := ordered.size()
-	return {"sampleFrames":count,"fps":Engine.get_frames_per_second(),"p50ms":ordered[int((count-1)*0.5)] if count else 0,"p95ms":ordered[int((count-1)*0.95)] if count else 0,"p99ms":ordered[int((count-1)*0.99)] if count else 0,"worstMs":ordered[count-1] if count else 0,"drawCalls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"nodes":Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"viewport":str(get_viewport().get_visible_rect().size),"activityCount":activities.count(),"optionalCount":activities.optional_count(),"fieldCount":activities.field_count()}
+	return {"sampleFrames":count,"fps":Engine.get_frames_per_second(),"p50ms":ordered[int((count-1)*0.5)] if count else 0,"p95ms":ordered[int((count-1)*0.95)] if count else 0,"p99ms":ordered[int((count-1)*0.99)] if count else 0,"worstMs":ordered[count-1] if count else 0,"drawCalls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"nodes":Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"worldBuild":world.build_stats.duplicate(true),"viewport":str(get_viewport().get_visible_rect().size),"activityCount":activities.count(),"optionalCount":activities.optional_count(),"fieldCount":activities.field_count()}
 
 func _publish_snapshot() -> void:
 	if OS.has_feature("web"):

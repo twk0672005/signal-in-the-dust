@@ -1,0 +1,9 @@
+{
+  "source": "Original local synthesized UI chime",
+  "tool": "tools/create-whisper-chime.py",
+  "duration_seconds": 0.22,
+  "sample_rate": 24000,
+  "channels": 1,
+  "loop": false,
+  "sha256": "2b6d9b7e3b2d1891d21a78dfd91c324ff4b6a8c561a55deeb25da3f6f04e1669"
+}

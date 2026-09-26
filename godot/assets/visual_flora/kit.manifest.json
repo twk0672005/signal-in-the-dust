@@ -1,0 +1,965 @@
+{
+  "createdAtUtc": "2026-09-23T19:50:11.997758+00:00",
+  "truthLabel": "STRUCTURAL_READBACK_PASS / OFFLINE_MULTIANGLE_RENDERED / RUNTIME_AND_INDEPENDENT_ART_REVIEW_PENDING",
+  "notClaimed": [
+    "Godot import/export/build",
+    "Web/Compatibility transparency",
+    "Actual terrain contact or collider clearance",
+    "Animation",
+    "Runtime performance",
+    "90 percent concept match",
+    "Final human acceptance"
+  ],
+  "tool": {
+    "path": "C:/Program Files/Blender Foundation/Blender 5.2/blender.exe",
+    "version": "5.2.1 LTS",
+    "build": "9e2066aef7ef"
+  },
+  "scope": [
+    "art-source/visual_flora/",
+    "godot/assets/visual_flora/",
+    "evidence/visual-upgrade-20260923/flora-authoring/"
+  ],
+  "sources": [
+    {
+      "path": "art-source/visual_flora/assemble_manifest.py",
+      "bytes": 6469,
+      "sha256": "0e56253024a6ee9d4aaae974e63fc2a351e5864b778c3811489c4e393a414c8f"
+    },
+    {
+      "path": "art-source/visual_flora/audit_glbs.py",
+      "bytes": 4079,
+      "sha256": "f19effae90c62a133a1bb30d52e4459f702b914cb9730de508d9246cd9407bee"
+    },
+    {
+      "path": "art-source/visual_flora/build_flora.py",
+      "bytes": 37891,
+      "sha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13"
+    },
+    {
+      "path": "art-source/visual_flora/build_lods.py",
+      "bytes": 2973,
+      "sha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839"
+    },
+    {
+      "path": "art-source/visual_flora/contact_sheet.py",
+      "bytes": 1586,
+      "sha256": "4373204b234a490af431070e9416024901ab7cbe127f601fe17ca1a1d30af33a"
+    },
+    {
+      "path": "art-source/visual_flora/readback_blends.py",
+      "bytes": 1655,
+      "sha256": "08d535f9d9d4755f2a950620bc45c347f5644233cce3da6f9d1670b0847ba8b9"
+    },
+    {
+      "path": "art-source/visual_flora/render_flora.py",
+      "bytes": 5320,
+      "sha256": "4a35af88760937898685f5f42746ce957101f96560afb4be2356189828da37a5"
+    },
+    {
+      "path": "art-source/visual_flora/README.md",
+      "bytes": 6052,
+      "sha256": "f3288297e913ff67326ead57341e69bc49ca6a6a4fcd1b5e3444118bbbee565e"
+    }
+  ],
+  "textures": [
+    {
+      "path": "godot/assets/visual_flora/textures/bark_ridge_albedo.png",
+      "bytes": 339226,
+      "sha256": "cb6a4669b73450919c8b45b7a4c58a02c3854a10490eaa991593e8c9003c1eb9"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/bark_ridge_normal.png",
+      "bytes": 453533,
+      "sha256": "2e0f04360d6406df2ae4d97115ed213544d777f185c8f9ef484a8850e49ba526"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/bark_ridge_roughness.png",
+      "bytes": 131798,
+      "sha256": "10dae0eface84069c232dd637f05db1f623b354d3881ba5ee348ae0ae80f30a0"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/canopy_tissue_albedo.png",
+      "bytes": 302684,
+      "sha256": "5b0c88cde5b006ec45fb2e0a1f775cc270a649bf50229aa1521ca818b7f1c9f3"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/canopy_tissue_normal.png",
+      "bytes": 364141,
+      "sha256": "648222f995840e869c94173409fef8ac9691b5dbb3779a92c599944d8e966b5d"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/canopy_tissue_roughness.png",
+      "bytes": 131704,
+      "sha256": "77691a50e0ab45de29a42a1861c6ed041db2134e227454e2894ad2ae493e5210"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/damp_root_albedo.png",
+      "bytes": 296598,
+      "sha256": "039336c9bb87e6f2cc4ccd0d345c20cc993c7717086b7d70f0b208a964546f38"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/damp_root_normal.png",
+      "bytes": 453533,
+      "sha256": "2e0f04360d6406df2ae4d97115ed213544d777f185c8f9ef484a8850e49ba526"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/damp_root_roughness.png",
+      "bytes": 131868,
+      "sha256": "7bcc37ec8501eed0ab3e5621a4a4398e7c3814ed901166f3a81e063a15bc95c1"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/decaying_root_albedo.png",
+      "bytes": 279056,
+      "sha256": "4a791b6b0ee8272d654485c75bd72951fb5be8717735c53b8bb67e2049824cd2"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/decaying_root_normal.png",
+      "bytes": 453533,
+      "sha256": "2e0f04360d6406df2ae4d97115ed213544d777f185c8f9ef484a8850e49ba526"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/decaying_root_roughness.png",
+      "bytes": 131868,
+      "sha256": "3b9c76ae46144f3eae89a20edea7aab6d12baa6fd932a1c60d06c0a61aa3bfe0"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/inner_pod_albedo.png",
+      "bytes": 290213,
+      "sha256": "a65ccc0eace007c3c4048d1d961add709b536c6a61c7d345404d96a8d5cc5e6a"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/inner_pod_normal.png",
+      "bytes": 293375,
+      "sha256": "df39351c96361898bab1abfc7132590f177136f44419913dfaf708c005bcac3d"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/inner_pod_roughness.png",
+      "bytes": 131788,
+      "sha256": "ec6cabe8016bba48a4e0697db98a4da564906e8f6de50ac7f724053c4c048b24"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/mineral_bark_albedo.png",
+      "bytes": 324352,
+      "sha256": "d19efbcabc68ad068fa5df1cc2efe1cd615f616a092177a9df4d2f12a64c4e52"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/mineral_bark_normal.png",
+      "bytes": 453533,
+      "sha256": "2e0f04360d6406df2ae4d97115ed213544d777f185c8f9ef484a8850e49ba526"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/mineral_bark_roughness.png",
+      "bytes": 131888,
+      "sha256": "9e31bfb5452057f022bf0290096fd323b9b262a547ebb45de92a8fa685af7c53"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/mineral_grain_albedo.png",
+      "bytes": 317857,
+      "sha256": "32fb072b5764d7fbc251771cbe7982015dcb9591e47654e56ee1f2ce12e8f58e"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/mineral_grain_normal.png",
+      "bytes": 453533,
+      "sha256": "2e0f04360d6406df2ae4d97115ed213544d777f185c8f9ef484a8850e49ba526"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/mineral_grain_roughness.png",
+      "bytes": 131806,
+      "sha256": "37c5da85504140c18b44978f86c88e4bc062cf064c3b0f388ee3dd8af56a081d"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/nutrient_film_albedo.png",
+      "bytes": 231026,
+      "sha256": "40d9ac8d4d0070dd014763bebd65ea135aad84181701deac66a01f502b587fbe"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/nutrient_film_normal.png",
+      "bytes": 348142,
+      "sha256": "02e90764e12f7574d4767ef2a0965163046df3c708c6cf7b68978c67264e19b7"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/nutrient_film_roughness.png",
+      "bytes": 131806,
+      "sha256": "d430710026a34fd1bbb6d719967d7570b0220fc3e8ec2b6e9dcec21532d6d53a"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/sail_rib_albedo.png",
+      "bytes": 338909,
+      "sha256": "b99624bda395bd694f444dd302db6913c43f781bc0d0ae01190a1e4be8c1bf08"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/sail_rib_normal.png",
+      "bytes": 453533,
+      "sha256": "2e0f04360d6406df2ae4d97115ed213544d777f185c8f9ef484a8850e49ba526"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/sail_rib_roughness.png",
+      "bytes": 131974,
+      "sha256": "114a324dfad277dc0ff726924d332f34238908147f4f120c24bf468538ebbe18"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/sail_tissue_albedo.png",
+      "bytes": 317748,
+      "sha256": "7e42014b4107706c74fa97dd8c523c333eb2e12a74627102c77aa18bbec408f6"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/sail_tissue_normal.png",
+      "bytes": 361192,
+      "sha256": "cf2bdaac61c28c45516833e0c6f569ea8c0376f8497a9b0258027b43f3444cc7"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/sail_tissue_roughness.png",
+      "bytes": 131896,
+      "sha256": "70a4fae00dac415d3cf0a0e0fcea2615e5a51af335fe3a7b67b89124bcc51414"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_inner_albedo.png",
+      "bytes": 258793,
+      "sha256": "4762b061c44b337497a17d520d6f06973ce3df3dd6c47b762e8a8e7c7f4b47fd"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_inner_normal.png",
+      "bytes": 304977,
+      "sha256": "4bf39386d648598bed68ab2105088546c5234987448ba7a70f3d5aa68ddef81e"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_inner_roughness.png",
+      "bytes": 131688,
+      "sha256": "95a5139192a1689d1a66c06163ee6fdd63d1511b9f2190a562767f2b874afabb"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_lip_albedo.png",
+      "bytes": 275761,
+      "sha256": "fb1957599355822b55966b5fcc5b2c542213de6759bb48d49ff8be5d2133c33b"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_lip_normal.png",
+      "bytes": 293375,
+      "sha256": "df39351c96361898bab1abfc7132590f177136f44419913dfaf708c005bcac3d"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_lip_roughness.png",
+      "bytes": 131894,
+      "sha256": "6bcf8db3550657614be6429234c19eb7072649cf1874dabf3676efed066fc8b4"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_outer_albedo.png",
+      "bytes": 260609,
+      "sha256": "2f572f8387e844da3f83f7c62aec68f3e246f6f1ef01b373e9dfa4c0d54e4fba"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_outer_normal.png",
+      "bytes": 304977,
+      "sha256": "4bf39386d648598bed68ab2105088546c5234987448ba7a70f3d5aa68ddef81e"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/shore_outer_roughness.png",
+      "bytes": 131761,
+      "sha256": "11c08f43b4dca7a009e09a711862fdad01481fb722c070350877b4015833c1da"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/soft_gills_albedo.png",
+      "bytes": 337206,
+      "sha256": "bf735031a3f74a2d4bdb619adc952d7dd1c54c232ca66228bdbbeced5ae94fa4"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/soft_gills_normal.png",
+      "bytes": 404886,
+      "sha256": "d9ba8f0082e2242b43714d198ad30ec3999fca6561bbd022cd3b4f3d1b0fc066"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/soft_gills_roughness.png",
+      "bytes": 131948,
+      "sha256": "380830b99985f659fbc1317df17222704d78bf53c3a6b1032ad274aa750ae893"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/spore_crust_albedo.png",
+      "bytes": 258474,
+      "sha256": "f8a2a5718345ccd8b52b2a3ec3f7b1940822c7b0e277028add10d1ff135cb33f"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/spore_crust_normal.png",
+      "bytes": 404886,
+      "sha256": "d9ba8f0082e2242b43714d198ad30ec3999fca6561bbd022cd3b4f3d1b0fc066"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/spore_crust_roughness.png",
+      "bytes": 131806,
+      "sha256": "37c5da85504140c18b44978f86c88e4bc062cf064c3b0f388ee3dd8af56a081d"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/unripe_pod_albedo.png",
+      "bytes": 234854,
+      "sha256": "c3bfa7c44a9a76b034e855195887bb5738fcfe48e7e7b7ac4b60f35d6ad7b300"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/unripe_pod_normal.png",
+      "bytes": 293375,
+      "sha256": "df39351c96361898bab1abfc7132590f177136f44419913dfaf708c005bcac3d"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/unripe_pod_roughness.png",
+      "bytes": 131421,
+      "sha256": "32a9bd2a1d8d5f3ddbab651b7666c16027bbd386b3f3bdac4f45d9900d17a99e"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/wax_pod_albedo.png",
+      "bytes": 262189,
+      "sha256": "f197d282592384972c3428ed2a6068bd3feb9b5ae9063f827057451bf272cf4f"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/wax_pod_emission.png",
+      "bytes": 50411,
+      "sha256": "bd1322f7598442128f04aa704d041f0977030f4ce7e166e81d764d51c0ff621f"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/wax_pod_normal.png",
+      "bytes": 293375,
+      "sha256": "df39351c96361898bab1abfc7132590f177136f44419913dfaf708c005bcac3d"
+    },
+    {
+      "path": "godot/assets/visual_flora/textures/wax_pod_roughness.png",
+      "bytes": 131948,
+      "sha256": "380830b99985f659fbc1317df17222704d78bf53c3a6b1032ad274aa750ae893"
+    }
+  ],
+  "license": "Original project-authored procedural geometry and raster PBR maps. No external mesh/photographic texture/addon, network or paid generation used. Project concept images are reference only and are not embedded.",
+  "integration": {
+    "units": "metres",
+    "axis": "glTF/Godot Y up; authoring Blender Z up",
+    "pivot": "terrain-contact origin, never lift to minimum bounds",
+    "subsoil": "Negative root geometry is deliberately below origin. Root pads require local terrain grounding by runtime owner.",
+    "alpha": "Only sail_tissue uses BLEND at alpha 0.94. All other surfaces are opaque. Sails require actual Compatibility sorting/overdraw check.",
+    "materials": "Standard glTF metallic/roughness with sRGB albedo/emission, non-color roughness and OpenGL tangent normals; embedded PNGs.",
+    "perchGodotLocal": "Load-bearing side branch runs approximately x -4.8 to 4.4, y 13.2 to 15.2, z 0.6 to 1.6. Runtime owner must check actual actor feet and collision support.",
+    "lod": "Distant forms consolidate by material and preserve static silhouette, not high-form per-organ animation hierarchy. Determine switching thresholds from actual scene profile.",
+    "instancing": "Reuse imported PackedScenes/meshes and shared materials. Test high/distant texture deduplication; embedded texture copies can dominate memory and downloads."
+  },
+  "assets": [
+    {
+      "family": "canopy",
+      "description": "Asymmetric paired load arches, subsoil buttress roots, layered mineral scales, broad front/rear vascular membrane cowls, connecting vaulted roof, lateral perch and pendant epiphytes.",
+      "high": {
+        "file": "godot/assets/visual_flora/canopy.glb",
+        "bytes": 8443860,
+        "sha256": "a66fe5373aa5d09aab0866a8e0ad2c28a5e3b8e9642c9c5cc7f7aa13cc21b7b1",
+        "triangles": 158618,
+        "vertices": 100216,
+        "meshNodes": 14,
+        "materials": 6,
+        "images": 15,
+        "normalMappedMaterials": 5,
+        "alphaModes": [
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE"
+        ],
+        "missingUV": 0,
+        "missingNormals": 0,
+        "animations": 0,
+        "skins": 0,
+        "family": "canopy",
+        "boundsBlenderXYZ": {
+          "min": [
+            -15.997364044189453,
+            -8.908367156982422,
+            -0.8298391103744507
+          ],
+          "max": [
+            17.405691146850586,
+            11.036384582519531,
+            23.21552848815918
+          ],
+          "size": [
+            33.40305519104004,
+            19.944751739501953,
+            24.04536759853363
+          ]
+        },
+        "sourceBlend": "art-source/visual_flora/canopy.blend",
+        "sourceBlendSha256": "9a785baba5bf7bcc8193d8667acae98522c80b554e9c67215d49715b3fa27530",
+        "seed": 230923,
+        "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+        "blender": "5.2.1 LTS",
+        "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+        "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+      },
+      "distant": {
+        "family": "canopy",
+        "file": "godot/assets/visual_flora/canopy_lod1.glb",
+        "sourceGlbSha256": "a66fe5373aa5d09aab0866a8e0ad2c28a5e3b8e9642c9c5cc7f7aa13cc21b7b1",
+        "sha256": "60211a018340e6c56a78d5a58563deba9d9055da2f2ef7312d350e7bdf4d1520",
+        "bytes": 5597760,
+        "triangles": 38058,
+        "meshes": 6,
+        "materials": 6,
+        "decimationRatio": 0.24,
+        "blender": "5.2.1 LTS",
+        "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+        "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+        "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+      },
+      "source": {
+        "path": "art-source/visual_flora/canopy.blend",
+        "bytes": 16195828,
+        "sha256": "9a785baba5bf7bcc8193d8667acae98522c80b554e9c67215d49715b3fa27530"
+      },
+      "renderEvidence": {
+        "path": "evidence/visual-upgrade-20260923/flora-authoring/canopy-render.json",
+        "bytes": 2527,
+        "sha256": "dd322146ab61b41a424d6b27cee277e72980ccc04d691942696501a08df03164"
+      },
+      "images": [
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/canopy-front.png",
+          "bytes": 1156794,
+          "sha256": "8b03a4e2ae6de776ace185262680098312b67a06ecf6852ee8d68bb3e47b5d2b"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/canopy-side.png",
+          "bytes": 1071903,
+          "sha256": "97ae7734e70aead3d17915346cb1f8045ab3c6df87014de635d54702406a5a3e"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/canopy-back.png",
+          "bytes": 1150263,
+          "sha256": "cdab46e312b04b63de26e578b6d40c46962d0d8977658487bf733d06f84ff5d0"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/canopy-night.png",
+          "bytes": 1096064,
+          "sha256": "51c0c5b0e7e89ad2c3ee9a230b373e3a9e49ce3fab9a1d2c81aed3c8bfddf2f0"
+        }
+      ]
+    },
+    {
+      "family": "sails",
+      "description": "Three staggered curved pleated blades, thick outer edge, firm raised ribs, vascular PBR tissue, planted root holdfasts, beaded condensation and sparse cyan axils.",
+      "high": {
+        "file": "godot/assets/visual_flora/sails.glb",
+        "bytes": 6856704,
+        "sha256": "2d65afa2e71ef442ce8a52adefa2da7ed68ccc348aa2c6db8aacb98c8da34257",
+        "triangles": 80496,
+        "vertices": 48729,
+        "meshNodes": 20,
+        "materials": 7,
+        "images": 18,
+        "normalMappedMaterials": 6,
+        "alphaModes": [
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "BLEND",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE"
+        ],
+        "missingUV": 0,
+        "missingNormals": 0,
+        "animations": 0,
+        "skins": 0,
+        "family": "sails",
+        "boundsBlenderXYZ": {
+          "min": [
+            -2.0795750617980957,
+            -2.3842594623565674,
+            -0.3394598960876465
+          ],
+          "max": [
+            3.396497964859009,
+            3.05139422416687,
+            7.226415157318115
+          ],
+          "size": [
+            5.4760730266571045,
+            5.4356536865234375,
+            7.565875053405762
+          ]
+        },
+        "sourceBlend": "art-source/visual_flora/sails.blend",
+        "sourceBlendSha256": "1f11bd92e0691753db1d2e26fed73aee9ecb8f0e9a38037b55d540e18422fde8",
+        "seed": 231024,
+        "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+        "blender": "5.2.1 LTS",
+        "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+        "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+      },
+      "distant": {
+        "family": "sails",
+        "file": "godot/assets/visual_flora/sails_lod1.glb",
+        "sourceGlbSha256": "2d65afa2e71ef442ce8a52adefa2da7ed68ccc348aa2c6db8aacb98c8da34257",
+        "sha256": "0bfa4b4588bdadf91b6a37805ce2c0c70c87e8cd04a05c7dfc29815f056a5acb",
+        "bytes": 5663828,
+        "triangles": 19303,
+        "meshes": 7,
+        "materials": 7,
+        "decimationRatio": 0.24,
+        "blender": "5.2.1 LTS",
+        "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+        "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+        "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+      },
+      "source": {
+        "path": "art-source/visual_flora/sails.blend",
+        "bytes": 14676366,
+        "sha256": "1f11bd92e0691753db1d2e26fed73aee9ecb8f0e9a38037b55d540e18422fde8"
+      },
+      "renderEvidence": {
+        "path": "evidence/visual-upgrade-20260923/flora-authoring/sails-render.json",
+        "bytes": 2528,
+        "sha256": "2391775a3e7c18662cab7c1e305350e35ea8b1f6ab457d628edcb5aac0ddc60f"
+      },
+      "images": [
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/sails-front.png",
+          "bytes": 1201953,
+          "sha256": "5180f81964b3a7ab1a92a1dd973aff025bc08fc20f5038bec199c66154ce5a17"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/sails-side.png",
+          "bytes": 1065648,
+          "sha256": "e13bec1abdba42290c299956fefb44f8ca5e628b252ef0a6e3b5571048023496"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/sails-back.png",
+          "bytes": 1134347,
+          "sha256": "52d841164d5c9ef4f394cfc15f44e91d876a2c5e25c0543c94272618eb974f80"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/sails-night.png",
+          "bytes": 1129231,
+          "sha256": "fef8ca51209b2caa1acd31b99a2ddaa8b22804b891253f55fa7ea446d40cb092"
+        }
+      ]
+    },
+    {
+      "family": "pods",
+      "description": "Crooked thick branching shrub with eight nonuniform fruits: green closed, waxy ripe with local amber fissures, and physically open valves exposing seeds. Shed husks connect it to the ground.",
+      "high": {
+        "file": "godot/assets/visual_flora/pods.glb",
+        "bytes": 7925684,
+        "sha256": "ca9f7ff6a5aaf2fe0faf03632e6a50c9b5dd994f1be44cee163c7b9c6859c5d9",
+        "triangles": 97418,
+        "vertices": 57384,
+        "meshNodes": 18,
+        "materials": 8,
+        "images": 22,
+        "normalMappedMaterials": 7,
+        "alphaModes": [
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE"
+        ],
+        "missingUV": 0,
+        "missingNormals": 0,
+        "animations": 0,
+        "skins": 0,
+        "family": "pods",
+        "boundsBlenderXYZ": {
+          "min": [
+            -1.8495558500289917,
+            -2.188936948776245,
+            -0.31845128536224365
+          ],
+          "max": [
+            2.348365306854248,
+            1.7653250694274902,
+            4.2115607261657715
+          ],
+          "size": [
+            4.19792115688324,
+            3.9542620182037354,
+            4.530012011528015
+          ]
+        },
+        "sourceBlend": "art-source/visual_flora/pods.blend",
+        "sourceBlendSha256": "c12aa6e3c0b1c49a48d555f794a46b5f71f43edbec152a117f8c546ed70beb2f",
+        "seed": 231125,
+        "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+        "blender": "5.2.1 LTS",
+        "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+        "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+      },
+      "distant": {
+        "family": "pods",
+        "file": "godot/assets/visual_flora/pods_lod1.glb",
+        "sourceGlbSha256": "ca9f7ff6a5aaf2fe0faf03632e6a50c9b5dd994f1be44cee163c7b9c6859c5d9",
+        "sha256": "7b5a5f7a933e16ead3946aa5933935b2f6f3b1ba192237c231a4c23a5f3f62cb",
+        "bytes": 6354236,
+        "triangles": 23370,
+        "meshes": 8,
+        "materials": 8,
+        "decimationRatio": 0.24,
+        "blender": "5.2.1 LTS",
+        "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+        "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+        "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+      },
+      "source": {
+        "path": "art-source/visual_flora/pods.blend",
+        "bytes": 14773257,
+        "sha256": "c12aa6e3c0b1c49a48d555f794a46b5f71f43edbec152a117f8c546ed70beb2f"
+      },
+      "renderEvidence": {
+        "path": "evidence/visual-upgrade-20260923/flora-authoring/pods-render.json",
+        "bytes": 2532,
+        "sha256": "efd20c95ec5cc6ce254599b0c3b7620fd3547cb4acddf0d0456e63290f62c02d"
+      },
+      "images": [
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/pods-front.png",
+          "bytes": 1215900,
+          "sha256": "b5811a2119219338c627ab6c9410bb38a8448665b970bfc231123de0d3d7fc43"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/pods-side.png",
+          "bytes": 1156570,
+          "sha256": "c5e749dedb0f69eb75093fab45c99e6626ef9e6f2f67c666f0580804fb797203"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/pods-back.png",
+          "bytes": 1191180,
+          "sha256": "af0b307b21f0dee05d1fb314c7159d80b70c5d5f1c7fe67277ac5f0e8badb042"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/pods-night.png",
+          "bytes": 1142805,
+          "sha256": "44d6af9b141f1c4a3be9cd3f533dc8bbde432c9602beb25f1df6f6211ef0385f"
+        }
+      ]
+    },
+    {
+      "family": "cups",
+      "description": "Three asymmetric concave folded bowls with shared physical inner/outer shell, thick lip, lowered drainage channel, exterior support veins and distinct dark rooted pads.",
+      "high": {
+        "file": "godot/assets/visual_flora/cups.glb",
+        "bytes": 7182572,
+        "sha256": "231c8dad109cda201e35b7e137f6b79f5550ede422305dae45326a7069ccd56f",
+        "triangles": 101130,
+        "vertices": 60225,
+        "meshNodes": 12,
+        "materials": 6,
+        "images": 18,
+        "normalMappedMaterials": 6,
+        "alphaModes": [
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE"
+        ],
+        "missingUV": 0,
+        "missingNormals": 0,
+        "animations": 0,
+        "skins": 0,
+        "family": "cups",
+        "boundsBlenderXYZ": {
+          "min": [
+            -2.64578914642334,
+            -1.729695200920105,
+            -0.23165090382099152
+          ],
+          "max": [
+            3.0425455570220947,
+            1.729564905166626,
+            2.9008991718292236
+          ],
+          "size": [
+            5.688334703445435,
+            3.459260106086731,
+            3.132550075650215
+          ]
+        },
+        "sourceBlend": "art-source/visual_flora/cups.blend",
+        "sourceBlendSha256": "081beb1750c7c5012317515ba010cf25f06b0635cab57fcc4c526f1019f182b0",
+        "seed": 231226,
+        "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+        "blender": "5.2.1 LTS",
+        "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+        "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+      },
+      "distant": {
+        "family": "cups",
+        "file": "godot/assets/visual_flora/cups_lod1.glb",
+        "sourceGlbSha256": "231c8dad109cda201e35b7e137f6b79f5550ede422305dae45326a7069ccd56f",
+        "sha256": "db2c7def34397e494cee2f2dc7f5e7f6ab57bae0e16803c89be01cf1c57e40ee",
+        "bytes": 5464788,
+        "triangles": 24259,
+        "meshes": 6,
+        "materials": 6,
+        "decimationRatio": 0.24,
+        "blender": "5.2.1 LTS",
+        "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+        "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+        "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+      },
+      "source": {
+        "path": "art-source/visual_flora/cups.blend",
+        "bytes": 15249805,
+        "sha256": "081beb1750c7c5012317515ba010cf25f06b0635cab57fcc4c526f1019f182b0"
+      },
+      "renderEvidence": {
+        "path": "evidence/visual-upgrade-20260923/flora-authoring/cups-render.json",
+        "bytes": 2532,
+        "sha256": "6846321c709acbdaf8a6e41688fa62fe4572d71b2819462077851004a2d382e2"
+      },
+      "images": [
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/cups-front.png",
+          "bytes": 1093182,
+          "sha256": "1b48d5b93c9bf0848b6b322aa9c053ddf5618bb5ae1228654248b7f256ec09f0"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/cups-side.png",
+          "bytes": 1042488,
+          "sha256": "aa88eef5c8bc2e04a4795f25ccab4dd800b0d5e13e3750d1eaa30ebd52baf7bb"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/cups-back.png",
+          "bytes": 1020793,
+          "sha256": "6f2fd335391d304ad50845e75b04ca26d0c0c4a37b56a64bdd74ec2e713c04e0"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/cups-night.png",
+          "bytes": 1040804,
+          "sha256": "7a6fa89978a5809b84be20867e4a1846a495a29c770d6a99c5671057c37d8abd"
+        }
+      ]
+    },
+    {
+      "family": "mat",
+      "description": "Irregular low root/fibre network with linked lace islands, granular mineral pockets, nutrient films, sparse nodes and actual bare gaps. No rectangle/ground card.",
+      "high": {
+        "file": "godot/assets/visual_flora/mat.glb",
+        "bytes": 5575240,
+        "sha256": "b28323714a86c0467ae9d54db707ddb502e00dc3cc5ca718c38863302b689f7d",
+        "triangles": 85730,
+        "vertices": 52581,
+        "meshNodes": 5,
+        "materials": 5,
+        "images": 12,
+        "normalMappedMaterials": 4,
+        "alphaModes": [
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE"
+        ],
+        "missingUV": 0,
+        "missingNormals": 0,
+        "animations": 0,
+        "skins": 0,
+        "family": "mat",
+        "boundsBlenderXYZ": {
+          "min": [
+            -2.4656941890716553,
+            -2.342341899871826,
+            -0.09718868136405945
+          ],
+          "max": [
+            2.7541637420654297,
+            2.1914544105529785,
+            0.18796324729919434
+          ],
+          "size": [
+            5.219857931137085,
+            4.533796310424805,
+            0.2851519286632538
+          ]
+        },
+        "sourceBlend": "art-source/visual_flora/mat.blend",
+        "sourceBlendSha256": "cc4d9e5c08c96805411d6a364493d38acab56d36f3d58ba207d503af4cf6d5ee",
+        "seed": 231327,
+        "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+        "blender": "5.2.1 LTS",
+        "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+        "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+      },
+      "distant": {
+        "family": "mat",
+        "file": "godot/assets/visual_flora/mat_lod1.glb",
+        "sourceGlbSha256": "b28323714a86c0467ae9d54db707ddb502e00dc3cc5ca718c38863302b689f7d",
+        "sha256": "c0c1feb8a1b24ce72b511c1c67217ceff9747f414376dc36207d77eb3396eac0",
+        "bytes": 3986588,
+        "triangles": 20570,
+        "meshes": 5,
+        "materials": 5,
+        "decimationRatio": 0.24,
+        "blender": "5.2.1 LTS",
+        "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+        "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+        "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+      },
+      "source": {
+        "path": "art-source/visual_flora/mat.blend",
+        "bytes": 14860146,
+        "sha256": "cc4d9e5c08c96805411d6a364493d38acab56d36f3d58ba207d503af4cf6d5ee"
+      },
+      "renderEvidence": {
+        "path": "evidence/visual-upgrade-20260923/flora-authoring/mat-render.json",
+        "bytes": 2525,
+        "sha256": "f2a9bc132abf319179f1c746e643d3e8957f07fdb2dad0f3c18bfa12a1e993f1"
+      },
+      "images": [
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/mat-front.png",
+          "bytes": 1042991,
+          "sha256": "d88270c65440e64f6dfffe014ec8e1abe0a9ae51de08114df04e606c1be2cbce"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/mat-side.png",
+          "bytes": 1011921,
+          "sha256": "8d100643f7ef193ad2623f66137595ddc37ca673610b431d937ee07b401dbadf"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/mat-back.png",
+          "bytes": 1016977,
+          "sha256": "b6924a817fdd0881d3e41419d6b20150dd2aca1f4bbb90a50fdeb39d032d7782"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/mat-night.png",
+          "bytes": 1037192,
+          "sha256": "9560e0d541b346e0b057d8687b07420b442b738e37d75272ce52150cbb77ba0d"
+        }
+      ]
+    },
+    {
+      "family": "spores",
+      "description": "Overlapping inclined fan/accordion growths on a decaying mineral root, genuinely perforated hard crust, pale deep lamellae, mineralized lips and sparse rim organs.",
+      "high": {
+        "file": "godot/assets/visual_flora/spores.glb",
+        "bytes": 6015700,
+        "sha256": "682acf9a6a24a4248fcf2a4f2ad259300c78f632c9d0ecdf4fc7c72d1a14f384",
+        "triangles": 130290,
+        "vertices": 69727,
+        "meshNodes": 21,
+        "materials": 5,
+        "images": 12,
+        "normalMappedMaterials": 4,
+        "alphaModes": [
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE",
+          "OPAQUE"
+        ],
+        "missingUV": 0,
+        "missingNormals": 0,
+        "animations": 0,
+        "skins": 0,
+        "family": "spores",
+        "boundsBlenderXYZ": {
+          "min": [
+            -2.3628573417663574,
+            -1.1527469158172607,
+            -0.1872200220823288
+          ],
+          "max": [
+            2.356363296508789,
+            1.158764123916626,
+            1.8293490409851074
+          ],
+          "size": [
+            4.7192206382751465,
+            2.3115110397338867,
+            2.016569063067436
+          ]
+        },
+        "sourceBlend": "art-source/visual_flora/spores.blend",
+        "sourceBlendSha256": "4e200e9f9ee4d841238fa2146938333b1298e5e00284a2a1e8c9490f1740e8d6",
+        "seed": 231428,
+        "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+        "blender": "5.2.1 LTS",
+        "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+        "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+      },
+      "distant": {
+        "family": "spores",
+        "file": "godot/assets/visual_flora/spores_lod1.glb",
+        "sourceGlbSha256": "682acf9a6a24a4248fcf2a4f2ad259300c78f632c9d0ecdf4fc7c72d1a14f384",
+        "sha256": "be1f28469988fd7819f376aa77dc8a8d66720db71fa1673609d65e611a16acc5",
+        "bytes": 4215520,
+        "triangles": 31259,
+        "meshes": 5,
+        "materials": 5,
+        "decimationRatio": 0.24,
+        "blender": "5.2.1 LTS",
+        "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+        "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+        "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+      },
+      "source": {
+        "path": "art-source/visual_flora/spores.blend",
+        "bytes": 15349740,
+        "sha256": "4e200e9f9ee4d841238fa2146938333b1298e5e00284a2a1e8c9490f1740e8d6"
+      },
+      "renderEvidence": {
+        "path": "evidence/visual-upgrade-20260923/flora-authoring/spores-render.json",
+        "bytes": 2556,
+        "sha256": "52e2b7980964d1d0c8d1a4a998eb8978570296f3c7df81038f473e27b5911892"
+      },
+      "images": [
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/spores-front.png",
+          "bytes": 1056932,
+          "sha256": "bfd4321ab104d69c88c6cd4db53bee7094f60ba883f6fdf76d605a6a77cf1281"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/spores-side.png",
+          "bytes": 1020847,
+          "sha256": "7aec8494bd301497e4e2bf2e5700d7b7d7adedf67b41294820ca3d8bb0ad2c68"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/spores-back.png",
+          "bytes": 1085392,
+          "sha256": "ec2df67a141c0269ac3ddb07abc44c7ee08b8f6a352b8de5a82ec7f6c2a178dc"
+        },
+        {
+          "path": "evidence/visual-upgrade-20260923/flora-authoring/spores-night.png",
+          "bytes": 1020355,
+          "sha256": "f300eb59646dfa86e4ae70985162279916ed9e349773498efe24d157d60fb572"
+        }
+      ]
+    }
+  ],
+  "evidence": {
+    "binaryAudit": {
+      "path": "evidence/visual-upgrade-20260923/flora-authoring/glb-structural-audit.json",
+      "bytes": 62506,
+      "sha256": "f3125b2b20a628ddf59f71fcdcbc5cf8a891c0bd6db01ef147cce9e69335e7f6"
+    },
+    "nativeReadback": {
+      "path": "evidence/visual-upgrade-20260923/flora-authoring/blend-readback.json",
+      "bytes": 3946,
+      "sha256": "fa6ac65ceaeb637219da14416e533ff4952863c8fcf9472b9e7a75f05f3f3acb"
+    },
+    "neutralNightSheet": {
+      "path": "evidence/visual-upgrade-20260923/flora-authoring/neutral-night-contact.png",
+      "bytes": 2016978,
+      "sha256": "34de4a351e232c00db0716b4044ed25a0bd8d6637c473bb8143a92cd5d62aa9a"
+    },
+    "multiViewSheet": {
+      "path": "evidence/visual-upgrade-20260923/flora-authoring/neutral-multiview-contact.png",
+      "bytes": 2974967,
+      "sha256": "60c8328031b2ae65f186117cb405006713017c04edc70304a312198e1a63c201"
+    }
+  },
+  "remainingArtGaps": [
+    "Concept-level weathering, eroded hollows and fine moist microstructure remain richer than this authored kit.",
+    "Tissue uses standard alpha/opaque PBR, not physical subsurface/transmission. It needs target renderer lighting calibration.",
+    "Mat has a local flat contact footprint; conforming to real rock fractures requires scene placement/deformation, not blanket scattering.",
+    "Small pores, root overlays and repeated anatomy may simplify in distant forms. Final LOD distance and instancing decisions require actual Godot profile.",
+    "Offline blue-violet night studies prove the asset shape/material read in that setup; they do not prove the real game atmosphere or final reference similarity."
+  ]
+}

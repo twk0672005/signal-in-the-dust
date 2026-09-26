@@ -1,4 +1,6 @@
 extends CanvasLayer
+const ShowcaseMinimap = preload("res://scripts/showcase_minimap.gd")
+const ShowcaseWhispers = preload("res://scripts/showcase_whispers.gd")
 ## Bilingual expedition HUD. Every gameplay mutation is delegated through signals.
 signal continue_saved_requested
 signal start_requested
@@ -8,6 +10,8 @@ signal interact_requested
 signal encounter_selected(region: String)
 signal locale_changed(value: String)
 signal settings_changed(config: Dictionary)
+signal menu_requested
+signal explore_requested
 
 const PAPER := Color("eee8dc")
 const MUTED := Color("b1aa9c")
@@ -120,7 +124,7 @@ const COPY := {
 	"intro": ["Something beneath the storm is listening.\nFollow its signal. Let it hear you.", "風暴之下，有什麼正在聆聽。\n循著訊號前進，讓它聽見你。"],
 	"duration": ["Explore the four regions. Stop and listen.", "探索四大地區，停車聆聽生命。"],
 	"begin": ["Begin expedition", "開始探勘"],
-	"controls": ["WASD / arrows   Drive     SPACE   Brake\nRight-drag   Look     V   Camera     E   Observe / transmit\nJ   Journal     ESC   Pause", "WASD / 方向鍵   駕駛     空白鍵   煞車\n按住滑鼠右鍵拖曳   環顧     V   視角     E   觀察／發送\nJ   日誌     ESC   暫停"],
+	"controls": ["WASD / arrows   Drive     SHIFT   Boost     SPACE   Brake\nRight-drag   Look     V   Camera     E   Observe / transmit\nJ   Journal     ESC   Pause", "WASD / 方向鍵   駕駛     SHIFT   加速     空白鍵   煞車\n按住滑鼠右鍵拖曳   環顧     V   視角     E   觀察／發送\nJ   日誌     ESC   暫停"],
 	"volume": ["Sound", "音量"],
 	"motion": ["Reduced motion", "減少動態效果"],
 	"quality": ["Low graphics", "低畫質"],
@@ -149,7 +153,7 @@ const COPY := {
 	"journal_complete": ["COMPLETE", "已完成"],
 	"journal_track": ["TRACK", "追蹤"],
 	"journal_tracking": ["TRACKING", "追蹤中"],
-	"journal_track_surveys": ["TRACK MAIN SURVEYS", "追蹤主線測繪"],
+	"journal_track_surveys": ["CLEAR GUIDE MARKER", "清除引導標記"],
 	"journal_back": ["ESC · BACK TO EXPEDITION", "ESC · 返回探勘"],
 	"confirm_reset": ["Return to the beginning?", "返回旅程起點？"],
 	"reset_detail": ["Your current expedition will restart.\nYour language and settings will be kept.", "目前的探勘進度將會重置。\n語言與設定會保留。"],
@@ -163,9 +167,24 @@ const COPY := {
 	"ecology_observed": ["The organism changes its rhythm.", "生物改變了節奏。"],
 	"pause_hint": ["ESC  Pause · J  Journal", "ESC  暫停 · J  日誌"],
 	"muted": ["Muted", "靜音"],
+	"keep_exploring": ["Keep exploring", "繼續探索"],
+	"author_contact": ["Suggestions or collaboration · Contact the author", "有建議／合作，歡迎聯絡作者"],
+	"desktop_detail": ["Desktop offers richer visual detail. Low detail keeps mobile play lighter.", "電腦版可呈現更豐富的畫面細節；手機可選低畫質。"],
+	"whispers": ["Explorer whispers", "探索悄悄話"],
+	"settings_title": ["Expedition settings", "探索設定"],
+	"open_settings": ["Settings", "設定"],
+	"back_to_pause": ["Back", "返回暫停選單"],
+	"whisper_aurora_shelf": ["Take your time. Hold W to drive; the pale ridge opens ahead.", "慢慢來。按住 W 前進，沿著眼前的淺色岩脊探索。"],
+	"whisper_ember_rift": ["Warmth gathers in these cracks. Quiet movement brings life closer.", "暖意聚在岩縫之間。安靜靠近，你會看見更多生命。"],
+	"whisper_veil_marsh": ["Look above the water. The membranes are catching the light.", "看看水面上方，薄膜正接住遠處的微光。"],
+	"whisper_pale_decay": ["Even fallen roots shelter life. Watch the folds near the ground.", "倒下的根仍庇護著生命，留意貼地的細褶。"],
+	"whisper_disturbed": ["A little more space. Stop and let them settle.", "留多一點空間，停低讓牠們安定下來。"],
+	"whisper_aeral": ["An Aeral is close. Slow down and watch its wings.", "附近有 Aeral。慢下來，看看牠的翼。"],
+	"whisper_veyra": ["Veyra are feeding nearby. Give their heavy feet room.", "Veyra 正在附近覓食，給牠們的步伐留點空間。"],
+	"whisper_morrow": ["A shell is opening. Something quiet is happening below it.", "殼正在展開，下面有細小而安靜的變化。"],
 }
 
-var _config: Dictionary = {"locale": "en", "volume": 0.65, "reduced_motion": false, "low_quality": false}
+var _config: Dictionary = {"locale": "en", "volume": 0.65, "reduced_motion": false, "low_quality": false, "whispers": true}
 var _mobile := false
 var _state := "menu"
 var _saved_available := false
@@ -202,6 +221,12 @@ var _distance := 0.0
 var _elapsed := 0.0
 var _progress := 0.0
 var _can_interact := false
+var _minimap: Control
+var _map_road := PackedVector2Array()
+var _map_context: Dictionary = {}
+var _region_label: Label
+var _guidance = ShowcaseWhispers.new()
+var _whisper_chime: AudioStreamPlayer
 
 func _ready() -> void:
 	_mobile = OS.has_feature("web") and bool(JavaScriptBridge.eval("window.__EXPEDITION_TOUCH__ === true",true))
@@ -215,7 +240,17 @@ func _ready() -> void:
 		_config.volume = clampf(float(saved.get_value("settings", "volume", 0.65)), 0.0, 1.0)
 		_config.reduced_motion = bool(saved.get_value("settings", "reduced_motion", false))
 		_config.low_quality = bool(saved.get_value("settings", "low_quality", _mobile))
+		_config.whispers = bool(saved.get_value("settings", "whispers", true))
+	_whisper_chime = AudioStreamPlayer.new()
+	_whisper_chime.stream = load("res://assets/audio/whisper.wav")
+	_whisper_chime.playback_type = AudioServer.PLAYBACK_TYPE_SAMPLE if OS.has_feature("web") else AudioServer.PLAYBACK_TYPE_STREAM
+	add_child(_whisper_chime)
 	_build()
+
+func _exit_tree() -> void:
+	if is_instance_valid(_whisper_chime):
+		_whisper_chime.stop()
+		_whisper_chime.stream = null
 
 func _text(key: String) -> String:
 	if not COPY.has(key):
@@ -224,6 +259,22 @@ func _text(key: String) -> String:
 
 func get_settings() -> Dictionary:
 	return _config.duplicate()
+
+func current_state() -> String:
+	return _state
+
+func apply_startup_settings(overrides: Dictionary) -> void:
+	# The web bridge validates these explicit overrides. Unchanged preferences stay saved.
+	if overrides.is_empty(): return
+	for key in overrides:
+		if _config.has(key): _config[key] = overrides[key]
+	_save_settings()
+	locale_changed.emit(str(_config.locale))
+	_build()
+
+func _cancel_new() -> void:
+	show_state("menu")
+	menu_requested.emit()
 
 func _save_settings() -> void:
 	var saved := ConfigFile.new()
@@ -256,6 +307,8 @@ func _build() -> void:
 	if ResourceLoader.exists(FONT_PATH):
 		theme.default_font = load(FONT_PATH)
 	theme.default_font_size = 16
+	theme.set_icon("checked", "CheckButton", load("res://assets/ui/toggle-on.svg"))
+	theme.set_icon("unchecked", "CheckButton", load("res://assets/ui/toggle-off.svg"))
 	theme.set_color("font_color", "Label", PAPER)
 	for type_name in ["Button", "CheckButton"]:
 		theme.set_color("font_color", type_name, PAPER)
@@ -306,10 +359,11 @@ func _build_hud() -> void:
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(left)
-	if not _mobile: left.add_child(_label(_text("goal"), 14, AMBER))
+	_region_label = _label("", 13, SIGNAL)
+	left.add_child(_region_label)
 	_distance_label = _label("", 25)
 	left.add_child(_distance_label)
-	_distance_label.visible = not _mobile
+	_distance_label.visible = false
 	_speed_label = _label("", 16, PAPER)
 	left.add_child(_speed_label)
 	_speed_bar = ProgressBar.new()
@@ -325,21 +379,27 @@ func _build_hud() -> void:
 	_activity_label.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
 	_activity_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	left.add_child(_activity_label)
+	_activity_label.visible = false
 	var right := VBoxContainer.new()
 	top.add_child(right)
-	right.visible = not _mobile
-	var storm := _label(_text("storm"), 12)
-	storm.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	right.add_child(storm)
-	var status := _label(_text("rover"), 12, MUTED)
-	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	right.add_child(status)
+	if _mobile:
+		var touch_space := Control.new()
+		touch_space.custom_minimum_size.y = 42
+		right.add_child(touch_space)
+	_minimap = ShowcaseMinimap.new()
+	_minimap.name = "ExplorerMinimap"
+	_minimap.custom_minimum_size = Vector2(118, 118) if _mobile else Vector2(168, 168)
+	_minimap.set_road(_map_road)
+	right.add_child(_minimap)
 	var hint := _label(_text("pause_hint"), 12, MUTED)
+	hint.visible = not _mobile
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(hint)
 	_view_label = _label("", 12, AMBER)
 	_view_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(_view_label)
+	if not _map_context.is_empty():
+		_minimap.set_navigation(_map_context.position, _map_context.heading, _map_context.target, _map_context.has_target)
 	_reticle = _label("·", 24, Color(0.93, 0.91, 0.86, 0.35))
 	_reticle.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_reticle.offset_left = -12
@@ -356,12 +416,15 @@ func _build_hud() -> void:
 	bottom.offset_bottom = -76 if _mobile else -40
 	bottom.add_theme_constant_override("separation", 8)
 	_hud.add_child(bottom)
-	_message = _label(_text(_message_key), 14)
+	_message = _label(_guidance.message, 14 if _mobile else 17)
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_message.visible = not _guidance.key.is_empty()
 	bottom.add_child(_message)
 	_ecology_label = _label("", 12, MUTED)
 	_ecology_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	bottom.add_child(_ecology_label)
+	_ecology_label.visible = false
 	_interaction = _button("transmit", func() -> void: interact_requested.emit())
 	_interaction.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_interaction.custom_minimum_size.x = 260
@@ -398,11 +461,13 @@ func _build_overlay() -> void:
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
 	panel.offset_left = 20 if _mobile else 64
 	panel.offset_right = 490 if _mobile else 534
-	var desired_panel_height := 580.0 if _state == "menu" else (640.0 if _state == "journal" else 470.0)
+	if _mobile and _state == "settings":
+		panel.offset_right = minf(780.0, get_viewport().get_visible_rect().size.x - 20.0)
+	var desired_panel_height := 720.0 if _state in ["menu", "settings"] else (640.0 if _state == "journal" else 560.0)
 	var panel_height := minf(desired_panel_height, maxf(320.0, get_viewport().get_visible_rect().size.y - 48.0))
 	panel.offset_top = -panel_height * 0.5
 	panel.offset_bottom = panel_height * 0.5
-	panel.add_theme_stylebox_override("panel", _style(Color(0.055, 0.063, 0.064, 0.88), Color(0.55, 0.48, 0.36, 0.30), 26))
+	panel.add_theme_stylebox_override("panel", _style(Color(0.055, 0.063, 0.064, 0.88), Color(0.55, 0.48, 0.36, 0.30), 20 if _mobile else 26))
 	_overlay.add_child(panel)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -412,9 +477,10 @@ func _build_overlay() -> void:
 	panel.add_child(scroll)
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	column.add_theme_constant_override("separation", 13)
+	column.add_theme_constant_override("separation", 8 if _mobile else 13)
 	scroll.add_child(column)
-	column.add_child(_label(_text("edition"), 12, AMBER))
+	if not (_mobile and _state == "settings"):
+		column.add_child(_label(_text("edition"), 12, AMBER))
 	if _clear_failed or _write_failed:
 		var warning:=_label(_text("save_clear_failed" if _clear_failed else "save_write_failed"),13,AMBER)
 		warning.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
@@ -437,13 +503,37 @@ func _build_overlay() -> void:
 		_build_settings(column)
 		column.add_child(_label(_text("headphones"), 12, MUTED))
 	elif _state == "paused":
-		column.add_child(_label(_text("paused"), 28))
+		column.add_child(_label(_text("paused"), 24 if _mobile else 28))
+		var actions: Container = column
+		if _mobile:
+			var grid := GridContainer.new()
+			grid.columns = 2
+			grid.add_theme_constant_override("h_separation", 8)
+			grid.add_theme_constant_override("v_separation", 8)
+			column.add_child(grid)
+			actions = grid
 		primary = _button("resume", func() -> void: resume_requested.emit())
-		column.add_child(primary)
-		column.add_child(_button("journal", func() -> void: show_state("journal")))
-		column.add_child(_button("restart", func() -> void: show_state("confirm_reset")))
+		actions.add_child(primary)
+		actions.add_child(_button("journal", func() -> void: show_state("journal")))
+		actions.add_child(_button("open_settings", func() -> void: show_state("settings")))
+		actions.add_child(_button("restart", func() -> void: show_state("confirm_reset")))
+		if _mobile:
+			for button in actions.get_children(): button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var author := _label(_text("author_contact"), 12 if _mobile else 15, PAPER)
+		author.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		column.add_child(author)
+		var email := LinkButton.new()
+		email.text = "TWK0672005@gmail.com"
+		email.uri = "mailto:TWK0672005@gmail.com"
+		email.custom_minimum_size.y = 32 if _mobile else 36
+		email.focus_mode = Control.FOCUS_ALL
+		column.add_child(email)
+		column.add_child(_label(("Touch controls · landscape · Crawl for observation" if _config.locale == "en" else "橫向遊玩 · 觸控駕駛 · 慢行觀察") if _mobile else _text("controls"), 12 if _mobile else 16, PAPER))
+	elif _state == "settings":
+		column.add_child(_label(_text("settings_title"), 24 if _mobile else 28))
 		_build_settings(column)
-		column.add_child(_label(("Touch controls · landscape · Crawl for observation" if _config.locale == "en" else "橫向遊玩 · 觸控駕駛 · 慢行觀察") if _mobile else _text("controls"), 12, MUTED))
+		primary = _button("back_to_pause", func() -> void: show_state("paused"))
+		column.add_child(primary)
 	elif _state == "journal":
 		column.add_child(_label(_text("journal_title"), 28))
 		var brief := _label(_text("journal_brief"), 13, MUTED)
@@ -459,7 +549,7 @@ func _build_overlay() -> void:
 	elif _state == "confirm_new":
 		column.add_child(_label(_text("confirm_reset"),25))
 		column.add_child(_label(_text("reset_detail"),14,MUTED))
-		primary = _button("cancel", func() -> void: show_state("menu"))
+		primary = _button("cancel", _cancel_new)
 		column.add_child(primary)
 		column.add_child(_button("confirm", func() -> void: reset_requested.emit()))
 	elif _state == "confirm_reset":
@@ -472,16 +562,30 @@ func _build_overlay() -> void:
 		column.add_child(_label(_text("recorded"), 12, SIGNAL))
 		column.add_child(_label(_text("ending"), 34))
 		column.add_child(_label(_text("ending_sub"), 16))
-		primary = _button("replay", func() -> void: reset_requested.emit())
+		primary = _button("keep_exploring", func() -> void: explore_requested.emit())
 		column.add_child(primary)
 		column.add_child(_label("%02d:%02d" % [int(_elapsed) / 60, int(_elapsed) % 60], 12, MUTED))
 	if is_instance_valid(primary):
 		primary.call_deferred("grab_focus")
 
 func _build_settings(parent: VBoxContainer) -> void:
+	var detail_notice := _label(_text("desktop_detail"), 12 if _mobile else 15, PAPER)
+	detail_notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	parent.add_child(detail_notice)
+	var preferences := parent
+	var option_parent: Container = parent
+	if _mobile and _state == "settings":
+		var sections := HBoxContainer.new()
+		sections.add_theme_constant_override("separation", 24)
+		parent.add_child(sections)
+		preferences = VBoxContainer.new()
+		preferences.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		preferences.add_theme_constant_override("separation", 12)
+		sections.add_child(preferences)
+		option_parent = sections
 	var language := HBoxContainer.new()
 	language.add_theme_constant_override("separation", 10)
-	parent.add_child(language)
+	preferences.add_child(language)
 	for code in ["en", "zh_TW"]:
 		var button := Button.new()
 		button.text = "English" if code == "en" else "繁體中文"
@@ -492,7 +596,7 @@ func _build_settings(parent: VBoxContainer) -> void:
 		language.add_child(button)
 	var sound_row := HBoxContainer.new()
 	sound_row.add_theme_constant_override("separation", 16)
-	parent.add_child(sound_row)
+	preferences.add_child(sound_row)
 	sound_row.add_child(_label(_text("volume"), 14))
 	var volume := HSlider.new()
 	volume.name = "Volume"
@@ -511,9 +615,10 @@ func _build_settings(parent: VBoxContainer) -> void:
 		_config.volume = value
 		value_label.text = "%d%%" % roundi(value * 100.0)
 		_save_settings())
-	var options := HBoxContainer.new()
-	parent.add_child(options)
-	for pair in [["reduced_motion", "motion"], ["low_quality", "quality"]]:
+	var options := VBoxContainer.new()
+	options.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	option_parent.add_child(options)
+	for pair in [["reduced_motion", "motion"], ["low_quality", "quality"], ["whispers", "whispers"]]:
 		var check := CheckButton.new()
 		check.text = _text(pair[1])
 		check.add_theme_font_size_override("font_size", 14)
@@ -560,6 +665,10 @@ func _change_locale(value: String) -> void:
 
 func _toggle_setting(value: bool, key: String) -> void:
 	_config[key] = value
+	if key == "whispers" and not value:
+		_guidance.clear()
+		_whisper_chime.stop()
+		_refresh_whisper()
 	_save_settings()
 
 func set_write_failed(value: bool) -> void:
@@ -578,14 +687,23 @@ func set_saved_available(value: bool, failed: bool = false) -> void:
 	if _state == "menu" and is_instance_valid(_root): _build()
 
 func show_state(state: String) -> void:
-	if not state in ["menu", "arrival", "exploring", "contact", "ending", "paused", "journal", "confirm_reset", "confirm_new"]:
+	if not state in ["menu", "arrival", "exploring", "contact", "ending", "paused", "settings", "journal", "confirm_reset", "confirm_new"]:
 		return
 	_state = state
+	if state not in ["exploring", "contact"] and is_instance_valid(_whisper_chime): _whisper_chime.stop()
 	if is_instance_valid(_root):
 		_build()
 
 func set_journal_context(data: Dictionary) -> void:
 	_journal_context = data.duplicate(true)
+
+func set_map_road(points: PackedVector2Array) -> void:
+	_map_road = points
+	if is_instance_valid(_minimap): _minimap.set_road(points)
+
+func set_navigation(point: Vector2, heading: float, target: Vector2, has_target: bool) -> void:
+	_map_context = {"position": point, "heading": heading, "target": target, "has_target": has_target}
+	if is_instance_valid(_minimap): _minimap.set_navigation(point, heading, target, has_target)
 
 func update_readout(distance: float, elapsed: float, contact_progress: float, can_interact: bool, speed_mps: float = 0.0, max_speed_mps: float = 8.0, view_mode: String = "first_person", ecology_state: Dictionary = {}) -> void:
 	_speed_mps = speed_mps
@@ -600,8 +718,11 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 		return
 	_distance_label.text = "%03d m" % roundi(_distance)
 	_speed_label.text = "%s  %.1f m/s  ·  %d km/h%s" % [_text("speed_label"), absf(speed_mps), roundi(absf(speed_mps)*3.6), "  R" if speed_mps < -0.05 else ""]
+	var boosting: bool = Input.is_action_pressed("drive_boost") and Input.get_axis("drive_reverse", "drive_forward") > 0.1 and not Input.is_action_pressed("brake") and _state == "exploring"
+	if boosting: _speed_label.text += "  ·  " + ("BOOST" if _config.locale == "en" else "加速")
+	_speed_label.modulate = Color(0.65, 0.93, 1.0) if boosting else Color.WHITE
 	_speed_bar.value = clampf(absf(speed_mps) / maxf(max_speed_mps, 0.1), 0.0, 1.0)
-	_view_label.text = "%s  %s  [V]" % [_text("view_label"), _text("first_person_label" if view_mode == "first_person" else "third_person_label")]
+	_view_label.text = "%s  %s%s" % [_text("view_label"), _text("first_person_label" if view_mode == "first_person" else "third_person_label"), "" if _mobile else "  [V]"]
 	if not ecology_state.is_empty():
 		var active := []
 		for key in ["veyra", "aeral", "rootChoir"]:
@@ -619,51 +740,45 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 
 func set_activity_progress(done: int, optional_done: int, field_done: int, region: String, target: String = "", distance: float = 0.0, quiet: float = 0.0, bearing: float = 0.0) -> void:
 	_activity_context={"done":done,"optional":optional_done,"field":field_done,"region":region,"target":target,"distance":distance,"quiet":quiet,"bearing":bearing}
+	if is_instance_valid(_region_label): _region_label.text = _text(region)
 	_render_activity_context()
 
 func _render_activity_context() -> void:
-	if not is_instance_valid(_activity_label) or _activity_context.is_empty(): return
-	var d:=_activity_context
-	var lines: String=(_text("survey_count") % [d.done,d.optional])+"  "+(_text("field_count") % d.get("field",0))
-	lines+="\n"+_text(d.region)
-	if not str(d.target).is_empty():
-		var direction := "^" if absf(d.bearing)<0.25 else (">" if d.bearing>0 else "<")
-		lines+="\n"+direction+" "+_text("site_"+str(d.target))+" · %d m" % roundi(d.distance)
-		if d.target=="aurora_shelf" and d.distance<=7.0:
-			lines+="\n"+(_text("survey_quiet") % snappedf(d.quiet,0.1))
-	else: lines+="\n"+_text("survey_region_done")
-	if not _resonance_context.is_empty():
-		var r:=_resonance_context
-		lines+="\n\n"+(_text("resonance_title") % mini(3,int(r.round_index)+1))
-		lines+="\n"+(_text("resonance_answer") % [r.matched,r.length] if r.phase=="answer" else _text("resonance_"+str(r.phase)))
-		if int(r.get("band",-1))>=0: lines+="\n"+(_text("resonance_band") % (int(r.band)+1))
-		if r.get("feedback","")=="retry": lines+="\n"+_text("resonance_retry")
-		if r.phase!="solved": lines+="\n"+_text("resonance_leave")
-	if not _escort_context.is_empty():
-		var e:=_escort_context
-		lines+="\n\n"+_text("escort_title")+"\n"+_text("escort_"+str(e.phase)+("_cool" if e.get("route","warm")=="cool" and e.phase in ["idle","complete"] else ""))
-		if e.phase!="complete": lines+="\n"+(_text("escort_distance") % roundi(e.distance))
-	if not _passage_context.is_empty():
-		var p:=_passage_context
-		lines+="\n\n"+(_text("passage_title") % int(p.gate))+"\n"+_text("passage_"+str(p.phase))
-		if p.phase!="complete":
-			var arrow: String="^" if absf(p.bearing)<0.25 else (">" if p.bearing>0 else "<")
-			lines+="\n"+arrow+" "+(_text("passage_distance") % roundi(p.distance))
-	if not _root_network_context.is_empty():
-		var network:=_root_network_context
-		lines+="\n\n"+(_text("root_title") % network.powered)+"\n"+_text("root_complete" if network.complete else "root_ready" if network.powered==3 else "root_hint")
-		if not network.complete:
-			var arrow: String="^" if absf(network.bearing)<0.25 else (">" if network.bearing>0 else "<")
-			lines+="\n"+arrow+" "+(_text("root_distance") % roundi(network.distance))
-			if network.near>=0: lines+="\n"+(_text("root_port") % [network.near+1,network.ports[network.near]+1])
-	if not _thermal_context.is_empty() and not _thermal_context.locked:
-		var t:=_thermal_context
-		lines+="\n\n"+_text("thermal_title")+"\n"+_text("thermal_"+str(t.route) if t.vent_observed else "thermal_watch" if t.near else "thermal_hint")
-		var arrow: String="^" if absf(t.bearing)<0.25 else (">" if t.bearing>0 else "<")
-		lines+="\n"+arrow+" "+(_text("thermal_distance") % roundi(t.distance))
-	if not _wetland_context.is_empty():
-		lines+="\n\n"+_text("study_title")+"\n"+_text("study_"+str(_wetland_context.phase))
-	_activity_label.text=lines
+	# Focus on the currently actionable encounter, never concatenate the task inventory.
+	if is_instance_valid(_activity_label): _activity_label.text = ""
+	if is_instance_valid(_region_label) and not _activity_context.is_empty():
+		_region_label.text = _text(str(_activity_context.region))
+	if _state != "exploring": return
+	var key := ""
+	var text := ""
+	var importance := 80
+	var refresh := true
+	if not _resonance_context.is_empty() and _resonance_context.phase in ["listening", "answer"]:
+		var r := _resonance_context
+		key = "resonance_" + str(r.phase)
+		text = _text(key) % [r.matched, r.length] if r.phase == "answer" else _text(key)
+		key += ":" + str(r.round_index)
+	elif not _escort_context.is_empty() and _escort_context.phase in ["travelling", "alarmed", "waiting"]:
+		key = "escort_" + str(_escort_context.phase)
+		text = _text(key)
+	elif not _passage_context.is_empty() and _passage_context.phase in ["crossing", "scattered"]:
+		key = "passage_" + str(_passage_context.phase)
+		text = _text(key)
+	elif not _root_network_context.is_empty() and not _root_network_context.complete and int(_root_network_context.near) >= 0:
+		var r := _root_network_context
+		key = "root_port:" + str(r.near)
+		text = _text("root_port") % [r.near + 1, r.ports[r.near] + 1]
+	elif not _thermal_context.is_empty() and not _thermal_context.locked and _thermal_context.get("near", false):
+		key = "thermal_watch" if not _thermal_context.vent_observed else "thermal_" + str(_thermal_context.route)
+		text = _text(key)
+		importance = 35
+		refresh = false
+	elif not _wetland_context.is_empty() and _wetland_context.phase in ["alarm", "quiet", "return"]:
+		key = "study_" + str(_wetland_context.phase)
+		text = _text(key)
+		importance = 35
+		refresh = false
+	if not key.is_empty(): _offer_whisper(key, text, importance, 6.0, 12.0, refresh)
 
 func set_resonance_context(data: Dictionary) -> void:
 	_resonance_context=data
@@ -696,10 +811,46 @@ func set_interaction_kind(kind: String) -> void:
 
 func set_message(key: String) -> void:
 	_message_key = key
-	if is_instance_valid(_message):
-		_message.text = _text(key)
+	if key in ["survey_guidance", "field_guidance", "survey_all"]: return
+	var importance := 100 if key in ["save_write_failed", "save_clear_failed"] else 50
+	_offer_whisper(key, _text(key), importance, 7.0, 8.0)
+
+func reset_guidance() -> void:
+	_guidance.reset()
+	_refresh_whisper()
+
+func tick_guidance(delta: float) -> void:
+	if _state not in ["exploring", "contact"]: return
+	_guidance.advance(delta)
+	_refresh_whisper()
+
+func suggest_guidance(region: String, ecology: Dictionary) -> void:
+	if _state != "exploring": return
+	if "disturbed" in ecology.values():
+		_offer_whisper("whisper_disturbed", _text("whisper_disturbed"), 60, 6.0, 25.0)
+	elif ecology.get("aeral", "quiet") == "near":
+		_offer_whisper("whisper_aeral", _text("whisper_aeral"), 25, 6.0, 100.0)
+	elif ecology.get("veyra", "quiet") == "near":
+		_offer_whisper("whisper_veyra", _text("whisper_veyra"), 25, 6.0, 100.0)
+	elif ecology.get("rootChoir", "quiet") == "near":
+		_offer_whisper("whisper_morrow", _text("whisper_morrow"), 25, 6.0, 100.0)
+	_offer_whisper("whisper_" + region, _text("whisper_" + region), 20, 7.0, 240.0)
+
+func _offer_whisper(key: String, text: String, importance: int, duration: float, cooldown: float, refresh: bool = false) -> void:
+	if not bool(_config.get("whispers", true)) and importance < 80: return
+	var is_new: bool = _guidance.offer(key, text, importance, duration, cooldown, refresh)
+	if is_new and importance < 50 and _state == "exploring" and float(_config.volume) > 0.0:
+		_whisper_chime.volume_db = linear_to_db(float(_config.volume) * 0.08)
+		_whisper_chime.play()
+	_refresh_whisper()
+
+func _refresh_whisper() -> void:
+	if not is_instance_valid(_message): return
+	_message.text = _guidance.message
+	_message.visible = not _guidance.key.is_empty()
+	_message.modulate.a = 1.0 if bool(_config.reduced_motion) else clampf((_guidance.expires - _guidance.clock) / 1.2, 0.0, 1.0)
 
 func set_view_message(view_mode: String) -> void:
 	_view_mode = view_mode
 	if is_instance_valid(_view_label):
-		_view_label.text = "%s  %s  [V]" % [_text("view_label"), _text("first_person_label" if view_mode == "first_person" else "third_person_label")]
+		_view_label.text = "%s  %s%s" % [_text("view_label"), _text("first_person_label" if view_mode == "first_person" else "third_person_label"), "" if _mobile else "  [V]"]

@@ -1,0 +1,503 @@
+{
+  "timestampUtc": "2026-09-24T01:49:01.525602+00:00",
+  "status": "STRUCTURAL_READBACK_PASS; OFFLINE_EXPORTED_GLB_IMAGES_COMPLETE; INDEPENDENT_ART_REVIEW_PENDING",
+  "worldExpansionVerdict": "NO-SHIP pending fresh independent review; helper does not approve its own art.",
+  "scope": "Only one reconstructed canopy and one representative sail. No other family or runtime change.",
+  "preservedBaselineFiles": 18,
+  "baselineHashesUnchanged": true,
+  "constructionChange": "Fused volumetric root/branch scaffold replaces overlapping tube columns and separate bark flakes; tensioned thin tissue between curved load rays replaces inflated parallel pleats.",
+  "blender": "5.2.1 LTS, build 9e2066aef7ef",
+  "assets": [
+    {
+      "name": "canopy",
+      "model": {
+        "family": "canopy",
+        "revision": "b",
+        "blender": "5.2.1 LTS",
+        "processId": 39972,
+        "executable": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+        "scriptSha256": "a374a75ff8eb22f237fc57a2a0fcb97a432c3381f548893106d59c959195565f",
+        "utilityScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+        "sourceBlend": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\canopy.blend",
+        "sourceBlendSha256": "b3db0ae0b0aa7cdbffae110738a82b471f04b5bd23404831f71e2dbdbf696fc0",
+        "file": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\canopy.glb",
+        "sha256": "bda00bda4e0992c2438f3f29b27be70b77080d556b53abb27ab27e9e2e3d9fe9",
+        "bytes": 13560716,
+        "triangles": 224369,
+        "meshCount": 4,
+        "materials": 4,
+        "images": 9,
+        "missingUV": 0,
+        "missingVertexVariation": 0,
+        "boundsBlenderXYZ": {
+          "min": [
+            -12.659032821655273,
+            -7.803428649902344,
+            -0.7200794816017151
+          ],
+          "max": [
+            13.511662483215332,
+            11.75373363494873,
+            22.635887145996094
+          ],
+          "size": [
+            26.170695304870605,
+            19.557162284851074,
+            23.35596662759781
+          ]
+        },
+        "sculptReferenceFaces": 243476,
+        "construction": {
+          "body": "SM_Canopy_ContinuousHollowGrowth",
+          "voxel": 0.085,
+          "ratio": 0.42,
+          "construction": "Continuous fused hollow rib trunk; 3 unequal root systems; inclined load braces; 9 radial crown rays with membrane bays spanning those exact rays; no separate bark flakes or hanging crown card."
+        },
+        "license": "Original local geometry and heightfield-authored raster PBR maps. No external assets. Concept is supplied project reference only.",
+        "status": "EXPORTED_FOR_GLTF_REIMPORT_VISUAL_REVIEW; NOT runtime or art acceptance"
+      },
+      "sourceReadback": {
+        "family": "canopy",
+        "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\canopy.blend",
+        "sha256": "b3db0ae0b0aa7cdbffae110738a82b471f04b5bd23404831f71e2dbdbf696fc0",
+        "exportMeshes": 4,
+        "preservedSculptMeshes": 2,
+        "sculptsHiddenFromRender": true,
+        "missingUV": 0,
+        "missingGrowthColor": 0,
+        "nonIdentityScale": [],
+        "units": "METRIC",
+        "scaleLength": 1.0,
+        "actions": 0
+      },
+      "render": {
+        "asset": "canopy",
+        "revision": "b",
+        "sourceGlb": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\canopy.glb",
+        "sourceSha256": "bda00bda4e0992c2438f3f29b27be70b77080d556b53abb27ab27e9e2e3d9fe9",
+        "blender": "5.2.1 LTS",
+        "executable": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+        "processId": 38744,
+        "renderer": "Cycles CPU 6 threads, 32 samples, denoising. Offline GLB review; not Godot.",
+        "imageSize": [
+          1200,
+          1200
+        ],
+        "groundZ": 0,
+        "images": [
+          {
+            "file": "canopy-front.png",
+            "view": "front",
+            "emissionEnabled": false,
+            "camera": [
+              11.67971420288086,
+              -45.13209915161133,
+              8.24815559387207
+            ],
+            "target": [
+              0.4263148307800293,
+              1.9751524925231934,
+              10.865225791931152
+            ],
+            "orthoScale": 29.57288677215576,
+            "sha256": "f7253843e8cd52e474663834b237bb423b4abbbe329a322650e7a69d3a38124b"
+          },
+          {
+            "file": "canopy-side.png",
+            "view": "side",
+            "emissionEnabled": false,
+            "camera": [
+              50.150638580322266,
+              9.826361656188965,
+              13.482295989990234
+            ],
+            "target": [
+              0.4263148307800293,
+              1.9751524925231934,
+              10.865225791931152
+            ],
+            "orthoScale": 29.57288677215576,
+            "sha256": "5107fda8da9685b28ae69db9d02e364eae1b9fd895dfe482002798b2b995ee93"
+          },
+          {
+            "file": "canopy-back.png",
+            "view": "back",
+            "emissionEnabled": false,
+            "camera": [
+              -11.35049819946289,
+              50.39094161987305,
+              12.173760414123535
+            ],
+            "target": [
+              0.4263148307800293,
+              1.9751524925231934,
+              10.865225791931152
+            ],
+            "orthoScale": 29.57288677215576,
+            "sha256": "bfc437e5ec4955bc58f7cf96d4f68b9eaa9c2818ef458e6acd6d26351dccf50b"
+          },
+          {
+            "file": "canopy-night.png",
+            "view": "night",
+            "emissionEnabled": true,
+            "camera": [
+              11.67971420288086,
+              -45.13209915161133,
+              8.24815559387207
+            ],
+            "target": [
+              0.4263148307800293,
+              1.9751524925231934,
+              10.865225791931152
+            ],
+            "orthoScale": 29.57288677215576,
+            "sha256": "50dcba5369b4977e79c4c09e26ee356ced26256ff181fdc3cb63421fdb097060"
+          },
+          {
+            "file": "canopy-support_detail.png",
+            "view": "support_detail",
+            "emissionEnabled": false,
+            "camera": [
+              -0.9500002861022949,
+              -23.399999618530273,
+              10.350000381469727
+            ],
+            "target": [
+              -6.800000190734863,
+              0.0,
+              5.800000190734863
+            ],
+            "orthoScale": 13,
+            "sha256": "b8abdbff4fc043ec8a2775cedb1894dc03ea0072c1de1c2390a770f4570e6551"
+          },
+          {
+            "file": "canopy-tissue_detail.png",
+            "view": "tissue_detail",
+            "emissionEnabled": false,
+            "camera": [
+              8.5,
+              -37.5,
+              24.5
+            ],
+            "target": [
+              -0.5,
+              -1.5,
+              17.5
+            ],
+            "orthoScale": 20,
+            "sha256": "a1b1461cb5344daef677a723875f087e1e65f613acd292b3dcd25fae53c1e251"
+          }
+        ]
+      }
+    },
+    {
+      "name": "sails",
+      "model": {
+        "family": "sails",
+        "revision": "b",
+        "blender": "5.2.1 LTS",
+        "processId": 39972,
+        "executable": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+        "scriptSha256": "a374a75ff8eb22f237fc57a2a0fcb97a432c3381f548893106d59c959195565f",
+        "utilityScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+        "sourceBlend": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\sails.blend",
+        "sourceBlendSha256": "62b60edf3e75f9d69bb425d48b032948303753e8579c0ec97a79d7f427b21414",
+        "file": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\sails.glb",
+        "sha256": "4dd0f8dd90fbc38f13c8315661da34ac2d6caeaa1a0171b9f732a5bc06ea1365",
+        "bytes": 10790952,
+        "triangles": 152446,
+        "meshCount": 4,
+        "materials": 4,
+        "images": 9,
+        "missingUV": 0,
+        "missingVertexVariation": 0,
+        "boundsBlenderXYZ": {
+          "min": [
+            -1.51603102684021,
+            -1.3751252889633179,
+            -0.26203081011772156
+          ],
+          "max": [
+            3.969478130340576,
+            1.2377580404281616,
+            7.727597713470459
+          ],
+          "size": [
+            5.485509157180786,
+            2.6128833293914795,
+            7.9896285235881805
+          ]
+        },
+        "sculptReferenceFaces": 147380,
+        "construction": {
+          "body": "SM_Sail_FusedRootAndCurvedSpars",
+          "voxel": 0.016,
+          "ratio": 0.45,
+          "construction": "Single representative sail. Fused hollow root collar and curved nonparallel load rays. 6 mm tissue across six independently tensioned bays, variable local folds, fine branching fibres and 8.5 mm edge. Alpha held at prior 0.94."
+        },
+        "license": "Original local geometry and heightfield-authored raster PBR maps. No external assets. Concept is supplied project reference only.",
+        "status": "EXPORTED_FOR_GLTF_REIMPORT_VISUAL_REVIEW; NOT runtime or art acceptance"
+      },
+      "sourceReadback": {
+        "family": "sails",
+        "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\sails.blend",
+        "sha256": "62b60edf3e75f9d69bb425d48b032948303753e8579c0ec97a79d7f427b21414",
+        "exportMeshes": 4,
+        "preservedSculptMeshes": 4,
+        "sculptsHiddenFromRender": true,
+        "missingUV": 0,
+        "missingGrowthColor": 0,
+        "nonIdentityScale": [],
+        "units": "METRIC",
+        "scaleLength": 1.0,
+        "actions": 0
+      },
+      "render": {
+        "asset": "sails",
+        "revision": "b",
+        "sourceGlb": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\sails.glb",
+        "sourceSha256": "4dd0f8dd90fbc38f13c8315661da34ac2d6caeaa1a0171b9f732a5bc06ea1365",
+        "blender": "5.2.1 LTS",
+        "executable": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+        "processId": 38744,
+        "renderer": "Cycles CPU 6 threads, 32 samples, denoising. Offline GLB review; not Godot.",
+        "imageSize": [
+          1200,
+          1200
+        ],
+        "groundZ": 0,
+        "images": [
+          {
+            "file": "sails-front.png",
+            "view": "front",
+            "emissionEnabled": false,
+            "camera": [
+              4.662263870239258,
+              -14.450014114379883,
+              4.508209705352783
+            ],
+            "target": [
+              1.226723551750183,
+              -0.06868362426757812,
+              3.709246873855591
+            ],
+            "orthoScale": 9.028279995918274,
+            "sha256": "32e96604b220cd636569e106af6a3916c08160be8d2279113d1547d5263198e6"
+          },
+          {
+            "file": "sails-side.png",
+            "view": "side",
+            "emissionEnabled": false,
+            "camera": [
+              16.40701675415039,
+              2.328204870223999,
+              4.508209705352783
+            ],
+            "target": [
+              1.226723551750183,
+              -0.06868362426757812,
+              3.709246873855591
+            ],
+            "orthoScale": 9.028279995918274,
+            "sha256": "dac345b3b9a7b912bbff4546bfe3db6c023cad50acc6cb68f795401df5351af8"
+          },
+          {
+            "file": "sails-back.png",
+            "view": "back",
+            "emissionEnabled": false,
+            "camera": [
+              -2.3686089515686035,
+              14.712128639221191,
+              4.108728408813477
+            ],
+            "target": [
+              1.226723551750183,
+              -0.06868362426757812,
+              3.709246873855591
+            ],
+            "orthoScale": 9.028279995918274,
+            "sha256": "32cfbdbb3dd59caaaed0892c309ed632fbd176b9de0635587a6295b32ff4c19a"
+          },
+          {
+            "file": "sails-night.png",
+            "view": "night",
+            "emissionEnabled": true,
+            "camera": [
+              4.662263870239258,
+              -14.450014114379883,
+              4.508209705352783
+            ],
+            "target": [
+              1.226723551750183,
+              -0.06868362426757812,
+              3.709246873855591
+            ],
+            "orthoScale": 9.028279995918274,
+            "sha256": "9263fbc7f0ea8ccd04c029367f3d37b4c13acf5fa65e295aa2b3e50c2beeca5c"
+          },
+          {
+            "file": "sails-support_detail.png",
+            "view": "support_detail",
+            "emissionEnabled": false,
+            "camera": [
+              1.3399999141693115,
+              -5.659999847412109,
+              2.2200000286102295
+            ],
+            "target": [
+              -0.10000000149011612,
+              0.10000000149011612,
+              1.100000023841858
+            ],
+            "orthoScale": 3.2,
+            "sha256": "82a31e1e8b72d7a1a4ea939f7d21e460730209c5250df0dff16c20f3c12639c7"
+          },
+          {
+            "file": "sails-tissue_detail.png",
+            "view": "tissue_detail",
+            "emissionEnabled": false,
+            "camera": [
+              3.510000228881836,
+              -8.539999961853027,
+              6.4800004959106445
+            ],
+            "target": [
+              1.350000023841858,
+              0.10000000149011612,
+              4.800000190734863
+            ],
+            "orthoScale": 4.8,
+            "sha256": "f48f6a303db9c3b9716e07c3ce4c34f00f70f7dd9b21ba3891c70943aee521ed"
+          }
+        ]
+      }
+    }
+  ],
+  "sourceScripts": [
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\build_structural_revision.py",
+      "bytes": 21722,
+      "sha256": "a374a75ff8eb22f237fc57a2a0fcb97a432c3381f548893106d59c959195565f"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\render_revision.py",
+      "bytes": 5909,
+      "sha256": "7e6b18d6dd5d0dbd4e678cadaac05b494f97789c7ed721181f989947868a9c36"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\audit_revision.py",
+      "bytes": 4101,
+      "sha256": "bc0b57e9b567653dc28cd13188f85042b2ab96e92c221cb8bd050c8cccec53b6"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\readback_revision.py",
+      "bytes": 1582,
+      "sha256": "347a8ac598d0b39b8371292cc85354ea3783572e1a69a28287641dd933f92081"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\assemble_review.py",
+      "bytes": 6111,
+      "sha256": "84f31c05f1c9412d21237cbef5c2d3a03d18def40ec133b489fe63d478e0e2fe"
+    }
+  ],
+  "textures": [
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Canopy_ThinTissue_albedo.png",
+      "bytes": 765145,
+      "sha256": "d2510c95497fcfb31e6b0d1fb989537a056ba4f5cd9ac1676730ca68f9524739"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Canopy_ThinTissue_normal.png",
+      "bytes": 867468,
+      "sha256": "74931acab8a588ea1f5fc70f751a0c7799230916b4dcb92648fa70c6e2e7aeed"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Canopy_ThinTissue_roughness.png",
+      "bytes": 371017,
+      "sha256": "a00cdabd1893771bf213d7b249d3bc26301f10dc6297a4abc5015b9e90b4844d"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Mineral_Growth_albedo.png",
+      "bytes": 1076756,
+      "sha256": "23780ba38bd104d858667f4a12fb686db2080553c5c6c8e86a10634681605abe"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Mineral_Growth_normal.png",
+      "bytes": 1511688,
+      "sha256": "d1af14ff552d259973756fb3ec58f20ed52cc3d9dc736b48a604cf8bafea8458"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Mineral_Growth_roughness.png",
+      "bytes": 370872,
+      "sha256": "4530b96bd6f39a6d65c904a7f9661106b29c7f46e714ef32993d0b7bbde1cd70"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Rib_Living_albedo.png",
+      "bytes": 763631,
+      "sha256": "ec917e26266b21e9a44934e9253b53b9efb9ffdb1df67b54d6531bd1d739794c"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Rib_Living_normal.png",
+      "bytes": 684385,
+      "sha256": "0670a461b874a272400bf7da90596718d261baef5503532b451082463a6a56ea"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Rib_Living_roughness.png",
+      "bytes": 371218,
+      "sha256": "5401b3ccfce5c61cd59e91da5c504c8e8295f23cd6af17ba640832e954171803"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Sail_ThinTissue_albedo.png",
+      "bytes": 824146,
+      "sha256": "554f2f8371e7b103c0a162820b6a55814b855d0fbe79212ae8e91b248e16c1e3"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Sail_ThinTissue_normal.png",
+      "bytes": 882097,
+      "sha256": "69a72f8cee93b4c63fde35e6c9ff414f4ac0c5acad949843ed8bf952d7dbec27"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\textures\\MAT_Sail_ThinTissue_roughness.png",
+      "bytes": 371017,
+      "sha256": "a00cdabd1893771bf213d7b249d3bc26301f10dc6297a4abc5015b9e90b4844d"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\evidence\\visual-upgrade-20260923\\flora-authoring\\revision-b\\reference-comparison.png",
+      "bytes": 2268047,
+      "sha256": "57b0b15352855d58a4aa54da21d7dd1e0f2cf34386611daa7bcb724a8121c91f"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\evidence\\visual-upgrade-20260923\\flora-authoring\\revision-b\\neutral-night-contact.png",
+      "bytes": 557792,
+      "sha256": "78fa8925342af2fed3624de56fe58ae340107d82bcf74cb24512811c0fb9682c"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\evidence\\visual-upgrade-20260923\\flora-authoring\\revision-b\\neutral-multiview-contact.png",
+      "bytes": 754657,
+      "sha256": "5005a8d7b2c545451b65bec893bc56db3cdcaf3f3362b6fe2190d9b2c06dffe0"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\evidence\\visual-upgrade-20260923\\flora-authoring\\revision-b\\glb-structural-audit.json",
+      "bytes": 7192,
+      "sha256": "df121537ee1fa798c629017635559b63ea6b529c31ceedcb81320295df080770"
+    },
+    {
+      "path": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\evidence\\visual-upgrade-20260923\\flora-authoring\\revision-b\\source-readback.json",
+      "bytes": 1206,
+      "sha256": "622c701b9fa0176b1e3d8de421494a6d9f57c2cf0ac47639af39554228fe7d84"
+    }
+  ],
+  "viewConvention": "Full front/side/back/night are perspective 50 mm; close support/tissue views are orthographic. Any orthoScale stored on perspective views is an inactive camera property.",
+  "notClaimed": [
+    "Godot import or render",
+    "MCP scene operation",
+    "Runtime performance",
+    "Final terrain collision/support",
+    "Animated wind",
+    "Numerical concept fidelity",
+    "Final art acceptance"
+  ],
+  "provenance": "Original local geometry and raster PBR generation. Source preserves both pre-fusion base and fused sculpt outside GLB selection. No external asset, paid provider or new installation."
+}

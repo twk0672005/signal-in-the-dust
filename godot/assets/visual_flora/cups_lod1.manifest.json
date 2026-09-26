@@ -1,0 +1,15 @@
+{
+  "family": "cups",
+  "file": "godot/assets/visual_flora/cups_lod1.glb",
+  "sourceGlbSha256": "231c8dad109cda201e35b7e137f6b79f5550ede422305dae45326a7069ccd56f",
+  "sha256": "db2c7def34397e494cee2f2dc7f5e7f6ab57bae0e16803c89be01cf1c57e40ee",
+  "bytes": 5464788,
+  "triangles": 24259,
+  "meshes": 6,
+  "materials": 6,
+  "decimationRatio": 0.24,
+  "blender": "5.2.1 LTS",
+  "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+  "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+  "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+}

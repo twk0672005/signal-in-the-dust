@@ -1,0 +1,48 @@
+{
+  "file": "godot/assets/visual_flora/cups.glb",
+  "bytes": 7182572,
+  "sha256": "231c8dad109cda201e35b7e137f6b79f5550ede422305dae45326a7069ccd56f",
+  "triangles": 101130,
+  "vertices": 60225,
+  "meshNodes": 12,
+  "materials": 6,
+  "images": 18,
+  "normalMappedMaterials": 6,
+  "alphaModes": [
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE"
+  ],
+  "missingUV": 0,
+  "missingNormals": 0,
+  "animations": 0,
+  "skins": 0,
+  "family": "cups",
+  "boundsBlenderXYZ": {
+    "min": [
+      -2.64578914642334,
+      -1.729695200920105,
+      -0.23165090382099152
+    ],
+    "max": [
+      3.0425455570220947,
+      1.729564905166626,
+      2.9008991718292236
+    ],
+    "size": [
+      5.688334703445435,
+      3.459260106086731,
+      3.132550075650215
+    ]
+  },
+  "sourceBlend": "art-source/visual_flora/cups.blend",
+  "sourceBlendSha256": "081beb1750c7c5012317515ba010cf25f06b0635cab57fcc4c526f1019f182b0",
+  "seed": 231226,
+  "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+  "blender": "5.2.1 LTS",
+  "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+  "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+}

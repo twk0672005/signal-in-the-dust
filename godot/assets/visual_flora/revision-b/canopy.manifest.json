@@ -1,0 +1,46 @@
+{
+  "family": "canopy",
+  "revision": "b",
+  "blender": "5.2.1 LTS",
+  "processId": 39972,
+  "executable": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+  "scriptSha256": "a374a75ff8eb22f237fc57a2a0fcb97a432c3381f548893106d59c959195565f",
+  "utilityScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+  "sourceBlend": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\canopy.blend",
+  "sourceBlendSha256": "b3db0ae0b0aa7cdbffae110738a82b471f04b5bd23404831f71e2dbdbf696fc0",
+  "file": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\canopy.glb",
+  "sha256": "bda00bda4e0992c2438f3f29b27be70b77080d556b53abb27ab27e9e2e3d9fe9",
+  "bytes": 13560716,
+  "triangles": 224369,
+  "meshCount": 4,
+  "materials": 4,
+  "images": 9,
+  "missingUV": 0,
+  "missingVertexVariation": 0,
+  "boundsBlenderXYZ": {
+    "min": [
+      -12.659032821655273,
+      -7.803428649902344,
+      -0.7200794816017151
+    ],
+    "max": [
+      13.511662483215332,
+      11.75373363494873,
+      22.635887145996094
+    ],
+    "size": [
+      26.170695304870605,
+      19.557162284851074,
+      23.35596662759781
+    ]
+  },
+  "sculptReferenceFaces": 243476,
+  "construction": {
+    "body": "SM_Canopy_ContinuousHollowGrowth",
+    "voxel": 0.085,
+    "ratio": 0.42,
+    "construction": "Continuous fused hollow rib trunk; 3 unequal root systems; inclined load braces; 9 radial crown rays with membrane bays spanning those exact rays; no separate bark flakes or hanging crown card."
+  },
+  "license": "Original local geometry and heightfield-authored raster PBR maps. No external assets. Concept is supplied project reference only.",
+  "status": "EXPORTED_FOR_GLTF_REIMPORT_VISUAL_REVIEW; NOT runtime or art acceptance"
+}

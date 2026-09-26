@@ -1,0 +1,15 @@
+{
+  "family": "spores",
+  "file": "godot/assets/visual_flora/spores_lod1.glb",
+  "sourceGlbSha256": "682acf9a6a24a4248fcf2a4f2ad259300c78f632c9d0ecdf4fc7c72d1a14f384",
+  "sha256": "be1f28469988fd7819f376aa77dc8a8d66720db71fa1673609d65e611a16acc5",
+  "bytes": 4215520,
+  "triangles": 31259,
+  "meshes": 5,
+  "materials": 5,
+  "decimationRatio": 0.24,
+  "blender": "5.2.1 LTS",
+  "scriptSha256": "d1dcd6bcd61b7e7b6f8ce5dfb5621f13cc6f056622db3b323730205d05743839",
+  "purpose": "Static distant form with original silhouette/materials. Per-material mesh consolidation. No animation, collision or engine-performance claim.",
+  "textureWarning": "Textures remain embedded for portable GLB handoff. Do not blindly preload high and distant copies on memory-limited devices; verify texture deduplication in engine."
+}

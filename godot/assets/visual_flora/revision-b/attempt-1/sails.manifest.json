@@ -1,0 +1,46 @@
+{
+  "family": "sails",
+  "revision": "b",
+  "blender": "5.2.1 LTS",
+  "processId": 38836,
+  "executable": "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe",
+  "scriptSha256": "bc83040893b9004e2b8391b282293f7ec038977c280f72db2848c877d75a92fb",
+  "utilityScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+  "sourceBlend": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\art-source\\visual_flora\\revision-b\\sails.blend",
+  "sourceBlendSha256": "695d0494de787a3dbad5df5b2c9e0b2be5adde14b80006c9534eac2897ff06e6",
+  "file": "C:\\Users\\tsang\\DeepSpaceRover\\worktrees\\visual-upgrade-20260923\\godot\\assets\\visual_flora\\revision-b\\sails.glb",
+  "sha256": "12334b27a684eb931bdf32830f2dd1e029be1c7927b5dd88c416604c961b5d6a",
+  "bytes": 12425320,
+  "triangles": 152441,
+  "meshCount": 4,
+  "materials": 4,
+  "images": 9,
+  "missingUV": 0,
+  "missingVertexVariation": 0,
+  "boundsBlenderXYZ": {
+    "min": [
+      -1.5171366930007935,
+      -1.3747063875198364,
+      -0.25952693819999695
+    ],
+    "max": [
+      3.9681613445281982,
+      1.2325043678283691,
+      7.727566719055176
+    ],
+    "size": [
+      5.485298037528992,
+      2.6072107553482056,
+      7.987093657255173
+    ]
+  },
+  "sculptReferenceFaces": 125054,
+  "construction": {
+    "body": "SM_Sail_FusedRootAndCurvedSpars",
+    "voxel": 0.016,
+    "ratio": 0.45,
+    "construction": "Single representative sail. Fused hollow root collar and curved nonparallel load rays. 6 mm tissue across six independently tensioned bays, variable local folds, fine branching fibres and 8.5 mm edge. Alpha held at prior 0.94."
+  },
+  "license": "Original local geometry and heightfield-authored raster PBR maps. No external assets. Concept is supplied project reference only.",
+  "status": "EXPORTED_FOR_GLTF_REIMPORT_VISUAL_REVIEW; NOT runtime or art acceptance"
+}

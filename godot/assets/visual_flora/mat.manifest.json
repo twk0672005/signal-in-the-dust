@@ -1,0 +1,47 @@
+{
+  "file": "godot/assets/visual_flora/mat.glb",
+  "bytes": 5575240,
+  "sha256": "b28323714a86c0467ae9d54db707ddb502e00dc3cc5ca718c38863302b689f7d",
+  "triangles": 85730,
+  "vertices": 52581,
+  "meshNodes": 5,
+  "materials": 5,
+  "images": 12,
+  "normalMappedMaterials": 4,
+  "alphaModes": [
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE",
+    "OPAQUE"
+  ],
+  "missingUV": 0,
+  "missingNormals": 0,
+  "animations": 0,
+  "skins": 0,
+  "family": "mat",
+  "boundsBlenderXYZ": {
+    "min": [
+      -2.4656941890716553,
+      -2.342341899871826,
+      -0.09718868136405945
+    ],
+    "max": [
+      2.7541637420654297,
+      2.1914544105529785,
+      0.18796324729919434
+    ],
+    "size": [
+      5.219857931137085,
+      4.533796310424805,
+      0.2851519286632538
+    ]
+  },
+  "sourceBlend": "art-source/visual_flora/mat.blend",
+  "sourceBlendSha256": "cc4d9e5c08c96805411d6a364493d38acab56d36f3d58ba207d503af4cf6d5ee",
+  "seed": 231327,
+  "sourceScriptSha256": "8b54dfc9708557f0b649cb8e7638d0407ade5f8df76e32b35a5813de00ebce13",
+  "blender": "5.2.1 LTS",
+  "license": "Original project-authored procedural geometry and raster PBR textures. No external models or texture photographs. Concept references supplied by project; not embedded.",
+  "status": "EXPORTED_STRUCTURAL_CANDIDATE; awaiting offline GLB visual review and engine integration"
+}
