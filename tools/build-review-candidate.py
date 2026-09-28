@@ -51,11 +51,14 @@ for stage, command in [('version', ['--version']), ('import', ['--headless', '--
 for name in ['showcase.css', 'showcase.js']:
     shutil.copy2(snapshot / 'web' / name, web / name)
 shutil.copytree(snapshot / 'web/assets', web / 'assets', ignore=shutil.ignore_patterns('*.import'))
+subprocess.run(['node', str(project_root / 'tools/finalize-web-release.mjs'), str(web)], check=True)
 
 def manifest(folder):
     return [{'path': p.relative_to(folder).as_posix(), 'bytes': p.stat().st_size, 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
             for p in sorted(folder.rglob('*')) if p.is_file() and not any(part in ['.godot', 'build', 'evidence'] for part in p.relative_to(folder).parts)]
 
-receipt.update({'completedAt': time.time(), 'sourceFiles': manifest(snapshot), 'webFiles': manifest(web), 'rendering': 'Godot 4.7.2 Compatibility single-thread Web'})
+receipt.update({'completedAt': time.time(), 'sourceFiles': manifest(snapshot), 'webFiles': manifest(web),
+                'release': json.loads((web / 'release-manifest.json').read_text(encoding='utf-8')),
+                'rendering': 'Godot 4.7.2 Compatibility single-thread Web'})
 (destination / 'build-receipt.json').write_text(json.dumps(receipt, indent=2), encoding='utf-8')
 print(json.dumps({'artifact': str(web), 'files': len(receipt['webFiles']), 'bytes': sum(item['bytes'] for item in receipt['webFiles']), 'seconds': time.time()-receipt['startedAt']}))

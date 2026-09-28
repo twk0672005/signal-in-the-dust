@@ -42,6 +42,10 @@ var _small_transforms: Array[Array] = []
 var _low_quality := false
 var _world_time: float = 0.0
 var _paused: bool = false
+# Main explicitly awaits the Web build; native callers retain synchronous _ready.
+var staged_boot := false
+var boot_frame_yield: Callable
+var _boot_slice_started := 0
 var _player_position := Vector3.ZERO
 var _player_speed: float = 0.0
 var _ecology_reactions: Array[RefCounted] = []
@@ -198,41 +202,71 @@ func root_network_points() -> Array[Vector2]:
 	return points
 
 func _ready() -> void:
+	if not staged_boot: build_world()
+
+func boot_yield() -> void:
+	if not staged_boot: return
+	var now := Time.get_ticks_usec()
+	if _boot_slice_started > 0:
+		build_stats["boot_max_cpu_slice_ms"] = maxf(float(build_stats.get("boot_max_cpu_slice_ms", 0.0)), (now-_boot_slice_started)/1000.0)
+	if boot_frame_yield.is_valid(): await boot_frame_yield.call()
+	else: await get_tree().process_frame
+	_boot_slice_started = Time.get_ticks_usec()
+
+func build_world() -> void:
+	_paused = staged_boot
+	_boot_slice_started = Time.get_ticks_usec()
 	var stage_started := Time.get_ticks_usec()
 	_rng.seed = 20260915
 	_build_atmosphere()
+	await boot_yield()
 	_build_material()
-	_build_terrain()
+	await boot_yield()
+	await _build_terrain()
 	build_stats["terrain_revision"] = TERRAIN_REVISION
 	build_stats["build_ms_terrain"] = (Time.get_ticks_usec()-stage_started)/1000.0
 	stage_started = Time.get_ticks_usec()
 	_build_horizon()
+	await boot_yield()
 	_build_boundary_outcrops()
+	await boot_yield()
 	_build_landmarks()
+	await boot_yield()
 	_build_rocks()
+	await boot_yield()
 	build_stats["build_ms_horizon_landmarks_rocks"] = (Time.get_ticks_usec()-stage_started)/1000.0
 	stage_started = Time.get_ticks_usec()
 	_build_wetland_pool()
+	await boot_yield()
 	build_stats["build_ms_water"] = (Time.get_ticks_usec()-stage_started)/1000.0
 	stage_started = Time.get_ticks_usec()
 	_build_root_network()
+	await boot_yield()
 	var habitats := HABITAT_FEATURES.new()
 	habitats.name = "HabitatFeatures"
 	add_child(habitats)
-	habitats.build(self)
+	await habitats.build(self)
 	build_stats["build_ms_habitat"] = (Time.get_ticks_usec()-stage_started)/1000.0
 	stage_started = Time.get_ticks_usec()
 	_living_habitat=habitats
 	_build_passage_gates()
+	await boot_yield()
 	_build_survey_sites()
+	await boot_yield()
 	_build_resonance_grove()
-	_build_ecology()
+	await boot_yield()
+	await _build_ecology()
 	_build_escort_shelter()
+	await boot_yield()
 	_build_thermal_route()
+	await boot_yield()
 	_prepare_ecology_responses()
 	_build_response()
+	await boot_yield()
 	_build_dust()
+	await boot_yield()
 	reset()
+	if staged_boot: set_paused(true)
 	build_stats["build_ms_activities_creatures"] = (Time.get_ticks_usec()-stage_started)/1000.0
 	stage_started = Time.get_ticks_usec()
 
@@ -741,6 +775,7 @@ func _build_terrain() -> void:
 	var triangles := 0
 	var sampled: Dictionary = {}
 	for iz in NZ-1:
+		if staged_boot and Time.get_ticks_usec()-_boot_slice_started > 8000: await boot_yield()
 		for ix in NX-1:
 			var x0 := -192.0+ix*(384.0/float(NX-1))
 			var z0 := -700.0+iz*(900.0/float(NZ-1))
@@ -775,8 +810,10 @@ func _build_terrain() -> void:
 						st.set_uv(Vector2(x,z)*.11)
 						st.add_vertex(sampled[key][0])
 					triangles += 2
+	await boot_yield()
 	st.index()
 	st.generate_tangents()
+	await boot_yield()
 	var ground := MeshInstance3D.new()
 	ground.name = "CollidableDustBasin"
 	ground.mesh = st.commit()
@@ -1360,6 +1397,7 @@ func _build_ecology() -> void:
 	var anchors:=ecology_anchor_points()
 	# One visual contract for every member; gameplay kind, positions and reactions stay stable.
 	for i in 4:
+		await boot_yield()
 		var node := Node3D.new()
 		node.name = "VeyraLithovore_%02d" % i
 		var z:float=anchors[i].y
@@ -1370,6 +1408,7 @@ func _build_ecology() -> void:
 		_ecology_nodes.append(node)
 		_ecology_meta.append({"kind":"veyra","label":"VEYRA / 礦脈群體","phase":float(i)*1.7,"base":node.position})
 	for i in 5:
+		await boot_yield()
 		var node := Node3D.new()
 		node.name = "AeralVeil_%02d" % i
 		var z:float=anchors[i+4].y
@@ -1380,6 +1419,7 @@ func _build_ecology() -> void:
 		_ecology_nodes.append(node)
 		_ecology_meta.append({"kind":"aeral","label":"AERAL VEIL / 霧膜群","phase":float(i)*1.1,"base":node.position,"passage_index":i})
 	for i in 4:
+		await boot_yield()
 		var node := Node3D.new()
 		node.name = "MorrowShell_%02d" % i
 		var z:float=anchors[i+9].y

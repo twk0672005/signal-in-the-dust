@@ -11,6 +11,10 @@ const ResonanceScript = preload("res://scripts/resonance_sequence.gd")
 const ActivityScript = preload("res://scripts/expedition_activities.gd")
 const RoverScript = preload("res://scripts/rover.gd")
 const ContactScript = preload("res://scripts/contact.gd")
+signal _boot_browser_resumed
+var _boot_yield_callback: JavaScriptObject
+var _boot_completed_steps := 0
+var _boot_work_started_usec := 0
 var _touch_callback: JavaScriptObject
 var _web_launch_callback: JavaScriptObject
 var _web_boot = ShowcaseBoot.new()
@@ -55,6 +59,7 @@ var _survey_message_seconds := 0.0
 
 func _begin_boot_timings() -> void:
 	_boot_timing_origin_usec = Time.get_ticks_usec()
+	_boot_work_started_usec = _boot_timing_origin_usec
 	_boot_timing_timestamps_usec = {}
 	_boot_timing_durations_usec = {}
 	_boot_timing_mark("main_ready_enter")
@@ -84,6 +89,22 @@ func _publish_boot_timings() -> void:
 	var source := "(() => { const current = window.__EXPEDITION_BOOT_TIMINGS__ || {}; const payload = " + JSON.stringify(payload) + "; const godot = Object.freeze({...payload, timestamps_usec:Object.freeze(payload.timestamps_usec), durations_usec:Object.freeze(payload.durations_usec)}); Object.defineProperty(window, '__EXPEDITION_BOOT_TIMINGS__', {value:Object.freeze({...current, godot}), writable:false, configurable:true, enumerable:true}); })();"
 	JavaScriptBridge.eval(source, true)
 
+func boot_browser_yield() -> void:
+	if not OS.has_feature("web"):
+		await get_tree().process_frame
+		return
+	if _boot_yield_callback == null:
+		_boot_yield_callback = JavaScriptBridge.create_callback(func(_args): _boot_browser_resumed.emit())
+		JavaScriptBridge.get_interface("window").expeditionBootYield = _boot_yield_callback
+	_boot_completed_steps += 1
+	JavaScriptBridge.eval("window.__EXPEDITION_BOOT_PROGRESS__=%d;" % _boot_completed_steps, true)
+	# A zero-delay continuation can outrun already-due input/paint timers after a
+	# slow shader compile. Leave a real idle interval only after expensive work.
+	var idle_ms := 60 if Time.get_ticks_usec()-_boot_work_started_usec >= 500000 else 0
+	JavaScriptBridge.eval("setTimeout(() => window.expeditionBootYield(), %d);" % idle_ms, true)
+	await _boot_browser_resumed
+	_boot_work_started_usec = Time.get_ticks_usec()
+
 func _ready() -> void:
 	_begin_boot_timings()
 	var local_review := WorldReview.enabled_in_browser()
@@ -112,8 +133,15 @@ func _ready() -> void:
 	world = load("res://scripts/world.gd").new()
 	_boot_timing_span("world_new_including_script_load", world_new_started_usec)
 	var world_add_child_started_usec := Time.get_ticks_usec()
+	world.staged_boot = OS.has_feature("web")
+	world.boot_frame_yield = boot_browser_yield
 	add_child(world)
 	_boot_timing_span("world_add_child", world_add_child_started_usec)
+	if world.staged_boot:
+		var build_started := Time.get_ticks_usec()
+		await world.build_world()
+		_boot_timing_span("world_incremental_build", build_started)
+		_boot_timing_durations_usec["world_max_cpu_slice"] = int(world.build_stats.get("boot_max_cpu_slice_ms", 0.0)*1000.0)
 	escort.configure(_escort_route())
 	if not passage.configure(world.passage_route()):
 		push_error("Invalid authored passage route")
@@ -176,49 +204,141 @@ func _ready() -> void:
 		add_child(review)
 		review.setup(self)
 
+func _warm_material_key(material: Material) -> String:
+	if material == null: return "default"
+	if material is ShaderMaterial: return str(material.shader.get_instance_id()) if material.shader != null else "default"
+	# StandardMaterial shader features are flags/enums and texture presence.
+	# Uniform colors/scalars do not need a separate compile for every authored tint.
+	var features: Array = [material.get_class()]
+	for property in material.get_property_list():
+		if not (int(property.usage) & PROPERTY_USAGE_STORAGE): continue
+		var value: Variant = material.get(property.name)
+		if value is bool or value is int: features.append([property.name,value])
+		elif value is Texture2D: features.append([property.name,true])
+	return str(features)
+
 func _warm_web_renderer() -> void:
-	# Real hidden-by-shell rendering, not a test-only time/filter adjustment.
-	# Keep gameplay paused while the browser compiles first-use material variants.
+	# A whole-world first draw synchronously compiles every visible GLES3 variant.
+	# Mask instances before yielding, then submit one material family per browser turn.
 	var warm_started := Time.get_ticks_usec()
 	var original_camera := get_viewport().get_camera_3d()
 	var original_paused: bool = world._paused
 	var original_low := bool(settings.get("low_quality", false))
 	world.set_paused(true)
+	var groups: Dictionary = {}
+	var material_keys: Dictionary = {}
+	var first_materials: Dictionary = {}
+	var instances: Array[Dictionary] = []
+	for raw in find_children("*", "GeometryInstance3D", true, false):
+		var node := raw as GeometryInstance3D
+		var materials: Array[Material] = []
+		if node.material_override != null: materials.append(node.material_override)
+		elif node is MeshInstance3D and node.mesh != null:
+			for surface in node.mesh.get_surface_count(): materials.append(node.get_active_material(surface))
+		elif node is MultiMeshInstance3D and node.multimesh != null and node.multimesh.mesh != null:
+			for surface in node.multimesh.mesh.get_surface_count(): materials.append(node.multimesh.mesh.surface_get_material(surface))
+		var keys: Array[String] = [node.get_class()]
+		for material in materials:
+			var id := material.get_instance_id() if material != null else 0
+			if not material_keys.has(id): material_keys[id] = _warm_material_key(material)
+			keys.append(material_keys[id])
+			if material != null: first_materials[material_keys[id]] = material
+		var key := "|".join(keys)
+		if not groups.has(key): groups[key] = []
+		var entry := {"node":node,"layers":node.layers,"shadow":node.cast_shadow}
+		groups[key].append(entry)
+		instances.append(entry)
+		node.layers = 0
+	var reflection := world.get_node_or_null("PairedMarshStudy/LocalShoreReflection") as ReflectionProbe
+	if reflection != null: reflection.visible = false
 	var warm_camera := Camera3D.new()
 	warm_camera.name = "StartupMaterialWarmup"
 	warm_camera.fov = 68.0
 	warm_camera.far = 650.0
 	warm_camera.near = 0.06
 	add_child(warm_camera)
-	var extra_started: int = 0
+	warm_camera.current = true
+	warm_camera.position = Vector3(0,1000,4)
+	# Compile the sky separately before the first spatial material.
+	await RenderingServer.frame_post_draw
+	await boot_browser_yield()
+	# Initialize one shader version at a time, including materials of multi-surface meshes.
+	# GLES3 itself compiles that version's base variants synchronously; no script can
+	# yield inside that engine call. The later real draws cover instance/light variants.
+	var primer := MeshInstance3D.new()
+	primer.mesh = BoxMesh.new()
+	primer.position = Vector3(0,1000,0)
+	primer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(primer)
+	var material_index := 0
+	for material in first_materials.values():
+		var material_started := Time.get_ticks_usec()
+		primer.material_override = material
+		await RenderingServer.frame_post_draw
+		await boot_browser_yield()
+		_boot_timing_span("renderer_material_initialize_%d" % material_index, material_started)
+		material_index += 1
+		_publish_boot_timings()
+	primer.visible = false
+	primer.queue_free()
+	var group_index := 0
 	var views := 0
-	var capped := false
-	for low in [false, true]:
-		world.set_low_quality(low)
-		rover.set_low_quality(low)
-		for z in [125.0, -100.0, -275.0, -495.0]:
-			if extra_started > 0 and Time.get_ticks_usec() - extra_started > 12000000:
-				capped = true
-				break
-			var x: float = world.path_x(z)
-			var h: float = world.height_at(x,z)
-			warm_camera.position = Vector3(x+5.5,h+3.5,z+8.0)
-			warm_camera.look_at(Vector3(world.path_x(z-24.0),h+2.6,z-24.0))
-			warm_camera.current = true
-			await RenderingServer.frame_post_draw
-			await RenderingServer.frame_post_draw
-			views += 1
-			if extra_started == 0: extra_started = Time.get_ticks_usec()
-		if capped: break
+	for key in groups:
+		var group_started := Time.get_ticks_usec()
+		for entry in groups[key]: entry.node.layers = entry.layers
+		for low in [false, true]:
+			world.set_low_quality(low)
+			rover.set_low_quality(low)
+			if reflection != null: reflection.visible = false
+			for z in [125.0, -100.0, -275.0, -495.0]:
+				var x: float = world.path_x(z)
+				var h: float = world.height_at(x,z)
+				warm_camera.position = Vector3(x+5.5,h+3.5,z+8.0)
+				warm_camera.look_at(Vector3(world.path_x(z-24.0),h+2.6,z-24.0))
+				# Color and shadow submission have independent browser task boundaries.
+				var shadows: Array[int] = []
+				for entry in groups[key]:
+					shadows.append(entry.node.cast_shadow)
+					entry.node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				await RenderingServer.frame_post_draw
+				await boot_browser_yield()
+				for i in groups[key].size(): groups[key][i].node.cast_shadow = shadows[i]
+				await RenderingServer.frame_post_draw
+				await boot_browser_yield()
+				views += 1
+		for entry in groups[key]: entry.node.layers = 0
+		_boot_timing_span("renderer_material_group_%d" % group_index, group_started)
+		group_index += 1
+		_publish_boot_timings()
+	# Restore exact authored layers/settings before the final real scene frame.
+	for entry in instances:
+		entry.node.layers = entry.layers
+		entry.node.cast_shadow = entry.shadow
 	world.set_low_quality(original_low)
 	rover.set_low_quality(original_low)
 	if is_instance_valid(original_camera): original_camera.current = true
 	else: exterior.current = true
 	warm_camera.queue_free()
+	if reflection != null:
+		# UPDATE_ONCE does not notice restored geometry. A transform change dirties it.
+		# Keep it hidden for the offset frame, then restore the exact authored transform.
+		var reflection_position := reflection.position
+		reflection.visible = false
+		reflection.position += Vector3(0.001,0,0)
+		await RenderingServer.frame_post_draw
+		await boot_browser_yield()
+		reflection.position = reflection_position
+		reflection.visible = not original_low
+	# UPDATE_ONCE radiance generation spans six subsequent frames.
+	for frame in 7:
+		await RenderingServer.frame_post_draw
+		await boot_browser_yield()
 	world.set_paused(original_paused)
 	_boot_timing_span("renderer_first_use_warmup", warm_started)
 	_boot_timing_durations_usec["renderer_warmup_views"] = views
-	_boot_timing_durations_usec["renderer_warmup_capped"] = 1 if capped else 0
+	_boot_timing_durations_usec["renderer_warmup_material_groups"] = group_index
+	_boot_timing_durations_usec["renderer_warmup_material_initializations"] = material_index
+	_boot_timing_durations_usec["renderer_warmup_capped"] = 0
 
 func _install_web_launch() -> void:
 	if not OS.has_feature("web"): return

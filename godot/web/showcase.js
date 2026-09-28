@@ -19,6 +19,7 @@
   let guard = 0, fade = 0, restoreFetch = null, phaseKey = 'connecting', errorKey = 'error';
   let homeMessage = '', lastStatus = '', sequence = 0, pausedAnimation = false;
   let lastAction = 'new', savedAvailable = null;
+  let bootDeadline = 0, lastBootProgress = 0, lastTransferBytes = 0;
   window.__EXPEDITION_ERRORS__ = window.__EXPEDITION_ERRORS__ || [];
   let bootTiming = {
     action: null,
@@ -201,23 +202,59 @@
       const wasmFetchStartedAt = requested === wasmUrl ? markBootTiming('wasm_fetch_start_ms') : null;
       const response = await originalFetch.call(window, resource, options);
       if (requested !== wasmUrl || !response.ok) return response;
-      const bytes = new Uint8Array(await response.arrayBuffer());
-      completeBootTiming('wasm_fetch_and_read_ms', wasmFetchStartedAt, 'wasm_fetch_and_read_complete_ms');
-      const headers = new Headers(response.headers); headers.set('Content-Type','application/wasm');
-      if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
-        if (typeof DecompressionStream === 'undefined') throw new Error('Browser cannot decode game package');
-        const setupStartedAt = markBootTiming('wasm_decompression_stream_setup_start_ms');
-        headers.delete('Content-Encoding'); headers.delete('Content-Length');
-        const decoded = new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')), {status:response.status,headers});
-        completeBootTiming('wasm_decompression_stream_setup_ms', setupStartedAt, 'wasm_decompression_stream_setup_complete_ms');
-        return decoded;
+      // Inspect only the signature. Keep network, decoding and compilation streaming.
+      const reader = response.body.getReader(), prefix = [];
+      let length = 0;
+      while (length < 4) {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+        prefix.push(chunk.value); length += chunk.value.length;
       }
-      headers.delete('Content-Encoding'); headers.set('Content-Length', String(bytes.length));
-      markBootTiming('wasm_uncompressed_response_ready_ms');
-      return new Response(bytes,{status:response.status,headers});
+      const signature = prefix.flatMap(chunk => Array.from(chunk.subarray(0,4))).slice(0,4);
+      const gzip = signature[0] === 0x1f && signature[1] === 0x8b;
+      if (!gzip && ![0,97,115,109].every((byte,index) => signature[index] === byte)) {
+        await reader.cancel(); throw new Error('Invalid game engine download');
+      }
+      let body = new ReadableStream({
+        async pull(controller) {
+          if (prefix.length) { controller.enqueue(prefix.shift()); return; }
+          const chunk = await reader.read();
+          if (chunk.done) { markBootTiming('wasm_stream_read_complete_ms'); controller.close(); }
+          else controller.enqueue(chunk.value);
+        },
+        cancel(reason) { return reader.cancel(reason); }
+      });
+      const headers = new Headers(response.headers); headers.set('Content-Type','application/wasm');
+      if (gzip || headers.has('Content-Encoding')) headers.delete('Content-Length');
+      headers.delete('Content-Encoding');
+      if (gzip) {
+        if (typeof DecompressionStream === 'undefined') {
+          await body.cancel(); throw new Error('Browser cannot decode game package');
+        }
+        const setupStartedAt = markBootTiming('wasm_decompression_stream_setup_start_ms');
+        body = body.pipeThrough(new DecompressionStream('gzip'));
+        completeBootTiming('wasm_decompression_stream_setup_ms', setupStartedAt, 'wasm_decompression_stream_setup_complete_ms');
+      }
+      completeBootTiming('wasm_fetch_to_stream_ready_ms', wasmFetchStartedAt, 'wasm_response_ready_ms');
+      return new Response(body,{status:response.status,headers});
     };
     window.fetch = decodeFetch;
     return () => { if (window.fetch === decodeFetch) window.fetch = originalFetch; };
+  }
+  function withBootFailures(start) {
+    // Godot's generated init wrapper can leave its promise pending on rejection.
+    // Observe failures only during boot; preserve console reporting and one instance.
+    let onRejection, onError;
+    const failed = new Promise((resolve,reject) => {
+      onRejection = event => reject(event.reason || new Error('Engine initialization failed'));
+      onError = event => { if (event.message) reject(event.error || new Error(event.message)); };
+      window.addEventListener('unhandledrejection',onRejection);
+      window.addEventListener('error',onError);
+    });
+    return Promise.race([Promise.resolve().then(start),failed]).finally(() => {
+      window.removeEventListener('unhandledrejection',onRejection);
+      window.removeEventListener('error',onError);
+    });
   }
   async function initialize() {
     await loadEngineScript();
@@ -231,9 +268,12 @@
     restoreFetch = installWasmDecode(config);
     try {
       const engineStartStartedAt = markBootTiming('engine_start_start_ms');
-      await engine.startGame({canvas,
+      await withBootFailures(() => engine.startGame({canvas,
         onProgress(current,total) {
           if (!busy || document.body.dataset.shellPhase !== 'loading') return;
+          if (Number.isFinite(current) && current > lastTransferBytes) {
+            lastTransferBytes = current; refreshBootGuard();
+          }
           if (Number.isFinite(total) && total > 0 && Number.isFinite(current) && current >= 0) {
             if (current < total && !Number.isFinite(bootTiming.timestampsMs.engine_reported_download_start_ms)) {
               markBootTiming('engine_reported_download_start_ms');
@@ -251,24 +291,31 @@
           else setProgress(null, total > 0 && current >= total ? 'preparing' : 'downloading');
         },
         onPrintError(...args) { const message = args.join(' '); window.__EXPEDITION_ERRORS__.push(message); console.error(message); }
-      });
+      }));
       completeBootTiming('engine_start_until_ready_ms', engineStartStartedAt, 'engine_ready_ms');
       started = true;
       if (busy && document.body.dataset.shellPhase === 'loading') setProgress(null,'waiting');
       inspectStatus();
     } finally { restoreFetch?.(); restoreFetch = null; }
   }
+  function refreshBootGuard() {
+    clearTimeout(guard);
+    guard = setTimeout(() => {
+      // Bound inactivity as well as total boot time; never start a second engine.
+      restoreFetch?.(); restoreFetch = null;
+      fail('timeout', null, !started || typeof window.expeditionLaunch !== 'function');
+    }, Math.max(0,Math.min(120000,bootDeadline - performance.now())));
+  }
   async function launch(action) {
     if (!['new','continue'].includes(action) || busy) return;
     if (fatal) { fail(errorKey, null, true); return; }
     lastAction = action; busy = true; pending = request(action); lastStatus = '';
     resetBootTimings(action);
+    bootDeadline = performance.now() + 600000;
+    lastBootProgress = Number(window.__EXPEDITION_BOOT_PROGRESS__) || 0;
+    lastTransferBytes = 0;
     $('start').disabled = true; $('continue').disabled = true; showLoading();
-    guard = setTimeout(() => {
-      // A stuck/failed engine must never result in a second instance.
-      restoreFetch?.(); restoreFetch = null;
-      fail('timeout', null, !started || typeof window.expeditionLaunch !== 'function');
-    }, 120000);
+    refreshBootGuard();
     try {
       if (startPromise) {
         if (!started || typeof window.expeditionLaunch !== 'function') { fail('timeout',null,true); return; }
@@ -282,6 +329,10 @@
     } catch (error) { fail('error', error, true); }
   }
   function inspectStatus() {
+    const completed = window.__EXPEDITION_BOOT_PROGRESS__;
+    if (busy && Number.isFinite(completed) && completed > lastBootProgress) {
+      lastBootProgress = completed; refreshBootGuard();
+    }
     const status = window.__EXPEDITION_BOOT_STATUS__;
     if (!pending || !status || status.version !== 1 || status.requestId !== pending.requestId || fatal) return;
     const signature = `${status.requestId}:${status.stage}:${status.firstFrameReady}:${status.savedAvailable}`;

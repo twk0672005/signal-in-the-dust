@@ -4,6 +4,7 @@ import { resolve, extname, relative, isAbsolute, sep, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
+import { finalizeWebRelease } from './finalize-web-release.mjs';
 const root = resolve(import.meta.dirname,'..');
 
 // Validate existing path components before recursive writes/deletion. A checkout
@@ -55,7 +56,7 @@ function manifestEntry(name,data) {
 export function packageWebExport(checkout, raw, out) {
   assertCheckoutTarget(checkout,raw); assertCheckoutTarget(checkout,out);
   const files = [], rawFiles = [];
-  for (const name of fileEntries(raw)) {
+  for (const name of fileEntries(raw).filter(name => !name.startsWith('releases/') && name !== 'release-manifest.json')) {
     const source = readFileSync(resolve(raw,name));
     rawFiles.push(manifestEntry(name,source));
     const data = extname(name) === '.wasm' ? gzipSync(source,{level:9,mtime:0}) : source;
@@ -81,10 +82,14 @@ function main() {
   }
   // External HTML resources must exist standalone in both outputs, not PCK-only.
   const standaloneAssets = copyShellAssets(root,raw);
-  const {files,rawFiles} = packageWebExport(root,raw,out);
-  writeFileSync(resolve(out,'_headers'),'/index.wasm\n  Content-Type: application/wasm\n  Content-Encoding: gzip\n/index.pck\n  Content-Type: application/octet-stream\n');
+  packageWebExport(root,raw,out);
+  const rawRelease = finalizeWebRelease(raw), release = finalizeWebRelease(out);
+  const headers = `/${release.executable}.wasm\n  Content-Type: application/wasm\n  Content-Encoding: gzip\n/${release.executable}.pck\n  Content-Type: application/octet-stream\n/index.wasm\n  Content-Type: application/wasm\n  Content-Encoding: gzip\n`;
+  writeFileSync(resolve(out,'_headers'),headers);
+  const files = fileEntries(out).map(name => manifestEntry(name,readFileSync(resolve(out,name))));
+  const rawFiles = fileEntries(raw).map(name => manifestEntry(name,readFileSync(resolve(raw,name))));
   mkdirSync(resolve(root,'evidence'),{recursive:true});
-  writeFileSync(resolve(root,'evidence','web-build-manifest.json'),JSON.stringify({builtAt:new Date().toISOString(),engine:'4.7.2',files,rawFiles,standaloneAssets,headers:['/index.wasm Content-Type: application/wasm','/index.wasm Content-Encoding: gzip','/index.pck Content-Type: application/octet-stream']},null,2));
+  writeFileSync(resolve(root,'evidence','web-build-manifest.json'),JSON.stringify({builtAt:new Date().toISOString(),engine:'4.7.2',files,rawFiles,standaloneAssets,release,rawRelease,headers},null,2));
   // Retained historical hosting gate. Changing hosting policy belongs to PM.
   if (files.some(f=>f.bytes>25*1024*1024)) throw new Error('Sites asset exceeds 25 MiB');
   console.log(JSON.stringify({out,files},null,2));

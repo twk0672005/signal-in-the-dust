@@ -39,12 +39,19 @@ func build(world: Node3D) -> void:
 	_clearance_points.append(Vector2(terrain.signal_origin().x,-650.0))
 	_clearance_points.append(Vector2(-61.0,-148.0))
 	_clearance_points.append_array(terrain.ecology_anchor_points())
-	for family in ["canopy","sails","pods","cups","spores"]: _load_family(family)
+	for family in ["canopy","sails","pods","cups","spores"]:
+		_load_family(family)
+		await terrain.boot_yield()
 	_build_native_kit()
+	await terrain.boot_yield()
 	_build_riparian_kits()
+	await terrain.boot_yield()
 	_build_mass_templates()
-	for zone in ZONES: _build_region(zone)
-	_build_marsh_shore(terrain._wetland_center())
+	await terrain.boot_yield()
+	for zone in ZONES:
+		await _build_region(zone)
+		await terrain.boot_yield()
+	await _build_marsh_shore(terrain._wetland_center())
 	var count := 0
 	for entry in _formations: count += int(entry.count)
 	terrain.build_stats["authored_flora_instances"] = count
@@ -189,6 +196,7 @@ func _build_region(zone: Dictionary) -> void:
 		var family:String=["frost_fan","ember_bract","understory_bush","spore_shelf"][id]
 		_grove_place(transforms,family,point,rng.randf_range(.55,1.0),rng.randf()*TAU)
 	for family in transforms:
+		await terrain.boot_yield()
 		_spatial_batches(family,transforms[family])
 		if not transforms[family].is_empty():_formations.append({"zone":id,"family":family,"count":transforms[family].size()})
 	_ground_growth(zone,clusters)
@@ -776,6 +784,7 @@ func _build_marsh_shore(pool: Vector2) -> void:
 			var point:=Vector2(cluster.x+sin(i*2.39)*3.1,cluster.z+cos(i*2.39)*2.7)
 			if _shore_structure_clear(point,1.0):transforms.spore_shelf.append(_placement(point.x,point.y,.5+float(i%3)*.15))
 	for family in transforms:
+		await terrain.boot_yield()
 		_spatial_batches(family,transforms[family])
 		_formations.append({"zone":2,"family":family,"count":transforms[family].size()})
 	ground.generate_normals()

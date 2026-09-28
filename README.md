@@ -1,6 +1,12 @@
 # Signal in the Dust — First Contact
 
-## 本地 main 收尾
+## 最新啟動卡死修復 — 2026-09-28
+
+Nova 已追加授權更新原 GitHub Pages 網站，並要求修復 Chrome「網頁無回應」。現役來源是本目錄的 `main`；網站為 https://twk0672005.github.io/signal-in-the-dust/ 。來源、修復前後原始量測、候選及發佈狀態見 [啟動修復交接](docs/STARTUP_REPAIR_2026-09-28.md)。下方「只做本地」及舊預覽位址均為歷史記錄，不覆蓋最新要求。
+
+修復把世界建立與材質首次繪製分批，保留全部場景、碰撞及存檔；Web 每次匯出產生整套不可變版本路徑，避免新介面混用舊遊戲包。冷啟動仍需下載及編譯，嚴格每次停頓 ≤2 秒與市場畫質目標尚未全部達標。
+
+## 歷史：本地 main 收尾
 
 本次依Nova更正，整合到**本地 main**，不推送GitHub。主工作目錄為 `C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906`；本機Web產物放在該目錄的`out/`，可用 `python tools/serve_web.py --port 4234` 開啟。原實作工作樹及所有原始證據保留。[本地 main 交接](docs/LOCAL_MAIN_HANDOFF_2026-09-28.md)說明來源、驗證範圍及已知限制；下方歷史證據路徑均以原實作工作樹為基準。
 

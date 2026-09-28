@@ -100,7 +100,12 @@ async function movingWorkload(region,nearZ,farZ,seconds){
 }
 
 try {
-  await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
+  const navigation=await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
+  if(options.artifact){
+    receipt.servedHtmlSha256=createHash('sha256').update(await navigation.body()).digest('hex');
+    const expected=createHash('sha256').update(readFileSync(resolve(String(options.artifact),'index.html'))).digest('hex');
+    if(receipt.servedHtmlSha256!==expected)throw Error('Served HTML does not match candidate; refuse stale/shared port');
+  }
   await captureBilingualUi();
   if(options.low||options.profile==='low720'){
     await page.locator('#open-settings').click();
