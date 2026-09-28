@@ -1,23 +1,18 @@
-Latest scope 2026-09-23: GitHub Pages public playable preview plus mobile landscape touch support. No automatic heartbeat restart. Previous Sites upload remains historical; publication target is now GitHub.
+# 本輪已停止，交予 Codex — 2026-09-26
 
-# Autonomous run contract
-objective: Wrap up the current verified candidate and deliver it on the existing owner-only Codex Site per Nova latest request
-runMode: USER_REQUESTED_HANDOFF
-parentGate: MARKET
-playerSessionTargetMinutes: 30
-executionBudgetMinutes: not specified by user
-tokenBudget: not specified
-heartbeatCadenceMinutes: 15
-automationId: deepspacerover
-threadId: 01a0a610-615a-7af0-937e-c003b4d301bf
-root: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906
-continuationProvider: current-session; official heartbeat configured separately
-lastObservedWorkAt: 2026-09-21T11:27:35.949241+00:00
-lastReceipt: evidence/wetland-study/receipt.json
-nativeAppGoal: observed blocked; generic objective; project foreground work continues; no completion claim
-finishTarget: current private candidate verified and published; pause heartbeat after success; original MARKET target remains PARTIAL
-status: WRAP_UP / PARTIAL
-Do not mistake configured cadence for future execution. Record concrete artifacts and timestamps per wake. Public promotion remains gated by actual human/platform evidence.
+Nova 約20:02 UTC 要求 Claude 收尾。最新現況見 `evidence/world-upgrade-20260926/CODEX_HANDOFF_FROM_CLAUDE.md`，可執行提示詞見同目錄 `CODEX_GPT6_ASTRA_SIX_HOUR_PROMPT.md`。所有 Claude workers 已交回 ownership；不在背景繼續。
 
-Latest browser receipt: evidence/web-wetland-final/web-wetland.json; fresh wetland study with partial and completed reloads.
+Nova 新六小時指示供 Codex 真正接手時另建 run，從第一個實際操作的 UTC 起計；不改寫下列歷史窗口／舊 RUN／counters。Claude 本次只完成文件交接，沒有啟動新 run。只做本地工作；不 commit／push／deploy／讀 secrets／改全域設定。
 
+## 歷史六小時契約（已停止，保留原時間）
+
+Current full contract: evidence/world-upgrade-20260926/SIX_HOUR_CONTRACT.md.
+Current state and owners: evidence/world-upgrade-20260926/RUN.json and CHECKPOINT.md.
+Start15:54:12UTC; deadline21:54:12UTC; 21,600 wall-clock seconds, TARGET_FIRST.
+No token budget. Foreground execution with project-local recovery state.
+Upgrade the full existing Godot world to a complete high-detail local market candidate;
+preserve real driving, interactions, saves, all species, mobile landscape and performance.
+Root owns shared import/export/build; two stable art profiles receive isolated native contexts.
+Fresh independent whole-world verifier starts only when runnable candidate/evidence exist.
+No inherited deployment, scheduling or Git commit requirement; Nova retains visual acceptance.
+Original historical run contract is preserved in resume-20260926-1534/source/RUN_CONTRACT.md.

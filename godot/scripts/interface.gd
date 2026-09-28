@@ -338,6 +338,8 @@ func _label(text: String, size: int = 14, color: Color = PAPER) -> Label:
 	result.text = text
 	result.add_theme_font_size_override("font_size", size)
 	result.add_theme_color_override("font_color", color)
+	result.add_theme_color_override("font_outline_color", Color(0.035,0.055,0.055,0.9))
+	result.add_theme_constant_override("outline_size", 3)
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return result
 

@@ -1,0 +1,7 @@
+# Reference acceptance and active recovery
+Source: active docs/visual-upgrade-art/EXECUTION_ART_SPEC.md + CURRENT_WORKER_BRIEF.md, Nova's direct rejection and request for full reproduction.
+Six axes must independently hold: anatomy/scale, material detail, vegetation/depth, light/water, movement/contact, composition across real gameplay views. Do not invent weighted numerical similarity. No hard failures may be averaged away. Lithara awake/dormant reference is included; original rover identity stays.
+Historical checkpoint (superseded as an assembly prerequisite): rebuilt Aeral neutral clay front/side/back/reference three-quarter, without glow or texture camouflage; art/PM anatomy review before expanded production. This records the earlier recovery method, not a current per-organ approval queue.
+GitHub specialist skill's generic 8/10 pass and 3-iteration limit do not replace this project gate. Official Blender Lab MCP tool names are used, not assumed community aliases.
+
+2026-09-24 workflow alignment: the one-hour run contract replaced the isolated anatomy prerequisite with an integrated four-region candidate. On the next authorized continuation, apply [the current plan](../plan.md): preserve the six visual axes above, inspect shape/material/light/environment together in actual gameplay views, then review one complete package and its evidenced defects. Clay and secondary views remain useful internal diagnostics. No numerical likeness, reduced quality target, production resume or acceptance is implied by this maintenance edit.

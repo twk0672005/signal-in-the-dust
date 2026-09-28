@@ -3,10 +3,10 @@
   'use strict';
   const COPY = {
     en: {
-      eyebrow:'An invitation to wander', subtitle:'塵境回聲', intro:'Beyond the familiar, a living world waits. Take the rover. Follow your curiosity.', start:'Start exploring', continue:'Continue', settings:'Settings', language:'繁中', desktop:'For the richest detail, explore on a desktop. Mobile play uses landscape.', footer:'A quiet journey through an alien ecology.', controls:'Keyboard & mouse · Landscape touch', habitat:'VEIL MARSH', art:'Aeral · Concept artwork', settingsTitle:'Make yourself at home', settingsNote:'Saved preferences stay in place unless you change them here.', localeLabel:'Language', volumeLabel:'Sound', motionLabel:'Reduced motion', qualityLabel:'Visual detail', saved:'Use saved preference', on:'On', off:'Off', low:'Lighter', high:'Full', done:'Done', restore:'Keep saved preferences', close:'Close settings', loadingTitle:'A world is coming into view', connecting:'Opening the expedition…', downloading:'Downloading the expedition…', preparing:'Preparing the living world…', validating:'Checking your expedition…', waiting:'Waiting for the first view…', transferHint:'Download progress', prepareHint:'Getting ready to enter the world…', errorTitle:'The signal was interrupted', error:'The expedition could not open. You can try again or return home.', support:'This browser cannot provide the required 3D graphics. Try a browser with hardware acceleration enabled.', lost:'The graphics connection was interrupted. Reload the page, then choose Continue to recover saved progress.', timeout:'The expedition is taking longer than expected. Return home to try again, or reload if it remains unavailable.', unavailable:'No readable expedition was found. Your existing save has been kept. You can try Continue again or start exploring.', retry:'Try again', reload:'Reload page', home:'Return home', loadingFooter:'Take a moment. There is no hurry here.', stopMotion:'Pause animation', resumeMotion:'Resume animation', canvas:'Signal in the Dust exploration game'
+      eyebrow:'A field journey beyond the familiar', subtitle:'塵境回聲', intro:'Between mineral and living things, a world is quietly unfolding. Take the rover. Find your own way.', start:'Start exploring', continue:'Continue', settings:'Settings', language:'繁中', desktop:'For the richest detail, explore on a desktop. Mobile play uses landscape.', footer:'Four habitats. One quiet expedition.', controls:'Keyboard & mouse · Landscape touch', habitat:'VEIL MARSH', art:'Veil Marsh · Concept artwork', landscapeNote:'Where the water holds the light.', aurora:'Aurora Shelf', ember:'Ember Rift', veil:'Veil Marsh', pale:'Pale Decay', expedition:'The expedition', specimen:'Life in bloom', settingsKicker:'Expedition preferences', settingsTitle:'Make yourself at home', settingsNote:'Saved preferences stay in place unless you change them here.', localeLabel:'Language', volumeLabel:'Sound', motionLabel:'Reduced motion', qualityLabel:'Visual detail', saved:'Use saved preference', on:'On', off:'Off', low:'Lighter', high:'Full', done:'Done', restore:'Keep saved preferences', close:'Close settings', loadingTitle:'A world is coming into view', connecting:'Opening the expedition…', downloading:'Downloading the expedition…', preparing:'Preparing the living world…', validating:'Checking your expedition…', waiting:'Waiting for the first view…', transferHint:'Download progress', prepareHint:'Getting ready to enter the world…', errorTitle:'The signal was interrupted', error:'The expedition could not open. You can try again or return home.', support:'This browser cannot provide the required 3D graphics. Try a browser with hardware acceleration enabled.', lost:'The graphics connection was interrupted. Reload the page, then choose Continue to recover saved progress.', timeout:'The expedition is taking longer than expected. Return home to try again, or reload if it remains unavailable.', unavailable:'No readable expedition was found. Your existing save has been kept. You can try Continue again or start exploring.', retry:'Try again', reload:'Reload page', home:'Return home', loadingFooter:'Take a moment. There is no hurry here.', stopMotion:'Pause animation', resumeMotion:'Resume animation', canvas:'Signal in the Dust exploration game'
     },
     zh_TW: {
-      eyebrow:'循著好奇，慢慢遠行', subtitle:'塵境回聲', intro:'熟悉的世界之外，生命正悄悄呼吸。駕上探測車，沿著好奇心出發。', start:'開始探索', continue:'繼續旅程', settings:'設定', language:'EN', desktop:'電腦可呈現更豐富的細節；手機請以橫向遊玩。', footer:'一段走進外星生態的安靜旅程。', controls:'鍵盤與滑鼠 · 橫向觸控', habitat:'帷幕濕地', art:'Aeral · 概念美術', settingsTitle:'以你的步調出發', settingsNote:'除非在此更改，否則沿用遊戲已儲存的偏好。', localeLabel:'語言', volumeLabel:'音量', motionLabel:'減少動態效果', qualityLabel:'畫面細節', saved:'沿用遊戲偏好', on:'開啟', off:'關閉', low:'輕量', high:'完整', done:'完成', restore:'沿用已儲存偏好', close:'關閉設定', loadingTitle:'世界正漸漸清晰', connecting:'正在開啟旅程…', downloading:'正在下載探索內容…', preparing:'正在準備這片生命世界…', validating:'正在確認旅程…', waiting:'正在等候第一個畫面…', transferHint:'實際下載進度', prepareHint:'正在準備進入世界…', errorTitle:'訊號暫時中斷', error:'旅程暫時未能開啟。你可以重試，或先返回首頁。', support:'此瀏覽器未能提供所需的 3D 圖像支援，請使用已啟用硬件加速的瀏覽器。', lost:'圖像連線中斷。重新載入後，選擇「繼續旅程」即可讀取已儲存進度。', timeout:'準備時間比預期長。你可以返回首頁重試；若仍未能開啟，請重新載入。', unavailable:'未找到可讀取的旅程；原有存檔已保留。你可以再試「繼續旅程」，或開始探索。', retry:'再試一次', reload:'重新載入', home:'返回首頁', loadingFooter:'慢慢來。這片世界，值得等一會。', stopMotion:'暫停動畫', resumeMotion:'繼續動畫', canvas:'Signal in the Dust 外星探索遊戲'
+      eyebrow:'循著好奇，走進陌生的生命世界', subtitle:'塵境回聲', intro:'在礦物與生命之間，一片世界正靜靜展開。駕上探測車，走出自己的路。', start:'開始探索', continue:'繼續旅程', settings:'設定', language:'EN', desktop:'電腦可呈現更豐富的細節；手機請以橫向遊玩。', footer:'四片棲地，一段安靜的遠行。', controls:'鍵盤與滑鼠 · 橫向觸控', habitat:'帷幕濕地', art:'帷幕濕地 · 概念美術', landscapeNote:'水面，留住了光。', aurora:'極光高原', ember:'熱泉裂谷', veil:'濃霧沼澤', pale:'孢子衰變', expedition:'探索旅程', specimen:'生命的綻放', settingsKicker:'旅程偏好', settingsTitle:'以你的步調出發', settingsNote:'除非在此更改，否則沿用遊戲已儲存的偏好。', localeLabel:'語言', volumeLabel:'音量', motionLabel:'減少動態效果', qualityLabel:'畫面細節', saved:'沿用遊戲偏好', on:'開啟', off:'關閉', low:'輕量', high:'完整', done:'完成', restore:'沿用已儲存偏好', close:'關閉設定', loadingTitle:'世界正漸漸清晰', connecting:'正在開啟旅程…', downloading:'正在下載探索內容…', preparing:'正在準備這片生命世界…', validating:'正在確認旅程…', waiting:'正在等候第一個畫面…', transferHint:'實際下載進度', prepareHint:'正在準備進入世界…', errorTitle:'訊號暫時中斷', error:'旅程暫時未能開啟。你可以重試，或先返回首頁。', support:'此瀏覽器未能提供所需的 3D 圖像支援，請使用已啟用硬件加速的瀏覽器。', lost:'圖像連線中斷。重新載入後，選擇「繼續旅程」即可讀取已儲存進度。', timeout:'準備時間比預期長。你可以返回首頁重試；若仍未能開啟，請重新載入。', unavailable:'未找到可讀取的旅程；原有存檔已保留。你可以再試「繼續旅程」，或開始探索。', retry:'再試一次', reload:'重新載入', home:'返回首頁', loadingFooter:'慢慢來。這片世界，值得等一會。', stopMotion:'暫停動畫', resumeMotion:'繼續動畫', canvas:'Signal in the Dust 外星探索遊戲'
     }
   };
   const $ = id => document.getElementById(id);
@@ -20,10 +20,70 @@
   let homeMessage = '', lastStatus = '', sequence = 0, pausedAnimation = false;
   let lastAction = 'new', savedAvailable = null;
   window.__EXPEDITION_ERRORS__ = window.__EXPEDITION_ERRORS__ || [];
+  let bootTiming = {
+    action: null,
+    coldStart: null,
+    timestampsMs: { shell_script_evaluated_ms: performance.now() },
+    durationsMs: {}
+  };
+
+  function publishBootTimings(preserveGodot = true) {
+    const previousGodot = preserveGodot ? (window.__EXPEDITION_BOOT_TIMINGS__?.godot ?? null) : null;
+    const shell = Object.freeze({
+      clock: 'performance.now() monotonic milliseconds since navigation start',
+      action: bootTiming.action,
+      cold_start: bootTiming.coldStart,
+      timestamps_ms: Object.freeze({ ...bootTiming.timestampsMs }),
+      durations_ms: Object.freeze({ ...bootTiming.durationsMs })
+    });
+    const snapshot = Object.freeze({
+      version: 1,
+      readonly: true,
+      shell,
+      godot: previousGodot,
+      unavailable_or_combined: Object.freeze({
+        wasm_compile_ms: 'unknown; browser/engine work is combined within engine.startGame()',
+        shader_compile_ms: 'unknown; browser/engine work is combined through engine start and first rendered frame',
+        wasm_decompression_completion_ms: 'unknown; the existing streaming decode path does not expose its completion separately'
+      })
+    });
+    Object.defineProperty(window, '__EXPEDITION_BOOT_TIMINGS__', {
+      value: snapshot, writable: false, configurable: true, enumerable: true
+    });
+  }
+  function markBootTiming(name, at = performance.now()) {
+    bootTiming.timestampsMs[name] = at;
+    publishBootTimings();
+    return at;
+  }
+  function completeBootTiming(name, startedAt, completedName) {
+    const completedAt = markBootTiming(completedName);
+    if (Number.isFinite(startedAt)) {
+      bootTiming.durationsMs[name] = completedAt - startedAt;
+      publishBootTimings();
+    }
+    return completedAt;
+  }
+  function resetBootTimings(action) {
+    const requestedAt = performance.now();
+    bootTiming = {
+      action,
+      coldStart: !started,
+      timestampsMs: {
+        shell_script_evaluated_ms: bootTiming.timestampsMs.shell_script_evaluated_ms,
+        launch_requested_ms: requestedAt
+      },
+      durationsMs: {}
+    };
+    publishBootTimings(false);
+  }
+  publishBootTimings();
 
   function reducedMotion() { return overrides.reduced_motion ?? systemMotion.matches; }
   function updateMotion() {
     document.body.dataset.reducedMotion = String(reducedMotion() || pausedAnimation);
+    document.body.dataset.bloomMotion = reducedMotion() ? 'reduced' : pausedAnimation ? 'paused' : 'running';
+    $('pause-animation').setAttribute('aria-pressed',String(pausedAnimation));
     $('pause-animation').hidden = reducedMotion() || document.body.dataset.shellPhase === 'error';
   }
   function translate() {
@@ -78,6 +138,14 @@
   }
   function finishOnFrame() {
     clearTimeout(guard); busy = false;
+    if (!Number.isFinite(bootTiming.timestampsMs.first_interactive_ms)) {
+      const interactiveAt = markBootTiming('first_interactive_ms');
+      const requestedAt = bootTiming.timestampsMs.launch_requested_ms;
+      if (Number.isFinite(requestedAt)) {
+        bootTiming.durationsMs.launch_to_first_interactive_ms = interactiveAt - requestedAt;
+        publishBootTimings();
+      }
+    }
     document.body.dataset.shellPhase = 'game';
     veil.classList.add('departing'); veil.inert = true; blockGame(false);
     canvas.focus({preventScroll:true});
@@ -105,11 +173,20 @@
     return { version:1, requestId:`web-${Date.now().toString(36)}-${++sequence}-${Math.random().toString(36).slice(2,9)}`, action, settings:{...overrides} };
   }
   function loadEngineScript() {
-    if (typeof window.Engine === 'function') return Promise.resolve();
+    if (typeof window.Engine === 'function') {
+      markBootTiming('engine_script_already_available_ms');
+      return Promise.resolve();
+    }
+    const downloadStartedAt = markBootTiming('engine_script_download_start_ms');
     return new Promise((resolve,reject) => {
       const script = document.createElement('script');
       script.src = document.getElementById('engine-source').dataset.src;
-      script.onload = () => typeof window.Engine === 'function' ? resolve() : reject(new Error('Engine entry unavailable'));
+      script.onload = () => {
+        if (typeof window.Engine === 'function') {
+          completeBootTiming('engine_script_download_ms', downloadStartedAt, 'engine_script_download_complete_ms');
+          resolve();
+        } else reject(new Error('Engine entry unavailable'));
+      };
       script.onerror = () => reject(new Error('Engine download failed'));
       document.head.append(script);
     });
@@ -120,17 +197,23 @@
     const originalFetch = window.fetch;
     const wasmUrl = new URL(config.executable + '.wasm', location.href).href;
     const decodeFetch = async (resource, options) => {
-      const response = await originalFetch.call(window, resource, options);
       const requested = new URL(resource instanceof Request ? resource.url : resource, location.href).href;
+      const wasmFetchStartedAt = requested === wasmUrl ? markBootTiming('wasm_fetch_start_ms') : null;
+      const response = await originalFetch.call(window, resource, options);
       if (requested !== wasmUrl || !response.ok) return response;
       const bytes = new Uint8Array(await response.arrayBuffer());
+      completeBootTiming('wasm_fetch_and_read_ms', wasmFetchStartedAt, 'wasm_fetch_and_read_complete_ms');
       const headers = new Headers(response.headers); headers.set('Content-Type','application/wasm');
       if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
         if (typeof DecompressionStream === 'undefined') throw new Error('Browser cannot decode game package');
+        const setupStartedAt = markBootTiming('wasm_decompression_stream_setup_start_ms');
         headers.delete('Content-Encoding'); headers.delete('Content-Length');
-        return new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')), {status:response.status,headers});
+        const decoded = new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')), {status:response.status,headers});
+        completeBootTiming('wasm_decompression_stream_setup_ms', setupStartedAt, 'wasm_decompression_stream_setup_complete_ms');
+        return decoded;
       }
       headers.delete('Content-Encoding'); headers.set('Content-Length', String(bytes.length));
+      markBootTiming('wasm_uncompressed_response_ready_ms');
       return new Response(bytes,{status:response.status,headers});
     };
     window.fetch = decodeFetch;
@@ -142,17 +225,34 @@
       fail('support', null, true); return;
     }
     const config = window.__EXPEDITION_ENGINE_CONFIG__;
+    const engineInitializationStartedAt = markBootTiming('engine_initialization_start_ms');
     engine = new window.Engine(config);
+    completeBootTiming('engine_initialization_ms', engineInitializationStartedAt, 'engine_initialization_complete_ms');
     restoreFetch = installWasmDecode(config);
     try {
+      const engineStartStartedAt = markBootTiming('engine_start_start_ms');
       await engine.startGame({canvas,
         onProgress(current,total) {
           if (!busy || document.body.dataset.shellPhase !== 'loading') return;
+          if (Number.isFinite(total) && total > 0 && Number.isFinite(current) && current >= 0) {
+            if (current < total && !Number.isFinite(bootTiming.timestampsMs.engine_reported_download_start_ms)) {
+              markBootTiming('engine_reported_download_start_ms');
+            }
+            if (current >= total && !Number.isFinite(bootTiming.timestampsMs.engine_reported_download_complete_ms)) {
+              const completedAt = markBootTiming('engine_reported_download_complete_ms');
+              const downloadStartedAt = bootTiming.timestampsMs.engine_reported_download_start_ms;
+              if (Number.isFinite(downloadStartedAt)) {
+                bootTiming.durationsMs.engine_reported_download_ms = completedAt - downloadStartedAt;
+                publishBootTimings();
+              }
+            }
+          }
           if (Number.isFinite(total) && total > 0 && Number.isFinite(current) && current >= 0 && current < total) setProgress(Math.min(100,current/total*100),'downloading');
           else setProgress(null, total > 0 && current >= total ? 'preparing' : 'downloading');
         },
         onPrintError(...args) { const message = args.join(' '); window.__EXPEDITION_ERRORS__.push(message); console.error(message); }
       });
+      completeBootTiming('engine_start_until_ready_ms', engineStartStartedAt, 'engine_ready_ms');
       started = true;
       if (busy && document.body.dataset.shellPhase === 'loading') setProgress(null,'waiting');
       inspectStatus();
@@ -162,6 +262,7 @@
     if (!['new','continue'].includes(action) || busy) return;
     if (fatal) { fail(errorKey, null, true); return; }
     lastAction = action; busy = true; pending = request(action); lastStatus = '';
+    resetBootTimings(action);
     $('start').disabled = true; $('continue').disabled = true; showLoading();
     guard = setTimeout(() => {
       // A stuck/failed engine must never result in a second instance.
@@ -234,7 +335,11 @@
   $('restore-settings').addEventListener('click',() => { overrides = {}; locale = initialLocale; updateMotion(); syncSettings(); });
   $('pause-animation').addEventListener('click',() => { pausedAnimation = !pausedAnimation; updateMotion(); translate(); });
   systemMotion.addEventListener('change', updateMotion);
-  document.addEventListener('visibilitychange',() => { document.body.classList.toggle('page-hidden',document.hidden); if (!document.hidden) inspectStatus(); });
+  // Queue genuine focus loss for Godot to consume on its own frame. No callback
+  // re-entry and no key-state synthesis; Godot owns pause, save and input release.
+  window.addEventListener('blur',() => { window.__EXPEDITION_FOCUS_LOST__ = true; document.body.classList.add('page-unfocused'); });
+  window.addEventListener('focus',() => document.body.classList.remove('page-unfocused'));
+  document.addEventListener('visibilitychange',() => { document.body.classList.toggle('page-hidden',document.hidden); if (document.hidden) window.__EXPEDITION_FOCUS_LOST__ = true; else inspectStatus(); });
   canvas.addEventListener('webglcontextlost',() => fail('lost',null,true));
   canvas.addEventListener('contextmenu',event => event.preventDefault());
   const poll = setInterval(inspectStatus,100);

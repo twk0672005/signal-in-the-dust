@@ -2,6 +2,7 @@ extends Node3D
 
 const ExpeditionSave = preload("res://scripts/expedition_save.gd")
 const ShowcaseBoot = preload("res://scripts/showcase_boot.gd")
+const WorldReview = preload("res://scripts/world_review.gd")
 const ThermalScript = preload("res://scripts/thermal_route.gd")
 const RootScript = preload("res://scripts/root_network.gd")
 const PassageScript = preload("res://scripts/quiet_passage.gd")
@@ -14,6 +15,9 @@ var _touch_callback: JavaScriptObject
 var _web_launch_callback: JavaScriptObject
 var _web_boot = ShowcaseBoot.new()
 var _web_launch_pending := false
+var _boot_timing_origin_usec: int = 0
+var _boot_timing_timestamps_usec: Dictionary = {}
+var _boot_timing_durations_usec: Dictionary = {}
 var touch_enabled := false
 var world: Node3D
 var rover: CharacterBody3D
@@ -49,7 +53,41 @@ var _resonance_feedback := ""
 var activities: RefCounted
 var _survey_message_seconds := 0.0
 
+func _begin_boot_timings() -> void:
+	_boot_timing_origin_usec = Time.get_ticks_usec()
+	_boot_timing_timestamps_usec = {}
+	_boot_timing_durations_usec = {}
+	_boot_timing_mark("main_ready_enter")
+
+func _boot_timing_mark(name: String) -> void:
+	var timestamp_usec := Time.get_ticks_usec()
+	_boot_timing_timestamps_usec[name] = timestamp_usec
+	_boot_timing_durations_usec[name + "_from_main_ready"] = timestamp_usec - _boot_timing_origin_usec
+
+func _boot_timing_mark_once(name: String) -> void:
+	if not _boot_timing_timestamps_usec.has(name): _boot_timing_mark(name)
+
+func _boot_timing_span(name: String, started_usec: int) -> void:
+	var completed_usec := Time.get_ticks_usec()
+	_boot_timing_timestamps_usec[name + "_start"] = started_usec
+	_boot_timing_timestamps_usec[name + "_complete"] = completed_usec
+	_boot_timing_durations_usec[name] = completed_usec - started_usec
+
+func _publish_boot_timings() -> void:
+	if not OS.has_feature("web"): return
+	var payload := {
+		"clock": "Time.get_ticks_usec() monotonic microseconds",
+		"origin_usec": _boot_timing_origin_usec,
+		"timestamps_usec": _boot_timing_timestamps_usec.duplicate(true),
+		"durations_usec": _boot_timing_durations_usec.duplicate(true)
+	}
+	var source := "(() => { const current = window.__EXPEDITION_BOOT_TIMINGS__ || {}; const payload = " + JSON.stringify(payload) + "; const godot = Object.freeze({...payload, timestamps_usec:Object.freeze(payload.timestamps_usec), durations_usec:Object.freeze(payload.durations_usec)}); Object.defineProperty(window, '__EXPEDITION_BOOT_TIMINGS__', {value:Object.freeze({...current, godot}), writable:false, configurable:true, enumerable:true}); })();"
+	JavaScriptBridge.eval(source, true)
+
 func _ready() -> void:
+	_begin_boot_timings()
+	var local_review := WorldReview.enabled_in_browser()
+	if local_review: save_path = "user://world-review-expedition.json"
 	# Every native evidence run uses its own disposable save, never the player's slot.
 	if save_path == SAVE_PATH:
 		for arg in OS.get_cmdline_user_args():
@@ -70,15 +108,23 @@ func _ready() -> void:
 	root_network = RootScript.new()
 	passage = PassageScript.new()
 	escort = EscortScript.new()
+	var world_new_started_usec := Time.get_ticks_usec()
 	world = load("res://scripts/world.gd").new()
+	_boot_timing_span("world_new_including_script_load", world_new_started_usec)
+	var world_add_child_started_usec := Time.get_ticks_usec()
 	add_child(world)
+	_boot_timing_span("world_add_child", world_add_child_started_usec)
 	escort.configure(_escort_route())
 	if not passage.configure(world.passage_route()):
 		push_error("Invalid authored passage route")
 		return
+	var rover_new_started_usec := Time.get_ticks_usec()
 	rover = RoverScript.new()
+	_boot_timing_span("rover_new", rover_new_started_usec)
 	rover.configure(world)
+	var rover_add_child_started_usec := Time.get_ticks_usec()
 	add_child(rover)
+	_boot_timing_span("rover_add_child", rover_add_child_started_usec)
 	contact = ContactScript.new()
 	contact.position = world.signal_origin()
 	add_child(contact)
@@ -91,8 +137,12 @@ func _ready() -> void:
 	exterior.current = true
 	audio = load("res://scripts/expedition_audio.gd").new()
 	add_child(audio)
+	var ui_new_started_usec := Time.get_ticks_usec()
 	ui = load("res://scripts/interface.gd").new()
+	_boot_timing_span("ui_new_including_script_load", ui_new_started_usec)
+	var ui_add_child_started_usec := Time.get_ticks_usec()
 	add_child(ui)
+	_boot_timing_span("ui_add_child", ui_add_child_started_usec)
 	ui.start_requested.connect(request_new_expedition)
 	ui.continue_saved_requested.connect(load_expedition)
 	ui.resume_requested.connect(resume_expedition)
@@ -109,7 +159,11 @@ func _ready() -> void:
 	_on_settings(ui.get_settings())
 	ui.show_state("menu")
 	audio.set_paused(true)
+	if OS.has_feature("web"):
+		await _warm_web_renderer()
 	ready_for_play = true
+	_boot_timing_mark("ready_for_play")
+	_publish_boot_timings()
 	var available := has_saved_expedition()
 	var file_present := ExpeditionSave.exists(save_path)
 	ui.set_saved_available(available, file_present and not available)
@@ -117,6 +171,54 @@ func _ready() -> void:
 	_publish_snapshot()
 	print("EXPEDITION_READY")
 	_install_web_launch()
+	if local_review:
+		var review := WorldReview.new()
+		add_child(review)
+		review.setup(self)
+
+func _warm_web_renderer() -> void:
+	# Real hidden-by-shell rendering, not a test-only time/filter adjustment.
+	# Keep gameplay paused while the browser compiles first-use material variants.
+	var warm_started := Time.get_ticks_usec()
+	var original_camera := get_viewport().get_camera_3d()
+	var original_paused: bool = world._paused
+	var original_low := bool(settings.get("low_quality", false))
+	world.set_paused(true)
+	var warm_camera := Camera3D.new()
+	warm_camera.name = "StartupMaterialWarmup"
+	warm_camera.fov = 68.0
+	warm_camera.far = 650.0
+	warm_camera.near = 0.06
+	add_child(warm_camera)
+	var extra_started: int = 0
+	var views := 0
+	var capped := false
+	for low in [false, true]:
+		world.set_low_quality(low)
+		rover.set_low_quality(low)
+		for z in [125.0, -100.0, -275.0, -495.0]:
+			if extra_started > 0 and Time.get_ticks_usec() - extra_started > 12000000:
+				capped = true
+				break
+			var x: float = world.path_x(z)
+			var h: float = world.height_at(x,z)
+			warm_camera.position = Vector3(x+5.5,h+3.5,z+8.0)
+			warm_camera.look_at(Vector3(world.path_x(z-24.0),h+2.6,z-24.0))
+			warm_camera.current = true
+			await RenderingServer.frame_post_draw
+			await RenderingServer.frame_post_draw
+			views += 1
+			if extra_started == 0: extra_started = Time.get_ticks_usec()
+		if capped: break
+	world.set_low_quality(original_low)
+	rover.set_low_quality(original_low)
+	if is_instance_valid(original_camera): original_camera.current = true
+	else: exterior.current = true
+	warm_camera.queue_free()
+	world.set_paused(original_paused)
+	_boot_timing_span("renderer_first_use_warmup", warm_started)
+	_boot_timing_durations_usec["renderer_warmup_views"] = views
+	_boot_timing_durations_usec["renderer_warmup_capped"] = 1 if capped else 0
 
 func _install_web_launch() -> void:
 	if not OS.has_feature("web"): return
@@ -289,6 +391,8 @@ func _process(delta: float) -> void:
 			rover.set_camera_mode(rover.camera_mode)
 			rover.set_driving_enabled(true)
 			_set_phase("exploring")
+			_boot_timing_mark_once("first_playable")
+			_publish_boot_timings()
 	elif phase == "contact":
 		if contact.elapsed >= 6.0 and not reveal_audio_played:
 			reveal_audio_played = true
@@ -300,6 +404,11 @@ func _process(delta: float) -> void:
 	readout_clock += delta
 	if readout_clock >= 0.15:
 		readout_clock = 0.0
+		# Web window blur is not consistently forwarded as application focus-out.
+		# Consume the real DOM-event request on the engine frame, avoiding WASM re-entry.
+		if OS.has_feature("web") and bool(JavaScriptBridge.eval("window.__EXPEDITION_FOCUS_LOST__ === true", true)):
+			JavaScriptBridge.eval("window.__EXPEDITION_FOCUS_LOST__ = false;", true)
+			pause_expedition()
 		ui.update_readout(target_distance(), elapsed, contact.progress, can_interact(), rover.current_speed_mps(), rover.max_speed_mps(), rover.camera_mode, ecology_snapshot())
 		_update_survey_readout()
 		if phase == "exploring":
@@ -440,6 +549,70 @@ func has_saved_expedition() -> bool:
 	_save_available = not ExpeditionSave.read(save_path).is_empty()
 	return _save_available
 
+func _resume_space_clear(position: Vector3, heading: float) -> bool:
+	var collider: CollisionShape3D
+	for child in rover.get_children():
+		if child is CollisionShape3D:
+			collider = child
+			break
+	if collider == null: return false
+	var basis := Basis(Vector3.UP,-heading)
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = collider.shape
+	query.transform = Transform3D(basis,position) * collider.transform
+	# Habitat solids have their own bit; resting contact with ordinary ground
+	# must not relocate an otherwise unchanged save.
+	query.collision_mask = 128
+	query.exclude = [rover.get_rid()]
+	if not get_world_3d().direct_space_state.intersect_shape(query,1).is_empty(): return false
+	# Concave shapes can enclose the whole box. Physics flips backface ray normals,
+	# so inspect original triangle winding, tracking each shape within a chunk.
+	var cursor := position+Vector3.UP*.55
+	var end := position+Vector3.UP*40.0
+	var entered: Dictionary = {}
+	for crossing in 32:
+		var ray := PhysicsRayQueryParameters3D.create(cursor,end,128,[rover.get_rid()])
+		ray.hit_back_faces = true
+		var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+		if hit.is_empty(): return true
+		var body: CollisionObject3D = hit.collider
+		var owner := body.shape_find_owner(int(hit.shape))
+		var mesh := body.shape_owner_get_shape(owner,0) as ConcavePolygonShape3D
+		var face: int = hit.get("face_index",-1)
+		if mesh == null or face < 0: return false
+		var vertices := mesh.get_faces()
+		if face*3+2 >= vertices.size(): return false
+		var transform := body.global_transform*body.shape_owner_get_transform(owner)
+		var a: Vector3 = transform*vertices[face*3]
+		var b: Vector3 = transform*vertices[face*3+1]
+		var c: Vector3 = transform*vertices[face*3+2]
+		var facing := (b-a).cross(c-a).y
+		var key := str(body.get_instance_id())+":"+str(hit.shape)
+		# Godot front faces wind clockwise: negative upward cross is an exit.
+		var depth: int = int(entered.get(key,0))+(1 if facing>0 else -1)
+		if depth < 0: return false
+		entered[key] = depth
+		cursor = (hit.position as Vector3)+Vector3.UP*.005
+	return false # Conservatively reject unusually complex/unresolved enclosures.
+
+func _free_resume_position(position: Vector3, heading: float) -> Variant:
+	if _resume_space_clear(position,heading): return position
+	# Only an obstructed legacy footprint moves; progress and saved bytes stay intact.
+	var candidates: Array[Vector2] = []
+	for radius in [1.5,3.0,6.0]:
+		for i in 8:
+			candidates.append(Vector2(position.x,position.z)+Vector2.from_angle(i*TAU/8.0)*radius)
+	candidates.append(Vector2(world.path_x(position.z),position.z))
+	for point in candidates:
+		if absf(point.x)>94.0 or point.y < -670.0 or point.y > 180.0: continue
+		var height: float = world.height_at(point.x,point.y)
+		var ray := PhysicsRayQueryParameters3D.create(Vector3(point.x,height+1.0,point.y),Vector3(point.x,height-3.0,point.y),1,[rover.get_rid()])
+		var floor_hit := get_world_3d().direct_space_state.intersect_ray(ray)
+		if floor_hit.is_empty() or (floor_hit.normal as Vector3).y < .7: continue
+		var candidate: Vector3 = floor_hit.position+Vector3.UP*.08
+		if _resume_space_clear(candidate,heading): return candidate
+	return null
+
 func load_expedition() -> bool:
 	var parsed: Dictionary = ExpeditionSave.read(save_path)
 	if parsed.is_empty():
@@ -447,10 +620,28 @@ func load_expedition() -> bool:
 		return false
 	var point: Dictionary = parsed["position"]
 	var position := Vector3(float(point.x),float(point.y),float(point.z))
-	# A file from another terrain revision must not put the player below the surface.
-	if absf(position.y-world.height_at(position.x,position.z)) > 5.0:
+	# Accept known old terrain within the authored revision area, without relaxing
+	# validation elsewhere or changing any saved progression.
+	var ground_y: float = world.height_at(position.x,position.z)
+	var changed_terrain: bool = world.environment_terrain_changed_at(position.x,position.z)
+	var valid_height := absf(position.y-ground_y) <= 5.0
+	if changed_terrain:
+		valid_height = valid_height or absf(position.y-world.legacy_height_at(position.x,position.z)) <= 5.0
+	if not valid_height:
 		if phase == "menu": ui.set_saved_available(false,true)
 		return false
+	if changed_terrain:
+		# Find support at/below the old feet, without lifting a valid under-canopy
+		# save onto its roof. New solids at this position use the clearance fallback.
+		var from := Vector3(position.x,maxf(position.y,ground_y)+0.25,position.z)
+		var to := Vector3(position.x,ground_y-3.0,position.z)
+		var query := PhysicsRayQueryParameters3D.create(from,to,1,[rover.get_rid()])
+		var hit := get_world_3d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty(): ground_y = maxf(ground_y,(hit.position as Vector3).y)
+		position.y = ground_y + 0.08
+	var safe_position: Variant = _free_resume_position(position,float(parsed["heading"]))
+	if safe_position == null: return false
+	position = safe_position
 	var restored_activities: RefCounted=ActivityScript.new()
 	if not restored_activities.restore(parsed["activities"]): return false
 	var restored_network: RefCounted=RootScript.new()
@@ -513,6 +704,8 @@ func load_expedition() -> bool:
 	rover.set_driving_enabled(true)
 	audio.set_paused(false)
 	_set_phase("exploring")
+	_boot_timing_mark_once("first_playable")
+	_publish_boot_timings()
 	return true
 
 func clear_saved_expedition() -> bool:

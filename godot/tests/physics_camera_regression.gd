@@ -38,6 +38,7 @@ func place(position: Vector3, yaw: float) -> void:
 
 func run() -> void:
 	game = load("res://main.tscn").instantiate()
+	game.save_path = output.path_join("isolated-expedition.json")
 	root.add_child(game)
 	await frames(15)
 	checks.ready = game.ready_for_play

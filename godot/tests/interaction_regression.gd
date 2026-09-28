@@ -12,6 +12,7 @@ func tick(count: int) -> void:
     await process_frame
 func run() -> void:
     game=load("res://main.tscn").instantiate()
+    game.save_path=output.path_join("isolated-expedition.json")
     root.add_child(game)
     await tick(5)
     game.start_expedition()
