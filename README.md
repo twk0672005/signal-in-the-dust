@@ -4,6 +4,11 @@ Play: https://twk0672005.github.io/signal-in-the-dust/
 
 Bilingual alien exploration with a rover, four habitats, reactive creatures and field investigations. Public playable preview; market acceptance remains PARTIAL.
 
+## September 28 update
+Four-region environment update with denser reusable forest and rock groves, a reshaped Veil Marsh shoreline, distant landscape imagery, safer Continue placement, and a bilingual entry screen with the pauseable, reduced-motion-aware “Life in bloom” loading animation.
+
+Local validation covered the four-region driving journey, interactions, save/Continue, focus loss and emulated touch. Low720 met its 30 FPS target in all four measured moving/interaction workloads. Standard1080 did not maintain its nominal 60 FPS target in every region; stalls remain visible in the measurements. Final visual/market acceptance, physical mobile, Safari and long-session memory validation remain incomplete.
+
 ## Desktop
 WASD/arrows: drive. Space: brake. V: first/third-person. Right mouse: look. E: interact. J: journal. Esc: pause. R: reset with confirmation.
 
@@ -16,4 +21,4 @@ Supports WebGL2-capable browsers. Touch behavior was checked in Chromium device 
 Progress is stored in your browser for this site. Moving from the previous Codex Site to this new address does not transfer saves. Private browsing, cleared site data or blocked storage may prevent Continue; the game warns when saving fails. No external AI runtime or account is needed.
 
 ## Release
-This repository contains the web export, credits and file hashes only. The editable Godot project and private test evidence are maintained separately. See `release.json` for source revision and exact artifact hashes. `index.wasm` is gzip-compressed; the loader detects/decompresses it when the host does not provide Content-Encoding. `.nojekyll` preserves static files. See CREDITS.md and licenses/.
+This repository contains the web export, credits and file hashes only. The editable Godot project and private test evidence are maintained separately. See `release.json` for source revision and exact artifact hashes. `index.wasm` is raw WebAssembly (39.5 MB); `index.pck` is 81.3 MB. Initial transfer is substantial. The loader also supports gzip exports, but this release uses the verified raw artifact. `.nojekyll` preserves static files. See CREDITS.md and licenses/.

@@ -1,10 +1,35 @@
 {
-  "sourceCommit": "8d4e864effde0ca75556419f747310183b42e028",
+  "sourceCommit": "77ab53d0fdf43acee3c399d909040c87115f018c",
   "engine": "4.7.2",
-  "builtAt": "2026-09-23T16:07:57.723Z",
+  "renderer": "Compatibility",
+  "threads": "single",
+  "preparedAt": "2026-09-28T17:17:19.388869+00:00",
   "audience": "public playable preview",
   "market": "PARTIAL",
+  "provenance": {
+    "sourceCommitRole": "Local integration commit retaining editable source; publication copies the previously verified frozen export without rebuilding.",
+    "gameCandidate": "environment-entry-20260928T134859Z/candidate-r4",
+    "shellCandidate": "life-bloom-20260928T160447Z/candidate-bloom-v2",
+    "shellFrozenAt": "2026-09-28T16:27:16.939413+00:00",
+    "shellChanges": [
+      "index.html",
+      "showcase.css",
+      "showcase.js"
+    ],
+    "gameRuntimeUnchangedFromR4": true,
+    "wasmEncoding": "raw"
+  },
   "files": [
+    {
+      "name": "assets/aeral-hero-v1.png",
+      "bytes": 2721549,
+      "sha256": "1793673f91d25affd671631fdd19f2e182a0623b7bd89f2272a79e95888d0f15"
+    },
+    {
+      "name": "assets/veil-entry-v2.png",
+      "bytes": 3059723,
+      "sha256": "5017ba0aea023337f3fbe6b2e1924c9ceebf94d6286fea833b98e78e9256d8c9"
+    },
     {
       "name": "index.apple-touch-icon.png",
       "bytes": 11944,
@@ -22,8 +47,8 @@
     },
     {
       "name": "index.html",
-      "bytes": 12454,
-      "sha256": "1d50eba00caefd5064dfa568dad6eb1f5ddbd333c68f841cac8cb8907ab3f704"
+      "bytes": 23705,
+      "sha256": "97389ebfc6a0a7b0ba9e2d97b98da61f2967007d8f8097283869a57da00dfbe4"
     },
     {
       "name": "index.icon.png",
@@ -37,8 +62,8 @@
     },
     {
       "name": "index.pck",
-      "bytes": 14993864,
-      "sha256": "bf4787941c4f2a0a74fcc9baa0c59f03d0f5faed7b949fd3d5e1c85c17ac4ff8"
+      "bytes": 81325292,
+      "sha256": "6f25e0140d9d90f8535c523544cd085fc1b890a1c76f8755c44c241d2b051d25"
     },
     {
       "name": "index.png",
@@ -47,8 +72,18 @@
     },
     {
       "name": "index.wasm",
-      "bytes": 10153810,
-      "sha256": "9ed85643181ce4cb0434d8f69c1691df1c8f206852578a94d360d01078d97031"
+      "bytes": 39514754,
+      "sha256": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
+    },
+    {
+      "name": "showcase.css",
+      "bytes": 21410,
+      "sha256": "7fec5b4ba59a852d549e0dcb93af3729e0c63ac121280655f0d0302196e855d0"
+    },
+    {
+      "name": "showcase.js",
+      "bytes": 24589,
+      "sha256": "a55c82ebd7828dc74db3fd6d22ed708a006ecc28b8b794208947cb77f908e079"
     }
   ]
 }
