@@ -22,3 +22,6 @@ Progress is stored in your browser for this site. Moving from the previous Codex
 
 ## Release
 This repository contains the web export, credits and file hashes only. The editable Godot project and private test evidence are maintained separately. See `release.json` for source revision and exact artifact hashes. `index.wasm` is raw WebAssembly (39.5 MB); `index.pck` is 81.3 MB. Initial transfer is substantial. The loader also supports gzip exports, but this release uses the verified raw artifact. `.nojekyll` preserves static files. See CREDITS.md and licenses/.
+
+## Startup responsiveness repair
+World construction and material first-use work now yield between batches, preserving the authored scene. Coupled shell, engine, worklet and art URLs are immutable per release; old release dependencies remain available. Raw and gzip WASM stream into the engine, and failed downloads show a retry screen. First-time loading still compiles graphics on the device and may take time. See release.json for the exact artifact; final market acceptance remains PARTIAL.

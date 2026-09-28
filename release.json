@@ -1,89 +1,91 @@
 {
-  "sourceCommit": "77ab53d0fdf43acee3c399d909040c87115f018c",
+  "sourceCommit": "1c54ee8a23816734343c2fccf85f06b2de3919fc",
   "engine": "4.7.2",
   "renderer": "Compatibility",
   "threads": "single",
-  "preparedAt": "2026-09-28T17:17:19.388869+00:00",
+  "preparedAt": "2026-09-28T18:13:48.658984+00:00",
   "audience": "public playable preview",
   "market": "PARTIAL",
-  "provenance": {
-    "sourceCommitRole": "Local integration commit retaining editable source; publication copies the previously verified frozen export without rebuilding.",
-    "gameCandidate": "environment-entry-20260928T134859Z/candidate-r4",
-    "shellCandidate": "life-bloom-20260928T160447Z/candidate-bloom-v2",
-    "shellFrozenAt": "2026-09-28T16:27:16.939413+00:00",
-    "shellChanges": [
-      "index.html",
-      "showcase.css",
-      "showcase.js"
-    ],
-    "gameRuntimeUnchangedFromR4": true,
-    "wasmEncoding": "raw"
+  "startupResponsiveness": {
+    "environment": "Windows Chrome 153, local exact Web export, 1280x720",
+    "baselineColdMaxGapMs": 62890.9,
+    "coldMaxGapMs": 2903.2,
+    "headedColdMaxGapMs": 3020,
+    "warmMaxGapMs": 500.9,
+    "coldLaunchToInteractiveSeconds": 74.7,
+    "warmLaunchToInteractiveSeconds": 15.5,
+    "strictTwoSecondTarget": "PARTIAL",
+    "scope": "Large startup task aggregation repaired; first-use shader work can still pause briefly. Not a frame-rate or mobile performance certification."
   },
+  "releaseId": "53395a6554fcc5b4604c57de",
+  "wasmEncoding": "raw",
   "files": [
     {
-      "name": "assets/aeral-hero-v1.png",
+      "name": "index.html",
+      "bytes": 24042,
+      "sha256": "f009b2c37aa070bab526c36c9771df3a32ab1ad53af4157ce7e191adbea0a4a8"
+    },
+    {
+      "name": "releases/53395a6554fcc5b4604c57de/assets/aeral-hero-v1.png",
       "bytes": 2721549,
       "sha256": "1793673f91d25affd671631fdd19f2e182a0623b7bd89f2272a79e95888d0f15"
     },
     {
-      "name": "assets/veil-entry-v2.png",
+      "name": "releases/53395a6554fcc5b4604c57de/assets/veil-entry-v2.png",
       "bytes": 3059723,
       "sha256": "5017ba0aea023337f3fbe6b2e1924c9ceebf94d6286fea833b98e78e9256d8c9"
     },
     {
-      "name": "index.apple-touch-icon.png",
+      "name": "releases/53395a6554fcc5b4604c57de/index.apple-touch-icon.png",
       "bytes": 11944,
       "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5"
     },
     {
-      "name": "index.audio.position.worklet.js",
+      "name": "releases/53395a6554fcc5b4604c57de/index.audio.position.worklet.js",
       "bytes": 2973,
       "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
     },
     {
-      "name": "index.audio.worklet.js",
+      "name": "releases/53395a6554fcc5b4604c57de/index.audio.worklet.js",
       "bytes": 7298,
       "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
     },
     {
-      "name": "index.html",
-      "bytes": 23705,
-      "sha256": "97389ebfc6a0a7b0ba9e2d97b98da61f2967007d8f8097283869a57da00dfbe4"
-    },
-    {
-      "name": "index.icon.png",
+      "name": "releases/53395a6554fcc5b4604c57de/index.icon.png",
       "bytes": 5700,
       "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5"
     },
     {
-      "name": "index.js",
+      "name": "releases/53395a6554fcc5b4604c57de/index.js",
       "bytes": 279815,
       "sha256": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba"
     },
     {
-      "name": "index.pck",
-      "bytes": 81325292,
-      "sha256": "6f25e0140d9d90f8535c523544cd085fc1b890a1c76f8755c44c241d2b051d25"
+      "name": "releases/53395a6554fcc5b4604c57de/index.pck",
+      "bytes": 81325116,
+      "sha256": "76d426c93e1e6f1d9be23e18ca65f6cc03ec5ef629c6deb094a059cf62973717"
     },
     {
-      "name": "index.png",
+      "name": "releases/53395a6554fcc5b4604c57de/index.png",
       "bytes": 21443,
       "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e"
     },
     {
-      "name": "index.wasm",
+      "name": "releases/53395a6554fcc5b4604c57de/index.wasm",
       "bytes": 39514754,
       "sha256": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
     },
     {
-      "name": "showcase.css",
+      "name": "releases/53395a6554fcc5b4604c57de/showcase.css",
       "bytes": 21410,
       "sha256": "7fec5b4ba59a852d549e0dcb93af3729e0c63ac121280655f0d0302196e855d0"
     },
     {
-      "name": "showcase.js",
-      "bytes": 24589,
-      "sha256": "a55c82ebd7828dc74db3fd6d22ed708a006ecc28b8b794208947cb77f908e079"
+      "name": "releases/53395a6554fcc5b4604c57de/showcase.js",
+      "bytes": 27017,
+      "sha256": "2ed149471df6cdbd3d86105fe1f9ec1767d093bc656e14a156ee8d626074c7b0"
     }
-  ]
+  ],
+  "provenance": "Copied byte-for-byte from the verified frozen startup-repair Web export; source/build receipts retained locally.",
+  "cacheMigration": "Prior root aliases and immutable release directories retained byte-for-byte."
 }
