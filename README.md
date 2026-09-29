@@ -1,5 +1,17 @@
 # Signal in the Dust — First Contact
 
+## Published main — 2026-09-29
+
+Nova's explicit local/GitHub main instruction has been completed for the existing public preview.
+Game source commit: `4f727820451e51da7dd2d50021f6049c0caafd03` on local `main`.
+Separate Web-export GitHub main: `46aa6dfa675569fe4450c8da71cd5516b4698af0`.
+Play: https://twk0672005.github.io/signal-in-the-dust/?v=af58aba5d001b1a262549d19
+Pages reports built for that commit; all 13 game files plus 3 publication metadata files match by SHA-256.
+Local `out/` holds the same release; run `python tools/serve_web.py --port 4234`.
+592 authored Godot files matched the frozen candidate before integration; 396 preexisting import files remain unchanged and uncommitted. Old public release dependencies remain intact.
+Publication receipt and public Chrome smoke: `evidence/push-main-20260929/FINAL_RECEIPT.json`.
+This publication supersedes the historical no-commit/no-push notes below. Visual/performance acceptance remains PARTIAL; publishing does not close the outstanding phone/Safari, long-duration, sustained60FPS or visual-quality gates.
+
 ## Main publication — 2026-09-29
 
 Nova explicitly authorized local main and the existing GitHub main/Pages publication.
