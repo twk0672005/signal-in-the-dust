@@ -25,3 +25,6 @@ This repository contains the web export, credits and file hashes only. The edita
 
 ## Startup responsiveness repair
 World construction and material first-use work now yield between batches, preserving the authored scene. Coupled shell, engine, worklet and art URLs are immutable per release; old release dependencies remain available. Raw and gzip WASM stream into the engine, and failed downloads show a retry screen. First-time loading still compiles graphics on the device and may take time. See release.json for the exact artifact; final market acceptance remains PARTIAL.
+
+## Visual and gameplay update — 2026-09-29
+Four-region landforms and habitats, creature surfaces, coherent interaction guidance, observed-species journal, quiet wetland study and crawl controls. Honest Start/Continue storage states; no account service. Preserves driving, bilingual/touch controls, pause, save and staged startup. This is a public playable preview: visual targets, cold-start responsiveness and sustained Standard60FPS remain PARTIAL; physical phone/Safari and 30-minute content are unverified.
