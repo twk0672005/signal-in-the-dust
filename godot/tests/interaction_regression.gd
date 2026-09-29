@@ -48,6 +48,49 @@ func run() -> void:
     checks.occluded_targets_do_not_scan_or_transmit=game.transmit_count==0 and game.observed_ecology.is_empty()
     wall.queue_free()
     await tick(3)
+    # A nearer animal outside the view must not hide a visible second animal.
+    game.set_process(false)
+    game.world.set_process(false)
+    var second: Node3D=game.world._ecology_nodes[1]
+    var second_original: Vector3=second.global_position
+    organism.global_position=position+Vector3(0,0.1,3.0)
+    second.global_position=position+Vector3(0,0.1,-6.0)
+    game.rover.speed=0.0
+    game._shown_interaction.clear()
+    var selection: Dictionary=game.interaction_context()
+    checks.visible_second_beats_nearest_behind=selection.get("index",-1)==1 and selection.eligible
+    game._update_survey_readout()
+    var first_pulse: float=game.world._ecology_reactions[0].pulse
+    game.interact()
+    checks.action_uses_displayed_individual=game.world._ecology_reactions[1].pulse>0 and game.world._ecology_reactions[0].pulse==first_pulse
+    game.world._ecology_reactions[0].pulse=0.0;game.world._ecology_reactions[1].pulse=0.0
+    organism.global_position=position+Vector3(0,0.1,-2.5)
+    game.interact()
+    checks.valid_displayed_subject_is_not_replaced_by_new_nearest=game.world._ecology_reactions[1].pulse>0 and game.world._ecology_reactions[0].pulse==0.0
+    game.observed_ecology.clear()
+    organism.global_position=position+Vector3(0,0.1,3.0)
+    game._update_survey_readout()
+    second.global_position=position+Vector3(0,0.1,4.0)
+    organism.global_position=position+Vector3(0,0.1,-4.0)
+    game.interact()
+    checks.moved_target_does_not_redirect_action=game.observed_ecology.is_empty()
+    game.rover.speed=3.0
+    checks.moving_reason_explained=game.interaction_context().reason=="slow" and not game.can_interact()
+    game.rover.speed=0.0
+    organism.global_position=position+Vector3(0,0.1,3.0)
+    checks.look_reason_explained=game.interaction_context().reason=="look"
+    second.global_position=second_original
+    var vent: Vector3=game.world.survey_position("ember_vent")
+    game.rover.global_position=vent+Vector3(0,0,4)
+    game.rover.heading=0.0;game.rover.rotation=Vector3.ZERO
+    game.observed_ecology.veyra=true
+    game.thermal.vent_observed=true
+    game._shown_interaction.clear()
+    await tick(3)
+    checks.site_record_precedes_same_station_encounter=game.interaction_target()=="survey:ember_vent"
+    game.interact()
+    checks.site_record_not_swallowed_by_route_toggle=game.activities.optional.ember_vent and game.thermal.route=="warm"
+    game.set_process(true)
     organism.global_position=original
     game.world.set_process(true)
     game.start_expedition()

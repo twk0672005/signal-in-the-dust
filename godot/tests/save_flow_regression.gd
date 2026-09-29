@@ -14,6 +14,7 @@ func run() -> void:
 	var game: Node3D = load("res://main.tscn").instantiate()
 	game.save_path = output.path_join("isolated-save.json")
 	Save.clear(game.save_path)
+	checks.empty_slot_status=Save.status(game.save_path)=="absent"
 	root.add_child(game)
 	await physics_frame; await physics_frame
 	game.start_expedition();game._set_phase("exploring")
@@ -23,12 +24,14 @@ func run() -> void:
 	game.observed_ecology={"veyra":true}
 	var before: Dictionary=game.snapshot().duplicate(true)
 	checks.atomic_save_succeeds = game.save_expedition()
+	checks.valid_slot_status=Save.status(game.save_path)=="valid"
 	checks.save_path_is_isolated = game.save_path.begins_with(output)
 	game.elapsed=200.0
 	checks.second_save_succeeds = game.save_expedition()
 	checks.previous_generation_backed_up = Save.read(game.save_path+".bak").elapsed == 123.4
 	put(game.save_path,"{truncated")
 	checks.corrupt_primary_recovers_backup = Save.read(game.save_path).elapsed == 123.4
+	checks.backup_counts_as_valid_slot=Save.status(game.save_path)=="valid"
 	var path: String=game.save_path
 	game.queue_free(); await create_timer(0.4).timeout
 	# Brand-new scene instance reads the saved data and exposes an actual menu action.
@@ -95,6 +98,7 @@ func run() -> void:
 	game.save_path=path
 	Save.clear(path)
 	put(path,"corrupt")
+	checks.corrupt_slot_status=Save.status(path)=="unreadable"
 	game.queue_free();await create_timer(0.4).timeout
 	game=load("res://main.tscn").instantiate();game.save_path=path;root.add_child(game)
 	await process_frame;await process_frame

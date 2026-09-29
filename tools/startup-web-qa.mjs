@@ -45,6 +45,16 @@ try{
   await page.waitForFunction(()=>document.body.dataset.shellPhase==='error',null,{timeout:20000});
   receipt.fault={kind:options.fault,errorAfterMs:Date.now()-started,reloadAvailable:await page.locator('#reload').isVisible(),retryAvailable:await page.locator('#retry').isVisible()};
   receipt.pass=receipt.fault.errorAfterMs<15000&&(receipt.fault.reloadAvailable||receipt.fault.retryAvailable);save();
+  if(options.recover){
+   await page.unroute('**/*.'+options.fault);
+   const priorErrors=errors.length;
+   await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded'}),page.locator('#retry').click()]);
+   await page.locator('#start').click();
+   await page.waitForFunction(()=>window.__EXPEDITION_STATE__?.phase==='exploring'&&document.body.dataset.shellPhase==='game',null,{timeout:180000});
+   receipt.fault.recoveredThroughVisibleRetry=true;
+   receipt.fault.recoveryErrors=errors.slice(priorErrors);
+   receipt.pass=receipt.pass&&receipt.fault.recoveryErrors.length===0;save();
+  }
   if(!receipt.pass)process.exitCode=1;
  }else{
  for(const action of options['cold-only']?['cold']:['cold','warm']){

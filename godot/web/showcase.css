@@ -19,7 +19,7 @@ body { overflow: hidden; }
 button, input, select { font: inherit; }
 button, select { cursor: pointer; }
 button { min-height: 48px; color: inherit; touch-action: manipulation; }
-button:disabled { cursor: wait; opacity: .5; }
+button:disabled { cursor: not-allowed; opacity: .55; }
 button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 5px; }
 button, input, select { -webkit-tap-highlight-color: transparent; }
 button:not(:disabled) { transition: background-color 160ms, color 160ms, border-color 160ms; }
@@ -53,6 +53,8 @@ h1 em { font-weight: 400; white-space: nowrap; }
 .title-sub::after { content: ""; width: 50px; height: 1px; background: #e3e2c873; }
 .intro { font-size: 16px; color: #dde2d8; max-width: 390px; text-wrap: pretty; }
 .entry-actions { display: flex; gap: 12px; margin-top: 31px; align-items: stretch; flex-wrap: wrap; }
+.save-status { margin-top: 12px; max-width: 440px; font-size: 13px; color: var(--text); }
+.local-save { margin-top: 4px; font-size: 12px; color: var(--muted); }
 .primary-button, .secondary-button { border: 1px solid var(--line); border-radius: 0; padding: 17px 23px; display: inline-flex; align-items: center; justify-content: space-between; gap: 30px; font-size: 14px; font-weight: 500; letter-spacing: .025em; }
 .primary-button { background: var(--warm); border-color: var(--warm); color: #1c302d; min-width: 228px; }
 .primary-button:hover { background: #fff3d7; border-color: #fff3d7; }
@@ -90,6 +92,9 @@ progress::-moz-progress-bar { background: var(--cyan); }
 progress:not([value]) { opacity: .45; }
 .percent { font-size: 14px; color: var(--text); font-variant-numeric: tabular-nums; min-width: 38px; text-align: right; }
 .loading .phase-detail { font-size: 12px; min-height: 1.8em; color: var(--muted); }
+.arrival-guide { margin-top: 22px; padding: 16px 0 0 16px; border-left: 2px solid var(--cyan); font-size: 14px; color: var(--text); }
+.arrival-guide p + p { margin-top: 10px; font-size: 13px; color: var(--muted); white-space: pre-wrap; }
+body[data-shell-phase=error] .arrival-guide { display: none; }
 .loading .quiet-button { margin-top: 19px; color: var(--muted); font-size: 12px; }
 .loading-specimen { width: min(500px, 100%); margin: 0; justify-self: center; }
 .life-bloom { width: 100%; display: block; overflow: visible; }

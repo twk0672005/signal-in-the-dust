@@ -38,19 +38,32 @@ void fragment(){
  marsh=max(marsh,pool_habitat);
  float luminance=dot(base,vec3(.2126,.7152,.0722));
  float frost_mask=smoothstep(.37,.70,flow)*(.22+.64*shoulder)*(1.0-slope*.85);
+ frost_mask*=.45+.55*smoothstep(-.35,.65,world_normal.x);
  vec3 neutral=mix(base,vec3(luminance),.43);
- vec3 fractured=texture(rock_detail,uv*.82).rgb;
- neutral=mix(neutral,fractured*.40,clamp(shoulder*.25+slope*.55,0.0,.72));
+ // Project exposed stone onto its face, not only XZ: steep banks otherwise
+ // stretch a few texels over the whole cliff and lose their geological scale.
+ vec3 axes=pow(abs(world_normal),vec3(4.0));axes/=max(dot(axes,vec3(1.0)),.001);
+ vec3 fractured=texture(rock_detail,world_pos.zy*.28).rgb*axes.x
+               +texture(rock_detail,world_pos.xz*.28).rgb*axes.y
+               +texture(rock_detail,world_pos.xy*.28).rgb*axes.z;
+ neutral=mix(neutral,fractured*.64,clamp(shoulder*.20+slope*.72,0.0,.90));
  vec3 frost=mix(neutral*vec3(.86,.99,1.03),vec3(.24,.31,.32)*(grain*.25+.78),frost_mask*.58);
+ // Exposed bedding belongs to the tilted shelves; frost collects on sheltered tops.
+ float bedding=smoothstep(.42,.70,n(vec2(world_pos.y*.16+world_pos.x*.025,world_pos.z*.037)));
+ frost=mix(frost,fractured*vec3(.53,.62,.65)*(.80+bedding*.35),slope*.48);
  vec3 hot=mix(neutral*vec3(.99,.87,.75),vec3(.18,.10,.065),smoothstep(.4,.77,flow)*shoulder*.44);
  float mineral=smoothstep(.61,.75,flow)*shoulder;
  hot=mix(hot,vec3(.27,.22,.135),mineral*.43);
- vec3 wetsoil=mix(neutral,vec3(luminance)*vec3(.46,.69,.61),.73);
+ float fault_axis=abs(world_pos.x+49.0-(world_pos.z+80.0)*.24);
+ float fault_deposit=exp(-pow(fault_axis/22.0,2.0))*shoulder;
+ hot=mix(hot,vec3(.115,.09,.071)*( .85+grain*.3),fault_deposit*slope*.5);
+ vec3 wetsoil=mix(neutral,neutral*vec3(.56,.80,.65),.64);
  vec3 wetgrain=texture(wet_detail,uv*2.6).rgb;
  wetsoil*=.73+wetgrain*.75;
- vec3 oldsoil=mix(neutral,vec3(luminance)*vec3(.84,.76,.85),.69);
+ vec3 oldsoil=mix(neutral,neutral*vec3(.95,.84,.92),.60);
  float mycelium=smoothstep(.65,.8,macro)*shoulder;
  oldsoil=mix(oldsoil,vec3(.30,.28,.30),mycelium*.39);
+ oldsoil=mix(oldsoil,fractured*vec3(.61,.55,.50)*(.8+bedding*.3),slope*.68);
  ALBEDO=mix(mix(mix(frost,hot,ember),wetsoil,marsh),oldsoil,decay);
  float shore_distance=basin_distance;
  float water_depth=water_level-world_pos.y;
@@ -64,6 +77,6 @@ void fragment(){
  ROUGHNESS=mix(clamp(.70+texture(rough_map,uv).r*.27,.7,.98),.30,moisture*.88);
  SPECULAR=.32;
  NORMAL_MAP=mix(texture(normal_map,uv).rgb,texture(wet_normal,uv*2.6).rgb,marsh*(1.0-decay)*.65);
- NORMAL_MAP_DEPTH=mix(.34,.13,dust)*(1.0-moisture*.55);
+ NORMAL_MAP_DEPTH=mix(.52,.13,dust)*(1.0-moisture*.55);
 }
 

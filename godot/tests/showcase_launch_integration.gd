@@ -54,7 +54,8 @@ func run() -> void:
 	checks.confirmed_new_resets_through_existing_path = game.phase == "arrival" and game.reset_count == 1 and not game.has_saved_expedition()
 	checks.confirmed_new_keeps_settings = game.settings.locale == "zh_TW" and is_equal_approx(game.settings.volume, 0.35)
 	game._set_phase("exploring")
-	checks.task_wall_is_not_visible = not game.ui._activity_label.visible and game.ui._activity_label.text.is_empty()
+	game._update_survey_readout()
+	checks.one_current_investigation_is_visible = game.ui._activity_label.visible and not game.ui._activity_label.text.is_empty() and game.ui._activity_context.target=="aurora_shelf"
 	checks.minimap_is_present = game.ui._root.find_child("ExplorerMinimap", true, false) != null
 	game.pause_expedition()
 	var contacts: Array = game.ui._root.find_children("*", "LinkButton", true, false)

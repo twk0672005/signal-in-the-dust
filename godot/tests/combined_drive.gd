@@ -49,7 +49,7 @@ func escort_encounter() -> bool:
 	if not await navigate(Vector2(animal.position.x,animal.position.z)+Vector2(0,8)): return false
 	for retry in 30:
 		await aim(Vector2(animal.position.x,animal.position.z))
-		if game.interaction_target()=="escort": break
+		if game.snapshot().interaction.get("kind")=="escort" and game.snapshot().interaction.get("eligible",false): break
 		await create_timer(0.3).timeout
 	await tap(KEY_E)
 	if game.escort.phase=="idle": return false

@@ -5,7 +5,10 @@ const HABITAT_FEATURES = preload("res://scripts/living_habitat.gd")
 const CREATURE_VISUAL = preload("res://scripts/creature_visual.gd")
 var _living_habitat:Node3D
 const ECOLOGY_RESPONSE = preload("res://scripts/ecology_response.gd")
-const TERRAIN_REVISION := 2
+const TERRAIN_REVISION := 5
+var _landform_clearances: Array[Vector2] = []
+var _environment_access_segments: Array[Vector4] = []
+var _cool_access_start := 0
 const BOUNDARY_TEXTURE := "res://assets/environment_upgrade/boundary-rocks-v1.png"
 const BOUNDARY_TERRACES := "res://assets/environment_upgrade/boundary-terraces-v1.png"
 const BOUNDARY_SHADER := preload("res://shaders/boundary_cutout.gdshader")
@@ -128,9 +131,12 @@ func legacy_height_at(x: float, z: float) -> float:
 	var basin_floor := _base_height_at(center.x, center.y) - 1.2
 	return lerpf(basin_floor, base_height, smoothstep(3.4, 10.0, distance))
 
-func environment_terrain_changed_at(x: float,z: float) -> bool:
+func _previous_terrain_changed_at(x: float,z: float) -> bool:
 	var p:=Vector2(x,z)-_wetland_center()
 	return p.x>-48.0 and p.x<18.0 and p.y>-35.0 and p.y<34.0
+
+func environment_terrain_changed_at(x: float,z: float) -> bool:
+	return _previous_terrain_changed_at(x,z) or (x>-164.0 and x<164.0 and z>-632.0 and z<180.0)
 
 func wetland_water_level() -> float:
 	var center:=_wetland_center()
@@ -141,9 +147,9 @@ func wetland_basin_distance(point: Vector2) -> float:
 	# Connected unequal lobes open westward, away from the protected road.
 	return minf((p/Vector2(6.2,6.0)).length(),minf(((p-Vector2(-15.0,2.0))/Vector2(22.0,14.0)).length(),((p-Vector2(-28.0,9.0))/Vector2(12.0,12.0)).length()))
 
-func height_at(x: float,z: float) -> float:
+func previous_height_at(x: float,z: float) -> float:
 	var original:=legacy_height_at(x,z)
-	if not environment_terrain_changed_at(x,z):return original
+	if not _previous_terrain_changed_at(x,z):return original
 	var center:=_wetland_center()
 	var p:=Vector2(x,z)-center
 	var d:=wetland_basin_distance(Vector2(x,z))
@@ -163,6 +169,129 @@ func height_at(x: float,z: float) -> float:
 		mask*=smoothstep(6.0,9.0,Vector2(x,z).distance_to(SURVEYS.point(id)))
 	mask*=smoothstep(0.0,3.0,minf(minf(p.x+48.0,18.0-p.x),minf(p.y+35.0,34.0-p.y)))
 	return lerpf(original,target,mask)
+
+func _landform_mask(x: float,z: float) -> float:
+	if x<=-164.0 or x>=164.0 or z<=-632.0 or z>=180.0:return 0.0
+	var mask:=smoothstep(12.0,30.0,absf(x-path_x(z)))
+	if mask==0.0:return 0.0
+	mask*=smoothstep(0.0,18.0,minf(164.0-absf(x),minf(z+632.0,180.0-z)))
+	# Preserve the complete revision-2 water/shore surface, not only its centre.
+	var pool:=Vector2(x,z)-_wetland_center()
+	var outside:=maxf(maxf(-48.0-pool.x,pool.x-18.0),maxf(-35.0-pool.y,pool.y-34.0))
+	mask*=smoothstep(0.0,18.0,outside)
+	if mask==0.0:return 0.0
+	if _landform_clearances.is_empty():
+		for id in SURVEYS.SITES:_landform_clearances.append(SURVEYS.point(id))
+		_landform_clearances.append_array(passage_route())
+		_landform_clearances.append_array(root_network_points())
+		_landform_clearances.append_array(ecology_anchor_points())
+		_landform_clearances.append(Vector2(-61,-148))
+	for point in _landform_clearances:
+		if absf(z-point.y)>24.0:continue
+		mask*=smoothstep(9.0,24.0,Vector2(x,z).distance_to(point))
+	# Broad cross-slope approaches remain driveable to the remote investigations.
+	for id in ["aurora_echo","ember_vent","marsh_crossing","spore_pulse"]:
+		var point:Vector2=SURVEYS.point(id)
+		if absf(z-point.y)>18.0:continue
+		var road:=path_x(point.y)
+		if x>minf(road,point.x)-6.0 and x<maxf(road,point.x)+6.0:
+			mask*=smoothstep(5.0,18.0,absf(z-point.y))
+	return mask
+
+func revision_3_height_at(x: float,z: float) -> float:
+	var original:=previous_height_at(x,z)
+	var mask:=_landform_mask(x,z)
+	if mask==0.0:return original
+	var delta:=0.0
+	if z>-30.0:
+		# Wind-cut west table, an eroded cleft and lower detached east shelf.
+		var west:=Vector2((x+65.0+(z-85.0)*.18)/43.0,(z-94.0)/85.0).length()
+		var cleft:=1.0-.78*exp(-pow((z-83.0+(x+60.0)*.40)/13.0,2.0))
+		delta=16.0*(1.0-smoothstep(.60,1.16,west))*cleft
+		delta+=9.0*(1.0-smoothstep(.55,1.12,Vector2((x-65.0)/35.0,(z-42.0)/48.0).length()))
+		delta+=8.0*exp(-pow((x+132.0)/29.0,2.0)-pow((z-60.0)/93.0,2.0))
+		delta*=smoothstep(-30.0,12.0,z)
+	if z<12.0 and z>-191.0:
+		# Two offset fault ribs end before the thermal basin; no pillar avenue.
+		var along:=1.0-smoothstep(.58,1.0,absf(z+76.0)/96.0)
+		var rib:=x+49.0-(z+80.0)*.24
+		var rift:=19.0*exp(-pow(rib/16.0,2.0))*along
+		rift+=13.0*exp(-pow((x-67.0+(z+75.0)*.33)/23.0,2.0)-pow((z+57.0)/37.0,2.0))
+		rift-=2.4*exp(-pow((x-49.0)/34.0,2.0)-pow((z+125.0)/25.0,2.0))
+		delta+=rift*smoothstep(-191.0,-160.0,z)*(1.0-smoothstep(-22.0,12.0,z))
+	if z<-160.0 and z>-374.0:
+		# A westward drainage trough has unequal raised root levees and open flats.
+		var channel:=x+51.0+12.0*sin((z+245.0)*.040)
+		var marsh:=5.8*exp(-pow((channel+25.0)/16.0,2.0))-2.1*exp(-pow(channel/23.0,2.0))
+		marsh+=3.5*exp(-pow((channel-25.0)/12.0,2.0))*exp(-pow((z+230.0)/72.0,2.0))
+		marsh+=6.0*exp(-pow((x-65.0)/43.0,2.0)-pow((z+204.0)/36.0,2.0))
+		delta+=marsh*smoothstep(-374.0,-334.0,z)*(1.0-smoothstep(-193.0,-160.0,z))
+	if z<-334.0:
+		# Collapsed west basin: an incomplete sediment rim, with a bare east slipface.
+		var basin:=Vector2((x+65.0+(z+470.0)*.12)/48.0,(z+490.0)/107.0).length()
+		var rim:=10.0*exp(-pow((basin-.95)/.24,2.0))
+		rim*=.42+.58*(1.0-smoothstep(-70.0,-29.0,x))
+		var pale:=rim-3.2*(1.0-smoothstep(.38,.80,basin))
+		pale+=12.0*(1.0-smoothstep(.6,1.15,Vector2((x-83.0)/47.0,(z+525.0)/82.0).length()))
+		pale+=5.0*exp(-pow((x+35.0)/24.0,2.0)-pow((z+411.0)/23.0,2.0))
+		delta+=pale*(1.0-smoothstep(-383.0,-334.0,z))
+	return original+delta*mask
+
+func escort_route_points(choice: String = "warm") -> Array[Vector2]:
+	if choice=="cool":
+		return [Vector2(path_x(-105),-105),Vector2(-20,-95),Vector2(-48,-55),Vector2(-72,-65),Vector2(-74,-112),Vector2(-63,-145),Vector2(-60,-145)]
+	var points: Array[Vector2]=[]
+	for z in [-105.0,-75.0,-45.0,-65.0,-90.0,-115.0,-140.0,-157.0]: points.append(Vector2(path_x(z),z))
+	return points
+
+func environment_access_distance(x: float,z: float,include_cool: bool=true) -> float:
+	# Existing exploration approaches, shared with habitat clearance. Aurora enters
+	# its cleft at z95, not at the echo's z55; the other branches leave their survey.
+	if _environment_access_segments.is_empty():
+		var paths:Array=[
+			[Vector2(path_x(95),95),Vector2(-42,95),SURVEYS.point("aurora_echo")],
+			[SURVEYS.point("ember_rift"),SURVEYS.point("ember_vent"),Vector2(path_x(-135),-135)],
+			[SURVEYS.point("veil_marsh"),SURVEYS.point("marsh_crossing"),Vector2(SURVEYS.point("marsh_crossing").x,-271),Vector2(path_x(-271),-271)],
+			[SURVEYS.point("pale_decay"),SURVEYS.point("spore_pulse"),Vector2(path_x(-540),-540)]]
+		for path:Array in paths:
+			for i in path.size()-1:
+				_environment_access_segments.append(Vector4(path[i].x,path[i].y,path[i+1].x,path[i+1].y))
+		_cool_access_start=_environment_access_segments.size()
+		var cool:=escort_route_points("cool")
+		for i in cool.size()-1:
+			_environment_access_segments.append(Vector4(cool[i].x,cool[i].y,cool[i+1].x,cool[i+1].y))
+	var distance:=INF
+	var point:=Vector2(x,z)
+	for index in (_environment_access_segments.size() if include_cool else _cool_access_start):
+		var segment:=_environment_access_segments[index]
+		# Beyond this envelope no terrain cut or structural exclusion can apply.
+		if z<minf(segment.y,segment.w)-48.0 or z>maxf(segment.y,segment.w)+48.0:continue
+		var a:=Vector2(segment.x,segment.y)
+		var delta:=Vector2(segment.z,segment.w)-a
+		var nearest:=a+delta*clampf((point-a).dot(delta)/delta.length_squared(),0.0,1.0)
+		# Escort needs room beside the animal, not only a narrow center line.
+		distance=minf(distance,point.distance_to(nearest)-(6.0 if index>=_cool_access_start else 0.0))
+	return distance
+
+func height_at(x: float,z: float) -> float:
+	return _access_height_at(x,z,environment_access_distance(x,z))
+
+func revision_4_height_at(x: float,z: float) -> float:
+	return _access_height_at(x,z,environment_access_distance(x,z,false))
+
+func _access_height_at(x: float,z: float,distance: float) -> float:
+	var shaped:=revision_3_height_at(x,z)
+	if distance>=20.0:return shaped
+	var floor:=previous_height_at(x,z)
+	# The legacy region formula jumps at z=-300. In the refined mesh this was a
+	# 57-degree step on the Veil branch. Bridge only that dry access crossing;
+	# the wetland rectangle ends at z=-308 and the protected road stays exact.
+	if z>-306.0 and z<-294.0:
+		var ramp:=lerpf(previous_height_at(x,-306.0),previous_height_at(x,-294.0),(z+306.0)/12.0)
+		floor=lerpf(floor,ramp,smoothstep(12.0,20.0,absf(x-path_x(z))))
+	# A 14 m floor follows the previous, traversed surface and blends into the
+	# existing raised banks. Mesh, physics, flora and creature contact all sample it.
+	return lerpf(floor,shaped,smoothstep(7.0,20.0,distance))
 
 func wetland_shore_point(angle: float,bank_offset: float=0.0) -> Vector2:
 	# Positive bank_offset is landward. Shared by habitat and fauna placement.
@@ -430,8 +559,15 @@ func nearest_ecology(position: Vector3) -> Dictionary:
 			best["position"] = _ecology_nodes[i].global_position + Vector3(0,0.3,0)
 	return best
 
-func observe_ecology(position: Vector3) -> Dictionary:
-	var target := nearest_ecology(position)
+func observe_ecology(position: Vector3, selected_index: int = -1) -> Dictionary:
+	var target: Dictionary = {}
+	if selected_index == -1:
+		target = nearest_ecology(position)
+	elif selected_index >= 0 and selected_index < _ecology_nodes.size() and selected_index < _ecology_reactions.size():
+		target = _ecology_meta[selected_index].duplicate()
+		target["index"] = selected_index
+		target["distance"] = position.distance_to(_ecology_nodes[selected_index].global_position)
+		target["position"] = _ecology_nodes[selected_index].global_position + Vector3(0,.3,0)
 	if target.is_empty() or float(target.get("distance", 999.0)) > 14.0: return {}
 	var kind := str(target.get("kind", ""))
 	_ecology_reactions[int(target["index"])].observe()

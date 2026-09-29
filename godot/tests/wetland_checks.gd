@@ -8,7 +8,10 @@ func _initialize() -> void:
 	var t=Study.new();var c: Dictionary={}
 	c.unprepared_ignored=t.observe("aeral",1.0)=="" and not t.startled
 	c.prepare_once=t.prepare() and not t.prepare()
-	c.calm_first_ignored=t.observe("aeral",0.0)=="" and not t.recovered
+	var calm=Study.new();calm.prepare()
+	c.calm_observation_valid=calm.observe("aeral",0.0)=="quiet" and calm.recovered and not calm.startled
+	var calm_restore=Study.new()
+	c.quiet_roundtrip=calm_restore.restore(calm.snapshot()) and calm_restore.recovered and not calm_restore.startled
 	c.other_species_ignored=t.observe("veyra",1.0)=="" and not t.startled
 	c.invalid_rejected=t.observe("aeral",NAN)=="" and t.observe("aeral",1.1)=="" and t.observe("aeral",-1)==""
 	c.partial_alarm_not_recorded=t.observe("aeral",0.64)==""
@@ -18,7 +21,7 @@ func _initialize() -> void:
 	c.wait_for_recovery=t.observe("aeral",0.11)=="" and not t.recovered
 	c.recovery_recorded=t.observe("aeral",0.1)=="recovered" and t.recovered
 	c.one_shot=t.observe("aeral",0)==""
-	var before: Dictionary=t.snapshot();var bad: Dictionary=before.duplicate(true);bad.startled=false
+	var before: Dictionary=t.snapshot();var bad: Dictionary=before.duplicate(true);bad.startled=false;bad.version=1
 	c.invalid_order_atomic=not t.restore(bad) and t.snapshot()==before
 	bad=before.duplicate(true);bad.prepared="true";c.bad_type_rejected=not t.restore(bad)
 	t.reset();c.reset=not t.prepared and not t.startled and not t.recovered

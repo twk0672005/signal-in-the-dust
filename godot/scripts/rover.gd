@@ -125,7 +125,7 @@ func reset() -> void:
 	clear_inputs()
 
 func clear_inputs() -> void:
-	for action in ["drive_forward", "drive_reverse", "turn_left", "turn_right", "brake", "drive_boost"]:
+	for action in ["drive_forward", "drive_reverse", "turn_left", "turn_right", "brake", "drive_boost", "drive_crawl"]:
 		Input.action_release(action)
 
 func set_driving_enabled(value: bool) -> void:
@@ -151,7 +151,14 @@ func current_speed_mps() -> float:
 	return speed
 
 func is_boosting() -> bool:
-	return driving and Input.is_action_pressed("drive_boost") and Input.get_axis("drive_reverse", "drive_forward") > 0.1 and not Input.is_action_pressed("brake")
+	return driving and Input.is_action_pressed("drive_boost") and _drive_throttle() > 0.9
+
+func _drive_throttle() -> float:
+	if Input.is_action_pressed("brake"): return 0.0
+	var throttle := Input.get_axis("drive_reverse", "drive_forward")
+	# Holding C drives at the same gentle throttle as touch Crawl + Drive.
+	if Input.is_action_pressed("drive_crawl") and throttle >= 0.0: return 0.18
+	return throttle
 
 func max_speed_mps() -> float:
 	var base: float = CRUISE_SPEED if absf(global_position.x - terrain.path_x(global_position.z)) < 4.5 else OFF_PATH_SPEED
@@ -162,9 +169,8 @@ func brake_intensity() -> float:
 
 func _physics_process(delta: float) -> void:
 	if not driving: return
-	var throttle := Input.get_axis("drive_reverse", "drive_forward")
+	var throttle := _drive_throttle()
 	var braking := Input.is_action_pressed("brake")
-	if braking: throttle = 0.0
 	var steer := Input.get_axis("turn_left", "turn_right")
 	var limit: float = max_speed_mps() if throttle >= 0.0 else REVERSE_SPEED
 	var target_speed := throttle * limit

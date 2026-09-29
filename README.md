@@ -1,5 +1,22 @@
 # Signal in the Dust — First Contact
 
+## Main publication — 2026-09-29
+
+Nova explicitly authorized local main and the existing GitHub main/Pages publication.
+This supersedes earlier no-commit/no-push wording below, which is historical.
+Publish the byte-verified candidate-reviewed release `af58aba5d001b1a262549d19`;
+source stays in this local repository and Web exports stay in `twk0672005/signal-in-the-dust`.
+Publication results: `evidence/push-main-20260929/FINAL_RECEIPT.json`.
+The visual/performance verdict remains PARTIAL. Prior import WIP and cached release assets are preserved.
+
+## 最新本地候選：畫面、玩法與入口更新 — 2026-09-28
+
+現役來源仍是本 checkout 的 `godot/`，工作分支 `codex/visual-gameplay-20260928`。
+本輪已實作四區地形／棲地／表面、互動與日誌、安靜研究、C慢行及真實Start／Continue狀態。
+本地候選：[開啟遊戲](http://127.0.0.1:58827/)。[完整交付、重開命令、來源、前後圖及驗證](docs/VISUAL_GAMEPLAY_HANDOFF_2026-09-28.md)。
+整體驗收 **PARTIAL**：功能／保存有實測，嚴格冷啟動≤2秒、Standard1080持續60FPS及完整視覺目標尚未全達。Nova最終畫質、實機手機／Safari、長時記憶體與30分鐘內容未驗。
+本輪未commit／push／公開發布；下方舊網址、工作樹和發布記錄均為歷史，不覆蓋本段。
+
 ## 最新啟動卡死修復 — 2026-09-28
 
 Nova 已追加授權更新原 GitHub Pages 網站，並要求修復 Chrome「網頁無回應」。現役來源是本目錄的 `main`；網站為 https://twk0672005.github.io/signal-in-the-dust/ 。來源、修復前後原始量測、候選及發佈狀態見 [啟動修復交接](docs/STARTUP_REPAIR_2026-09-28.md)。下方「只做本地」及舊預覽位址均為歷史記錄，不覆蓋最新要求。

@@ -13,7 +13,7 @@ func run() -> void:
 	study_checks.sampler_prepared=game.activities.wetland_study.prepared and game.activities.field.marsh_reed
 	await capture("study-sampler")
 	if not await study_aeral_pair(true):finish(false,"paired_observation");return
-	study_checks.both_samples=game.activities.wetland_study.startled and game.activities.wetland_study.recovered
+	study_checks.calm_flight_without_alarm=not game.activities.wetland_study.startled and game.activities.wetland_study.recovered
 	await tap(KEY_ESCAPE)
 	var clock: float=game.world._world_time
 	await create_timer(0.35).timeout

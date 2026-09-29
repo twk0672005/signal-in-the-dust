@@ -112,6 +112,9 @@ func aim(point: Vector2) -> void:
 		press(KEY_A,angle < 0);press(KEY_D,angle > 0)
 		await frame()
 	release_drive()
+	# Observe the rendered prompt after turning before acting on it. Production
+	# readouts refresh every150ms; an input in the same turn can precede that frame.
+	await create_timer(0.2).timeout
 func capture(name: String) -> void:
 	checkpoint("capture_"+name)
 	if DisplayServer.get_name()=="headless":
@@ -270,7 +273,7 @@ func play_escort_route() -> void:
 		finish(false,"escort_approach");return
 	for i in 600:
 		await aim(Vector2(animal.position.x,animal.position.z))
-		if game.interaction_target()=="escort": break
+		if game.snapshot().interaction.get("kind")=="escort" and game.snapshot().interaction.get("eligible",false): break
 		await frame()
 	press(KEY_E,true);await frame();press(KEY_E,false)
 	escort_checks.started=game.escort.phase!="idle"
@@ -487,32 +490,22 @@ func play_root_network_route() -> void:
 	finish(passed,"root_network_complete_continue_reset")
 
 func study_aeral_pair(capture_pair: bool = true) -> bool:
+	# Study calm flight through real input; no intentional alarm prerequisite.
 	if not game.activities.wetland_study.prepared: return false
-	if not await follow_main(-265.0): return false
+	if not await follow_main(-245.0): return false
 	var bird: Node3D=game.world._ecology_nodes[4]
-	var point:=Vector2(bird.position.x,bird.position.z)+Vector2(0,4)
-	if not await navigate(point,12.0,true): return false
-	for attempt in 60:
-		var nearest: Dictionary=game.world.nearest_ecology(game.rover.position)
-		await aim(Vector2(bird.position.x,bird.position.z))
-		if game.interaction_target()=="ecology":
-			var alarm: float=game.world._ecology_reactions[int(nearest.index)].alert
-			press(KEY_E,true);await frame();press(KEY_E,false);await create_timer(0.15).timeout
-			if game.activities.wetland_study.startled:
-				samples.append({"event":"alarm_observation","alert":alarm,"position":str(game.rover.position)})
-				break
-		if attempt==10:
-			# Actual throttle stimulus, then brake; never write the ecology response state.
-			press(KEY_W,true);await create_timer(0.9).timeout;press(KEY_W,false)
-			press(KEY_SPACE,true);await create_timer(0.3).timeout;press(KEY_SPACE,false)
-		await frame()
-	if not game.activities.wetland_study.startled: return false
-	if capture_pair: await capture("study-alarm-observed")
-	var deadline:=Time.get_ticks_msec()+15000
+	var point:=Vector2(bird.position.x,bird.position.z)+Vector2(0,6)
+	if not await navigate(point,4.0): return false
+	if capture_pair: await capture("study-quiet-approach")
+	var deadline:=Time.get_ticks_msec()+20000
 	while not game.activities.wetland_study.recovered and Time.get_ticks_msec()<deadline:
 		await aim(Vector2(bird.position.x,bird.position.z))
-		if game.interaction_target()=="ecology":
-			press(KEY_E,true);await frame();press(KEY_E,false)
+		var selected: Dictionary=game.interaction_context()
+		if selected.kind=="ecology" and selected.subject=="aeral" and selected.eligible:
+			var alert: float=game.world._ecology_reactions[int(selected.index)].alert
+			if alert<=0.1:
+				press(KEY_E,true);await frame();press(KEY_E,false)
+				samples.append({"event":"quiet_observation","alert":alert,"position":str(game.rover.position)})
 		await create_timer(0.25).timeout
-	if capture_pair: await capture("study-recovery-observed")
-	return game.activities.wetland_study.recovered
+	if capture_pair: await capture("study-quiet-observed")
+	return game.activities.wetland_study.recovered and not game.activities.wetland_study.startled

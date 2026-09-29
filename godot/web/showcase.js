@@ -3,10 +3,12 @@
   'use strict';
   const COPY = {
     en: {
-      eyebrow:'A field journey beyond the familiar', subtitle:'塵境回聲', intro:'Between mineral and living things, a world is quietly unfolding. Take the rover. Find your own way.', start:'Start exploring', continue:'Continue', settings:'Settings', language:'繁中', desktop:'For the richest detail, explore on a desktop. Mobile play uses landscape.', footer:'Four habitats. One quiet expedition.', controls:'Keyboard & mouse · Landscape touch', habitat:'VEIL MARSH', art:'Veil Marsh · Concept artwork', landscapeNote:'Where the water holds the light.', aurora:'Aurora Shelf', ember:'Ember Rift', veil:'Veil Marsh', pale:'Pale Decay', expedition:'The expedition', specimen:'Life in bloom', settingsKicker:'Expedition preferences', settingsTitle:'Make yourself at home', settingsNote:'Saved preferences stay in place unless you change them here.', localeLabel:'Language', volumeLabel:'Sound', motionLabel:'Reduced motion', qualityLabel:'Visual detail', saved:'Use saved preference', on:'On', off:'Off', low:'Lighter', high:'Full', done:'Done', restore:'Keep saved preferences', close:'Close settings', loadingTitle:'A world is coming into view', connecting:'Opening the expedition…', downloading:'Downloading the expedition…', preparing:'Preparing the living world…', validating:'Checking your expedition…', waiting:'Waiting for the first view…', transferHint:'Download progress', prepareHint:'Getting ready to enter the world…', errorTitle:'The signal was interrupted', error:'The expedition could not open. You can try again or return home.', support:'This browser cannot provide the required 3D graphics. Try a browser with hardware acceleration enabled.', lost:'The graphics connection was interrupted. Reload the page, then choose Continue to recover saved progress.', timeout:'The expedition is taking longer than expected. Return home to try again, or reload if it remains unavailable.', unavailable:'No readable expedition was found. Your existing save has been kept. You can try Continue again or start exploring.', retry:'Try again', reload:'Reload page', home:'Return home', loadingFooter:'Take a moment. There is no hurry here.', stopMotion:'Pause animation', resumeMotion:'Resume animation', canvas:'Signal in the Dust exploration game'
+      resumeStep:'Your journal keeps the discoveries you made. Follow the current map marker, or choose another habitat encounter.', localSave:'Progress stays in this browser. No account needed.', saveUnknown:'Continue checks for a saved expedition in this browser.', saveAbsent:'No saved expedition in this browser yet. Start exploring to begin.', saveValid:'A saved expedition is available in this browser.', saveUnreadable:'The save could not be read. Continue can check again; starting anew may replace older progress.', saveWriteFailed:'Progress could not be saved. Continue may return to an older checkpoint.', firstStep:'You are tracing a living signal. Follow the gold map marker to the crystals, then stop and listen.', driveTip:'W / arrows · Drive    C (hold) · Crawl    Space · Brake', observeTip:'Right-drag · Look    V · Camera    E · Observe    J · Journal', touchTip:'Drive to move. Crawl + Drive for a quiet approach. Brake to stop, then tap Observe.',
+      eyebrow:'A field journey beyond the familiar', subtitle:'塵境回聲', intro:'Between mineral and living things, a world is quietly unfolding. Take the rover. Find your own way.', start:'Start exploring', continue:'Continue', settings:'Settings', language:'繁中', desktop:'For the richest detail, explore on a desktop. Mobile play uses landscape.', footer:'Four habitats. One quiet expedition.', controls:'Keyboard & mouse · Landscape touch', habitat:'VEIL MARSH', art:'Veil Marsh · Concept artwork', landscapeNote:'Where the water holds the light.', aurora:'Aurora Shelf', ember:'Ember Rift', veil:'Veil Marsh', pale:'Pale Decay', expedition:'The expedition', specimen:'Life in bloom', settingsKicker:'Expedition preferences', settingsTitle:'Make yourself at home', settingsNote:'Saved preferences stay in place unless you change them here.', localeLabel:'Language', volumeLabel:'Sound', motionLabel:'Reduced motion', qualityLabel:'Visual detail', saved:'Use saved preference', on:'On', off:'Off', low:'Lighter', high:'Full', done:'Done', restore:'Keep saved preferences', close:'Close settings', loadingTitle:'A world is coming into view', connecting:'Opening the expedition…', downloading:'Downloading the expedition…', preparing:'Preparing the living world…', validating:'Checking your expedition…', waiting:'Waiting for the first view…', transferHint:'Download progress', prepareHint:'Getting ready to enter the world…', errorTitle:'The signal was interrupted', error:'The expedition could not open. You can try again or return home.', support:'This browser cannot provide the required 3D graphics. Try a browser with hardware acceleration enabled.', lost:'The graphics connection was interrupted. Reload the page, then try Continue to check for progress saved in this browser.', timeout:'The expedition is taking longer than expected. Return home to try again, or reload if it remains unavailable.', unavailable:'A readable save could not be confirmed. Try Continue again, or start a new expedition.', retry:'Try again', reload:'Reload page', home:'Return home', loadingFooter:'Take a moment. There is no hurry here.', stopMotion:'Pause animation', resumeMotion:'Resume animation', canvas:'Signal in the Dust exploration game'
     },
     zh_TW: {
-      eyebrow:'循著好奇，走進陌生的生命世界', subtitle:'塵境回聲', intro:'在礦物與生命之間，一片世界正靜靜展開。駕上探測車，走出自己的路。', start:'開始探索', continue:'繼續旅程', settings:'設定', language:'EN', desktop:'電腦可呈現更豐富的細節；手機請以橫向遊玩。', footer:'四片棲地，一段安靜的遠行。', controls:'鍵盤與滑鼠 · 橫向觸控', habitat:'帷幕濕地', art:'帷幕濕地 · 概念美術', landscapeNote:'水面，留住了光。', aurora:'極光高原', ember:'熱泉裂谷', veil:'濃霧沼澤', pale:'孢子衰變', expedition:'探索旅程', specimen:'生命的綻放', settingsKicker:'旅程偏好', settingsTitle:'以你的步調出發', settingsNote:'除非在此更改，否則沿用遊戲已儲存的偏好。', localeLabel:'語言', volumeLabel:'音量', motionLabel:'減少動態效果', qualityLabel:'畫面細節', saved:'沿用遊戲偏好', on:'開啟', off:'關閉', low:'輕量', high:'完整', done:'完成', restore:'沿用已儲存偏好', close:'關閉設定', loadingTitle:'世界正漸漸清晰', connecting:'正在開啟旅程…', downloading:'正在下載探索內容…', preparing:'正在準備這片生命世界…', validating:'正在確認旅程…', waiting:'正在等候第一個畫面…', transferHint:'實際下載進度', prepareHint:'正在準備進入世界…', errorTitle:'訊號暫時中斷', error:'旅程暫時未能開啟。你可以重試，或先返回首頁。', support:'此瀏覽器未能提供所需的 3D 圖像支援，請使用已啟用硬件加速的瀏覽器。', lost:'圖像連線中斷。重新載入後，選擇「繼續旅程」即可讀取已儲存進度。', timeout:'準備時間比預期長。你可以返回首頁重試；若仍未能開啟，請重新載入。', unavailable:'未找到可讀取的旅程；原有存檔已保留。你可以再試「繼續旅程」，或開始探索。', retry:'再試一次', reload:'重新載入', home:'返回首頁', loadingFooter:'慢慢來。這片世界，值得等一會。', stopMotion:'暫停動畫', resumeMotion:'繼續動畫', canvas:'Signal in the Dust 外星探索遊戲'
+      resumeStep:'日誌保留了你的發現。沿目前的地圖標記前進，或選擇另一項棲地邂逅。', localSave:'進度只保存在此瀏覽器，毋須帳戶。', saveUnknown:'繼續旅程會檢查此瀏覽器的探勘存檔。', saveAbsent:'此瀏覽器尚無探勘存檔，請選擇開始探索。', saveValid:'此瀏覽器有可讀取的探勘存檔。', saveUnreadable:'未能讀取存檔。可再試繼續旅程；開始新旅程可能取代舊進度。', saveWriteFailed:'未能儲存進度。繼續旅程可能回到較早的進度。', firstStep:'你正在追尋生命訊號。沿地圖金色標記找到冰晶，停車聆聽。', driveTip:'W／方向鍵 · 駕駛　按住 C · 慢行　空白鍵 · 煞車', observeTip:'按住右鍵拖曳 · 環顧　V · 視角　E · 觀察　J · 日誌', touchTip:'點前進駕駛；慢行＋前進可安靜靠近。煞車停下後，點互動觀察。',
+      eyebrow:'循著好奇，走進陌生的生命世界', subtitle:'塵境回聲', intro:'在礦物與生命之間，一片世界正靜靜展開。駕上探測車，走出自己的路。', start:'開始探索', continue:'繼續旅程', settings:'設定', language:'EN', desktop:'電腦可呈現更豐富的細節；手機請以橫向遊玩。', footer:'四片棲地，一段安靜的遠行。', controls:'鍵盤與滑鼠 · 橫向觸控', habitat:'帷幕濕地', art:'帷幕濕地 · 概念美術', landscapeNote:'水面，留住了光。', aurora:'極光高原', ember:'熱泉裂谷', veil:'濃霧沼澤', pale:'孢子衰變', expedition:'探索旅程', specimen:'生命的綻放', settingsKicker:'旅程偏好', settingsTitle:'以你的步調出發', settingsNote:'除非在此更改，否則沿用遊戲已儲存的偏好。', localeLabel:'語言', volumeLabel:'音量', motionLabel:'減少動態效果', qualityLabel:'畫面細節', saved:'沿用遊戲偏好', on:'開啟', off:'關閉', low:'輕量', high:'完整', done:'完成', restore:'沿用已儲存偏好', close:'關閉設定', loadingTitle:'世界正漸漸清晰', connecting:'正在開啟旅程…', downloading:'正在下載探索內容…', preparing:'正在準備這片生命世界…', validating:'正在確認旅程…', waiting:'正在等候第一個畫面…', transferHint:'實際下載進度', prepareHint:'正在準備進入世界…', errorTitle:'訊號暫時中斷', error:'旅程暫時未能開啟。你可以重試，或先返回首頁。', support:'此瀏覽器未能提供所需的 3D 圖像支援，請使用已啟用硬件加速的瀏覽器。', lost:'圖像連線中斷。重新載入後，可試「繼續旅程」檢查此瀏覽器的存檔。', timeout:'準備時間比預期長。你可以返回首頁重試；若仍未能開啟，請重新載入。', unavailable:'未能確認可讀取的存檔。可再試「繼續旅程」，或開始新旅程。', retry:'再試一次', reload:'重新載入', home:'返回首頁', loadingFooter:'慢慢來。這片世界，值得等一會。', stopMotion:'暫停動畫', resumeMotion:'繼續動畫', canvas:'Signal in the Dust 外星探索遊戲'
     }
   };
   const $ = id => document.getElementById(id);
@@ -19,6 +21,7 @@
   let guard = 0, fade = 0, restoreFetch = null, phaseKey = 'connecting', errorKey = 'error';
   let homeMessage = '', lastStatus = '', sequence = 0, pausedAnimation = false;
   let lastAction = 'new', savedAvailable = null;
+  let saveState = 'unknown', saveWriteFailed = false;
   let bootDeadline = 0, lastBootProgress = 0, lastTransferBytes = 0;
   window.__EXPEDITION_ERRORS__ = window.__EXPEDITION_ERRORS__ || [];
   let bootTiming = {
@@ -103,6 +106,13 @@
     $('pause-animation').textContent = copy[pausedAnimation ? 'resumeMotion' : 'stopMotion'];
     $('retry').textContent = copy[fatal ? 'reload' : 'retry'];
     $('volume-value').textContent = overrides.volume === undefined ? '—' : `${Math.round(overrides.volume * 100)}%`;
+    const saveKey = saveWriteFailed ? 'saveWriteFailed' : {unknown:'saveUnknown', absent:'saveAbsent', valid:'saveValid', unreadable:'saveUnreadable'}[saveState];
+    $('save-status').textContent = copy[saveKey];
+    $('continue').disabled = busy || saveState === 'absent';
+    $('continue').dataset.saveState = saveState;
+    $('control-drive').textContent = copy[window.__EXPEDITION_TOUCH__ ? 'touchTip' : 'driveTip'];
+    $('control-observe').hidden = !!window.__EXPEDITION_TOUCH__;
+    $('arrival-purpose').textContent = copy[lastAction === 'continue' ? 'resumeStep' : 'firstStep'];
   }
   function blockGame(blocked) {
     canvas.inert = blocked;
@@ -335,16 +345,20 @@
     }
     const status = window.__EXPEDITION_BOOT_STATUS__;
     if (!pending || !status || status.version !== 1 || status.requestId !== pending.requestId || fatal) return;
-    const signature = `${status.requestId}:${status.stage}:${status.firstFrameReady}:${status.savedAvailable}`;
+    const signature = `${status.requestId}:${status.stage}:${status.firstFrameReady}:${status.savedAvailable}:${status.saveState}:${status.saveWriteFailed}`;
     if (signature === lastStatus) return;
     lastStatus = signature;
     if (typeof status.savedAvailable === 'boolean') savedAvailable = status.savedAvailable;
+    if (['unknown','absent','valid','unreadable'].includes(status.saveState)) saveState = status.saveState;
+    else if (typeof status.savedAvailable === 'boolean') saveState = status.savedAvailable ? 'valid' : 'unknown';
+    if (typeof status.saveWriteFailed === 'boolean') saveWriteFailed = status.saveWriteFailed;
     // Actual save availability is informative only. Never inspect or clear a slot here.
     $('continue').dataset.savedAvailable = savedAvailable === null ? 'unknown' : String(savedAvailable);
+    translate();
     if (['playing','confirm-new'].includes(status.stage)) {
       if (status.firstFrameReady === true && started) finishOnFrame();
       else if (busy) { lastStatus = ''; setProgress(null,'waiting'); }
-    } else if (status.stage === 'continue-unavailable') showHome('unavailable');
+    } else if (status.stage === 'continue-unavailable') showHome(saveState === 'absent' ? 'saveAbsent' : saveState === 'unreadable' ? 'saveUnreadable' : 'unavailable');
     else if (status.stage === 'home') showHome();
     else if (status.stage === 'error') fail('error');
     else if (busy && ['initializing','validating'].includes(status.stage)) {

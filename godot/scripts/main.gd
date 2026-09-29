@@ -45,6 +45,10 @@ var save_clock: float = 0.0
 const SAVE_PATH := "user://expedition_state.json"
 var save_path: String = SAVE_PATH
 var _save_available := false
+var _save_state := "unknown"
+var _save_write_failed := false
+var _shown_interaction: Dictionary = {}
+var _interaction_options: Array[Dictionary] = []
 var observed_ecology: Dictionary = {}
 var thermal: RefCounted
 var root_network: RefCounted
@@ -116,6 +120,8 @@ func _ready() -> void:
 				var directory := arg.trim_prefix("--evidence-dir=")
 				DirAccess.make_dir_recursive_absolute(directory)
 				save_path = directory.path_join("fixture-expedition.json")
+	_save_state = ExpeditionSave.status(save_path)
+	_save_available = _save_state == "valid"
 	_install_inputs()
 	if OS.has_feature("web"):
 		touch_enabled = bool(JavaScriptBridge.eval("window.__EXPEDITION_TOUCH__ === true",true))
@@ -390,7 +396,13 @@ func _web_boot_after_frame(id: String, expected_stage: String) -> void:
 
 func _publish_web_boot() -> void:
 	if OS.has_feature("web") and not _web_boot.request_id.is_empty():
-		JavaScriptBridge.eval("window.__EXPEDITION_BOOT_STATUS__=" + JSON.stringify(_web_boot.snapshot(_save_available)) + ";", true)
+		JavaScriptBridge.eval("window.__EXPEDITION_BOOT_STATUS__=" + JSON.stringify(_web_status()) + ";", true)
+
+func _web_status() -> Dictionary:
+	var data: Dictionary = _web_boot.snapshot(_save_available)
+	data["saveState"] = _save_state
+	data["saveWriteFailed"] = _save_write_failed
+	return data
 
 func _on_menu_requested() -> void:
 	if phase != "menu": return
@@ -403,7 +415,7 @@ func _on_touch_action(args: Array) -> void:
 	if action == "pause_only":
 		if phase in ["arrival","exploring","contact"]: pause_expedition()
 		return
-	if action not in ["drive_forward","drive_reverse","turn_left","turn_right","brake","drive_boost","toggle_camera","interact","expedition_journal","pause_mission","resonance_1","resonance_2","resonance_3"]: return
+	if action not in ["drive_forward","drive_reverse","turn_left","turn_right","brake","drive_boost","drive_crawl","toggle_camera","interact","expedition_journal","pause_mission","resonance_1","resonance_2","resonance_3"]: return
 	var pressed := bool(args[1])
 	if pressed and phase not in ["exploring","contact","arrival"]: return
 	var strength := clampf(float(args[2]),0.0,1.0)
@@ -415,7 +427,7 @@ func _on_touch_action(args: Array) -> void:
 	Input.parse_input_event(event)
 
 func _install_inputs() -> void:
-	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"drive_boost":[KEY_SHIFT],"toggle_camera":[KEY_V],"interact":[KEY_E],"expedition_journal":[KEY_J],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R],"resonance_1":[KEY_1],"resonance_2":[KEY_2],"resonance_3":[KEY_3]}
+	var bindings := {"drive_forward":[KEY_W,KEY_UP],"drive_reverse":[KEY_S,KEY_DOWN],"turn_left":[KEY_A,KEY_LEFT],"turn_right":[KEY_D,KEY_RIGHT],"brake":[KEY_SPACE],"drive_boost":[KEY_SHIFT],"drive_crawl":[KEY_C],"toggle_camera":[KEY_V],"interact":[KEY_E],"expedition_journal":[KEY_J],"pause_mission":[KEY_ESCAPE],"restart_mission":[KEY_R],"resonance_1":[KEY_1],"resonance_2":[KEY_2],"resonance_3":[KEY_3]}
 	for action in bindings:
 		if not InputMap.has_action(action): InputMap.add_action(action)
 		for key in bindings[action]:
@@ -432,6 +444,7 @@ func start_expedition() -> bool:
 	if not ready_for_play: return false
 	if not clear_saved_expedition() and has_saved_expedition(): return false
 	ui.reset_guidance()
+	_shown_interaction.clear()
 	save_clock = 0.0
 	elapsed = 0.0
 	arrival_time = 0.0
@@ -547,6 +560,10 @@ func _survey_completed(id: String) -> void:
 func _update_survey_readout() -> void:
 	var region: String=world.region_at(rover.global_position)
 	var target: String=activities.target(region)
+	# Discover life before asking for a site record that requires that discovery.
+	var species: String={"ember_rift":"veyra","veil_marsh":"aeral","pale_decay":"root_choir"}.get(region,"")
+	if not species.is_empty() and not observed_ecology.get(species,false): target="life_"+species
+	elif region=="aurora_shelf" and activities.completed.aurora_shelf and not resonance.solved: target="aurora_echo"
 	var tracked: String=activities.tracked_encounter
 	if not tracked.is_empty() and _encounter_complete(tracked):
 		activities.tracked_encounter=""
@@ -561,24 +578,43 @@ func _update_survey_readout() -> void:
 		if target=="study_aeral":
 			var animal: Vector3=world._ecology_nodes[4].global_position
 			point=Vector2(animal.x,animal.z)
+		elif target.begins_with("life_"):
+			point=_life_point(target.trim_prefix("life_"))
 		distance=Vector2(rover.position.x,rover.position.z).distance_to(point)
 		var offset: Vector2=point-Vector2(rover.position.x,rover.position.z)
 		bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
 	ui.set_activity_progress(activities.count(),activities.optional_count(),activities.field_count(),region,target,distance,activities.stillness,bearing)
-	# Optional manual journal tracking earns one marker; the old mandatory task wall does not.
-	var map_target := _encounter_point(tracked) if not tracked.is_empty() else Vector2.ZERO
-	ui.set_navigation(Vector2(rover.position.x, rover.position.z), rover.heading, map_target, not tracked.is_empty())
+	# The same current investigation supplies both HUD distance and map marker.
+	var map_target := _encounter_point(tracked) if not tracked.is_empty() else ActivityScript.point(target)
+	if target=="study_aeral":
+		var animal: Vector3=world._ecology_nodes[4].global_position
+		map_target=Vector2(animal.x,animal.z)
+	elif target.begins_with("life_"): map_target=_life_point(target.trim_prefix("life_"))
+	ui.set_navigation(Vector2(rover.position.x, rover.position.z), rover.heading, map_target, not target.is_empty() and map_target.is_finite())
 	ui.set_resonance_context(_resonance_context())
 	ui.set_escort_context(_escort_context())
 	ui.set_passage_context(_passage_context())
 	ui.set_root_network_context(_root_network_context())
 	ui.set_thermal_context(_thermal_context())
 	ui.set_wetland_context(_wetland_context())
-	var journal: Dictionary={"tracked":activities.tracked_encounter,"entries":{}}
+	var journal: Dictionary={"tracked":activities.tracked_encounter,"entries":{},"observedEcology":observed_ecology.duplicate(true)}
 	for id in ActivityScript.REGIONS:
 		journal.entries[id]={"discovered":activities.discovered[id],"complete":_encounter_complete(id)}
 	ui.set_journal_context(journal)
-	ui.set_interaction_kind(interaction_target())
+	_shown_interaction = interaction_context()
+	ui.set_interaction_kind(_shown_interaction.kind if _shown_interaction.eligible else "none")
+	if ui.has_method("set_interaction_context"): ui.set_interaction_context(_shown_interaction)
+
+func _life_point(kind: String) -> Vector2:
+	var point := Vector2.ZERO
+	var nearest := INF
+	for i in world._ecology_nodes.size():
+		if world._ecology_meta[i].kind!=kind: continue
+		var position: Vector3=world._ecology_nodes[i].global_position
+		var distance:=rover.global_position.distance_to(position)
+		if distance<nearest:
+			nearest=distance;point=Vector2(position.x,position.z)
+	return point
 
 func _nearby_survey() -> String:
 	for id in ActivityScript.SITES:
@@ -645,7 +681,7 @@ func resume_expedition() -> void:
 	_set_phase(previous_phase)
 
 func request_new_expedition() -> void:
-	if phase == "menu" and has_saved_expedition():
+	if phase == "menu" and (has_saved_expedition() or ExpeditionSave.exists(save_path)):
 		ui.show_state("confirm_new")
 	else: start_expedition()
 
@@ -659,14 +695,19 @@ func save_expedition() -> bool:
 	var payload := {"version":2,"phase":"exploring","position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"elapsed":elapsed,"distance":rover.distance_travelled,"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"transmitCount":transmit_count,"view":rover.camera_mode}
 	var success := ExpeditionSave.write(save_path,payload)
 	if is_instance_valid(ui): ui.set_write_failed(not success)
-	if success: _save_available = true
+	_save_write_failed = not success
+	if success:
+		_save_available = true
+		_save_state = "valid"
 	elif is_instance_valid(ui):
 		_survey_message_seconds=6.0
 		ui.set_message("save_write_failed")
+	_publish_web_boot()
 	return success
 
 func has_saved_expedition() -> bool:
-	_save_available = not ExpeditionSave.read(save_path).is_empty()
+	_save_state = ExpeditionSave.status(save_path)
+	_save_available = _save_state == "valid"
 	return _save_available
 
 func _resume_space_clear(position: Vector3, heading: float) -> bool:
@@ -736,6 +777,8 @@ func _free_resume_position(position: Vector3, heading: float) -> Variant:
 func load_expedition() -> bool:
 	var parsed: Dictionary = ExpeditionSave.read(save_path)
 	if parsed.is_empty():
+		_save_state = ExpeditionSave.status(save_path)
+		_save_available = false
 		if phase == "menu": ui.set_saved_available(false,true)
 		return false
 	var point: Dictionary = parsed["position"]
@@ -744,10 +787,24 @@ func load_expedition() -> bool:
 	# validation elsewhere or changing any saved progression.
 	var ground_y: float = world.height_at(position.x,position.z)
 	var changed_terrain: bool = world.environment_terrain_changed_at(position.x,position.z)
+	var previous_y: float = world.previous_height_at(position.x,position.z) if world.has_method("previous_height_at") else ground_y
+	var revision3_y: float = world.revision_3_height_at(position.x,position.z) if world.has_method("revision_3_height_at") else ground_y
+	var revision4_y: float = world.revision_4_height_at(position.x,position.z) if world.has_method("revision_4_height_at") else ground_y
+	# A revision's bounding area includes unchanged roads and activity clearances.
+	# Preserve their exact saved feet height; only changed surfaces need re-grounding.
+	changed_terrain = changed_terrain and (absf(ground_y-previous_y)>.001 or absf(ground_y-revision3_y)>.001 or absf(ground_y-revision4_y)>.001 or absf(ground_y-world.legacy_height_at(position.x,position.z))>.001)
 	var valid_height := absf(position.y-ground_y) <= 5.0
 	if changed_terrain:
 		valid_height = valid_height or absf(position.y-world.legacy_height_at(position.x,position.z)) <= 5.0
+		if world.has_method("previous_height_at"):
+			valid_height = valid_height or absf(position.y-world.previous_height_at(position.x,position.z)) <= 5.0
+		if world.has_method("revision_3_height_at"):
+			valid_height = valid_height or absf(position.y-revision3_y) <= 5.0
+		if world.has_method("revision_4_height_at"):
+			valid_height = valid_height or absf(position.y-revision4_y) <= 5.0
 	if not valid_height:
+		_save_state = "unreadable"
+		_save_available = false
 		if phase == "menu": ui.set_saved_available(false,true)
 		return false
 	if changed_terrain:
@@ -839,6 +896,8 @@ func clear_saved_expedition() -> bool:
 		if is_instance_valid(ui): ui.set_message("save_clear_failed" if _save_available else "save_write_failed")
 		return false
 	_save_available=false
+	_save_state="absent"
+	_save_write_failed=false
 	if is_instance_valid(ui):
 		ui.set_clear_failed(false)
 		ui.set_write_failed(false)
@@ -857,33 +916,93 @@ func _target_visible(point: Vector3, allowed: Node = null) -> bool:
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	return hit.is_empty() or (allowed != null and allowed.is_ancestor_of(hit.get("collider")))
 
+func _candidate(kind: String, subject: String, point: Vector3, radius: float, allowed: Node = null, speed_limit: float = 2.0) -> Dictionary:
+	var distance := rover.global_position.distance_to(point)
+	if kind!="ecology": distance=Vector2(rover.position.x-point.x,rover.position.z-point.z).length()
+	var reason := "ready"
+	if absf(rover.speed) >= speed_limit: reason = "slow"
+	elif distance > radius: reason = "closer"
+	else:
+		var direction: Vector3 = point-rover.get_active_camera().global_position
+		if direction.length_squared() > .001 and rover.view_direction().dot(direction.normalized()) < .55: reason = "look"
+		elif not _target_visible(point,allowed): reason = "blocked"
+	return {"key":kind,"kind":kind,"subject":subject,"distance":distance,"reason":reason,"eligible":reason=="ready"}
+
+func interaction_context() -> Dictionary:
+	var empty := {"key":"none","kind":"none","subject":"","reason":"none","distance":0.0,"eligible":false}
+	_interaction_options.clear()
+	if phase != "exploring": return empty
+	var choices: Array[Dictionary] = []
+	if target_distance() < 24.0:
+		choices.append(_candidate("contact","contact",contact.global_position+Vector3(0,2,0),9.5,contact))
+	for id in ActivityScript.SITES:
+		if id == "aurora_shelf" or activities.done(id): continue
+		var point: Vector3 = world.survey_position(id)+Vector3(0,1,0)
+		if rover.global_position.distance_to(point)>20.0: continue
+		var item := _candidate("survey:"+id,id,point,7.0,world.get_node("Survey_"+id),1.5)
+		if not activities.ready(id,observed_ecology):
+			item.reason="wait";item.eligible=false
+		# Exact existing rule remains authoritative at the final action boundary.
+		if item.eligible and not activities.can_record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology): item.eligible=false;item.reason="closer"
+		choices.append(item)
+	var activity := "none"
+	if _resonance_near() and not resonance.solved: activity="resonance"
+	elif _thermal_near():
+		if thermal.vent_observed: activity="thermal_route"
+		elif world.thermal_pulse()>=.75: activity="thermal_observe"
+	elif _escort_can_start(): activity="escort"
+	elif _passage_can_start(): activity="passage"
+	else: activity=_root_network_interaction()
+	if activity!="none": choices.append({"key":activity,"kind":activity,"subject":activity,"reason":"ready","distance":0.0,"eligible":true})
+	for i in world._ecology_nodes.size():
+		var point: Vector3=world._ecology_nodes[i].global_position+Vector3(0,.3,0)
+		if rover.global_position.distance_to(point)>28.0: continue
+		var kind: String=world._ecology_meta[i].kind
+		var item:=_candidate("ecology",kind,point,14.0)
+		item.index=i;item.key="ecology:"+str(i)
+		if i==0 and escort.phase in ["travelling","alarmed","waiting"]: item.eligible=false;item.reason="wait"
+		if item.eligible and observed_ecology.get(kind,false): item.reason="recorded"
+		choices.append(item)
+	var best := empty
+	_interaction_options=choices
+	var best_score := INF
+	for item in choices:
+		var score: float=float(item.distance)+(0.0 if item.eligible else 1000.0)
+		# Preserve the action contract: contact, unrecorded site, active encounter,
+		# then life. An encounter at the same station cannot swallow its field record.
+		if item.eligible:
+			if item.kind=="contact": score-=300.0
+			elif str(item.kind).begins_with("survey:"): score-=200.0
+			elif item.kind!="ecology": score-=100.0
+		if item.reason=="wait": score+=200.0
+		if item.get("key","")==_shown_interaction.get("key","-"): score-=2.0
+		if score<best_score: best=item;best_score=score
+	return best
+
 func interaction_target() -> String:
-	if phase != "exploring" or absf(rover.speed) >= 2.0: return "none"
-	if target_distance() <= 9.5 and _target_visible(contact.global_position+Vector3(0,2,0),contact):
-		return "contact"
-	var survey_id:=_nearby_survey()
-	if not survey_id.is_empty(): return "survey:"+survey_id
-	if _resonance_near() and not resonance.solved: return "resonance"
-	if _thermal_near():
-		if thermal.vent_observed: return "thermal_route"
-		if world.thermal_pulse()>=0.75: return "thermal_observe"
-	if _escort_can_start(): return "escort"
-	if _passage_can_start(): return "passage"
-	var root_target:=_root_network_interaction()
-	if root_target!="none": return root_target
-	var ecology: Dictionary = world.nearest_ecology(rover.global_position)
-	if not ecology.is_empty() and float(ecology.get("distance",999.0)) <= 14.0:
-		var point: Vector3 = ecology.get("position",ecology["base"])
-		if int(ecology.get("index",-1))==0 and escort.phase in ["travelling","alarmed","waiting"]: return "none"
-		if _target_visible(point): return "ecology"
-	return "none"
+	var selected := interaction_context()
+	return selected.kind if selected.eligible else "none"
 
 func can_interact() -> bool:
 	return interaction_target() != "none"
 
 func interact() -> void:
-	var target := interaction_target()
-	if target == "none": return
+	var context := interaction_context()
+	# Revalidate the displayed identity. A moving/occluded subject cannot silently
+	# redirect E to a different animal between the prompt and the input event.
+	if not _shown_interaction.is_empty() and _shown_interaction.get("eligible",false):
+		var displayed: Dictionary={}
+		for option in _interaction_options:
+			if option.key==_shown_interaction.key and option.eligible: displayed=option;break
+		if displayed.is_empty():
+			_update_survey_readout()
+			return
+		context=displayed
+	_shown_interaction = context
+	if not context.eligible:
+		_update_survey_readout()
+		return
+	var target: String = context.kind
 	if target.begins_with("survey:"):
 		var id:=target.trim_prefix("survey:")
 		if activities.record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology):
@@ -928,18 +1047,21 @@ func interact() -> void:
 		_update_survey_readout()
 		return
 	if target == "ecology":
-		var observed: Dictionary = world.observe_ecology(rover.global_position)
+		var observed: Dictionary = world.observe_ecology(rover.global_position, int(context.get("index",-1)))
 		if not observed.is_empty():
+			var first_discovery: bool = not observed_ecology.get(str(observed.kind),false)
 			observed_ecology[str(observed.get("kind","unknown"))] = true
+			if observed.kind == "aeral": activities.wetland_study.prepare()
 			activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,0.0,rover.global_position)
 			_update_survey_readout()
 			var study_event: String=activities.wetland_study.observe(str(observed.get("kind","")),float(world._ecology_reactions[int(observed.index)].alert))
-			ui.set_message("study_"+study_event if not study_event.is_empty() else "ecology_observed")
+			ui.set_message("study_"+study_event if not study_event.is_empty() else "discovered_"+str(observed.kind) if first_discovery else "ecology_observed")
 			if not study_event.is_empty():
 				_survey_message_seconds=4.0
 				audio.play_resonance(0 if study_event=="startled" else 2)
 				save_expedition()
 				_update_survey_readout()
+			save_expedition()
 			_publish_snapshot()
 		return
 	save_expedition()
@@ -977,7 +1099,7 @@ func _on_settings(value: Dictionary) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"boosting":rover.is_boosting(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available}
+	return {"ready":true,"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"boosting":rover.is_boosting(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available,"saveState":_save_state,"saveWriteFailed":_save_write_failed,"interaction":_shown_interaction.duplicate(true)}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
@@ -1033,13 +1155,7 @@ func _resonance_reply(band: int) -> void:
 
 func _escort_route(route_choice: String = "") -> Array[Vector2]:
 	var selected: String=thermal.route if route_choice.is_empty() else route_choice
-	if selected=="cool":
-		return [Vector2(world.path_x(-105),-105),Vector2(-20,-95),Vector2(-48,-55),Vector2(-72,-65),Vector2(-74,-112),Vector2(-63,-145),Vector2(-60,-145)]
-	var points: Array[Vector2]=[]
-	# The animal first visits the northern warm seam, then crosses to the southern shelter.
-	for z in [-105.0,-75.0,-45.0,-65.0,-90.0,-115.0,-140.0,-157.0]:
-		points.append(Vector2(world.path_x(z),z))
-	return points
+	return world.escort_route_points(selected)
 
 func _escort_can_start() -> bool:
 	if escort.phase!="idle" or activities.escort_complete or not activities.completed.ember_rift or not observed_ecology.get("veyra",false) or absf(rover.speed)>=1.5: return false
@@ -1173,5 +1289,5 @@ func _wetland_world_state() -> Dictionary:
 func _wetland_context() -> Dictionary:
 	if phase!="exploring" or world.region_at(rover.position)!="veil_marsh": return {}
 	var data:=_wetland_world_state()
-	data.phase="complete" if data.complete else "return" if data.recovered else "quiet" if data.startled else "alarm" if data.prepared else "prepare"
+	data.phase="complete" if data.complete else "return" if data.recovered else "quiet" if data.prepared else "prepare"
 	return data

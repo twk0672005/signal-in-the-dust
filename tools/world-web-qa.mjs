@@ -113,7 +113,21 @@ try {
     await page.locator('#settings-done').click();
   }
   if(options.locale==='zh_TW')await page.locator('#language-toggle').click();
-  await page.locator('#start').click();
+  if(options.mode==='entry'){
+    await page.locator('#continue').click();
+    await page.waitForFunction(()=>document.body.dataset.shellPhase==='home'&&window.__EXPEDITION_BOOT_STATUS__?.stage==='continue-unavailable',null,{timeout:180000});
+    const absent=await page.evaluate(()=>({boot:window.__EXPEDITION_BOOT_STATUS__,text:document.body.innerText,disabled:document.getElementById('continue').disabled}));
+    receipt.emptyContinue=absent;
+    checks.emptyContinueTruthful=absent.boot.saveState==='absent'&&absent.disabled&&!absent.text.includes('existing save has been kept')&&!absent.text.includes('原有存檔已保留');
+    await page.screenshot({path:resolve(output,'empty-continue.png')});
+  }
+  if(options.mode==='legacy'){
+    if(!options.saveFixture)throw Error('An explicit retained legacy save fixture is required');
+    const raw=readFileSync(resolve(String(options.saveFixture)),'utf8');
+    receipt.legacyFixture={path:resolve(String(options.saveFixture)),sha256:createHash('sha256').update(raw).digest('hex'),value:JSON.parse(raw)};
+    await page.evaluate(raw=>localStorage.setItem('signal-in-the-dust:expedition:v2:user://world-review-expedition.json',raw),raw);
+    await page.locator('#continue').click();
+  }else await page.locator('#start').click();
   await waitExploring();
   checks.boot=true; receipt.bootSeconds=(Date.now()-start)/1000; receipt.bootTimings=await page.evaluate(()=>window.__EXPEDITION_BOOT_TIMINGS__||null);
   if(options.locale)checks.gameLocale=(await state()).state.settings.locale===options.locale;
@@ -121,15 +135,76 @@ try {
   receipt.runtime=await page.evaluate(()=>{const canvas=document.getElementById('canvas');const gl=canvas.getContext('webgl2');const ext=gl?.getExtension('WEBGL_debug_renderer_info');return {userAgent:navigator.userAgent,viewport:[innerWidth,innerHeight],canvas:[canvas.width,canvas.height],dpr:devicePixelRatio,renderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):null,vendor:ext?gl.getParameter(ext.UNMASKED_VENDOR_WEBGL):null,state:window.__EXPEDITION_STATE__,review:window.__WORLD_REVIEW__};});
   await page.screenshot({path:resolve(output,'spawn.png')});
   save(); console.log(JSON.stringify({stage:'boot',seconds:receipt.bootSeconds,renderer:receipt.runtime.renderer}));
+  if(options.mode==='legacy'){
+    const old=receipt.legacyFixture.value,current=(await state()).state;
+    checks.legacyLocalPosition=Math.hypot(current.position.x-old.position.x,current.position.z-old.position.z)<=6.1;
+    const settledDistance=Math.hypot(current.position.x-old.position.x,current.position.z-old.position.z);
+    receipt.legacySettlement={horizontalMeters:settledDistance,odometerDelta:current.distance-old.distance,elapsedDelta:current.elapsed-old.elapsed};
+    // Continue resumes real physics before this readback. A millimetre-scale
+    // settling movement legitimately advances the odometer by that same distance.
+    checks.legacyProgressPreserved=current.distance>=old.distance&&Math.abs(current.distance-old.distance-settledDistance)<.02&&current.elapsed>=old.elapsed&&current.elapsed-old.elapsed<3&&current.transmitCount===old.transmitCount&&Object.keys(old.observedEcology).every(k=>current.observedEcology[k]===old.observedEcology[k]);
+    checks.legacyActivityFlagsPreserved=['completed_regions','optional_observations','field_notes'].every(group=>Object.entries(old.activities?.[group]||{}).every(([key,value])=>current.activities[group][key]===value));
+    checks.legacyViewPreserved=current.view===(old.view||'first_person');
+    const retained=await page.evaluate(()=>localStorage.getItem('signal-in-the-dust:expedition:v2:user://world-review-expedition.json'));
+    checks.legacyReadPreservesBytes=createHash('sha256').update(retained).digest('hex')===receipt.legacyFixture.sha256;
+    receipt.legacyRestored=current;
+    if(options.journalCheck){
+      await page.screenshot({path:resolve(output,'legacy-hud.png')});
+      await page.keyboard.press('j');await page.waitForTimeout(400);await page.screenshot({path:resolve(output,'legacy-journal.png')});
+      await page.keyboard.press('Escape');await waitExploring();
+    }
+    await page.keyboard.press('Escape');await page.waitForTimeout(500);
+    await page.screenshot({path:resolve(output,'legacy-continued.png')});
+  }
+  if(options.mode==='entry'){
+    const saveKey='signal-in-the-dust:expedition:v2:user://world-review-expedition.json';
+    await keys(['w','c']);await page.waitForTimeout(4000);
+    receipt.crawl=await state();checks.keyboardCrawl=receipt.crawl.state.speed>.3&&receipt.crawl.state.speed<5.5&&!receipt.crawl.state.boosting;
+    await keys(['Space']);await page.waitForTimeout(700);await keys([]);
+    await page.keyboard.press('j');await page.waitForTimeout(500);await page.screenshot({path:resolve(output,'first-minute-journal.png')});
+    checks.journalPauses=(await state()).state.phase==='paused';
+    await page.keyboard.press('Escape');await page.waitForTimeout(300);
+    await page.keyboard.press('Escape');await page.waitForTimeout(400);
+    const saved=await state();const beforeBytes=await page.evaluate(key=>localStorage.getItem(key),saveKey);
+    checks.realSaveWritten=!!beforeBytes&&saved.state.saveState==='valid';
+    await page.reload({waitUntil:'domcontentloaded'});await page.locator('#start').click();
+    await page.waitForFunction(()=>window.__EXPEDITION_BOOT_STATUS__?.stage==='confirm-new'&&window.__EXPEDITION_BOOT_STATUS__?.firstFrameReady,null,{timeout:180000});
+    await page.waitForTimeout(600);await page.screenshot({path:resolve(output,'existing-new-confirm.png')});
+    checks.newPreservesSaveUntilConfirm=beforeBytes===await page.evaluate(key=>localStorage.getItem(key),saveKey);
+    // Godot focuses the safe cancel button when opening this confirmation.
+    await page.keyboard.press('Enter');await page.waitForFunction(()=>document.body.dataset.shellPhase==='home',null,{timeout:10000});
+    checks.newCancelPreservesSave=beforeBytes===await page.evaluate(key=>localStorage.getItem(key),saveKey);
+    await page.locator('#continue').click();await waitExploring();await page.waitForTimeout(550);
+    const resumed=await state();checks.cancelThenContinueRestores=Math.hypot(resumed.state.position.x-saved.state.position.x,resumed.state.position.z-saved.state.position.z)<.3;
+    await page.screenshot({path:resolve(output,'entry-continued.png')});
+    await context.close();context=await browser.newContext(contextOptions);page=await context.newPage();observePage(page);
+    await page.goto(url,{waitUntil:'domcontentloaded'});
+    await page.evaluate(key=>localStorage.setItem(key,'{corrupt-fixture'),saveKey);
+    await page.locator('#continue').click();
+    await page.waitForFunction(()=>document.body.dataset.shellPhase==='home'&&window.__EXPEDITION_BOOT_STATUS__?.stage==='continue-unavailable',null,{timeout:180000});
+    receipt.corruptContinue=await page.evaluate(key=>({boot:window.__EXPEDITION_BOOT_STATUS__,bytes:localStorage.getItem(key),text:document.body.innerText}),saveKey);
+    checks.corruptDistinctAndPreserved=receipt.corruptContinue.boot.saveState==='unreadable'&&receipt.corruptContinue.bytes==='{corrupt-fixture';
+    await page.screenshot({path:resolve(output,'corrupt-continue.png')});
+    await page.locator('#start').click();
+    await page.waitForFunction(()=>window.__EXPEDITION_BOOT_STATUS__?.stage==='confirm-new'&&window.__EXPEDITION_BOOT_STATUS__?.firstFrameReady);
+    await page.keyboard.press('Enter');await page.waitForFunction(()=>document.body.dataset.shellPhase==='home');
+    checks.corruptNewCancelPreservesBytes=(await page.evaluate(key=>localStorage.getItem(key),saveKey))==='{corrupt-fixture';
+    await context.close();context=await browser.newContext(contextOptions);
+    await context.addInitScript(()=>{const write=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(String(key).startsWith('signal-in-the-dust:expedition:v2:'))throw new DOMException('Isolated test quota','QuotaExceededError');return write.call(this,key,value)}});
+    page=await context.newPage();observePage(page);await page.goto(url,{waitUntil:'domcontentloaded'});await page.locator('#start').click();await waitExploring();
+    await page.keyboard.press('Escape');await page.waitForTimeout(600);
+    receipt.blockedStorage=await state();checks.blockedStorageReported=receipt.blockedStorage.state.saveWriteFailed===true&&receipt.blockedStorage.state.saveAvailable===false;
+    await page.screenshot({path:resolve(output,'blocked-storage.png')});
+  }
   if(options.mode==='capture') {
     receipt.views=[];
-    for(const id of (options.views?String(options.views).split(','):['aurora_shelf','aurora_shelf_reverse','aurora_shelf_side','ember_rift','ember_rift_reverse','ember_rift_side','veil_marsh','veil_marsh_reverse','veil_marsh_side','pale_decay','pale_decay_reverse','pale_decay_side','veyra','aeral','morrow','shore','microfauna'])){
+    for(const id of (options.views?String(options.views).split(','):['aurora_shelf','aurora_shelf_reverse','aurora_shelf_side','ember_rift','ember_rift_reverse','ember_rift_side','veil_marsh','veil_marsh_reverse','veil_marsh_side','pale_decay','pale_decay_reverse','pale_decay_side','veyra','aeral','morrow','shore','microfauna','veyra_close','aeral_close','morrow_close'])){
       await command({action:'view',id});
       await page.waitForTimeout(1200);
       await page.screenshot({path:resolve(output,id+'.png')});
       receipt.views.push(await page.evaluate(()=>({review:window.__WORLD_REVIEW__,state:window.__EXPEDITION_STATE__,metrics:window.__EXPEDITION_METRICS__})));
     }
-    checks.allViewsCaptured=receipt.views.length===(options.views?String(options.views).split(',').length:17);
+    checks.allViewsCaptured=receipt.views.length===(options.views?String(options.views).split(',').length:20);
   }
   if(options.mode==='motion'){
     receipt.motion={method:'fixed inspection views; real runtime time and read-only pose snapshots, not player-interaction proof',samples:[]};
@@ -225,11 +300,23 @@ try {
         // by real keys until the unchanged speed/distance/facing/LOS gate shows E.
         for(let attempt=0;attempt<7&&pre.probe?.interactionTarget!=='ecology';attempt++){
           approach.push({attempt,state:pre.state,probe:pre.probe});
+          if(pre.state.interaction?.reason==='look')break;
           await keys(['w']);await page.waitForTimeout(450);
           await keys(['Space']);await page.waitForTimeout(850);await keys([]);
           pre=await state();
         }
+        if(pre.probe?.interactionTarget!=='ecology'&&pre.state.interaction?.reason==='look'){
+          // Follow the visible instruction with real camera input; driving seven
+          // times farther cannot resolve a subject beside the current view.
+          await page.mouse.move(width*.5,height*.45);await page.mouse.down({button:'right'});
+          for(const offset of [-90,90,-180,180,-270,270]){
+            await page.mouse.move(width*.5+offset,height*.45,{steps:8});await page.waitForTimeout(250);pre=await state();
+            approach.push({cameraOffset:offset,state:pre.state,probe:pre.probe});
+            if(pre.state.interaction?.kind==='ecology'&&pre.state.interaction?.eligible)break;
+          }
+        }
         if(pre.probe?.interactionTarget==='ecology'){await page.keyboard.press('e');await page.waitForTimeout(500);}
+        await page.mouse.up({button:'right'});
         const post=await state();
         observations.push({kind:stop.kind,target:pre.probe?.interactionTarget,before:pre.state.observedEcology,after:post.state.observedEcology,position:post.state.position,approach});
         await page.screenshot({path:resolve(output,'observe-'+stop.kind+'.png')});save();
@@ -253,6 +340,8 @@ try {
     checks.cameraSwitch=changedView&&stopped.state.view!==initial.state.view;
     checks.ecologyInteraction=Object.keys(stopped.state.observedEcology||{}).length>Object.keys(initial.state.observedEcology||{}).length;
     checks.allSpeciesObserved=['veyra','aeral','root_choir'].every(kind=>stopped.state.observedEcology?.[kind]===true);
+    await page.keyboard.press('j');await page.waitForTimeout(350);await page.screenshot({path:resolve(output,'discovery-journal.png')});
+    await page.keyboard.press('Escape');await waitExploring();
     checks.brakeStopped=Math.abs(stopped.state.speed)<.05;
     await page.keyboard.press('v');await page.waitForTimeout(500);const firstPerson=await state();
     await page.screenshot({path:resolve(output,'journey-first-person.png')});
@@ -274,7 +363,7 @@ try {
     await page.locator('#continue').click();await waitExploring();
     const continued=await state();receipt.continued=continued;
     checks.saveContinueRestored=Math.hypot(continued.state.position.x-paused.state.position.x,continued.state.position.z-paused.state.position.z)<.3&&continued.state.view===paused.state.view&&JSON.stringify(continued.state.observedEcology)===JSON.stringify(paused.state.observedEcology);
-    await page.screenshot({path:resolve(output,'continued.png')});
+    await page.waitForTimeout(550);await page.screenshot({path:resolve(output,'continued.png')});
     receipt.focusCoverage={status:'not-run',reason:'Focus requires --mode=focus so an unsupported browser foreground transition cannot invalidate input/save journey evidence.'};
   }
   if(options.mode==='shorejourney'){
@@ -304,6 +393,28 @@ try {
       if(!reached)throw Error('Real driving did not reach shore waypoint '+label);
       await page.screenshot({path:resolve(output,label+'.png')});
     }
+    if(options.quietStudy){
+      await drivePoint({x:pathX(-279)-6,z:-279},'quiet-aeral-approach');
+      await page.waitForTimeout(10500); // natural recovery after arriving; no provocation task
+      let quiet=await state();
+      for(let attempt=0;attempt<28&&!(quiet.state.interaction?.subject==='aeral'&&quiet.state.interaction?.eligible);attempt++){
+        await keys(['a']);await page.waitForTimeout(150);await keys([]);await page.waitForTimeout(150);quiet=await state();
+      }
+      receipt.quietBefore=quiet;await page.keyboard.press('e');await page.waitForTimeout(500);receipt.quietObserved=await state();
+      checks.quietStudyNoAlarmRequired=receipt.quietObserved.state.observedEcology.aeral===true&&receipt.quietObserved.state.wetlandStudy.recovered===true&&receipt.quietObserved.state.wetlandStudy.startled===false;
+      await page.screenshot({path:resolve(output,'quiet-study-recorded.png')});
+      // Return to the visible road around the existing membrane gate wings.
+      // The previous direct diagonal drove into a physical wing at z=-309.
+      await driveToRegion('veil_marsh',-359,trace);
+      await drivePoint({x:pathX(-342)-10,z:-337},'quiet-pond-sampler');
+      let atPool=await state();
+      for(let attempt=0;attempt<28&&atPool.probe.interactionTarget!=='survey:marsh_pool';attempt++){
+        await keys(['a']);await page.waitForTimeout(150);await keys([]);await page.waitForTimeout(150);atPool=await state();
+      }
+      await page.keyboard.press('e');await page.waitForTimeout(800);receipt.quietPond=await state();
+      checks.quietStudyPondResponse=receipt.quietPond.state.activities.field_notes.marsh_pool===true;
+      await page.screenshot({path:resolve(output,'quiet-pond-response.png')});
+    }
     await drivePoint({x:pool.x+19,z:pool.z+19},'shore-entry');
     await drivePoint({x:pool.x+8,z:pool.z+5},'shore-near');
     await page.keyboard.press('e');await page.waitForTimeout(400);
@@ -317,7 +428,7 @@ try {
     await page.mouse.up({button:'right'});
     const beforeReverse=await state();await keys(['s']);await page.waitForTimeout(1300);await keys(['Space']);await page.waitForTimeout(700);await keys([]);
     const afterReverse=await state();receipt.shoreFinal=afterReverse;
-    checks.shoreRealApproach=receipt.shoreStops.length===3&&receipt.shoreStops.every(s=>s.reached);
+    checks.shoreRealApproach=receipt.shoreStops.length===(options.quietStudy?5:3)&&receipt.shoreStops.every(s=>s.reached);
     checks.shoreNoInspectionTeleport=afterReverse.review.view==='play'&&afterReverse.review.revision===0;
     checks.shoreReverseMovement=Math.hypot(afterReverse.state.position.x-beforeReverse.state.position.x,afterReverse.state.position.z-beforeReverse.state.position.z)>.5;
     await page.keyboard.press('Escape');await page.waitForFunction(()=>window.__EXPEDITION_STATE__?.phase==='paused');

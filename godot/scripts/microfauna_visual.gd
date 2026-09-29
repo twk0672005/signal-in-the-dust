@@ -23,11 +23,11 @@ func build(world: Node3D, pool: Vector2) -> void:
 		return
 	# Fliers feed beside the actual pool rim; crawlers occupy damp banks, not water.
 	for i in 8:
-		var angle := float(i) / 8.0 * TAU + 0.18 + _rng.randf_range(-0.18, 0.18)
+		var angle:float=[1.58,3.05,4.57][i%3]+_rng.randf_range(-.22,.22)
 		var anchor: Vector2 = terrain.wetland_shore_point(angle,_rng.randf_range(0.3,1.2))
 		_add_animal(flier, anchor, true, i, "wetland_rim")
 	for i in 8:
-		var angle := float(i) / 8.0 * TAU + 0.5 + _rng.randf_range(-0.22, 0.22)
+		var angle:float=[1.72,3.12,4.64][i%3]+_rng.randf_range(-.17,.17)
 		var anchor: Vector2 = terrain.wetland_shore_point(angle,_rng.randf_range(1.1,2.2))
 		_add_animal(crawler, anchor, false, i + 8, "wetland_bank")
 	# Loose ground colonies are anchored beside encounter regions and clear the road.
@@ -71,7 +71,7 @@ func _add_animal(packed: PackedScene, anchor: Vector2, flying: bool, index: int,
 					if "signal" not in label:
 						material.set_shader_parameter("structure_enabled", true)
 						material.set_shader_parameter("dermal_projection", role == "dermis")
-						material.set_shader_parameter("normal_strength", 0.5)
+						material.set_shader_parameter("normal_strength", 0.35)
 						material.set_shader_parameter("structure_map", load("res://assets/visual_fauna/surface_maps/" + role + "_structure.png"))
 						material.set_shader_parameter("surface_normal", load("res://assets/visual_fauna/surface_maps/" + role + "_normal.png"))
 					material.set_shader_parameter("tint", tint)

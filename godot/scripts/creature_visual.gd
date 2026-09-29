@@ -79,10 +79,13 @@ func _configure_mesh(node: MeshInstance3D) -> void:
 	for surface in node.mesh.get_surface_count():
 		var original := node.get_active_material(surface)
 		var label := original.resource_name.to_lower() if original != null else "skin"
-		var key := species + ":" + label
+		# Only armour adds two shared age states; no per-animal texture copies.
+		var aged := "mineral" in label and species != "aeral" and int(get_parent().name.hash())%2==0
+		var key := species + ":" + label + (":aged" if aged else "")
 		if not _material_cache.has(key):
 			var material := ShaderMaterial.new()
 			material.shader = BIO_SHADER
+			material.set_shader_parameter("surface_age",.82 if aged else .26)
 			var tint := Color("444b49")
 			var roughness := 0.76
 			var shell := 0.0
@@ -90,12 +93,12 @@ func _configure_mesh(node: MeshInstance3D) -> void:
 			var glow := 0.0
 			if species == "veyra":
 				tint = Color("424b40")
-				if "mineral" in label: tint = Color("6a6047"); shell = 1.0; roughness = 0.84
+				if "mineral" in label: tint = Color("6a6047"); shell = 1.0; roughness = 0.72
 				elif "worn_edge" in label: tint = Color("a28151"); shell = 0.55
 				elif "signal" in label: tint = Color("cd7737"); glow = 0.14
 			elif species == "morrow":
 				tint = Color("514955")
-				if "mineral" in label: tint = Color("797266"); shell = 0.8; roughness = 0.81
+				if "mineral" in label: tint = Color("797266"); shell = 0.8; roughness = 0.75
 				elif "worn_edge" in label: tint = Color("a3937b"); shell = 0.45
 				elif "membrane" in label: tint = Color("795064"); membrane = 1.0; roughness = 0.72
 				elif "signal" in label: tint = Color("aa8a9d"); glow = 0.10
@@ -104,12 +107,12 @@ func _configure_mesh(node: MeshInstance3D) -> void:
 				if "mineral" in label: tint = Color("75816f"); shell = 0.65; roughness = 0.73
 				elif "membrane" in label: tint = Color("436b73"); membrane = 1.0; roughness = 0.65
 			if "eyes" in label: tint = Color("111e21"); roughness = 0.24; shell = 0.0
-			material.set_shader_parameter("specular_amount", 0.5 if "eyes" in label else 0.42 if membrane > 0.0 else 0.30 if shell > 0.0 else 0.35)
+			material.set_shader_parameter("specular_amount", 0.5 if "eyes" in label else 0.42 if membrane > 0.0 else 0.36 if shell > 0.0 else 0.35)
 			var role := "fan" if membrane > 0.0 and species == "aeral" else "frond" if membrane > 0.0 else "scute" if species != "aeral" and "mineral" in label else "dermis"
 			if "eyes" not in label and "signal" not in label:
 				material.set_shader_parameter("structure_enabled", true)
 				material.set_shader_parameter("dermal_projection", role == "dermis")
-				material.set_shader_parameter("normal_strength", 0.55 if membrane > 0.0 else 0.72)
+				material.set_shader_parameter("normal_strength", 0.48 if membrane > 0.0 else 0.65 if role == "scute" else 0.46)
 				material.set_shader_parameter("structure_map", load("res://assets/visual_fauna/surface_maps/" + role + "_structure.png"))
 				material.set_shader_parameter("surface_normal", load("res://assets/visual_fauna/surface_maps/" + role + "_normal.png"))
 			material.set_shader_parameter("tint", tint)
@@ -125,6 +128,7 @@ func _configure_mesh(node: MeshInstance3D) -> void:
 			signal_materials.append(selected)
 		if species == "aeral" and str(node.get_parent().name).begins_with("Wing_"):
 			selected = selected.duplicate() as ShaderMaterial
+			selected.set_shader_parameter("surface_age",.62 if str(node.get_parent().name).ends_with("_L") else .24)
 			_wing_materials.append({"material":selected,"side":-1.0 if str(node.get_parent().name).ends_with("_L") else 1.0})
 		node.set_surface_override_material(surface, selected)
 		_material_bindings.append({"node":node,"surface":surface,"source":original,"current":selected,

@@ -14,6 +14,7 @@ uniform sampler2D surface_normal : hint_normal, filter_linear_mipmap_anisotropic
 uniform bool structure_enabled = false;
 uniform bool dermal_projection = false;
 uniform float normal_strength = 0.55;
+uniform float surface_age = 0.35;
 varying vec3 local_p;
 void vertex() {
     local_p = VERTEX;
@@ -29,9 +30,11 @@ void fragment() {
         // transparency or additional pass. Mipmaps provide distance filtering.
         vec2 coord = dermal_projection ? local_p.zy * 0.7 : clamp(UV,vec2(0.001),vec2(0.999));
         vec4 detail = texture(structure_map,coord);
-        ALBEDO *= mix(0.38,1.23,detail.r);
+        ALBEDO *= mix(0.48,1.21,detail.r);
         vec3 worn = tint.rgb * vec3(1.26,1.16,0.92);
-        ALBEDO = mix(ALBEDO,worn,detail.b*0.52);
+        float exposure = .5+.5*sin(local_p.x*2.7+local_p.z*1.9+surface_age*4.0)*cos(local_p.y*3.1);
+        ALBEDO = mix(ALBEDO,worn,detail.b*(.24+surface_age*.42));
+        ALBEDO *= 1.0-shell*surface_age*.10*(1.0-exposure);
         ROUGHNESS = clamp(roughness+(detail.g-0.6)*0.40,0.24,0.98);
         // Light-dependent thin tissue response; thick veins transmit less.
         BACKLIGHT = tint.rgb * membrane * (1.0-detail.a) * 0.22;

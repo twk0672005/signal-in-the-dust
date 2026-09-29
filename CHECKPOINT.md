@@ -1,3 +1,43 @@
+## Main publication — 2026-09-29
+
+Nova explicitly authorized local main and the existing GitHub main/Pages publication.
+This supersedes earlier no-commit/no-push wording below, which is historical.
+Publish the byte-verified candidate-reviewed release `af58aba5d001b1a262549d19`;
+source stays in this local repository and Web exports stay in `twk0672005/signal-in-the-dust`.
+Publication results: `evidence/push-main-20260929/FINAL_RECEIPT.json`.
+The visual/performance verdict remains PARTIAL. Prior import WIP and cached release assets are preserved.
+
+# Latest implementation handoff — 2026-09-28
+
+Nova submitted the execution handoff and authorized implementation. Active root is
+C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20260906, branch
+codex/visual-gameplay-20260928; baseline HEAD1c54ee8a23816734343c2fccf85f06b2de3919fc
+preserved, no commit/push/publication. Read docs/VISUAL_GAMEPLAY_HANDOFF_2026-09-28.md
+and evidence/visual-gameplay-build-20260928T193707Z/HANDOFF.md.
+
+Current local candidate: candidate-reviewed in that run; release
+af58aba5d001b1a262549d19, http://127.0.0.1:58827/ (OS-assigned, check liveness).
+Terrain revision5 retains older1-4 heights and safe Continue. Complete four-region
+native physical-input activities and real Web journeys pass their named checks.
+Independent review identified stale prerequisite titles; all3 were corrected and
+the bounded nonauthor English/Chinese recheck passes (F1 resolved). Keep overall PARTIAL: cold2s,
+Standard60FPS and substantial visual target not fully met; Nova taste/phones/Safari/
+long memory/30minute content remain unverified. Full raw evidence and failed attempts
+are retained. No old goal, deadline, automation or publication is resumed.
+
+## Historical assessment handoff — implementation had not yet started
+
+Nova changed this turn to TEST + UPDATE PLAN + NEXT-CHAT PROMPT ONLY. Both actual
+ClawTeam subprocess workers completed; no game implementation was started.
+Read docs/VISUAL_GAMEPLAY_UPDATE_PLAN_2026-09-28.md and
+evidence/visual-gameplay-20260928T185543Z/TEST_SUMMARY.md.
+New-conversation execution prompt: evidence/next-visual-gameplay-handoff/NEXT_CODEX_PROMPT.md.
+Source remains main1c54ee8a23816734343c2fccf85f06b2de3919fc; 396 preexisting dirty
+.import files preserved byte-for-byte. Baseline server54101/PID40344 was stopped;
+start a fresh OS-assigned server for later work and verify artifact identity.
+Do not resume the completed assessment workers, old windows, schedules or publication.
+Implementation begins only when Nova submits the execution prompt in a new conversation.
+
 # Startup freeze repair — 2026-09-28, latest authority
 
 Nova subsequently authorized pushing the existing public GitHub Pages main, then reported Chrome Page unresponsive and requested team diagnosis and repair. These later requests supersede the local-only closeout below. Current source owner is this primary main checkout; the original worktree and history remain preserved.

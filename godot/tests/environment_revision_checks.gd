@@ -111,9 +111,49 @@ func run() -> void:
 				var anchor: Vector2=animal.anchor
 				anchors_dry=anchors_dry and game.world.height_at(anchor.x,anchor.y)>=game.world.wetland_water_level()
 	checks.fauna_anchors_dry=anchors_dry
+	# Revision-2 off-road saves in each redesigned region retain progress and
+	# recover locally onto the same authoritative geometry used by driving.
+	var regional_migrations: Array=[]
+	for z in [120.0,-65.0,-260.0,-515.0]:
+		var tested:=false
+		for x in [-70.0,70.0,-45.0,45.0]:
+			var old_y: float=game.world.previous_height_at(x,z)
+			var new_y: float=game.world.height_at(x,z)
+			if absf(old_y-new_y)<.2: continue
+			var old_save:=original.duplicate(true)
+			old_save.position={"x":x,"y":old_y+.08,"z":z}
+			Save.clear(game.save_path);Save.write(game.save_path,old_save)
+			var bytes:=FileAccess.get_file_as_bytes(game.save_path)
+			var restored: bool=game.load_expedition()
+			game.rover.set_driving_enabled(false)
+			var local_restore:=Vector2(game.rover.position.x-x,game.rover.position.z-z).length()<=6.1
+			var kept_progress: bool=is_equal_approx(game.elapsed,123.4) and game.observed_ecology.get("veyra",false)
+			regional_migrations.append({"old":[x,old_y,z],"new_height":new_y,"restored":restored,"local":local_restore,"progress":kept_progress,"bytes":bytes==FileAccess.get_file_as_bytes(game.save_path)})
+			tested=restored and local_restore and kept_progress and bytes==FileAccess.get_file_as_bytes(game.save_path)
+			break
+		checks["revision2_region_"+str(z)]=tested
+	if game.world.has_method("revision_3_height_at"):
+		var previous_cut: float=game.world.revision_3_height_at(-42.0,95.0)
+		var cut_save:=original.duplicate(true)
+		cut_save.position={"x":-42.0,"y":previous_cut+.08,"z":95.0}
+		Save.clear(game.save_path);Save.write(game.save_path,cut_save)
+		var cut_bytes:=FileAccess.get_file_as_bytes(game.save_path)
+		checks.revision3_access_cut_changed=absf(previous_cut-game.world.height_at(-42.0,95.0))>.1
+		checks.revision3_access_cut_continue=game.load_expedition() and Vector2(game.rover.position.x+42.0,game.rover.position.z-95.0).length()<6.1
+		game.rover.set_driving_enabled(false)
+		checks.revision3_access_cut_progress=is_equal_approx(game.elapsed,123.4) and game.observed_ecology.get("veyra",false) and cut_bytes==FileAccess.get_file_as_bytes(game.save_path)
+	if game.world.has_method("revision_4_height_at"):
+		var old_cool:=original.duplicate(true)
+		old_cool.position={"x":-40.0,"y":game.world.revision_4_height_at(-40.0,-56.0)+.08,"z":-56.0}
+		Save.clear(game.save_path);Save.write(game.save_path,old_cool)
+		var cool_bytes:=FileAccess.get_file_as_bytes(game.save_path)
+		checks.revision4_cool_cut_changed=absf(float(old_cool.position.y)-game.world.height_at(-40.0,-56.0))>1.0
+		checks.revision4_cool_cut_continue=game.load_expedition() and Vector2(game.rover.position.x+40.0,game.rover.position.z+56.0).length()<6.1
+		game.rover.set_driving_enabled(false)
+		checks.revision4_cool_cut_preserves_progress=is_equal_approx(game.elapsed,123.4) and game.observed_ecology.get("veyra",false) and cool_bytes==FileAccess.get_file_as_bytes(game.save_path)
 	var passed:=true
 	for value in checks.values(): passed=passed and bool(value)
-	var receipt:={"passed":passed,"checks":checks,"legacy_height":legacy,"new_height":current,"kind":"native_scene_terrain_migration_not_browser_proof"}
+	var receipt:={"passed":passed,"checks":checks,"regional_migrations":regional_migrations,"legacy_height":legacy,"new_height":current,"kind":"native_scene_terrain_migration_not_browser_proof"}
 	var file:=FileAccess.open(output.path_join("receipt.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify(receipt,"  "));file.close()
 	print("ENVIRONMENT_REVISION "+JSON.stringify(receipt))

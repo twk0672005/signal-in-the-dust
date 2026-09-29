@@ -121,11 +121,13 @@ func set_view(id: String) -> bool:
 		if best == INF: return false
 		position = target + Vector3(2.3,1.3,2.8)
 		point = Vector3(game.world.path_x(target.z),game.world.height_at(game.world.path_x(target.z),target.z)+0.1,target.z)
-	elif id in ["veyra","aeral","morrow"]:
-		var index := 0 if id == "veyra" else 4 if id == "aeral" else 9
+	elif id in ["veyra","aeral","morrow","veyra_close","aeral_close","morrow_close"]:
+		var species:=id.trim_suffix("_close")
+		var index := 0 if species == "veyra" else 4 if species == "aeral" else 9
 		var node: Node3D = game.world._ecology_nodes[index]
-		target = node.global_position + Vector3(0,0.5 if id != "aeral" else 0.0,0)
-		position = target + (Vector3(6.5,2.5,7.5) if id != "aeral" else Vector3(8.5,2.0,10.0))
+		target = node.global_position + Vector3(0,0.5 if species != "aeral" else 0.0,0)
+		position = target + (Vector3(6.5,2.5,7.5) if species != "aeral" else Vector3(8.5,2.0,10.0))
+		if id.ends_with("_close"): position=target+(Vector3(3.2,1.4,3.8) if species!="aeral" else Vector3(4.0,1.2,4.8))
 		point = Vector3(game.world.path_x(target.z),game.world.height_at(game.world.path_x(target.z),target.z)+0.1,target.z)
 	elif id in ["veil_approach","veil_shore_detail","veil_profile","veil_lookback"]:
 		var pool: Vector2 = game.world._wetland_center()

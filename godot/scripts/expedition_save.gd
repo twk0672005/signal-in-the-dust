@@ -87,6 +87,13 @@ static func exists(path: String) -> bool:
 		if raw!=null or _web_get(path+".bak")!=null: return true
 	return FileAccess.file_exists(path) or FileAccess.file_exists(path+".bak")
 
+static func status(path: String) -> String:
+	# Godot remains the only parser; the launcher receives this small verdict.
+	if OS.has_feature("web") and not bool(JavaScriptBridge.eval("(()=>{try{localStorage.getItem("+JSON.stringify(WEB_PREFIX+path)+");return true}catch(e){return false}})()",true)):
+		return "unreadable"
+	if not read(path).is_empty(): return "valid"
+	return "unreadable" if exists(path) else "absent"
+
 static func clear(path: String) -> bool:
 	if OS.has_feature("web"):
 		# A synchronous tombstone prevents an old userfs copy reappearing after immediate reload.

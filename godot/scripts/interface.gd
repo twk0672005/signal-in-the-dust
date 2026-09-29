@@ -19,11 +19,12 @@ const AMBER := Color("d5a56d")
 const SIGNAL := Color("83c8c5")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
-	"study_title": ["WETLAND · BEFORE / AFTER", "濕地 · 反應對照"],
+	"study_title": ["WETLAND · QUIET OBSERVATION", "濕地 · 安靜觀察"],
 	"study_prepare": ["Activate the sampler at the reed field station.", "先在膜葉場記點啟動採樣器。"],
-	"study_alarm": ["Approach Aeral with throttle, then brake and press E to record its alarm.", "加速接近 Aeral，煞車後按 E 記錄受驚反應。"],
-	"study_quiet": ["Stay quiet until the flock settles. Press E to record recovery.", "保持安靜，待群體平復後按 E 記錄恢復反應。"],
-	"study_return": ["Both responses recorded. Validate at the wetland basin field station.", "兩種反應已記錄，前往濕地盆地場記點驗證。"],
+	"study_alarm": ["Stop quietly near Aeral. Observe its stable flight with E.", "在 Aeral 附近安靜停車，按 E 觀察穩定飛行。"],
+	"study_quiet": ["Aeral quiet flight recorded. Return to the basin sampler to see the pond respond.", "已記錄 Aeral 安靜飛行。返回盆地採樣器，看看水窪的回應。"],
+	"study_wait": ["Stop quietly and let Aeral settle, then observe its stable flight.", "安靜停車，讓 Aeral 平復，再觀察穩定飛行。"],
+	"study_return": ["Observation recorded. Return to the wetland basin sampler.", "觀察已記錄，返回濕地盆地採樣器。"],
 	"study_complete": ["The wetland canopy opens around the living pool.", "濕地植被在活水窪四周展開。"],
 	"study_startled": ["Alarm response recorded. Let the flock recover naturally.", "已記錄受驚反應，讓群體自然恢復。"],
 	"study_recovered": ["Recovery recorded. Return to the basin sampler.", "已記錄恢復反應，返回盆地採樣器。"],
@@ -53,7 +54,7 @@ const COPY := {
 	"root_pulse": ["E · AWAKEN ROOT CROWN", "E · 喚醒根冠"],
 	"passage_title": ["AERAL · VEIL PASSAGE · %d / 5", "霧翼群 · 膜葉穿行 · %d / 5"],
 	"passage_idle": ["Find the first lit membrane. Stop and press E.", "前往第一組發光膜葉，停車後按 E。"],
-	"passage_crossing": ["Pass the lit opening below 5.5 m/s. Follow its glow.", "以低於 5.5 米／秒穿過發光入口，沿光前進。"],
+	"passage_crossing": ["Follow the lit openings below 5.5 m/s. Hold C to crawl.", "以低於 5.5 米／秒穿過發光入口，按住 C 慢行。"],
 	"passage_scattered": ["The flock scattered. Back away 8 m, then return quietly.", "霧翼群受驚散開，退到 8 米外再慢速返回。"],
 	"passage_gate": ["The membrane opens. Follow the next glow.", "膜葉展開，前往下一處光芒。"],
 	"passage_complete": ["The passage blooms. Aeral descend into the shelter.", "膜葉通道綻放，霧翼群降回庇護處。"],
@@ -61,7 +62,7 @@ const COPY := {
 	"passage_action": ["E · ENTER VEIL PASSAGE", "E · 開始膜葉穿行"],
 	"escort_title": ["VEYRA · QUIET CROSSING", "礦脈生物 · 安靜穿越"],
 	"escort_idle": ["E · Accompany Veyra to the warm shelter.", "E · 陪伴 Veyra 前往溫暖庇護處。"],
-	"escort_travelling": ["Keep 4–24 m away and drive below 8 m/s.", "保持 4–24 米距離，車速低於 8 米／秒。"],
+	"escort_travelling": ["Keep 4–24 m away, below 8 m/s. Hold C to crawl.", "保持 4–24 米距離，低於 8 米／秒。按住 C 慢行。"],
 	"escort_alarmed": ["Too loud or too close. Stop and give it space.", "太吵或太近了，停車並留出空間。"],
 	"escort_waiting": ["Veyra is waiting. Return within 24 m.", "Veyra 正在等你，回到牠的 24 米範圍內。"],
 	"escort_complete": ["Veyra reached shelter. The mineral bed warms.", "Veyra 抵達庇護處，礦床亮起暖光。"],
@@ -90,7 +91,7 @@ const COPY := {
 	"survey_recorded": ["Survey recorded. The echo spire is answering.", "測繪已記錄，回波石柱正在回應。"],
 	"survey_guidance": ["Follow the survey distance. Observe life with E; stop beside an echo spire to record.", "循測繪距離前進。E 觀察生命；在回波石柱旁停車記錄。"],
 	"survey_all": ["All surveys and field notes recorded. Approach the signal for first contact.", "四區測繪及場記已完成，前往訊號源進行接觸。"],
-	"field_guidance": ["Main surveys complete. Finish the eight field notes before first contact.", "主線測繪完成，完成八個場記後才可進行初次接觸。"],
+	"field_guidance": ["Keep exploring, or approach the signal for first contact. Field notes are optional.", "繼續探索，或接近訊號源進行初次接觸。場記可自由選擇。"],
 	"survey_region_done": ["Region recorded · continue exploring", "此區已記錄，可繼續探索"],
 	"survey_action": ["E  RECORD THIS SITE", "E  記錄此地"],
 	"observe_action": ["E  OBSERVE LIFE", "E  觀察生命"],
@@ -99,9 +100,9 @@ const COPY := {
 	"veil_marsh": ["Veil Marsh", "濃霧沼澤"],
 	"pale_decay": ["Pale Decay", "孢子衰變"],
 	"site_aurora_shelf": ["Crystal sound survey · stop for 3 s", "冰晶聲紋測繪 · 停車三秒"],
-	"site_ember_rift": ["Thermal reading · observe Veyra first", "熱梯度測繪 · 先觀察礦脈群體"],
-	"site_veil_marsh": ["Wetland reading · observe Aeral first", "濕地測繪 · 先觀察霧膜群"],
-	"site_pale_decay": ["Shell pulse · observe Morrow first", "孢殼脈衝 · 先觀察孢殼群"],
+	"site_ember_rift": ["Thermal reading", "熱梯度測繪"],
+	"site_veil_marsh": ["Wetland reading", "濕地測繪"],
+	"site_pale_decay": ["Shell pulse reading", "孢殼脈衝測繪"],
 	"site_aurora_echo": ["Optional · ridge echo", "支線 · 高原回波"],
 	"site_ember_vent": ["Optional · outer thermal vent", "支線 · 外圍熱泉"],
 	"site_marsh_crossing": ["Optional · membrane grove", "支線 · 膜葉林"],
@@ -110,6 +111,29 @@ const COPY := {
 	"site_encounter_ember_rift": ["Veyra escort", "護送 Veyra"],
 	"site_encounter_veil_marsh": ["Veil passage", "膜葉穿行"],
 	"site_encounter_pale_decay": ["Root routing", "根脈導流"],
+	"site_life_veyra": ["Find Veyra · mineral grazers", "尋找 Veyra · 礦脈覓食者"],
+	"site_life_aeral": ["Find Aeral · above the water", "尋找 Aeral · 水面上方"],
+	"site_life_root_choir": ["Find Morrow · beneath the shells", "尋找 Morrow · 孢殼之下"],
+	"species_veyra": ["Veyra Lithovore", "Veyra 礦脈生物"],
+	"species_aeral": ["Aeral Veil", "Aeral 霧翼群"],
+	"species_root_choir": ["Morrow Shell · Root Choir", "Morrow 孢殼群 · 根脈合唱"],
+	"discovered_veyra": ["Veyra observed · mineral-feeding life added to your journal.", "已觀察 Veyra · 礦脈生命已收錄於日誌。"],
+	"discovered_aeral": ["Aeral observed · the wetland flyers are now in your journal.", "已觀察 Aeral · 濕地霧翼群已收錄於日誌。"],
+	"discovered_root_choir": ["Morrow observed · the living shells are now in your journal.", "已觀察 Morrow · 活孢殼群已收錄於日誌。"],
+	"interaction_slow": ["Brake to observe · Space", "先煞車再觀察 · 空白鍵"],
+	"interaction_closer": ["Approach gently · hold C to crawl", "慢慢靠近 · 按住 C 慢行"],
+	"interaction_look": ["Face the subject · right-drag to look", "面向目標 · 按住右鍵拖曳環顧"],
+	"interaction_blocked": ["Find a clear view around the obstacle", "繞過障礙，尋找清楚視線"],
+	"interaction_wait": ["Follow the investigation above, then return", "先完成上方調查提示，再回到此處"],
+	"interaction_recorded": ["Recorded in your journal · observe again with E", "已收錄於日誌 · E 再次觀察"],
+	"navigation": ["%s · %d m", "%s · %d 米"],
+	"direction_ahead": ["Ahead", "前方"],
+	"direction_left": ["Left", "左方"],
+	"direction_right": ["Right", "右方"],
+	"direction_behind": ["Behind", "後方"],
+	"exploration_hint": ["Follow the gold map marker. J opens discoveries and optional encounters.", "沿地圖金色標記前進。J 查看發現及可選邂逅。"],
+	"first_investigation": ["Drive to the gold marker. Brake beside the crystals and listen.", "駛向金色標記。在冰晶旁煞車，停下聆聽。"],
+	"crawl_hint": ["CRAWL", "慢行"],
 	"ecology_near": ["Life nearby", "附近有生命"],
 	"ecology_disturbed": ["Life disturbed · slow down", "生物受驚 · 請減速"],
 	"continue_saved": ["Continue last expedition", "繼續上次探勘"],
@@ -124,7 +148,7 @@ const COPY := {
 	"intro": ["Something beneath the storm is listening.\nFollow its signal. Let it hear you.", "風暴之下，有什麼正在聆聽。\n循著訊號前進，讓它聽見你。"],
 	"duration": ["Explore the four regions. Stop and listen.", "探索四大地區，停車聆聽生命。"],
 	"begin": ["Begin expedition", "開始探勘"],
-	"controls": ["WASD / arrows   Drive     SHIFT   Boost     SPACE   Brake\nRight-drag   Look     V   Camera     E   Observe / transmit\nJ   Journal     ESC   Pause", "WASD / 方向鍵   駕駛     SHIFT   加速     空白鍵   煞車\n按住滑鼠右鍵拖曳   環顧     V   視角     E   觀察／發送\nJ   日誌     ESC   暫停"],
+	"controls": ["WASD / arrows   Drive     C (hold)   Crawl\nSHIFT   Boost     SPACE   Brake     S   Brake / reverse\nRight-drag   Look     V   Camera     E   Observe\nJ   Journal     ESC   Pause", "WASD / 方向鍵   駕駛     按住 C   慢行\nSHIFT   加速     空白鍵   煞車     S   煞車／倒車\n按住右鍵拖曳   環顧     V   視角     E   觀察\nJ   日誌     ESC   暫停"],
 	"volume": ["Sound", "音量"],
 	"motion": ["Reduced motion", "減少動態效果"],
 	"quality": ["Low graphics", "低畫質"],
@@ -146,14 +170,19 @@ const COPY := {
 	"resume": ["Continue expedition", "繼續探勘"],
 	"restart": ["Restart expedition", "重新開始探勘"],
 	"journal": ["Expedition journal", "探勘日誌"],
-	"journal_title": ["4 ECOLOGICAL ENCOUNTERS", "4 項生態邂逅"],
-	"journal_brief": ["Optional encounters are separate from regional surveys. Track one when you want to seek it out.", "生態邂逅屬於區域測繪之外的支線，想前往時可選擇追蹤。"],
+	"journal_title": ["FIELD JOURNAL", "探勘日誌"],
+	"journal_brief": ["Follow the signal at your own pace. Observations stay here; optional encounters let you change each habitat.", "以自己的步調追尋訊號。觀察記錄留在此處，可選邂逅讓你改變棲地。"],
+	"journal_discoveries": ["LIFE OBSERVED · %d / 3", "生命觀察 · %d / 3"],
+	"journal_unobserved": ["Not yet observed", "尚未觀察"],
+	"journal_observed": ["Observed", "已觀察"],
+	"journal_encounters": ["OPTIONAL HABITAT ENCOUNTERS", "可選棲地邂逅"],
+	"journal_investigation": ["CURRENT INVESTIGATION", "目前調查"],
 	"journal_unknown": ["UNKNOWN", "未知"],
 	"journal_available": ["AVAILABLE", "可探索"],
 	"journal_complete": ["COMPLETE", "已完成"],
 	"journal_track": ["TRACK", "追蹤"],
 	"journal_tracking": ["TRACKING", "追蹤中"],
-	"journal_track_surveys": ["CLEAR GUIDE MARKER", "清除引導標記"],
+	"journal_track_surveys": ["RETURN TO LOCAL INVESTIGATION", "返回當地調查"],
 	"journal_back": ["ESC · BACK TO EXPEDITION", "ESC · 返回探勘"],
 	"confirm_reset": ["Return to the beginning?", "返回旅程起點？"],
 	"reset_detail": ["Your current expedition will restart.\nYour language and settings will be kept.", "目前的探勘進度將會重置。\n語言與設定會保留。"],
@@ -174,7 +203,7 @@ const COPY := {
 	"settings_title": ["Expedition settings", "探索設定"],
 	"open_settings": ["Settings", "設定"],
 	"back_to_pause": ["Back", "返回暫停選單"],
-	"whisper_aurora_shelf": ["Take your time. Hold W to drive; the pale ridge opens ahead.", "慢慢來。按住 W 前進，沿著眼前的淺色岩脊探索。"],
+	"whisper_aurora_shelf": ["You are tracing a living signal. Drive toward the gold marker; stop and listen to the crystals.", "你正在追尋生命訊號。駛向金色標記，在冰晶旁停車聆聽。"],
 	"whisper_ember_rift": ["Warmth gathers in these cracks. Quiet movement brings life closer.", "暖意聚在岩縫之間。安靜靠近，你會看見更多生命。"],
 	"whisper_veil_marsh": ["Look above the water. The membranes are catching the light.", "看看水面上方，薄膜正接住遠處的微光。"],
 	"whisper_pale_decay": ["Even fallen roots shelter life. Watch the folds near the ground.", "倒下的根仍庇護著生命，留意貼地的細褶。"],
@@ -214,6 +243,8 @@ var _escort_context: Dictionary = {}
 var _journal_context: Dictionary = {"entries": {}, "tracked": ""}
 var _reticle: Label
 var _interaction: Button
+var _interaction_context: Dictionary = {}
+var _feedback_panel: PanelContainer
 var _message: Label
 var _contact_bar: ProgressBar
 var _message_key := ""
@@ -246,6 +277,7 @@ func _ready() -> void:
 	_whisper_chime.playback_type = AudioServer.PLAYBACK_TYPE_SAMPLE if OS.has_feature("web") else AudioServer.PLAYBACK_TYPE_STREAM
 	add_child(_whisper_chime)
 	_build()
+	get_viewport().size_changed.connect(_build)
 
 func _exit_tree() -> void:
 	if is_instance_valid(_whisper_chime):
@@ -329,9 +361,15 @@ func _build() -> void:
 	_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(_overlay)
+	if _mobile:
+		var scale := maxf(1.0, get_viewport().get_visible_rect().size.y / maxf(1.0, DisplayServer.window_get_size().y))
+		_overlay.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		_overlay.size = get_viewport().get_visible_rect().size / scale
+		_overlay.scale = Vector2.ONE * scale
 	_build_overlay()
 	_render_activity_context()
 	update_readout(_distance, _elapsed, _progress, _can_interact, _speed_mps, _max_speed_mps, _view_mode, _ecology_readout)
+	_render_interaction_context()
 
 func _label(text: String, size: int = 14, color: Color = PAPER) -> Label:
 	var result := Label.new()
@@ -352,52 +390,64 @@ func _button(key: String, action: Callable) -> Button:
 	return result
 
 func _build_hud() -> void:
+	# Match physical touch sizes when the 900px canvas stretches into a short screen.
+	var scale := maxf(1.0, get_viewport().get_visible_rect().size.y / maxf(1.0, DisplayServer.window_get_size().y)) if _mobile else 1.0
 	var top := HBoxContainer.new()
 	top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	top.offset_left = 16 if _mobile else 36
-	top.offset_top = 12 if _mobile else 28
-	top.offset_right = -16 if _mobile else -36
+	top.offset_left = 14 * scale if _mobile else 32
+	top.offset_top = 10 * scale if _mobile else 26
+	top.offset_right = -14 * scale if _mobile else -32
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hud.add_child(top)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size.x = 290 * scale if _mobile else 430
+	panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_theme_stylebox_override("panel", _style(Color(0.025, 0.055, 0.065, 0.88), Color(0.5, 0.77, 0.74, 0.35), roundi(12 * scale)))
+	top.add_child(panel)
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top.add_child(left)
-	_region_label = _label("", 13, SIGNAL)
+	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	left.add_theme_constant_override("separation", roundi(5 * scale))
+	panel.add_child(left)
+	_region_label = _label("", roundi(14 * scale), SIGNAL)
 	left.add_child(_region_label)
-	_distance_label = _label("", 25)
+	_distance_label = _label("", roundi(17 * scale) if _mobile else 22)
+	_distance_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	left.add_child(_distance_label)
-	_distance_label.visible = false
-	_speed_label = _label("", 16, PAPER)
+	_activity_label = _label("", roundi(14 * scale) if _mobile else 17, PAPER)
+	_activity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	left.add_child(_activity_label)
+	_speed_label = _label("", roundi(13 * scale) if _mobile else 16, MUTED)
 	left.add_child(_speed_label)
 	_speed_bar = ProgressBar.new()
-	_speed_bar.custom_minimum_size = Vector2(210, 4)
+	_speed_bar.custom_minimum_size = Vector2(210 * scale, 3 * scale)
 	_speed_bar.max_value = 1.0
 	_speed_bar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_speed_bar.show_percentage = false
 	_speed_bar.add_theme_stylebox_override("background", _style(Color("252b2b"), Color.TRANSPARENT, 0))
 	_speed_bar.add_theme_stylebox_override("fill", _style(AMBER, Color.TRANSPARENT, 0))
 	left.add_child(_speed_bar)
-	_activity_label = _label("",13,AMBER)
-	_activity_label.custom_minimum_size.x=310 if _mobile else 340
-	_activity_label.size_flags_horizontal=Control.SIZE_SHRINK_BEGIN
-	_activity_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	left.add_child(_activity_label)
-	_activity_label.visible = false
+	var spacer := Control.new()
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(spacer)
 	var right := VBoxContainer.new()
 	top.add_child(right)
 	if _mobile:
 		var touch_space := Control.new()
-		touch_space.custom_minimum_size.y = 42
+		touch_space.custom_minimum_size.y = 60 * scale
 		right.add_child(touch_space)
 	_minimap = ShowcaseMinimap.new()
 	_minimap.name = "ExplorerMinimap"
-	_minimap.custom_minimum_size = Vector2(118, 118) if _mobile else Vector2(168, 168)
+	_minimap.custom_minimum_size = Vector2(86, 86) * scale if _mobile else Vector2(168, 168)
 	_minimap.set_road(_map_road)
 	right.add_child(_minimap)
-	var hint := _label(_text("pause_hint"), 12, MUTED)
+	var hint := _label(_text("pause_hint"), 16, PAPER)
 	hint.visible = not _mobile
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(hint)
-	_view_label = _label("", 12, AMBER)
+	_view_label = _label("", roundi(12 * scale) if _mobile else 15, PAPER)
 	_view_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(_view_label)
 	if not _map_context.is_empty():
@@ -410,26 +460,35 @@ func _build_hud() -> void:
 	_reticle.offset_bottom = 18
 	_reticle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hud.add_child(_reticle)
+	_feedback_panel = PanelContainer.new()
+	_feedback_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	var half_width := minf(260 * scale, get_viewport().get_visible_rect().size.x * 0.5 - 24 * scale) if _mobile else 350.0
+	_feedback_panel.offset_left = -half_width
+	_feedback_panel.offset_right = half_width
+	_feedback_panel.offset_top = -160 * scale if _mobile else -164
+	_feedback_panel.offset_bottom = -88 * scale if _mobile else -34
+	_feedback_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_feedback_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_feedback_panel.add_theme_stylebox_override("panel", _style(Color(0.025, 0.055, 0.065, 0.88), Color(0.5, 0.77, 0.74, 0.35), roundi(10 * scale)))
+	_hud.add_child(_feedback_panel)
 	var bottom := VBoxContainer.new()
-	bottom.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-	bottom.offset_left = -320
-	bottom.offset_right = 320
-	bottom.offset_top = -125 if _mobile else -132
-	bottom.offset_bottom = -76 if _mobile else -40
-	bottom.add_theme_constant_override("separation", 8)
-	_hud.add_child(bottom)
-	_message = _label(_guidance.message, 14 if _mobile else 17)
+	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bottom.add_theme_constant_override("separation", roundi(5 * scale))
+	_feedback_panel.add_child(bottom)
+	_message = _label(_guidance.message, roundi(14 * scale) if _mobile else 18)
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.visible = not _guidance.key.is_empty()
 	bottom.add_child(_message)
-	_ecology_label = _label("", 12, MUTED)
+	_ecology_label = _label("", roundi(14 * scale) if _mobile else 18, AMBER)
 	_ecology_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_ecology_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bottom.add_child(_ecology_label)
 	_ecology_label.visible = false
 	_interaction = _button("transmit", func() -> void: interact_requested.emit())
 	_interaction.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_interaction.custom_minimum_size.x = 260
+	_interaction.add_theme_font_size_override("font_size", 18)
 	_interaction.visible = not _mobile
 	_interaction.add_theme_color_override("font_color", SIGNAL)
 	bottom.add_child(_interaction)
@@ -443,6 +502,7 @@ func _build_hud() -> void:
 	bottom.add_child(_contact_bar)
 
 func _build_overlay() -> void:
+	var available := get_viewport().get_visible_rect().size / _overlay.scale
 	_hud.visible = _state in ["exploring", "contact"]
 	if _state == "exploring":
 		return
@@ -462,11 +522,11 @@ func _build_overlay() -> void:
 	var panel := PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
 	panel.offset_left = 20 if _mobile else 64
-	panel.offset_right = 490 if _mobile else 534
+	panel.offset_right = minf(550.0, available.x - 20.0) if _mobile else 654
 	if _mobile and _state == "settings":
-		panel.offset_right = minf(780.0, get_viewport().get_visible_rect().size.x - 20.0)
+		panel.offset_right = minf(780.0, available.x - 20.0)
 	var desired_panel_height := 720.0 if _state in ["menu", "settings"] else (640.0 if _state == "journal" else 560.0)
-	var panel_height := minf(desired_panel_height, maxf(320.0, get_viewport().get_visible_rect().size.y - 48.0))
+	var panel_height := minf(desired_panel_height, maxf(220.0, available.y - 32.0))
 	panel.offset_top = -panel_height * 0.5
 	panel.offset_bottom = panel_height * 0.5
 	panel.add_theme_stylebox_override("panel", _style(Color(0.055, 0.063, 0.064, 0.88), Color(0.55, 0.48, 0.36, 0.30), 20 if _mobile else 26))
@@ -538,7 +598,7 @@ func _build_overlay() -> void:
 		column.add_child(primary)
 	elif _state == "journal":
 		column.add_child(_label(_text("journal_title"), 28))
-		var brief := _label(_text("journal_brief"), 13, MUTED)
+		var brief := _label(_text("journal_brief"), 16, MUTED)
 		brief.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		column.add_child(brief)
 		_build_journal_entries(column)
@@ -631,6 +691,21 @@ func _build_settings(parent: VBoxContainer) -> void:
 func _build_journal_entries(parent: VBoxContainer) -> void:
 	var entries: Dictionary = _journal_context.get("entries", {})
 	var tracked := str(_journal_context.get("tracked", ""))
+	var observed: Dictionary = _journal_context.get("observedEcology", {})
+	var count := 0
+	for species in ["veyra", "aeral", "root_choir"]:
+		if bool(observed.get(species, false)): count += 1
+	parent.add_child(_label(_text("journal_investigation"), 14, SIGNAL))
+	var current := _label(_target_name(str(_activity_context.get("target", ""))), 18)
+	current.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	parent.add_child(current)
+	parent.add_child(_label(_text("journal_discoveries") % count, 15, SIGNAL))
+	for species in ["veyra", "aeral", "root_choir"]:
+		var found := bool(observed.get(species, false))
+		var discovery := _label(_text("species_" + species) + " · " + _text("journal_observed" if found else "journal_unobserved"), 16, PAPER if found else MUTED)
+		discovery.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		parent.add_child(discovery)
+	parent.add_child(_label(_text("journal_encounters"), 15, SIGNAL))
 	for region in ["aurora_shelf", "ember_rift", "veil_marsh", "pale_decay"]:
 		var entry: Dictionary = entries.get(region, {})
 		var discovered := bool(entry.get("discovered", false))
@@ -644,10 +719,12 @@ func _build_journal_entries(parent: VBoxContainer) -> void:
 		var names := VBoxContainer.new()
 		names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		content.add_child(names)
-		names.add_child(_label(_text(region), 15, PAPER if discovered else MUTED))
-		names.add_child(_label(_text("site_encounter_" + region) if discovered else "—", 12, MUTED))
+		names.add_child(_label(_text(region), 17, PAPER if discovered else MUTED))
+		var encounter := _label(_text("site_encounter_" + region) if discovered else "—", 15, MUTED)
+		encounter.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		names.add_child(encounter)
 		var status_key := "journal_complete" if complete else ("journal_available" if discovered else "journal_unknown")
-		var status := _label(_text(status_key), 11, SIGNAL if complete else (AMBER if discovered else MUTED))
+		var status := _label(_text(status_key), 14, SIGNAL if complete else (AMBER if discovered else MUTED))
 		status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		content.add_child(status)
 		if discovered and not complete:
@@ -718,48 +795,54 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 	_can_interact = can_interact
 	if not is_instance_valid(_distance_label):
 		return
-	_distance_label.text = "%03d m" % roundi(_distance)
 	_speed_label.text = "%s  %.1f m/s  ·  %d km/h%s" % [_text("speed_label"), absf(speed_mps), roundi(absf(speed_mps)*3.6), "  R" if speed_mps < -0.05 else ""]
-	var boosting: bool = Input.is_action_pressed("drive_boost") and Input.get_axis("drive_reverse", "drive_forward") > 0.1 and not Input.is_action_pressed("brake") and _state == "exploring"
+	var crawling := Input.is_action_pressed("drive_crawl") or (Input.get_action_strength("drive_forward") > 0.0 and Input.get_action_strength("drive_forward") < 0.9)
+	var boosting: bool = Input.is_action_pressed("drive_boost") and Input.get_axis("drive_reverse", "drive_forward") > 0.9 and not crawling and not Input.is_action_pressed("brake") and _state == "exploring"
 	if boosting: _speed_label.text += "  ·  " + ("BOOST" if _config.locale == "en" else "加速")
+	elif crawling and not Input.is_action_pressed("brake"): _speed_label.text += "  ·  " + _text("crawl_hint")
 	_speed_label.modulate = Color(0.65, 0.93, 1.0) if boosting else Color.WHITE
 	_speed_bar.value = clampf(absf(speed_mps) / maxf(max_speed_mps, 0.1), 0.0, 1.0)
 	_view_label.text = "%s  %s%s" % [_text("view_label"), _text("first_person_label" if view_mode == "first_person" else "third_person_label"), "" if _mobile else "  [V]"]
-	if not ecology_state.is_empty():
-		var active := []
-		for key in ["veyra", "aeral", "rootChoir"]:
-			if ecology_state.get(key, "quiet") != "quiet":
-				var value: String=str(ecology_state[key])
-				active.append(_text("ecology_"+value) if value in ["near","disturbed"] else value)
-		_ecology_label.text = " · ".join(active)
-	else: _ecology_label.text = ""
 	_interaction.visible = _can_interact and _state == "exploring" and not _mobile
 	_reticle.text = "+" if _can_interact else "·"
 	_reticle.modulate = SIGNAL if _can_interact else Color(1, 1, 1, 0.35)
 	_reticle.visible = _state == "exploring"
 	_contact_bar.visible = _state == "contact"
 	_contact_bar.value = _progress
+	_render_interaction_context()
 
 func set_activity_progress(done: int, optional_done: int, field_done: int, region: String, target: String = "", distance: float = 0.0, quiet: float = 0.0, bearing: float = 0.0) -> void:
 	_activity_context={"done":done,"optional":optional_done,"field":field_done,"region":region,"target":target,"distance":distance,"quiet":quiet,"bearing":bearing}
 	if is_instance_valid(_region_label): _region_label.text = _text(region)
 	_render_activity_context()
 
+func _target_name(target: String) -> String:
+	return _text("site_" + target) if COPY.has("site_" + target) else _text("goal")
+
 func _render_activity_context() -> void:
-	# Focus on the currently actionable encounter, never concatenate the task inventory.
-	if is_instance_valid(_activity_label): _activity_label.text = ""
+	if not is_instance_valid(_activity_label): return
 	if is_instance_valid(_region_label) and not _activity_context.is_empty():
 		_region_label.text = _text(str(_activity_context.region))
 	if _state != "exploring": return
+	var target := str(_activity_context.get("target", ""))
+	_distance_label.text = _target_name(target)
+	_distance_label.visible = true
+	_activity_label.visible = true
+	var bearing := float(_activity_context.get("bearing", 0.0))
+	var direction := "behind" if absf(bearing) > 2.35 else "left" if bearing < -0.55 else "right" if bearing > 0.55 else "ahead"
+	var navigation := _text("navigation") % [_text("direction_" + direction), roundi(float(_activity_context.get("distance", 0.0)))] if not target.is_empty() else ""
 	var key := ""
-	var text := ""
-	var importance := 80
-	var refresh := true
+	var text := _text("exploration_hint")
+	if target == "aurora_shelf":
+		var quiet := float(_activity_context.get("quiet", 0.0))
+		text = _text("survey_quiet") % quiet if quiet > 0.0 else _text("first_investigation")
+	elif target.begins_with("life_"): text = _text("observe_action") + " · " + _text("interaction_closer")
 	if not _resonance_context.is_empty() and _resonance_context.phase in ["listening", "answer"]:
 		var r := _resonance_context
 		key = "resonance_" + str(r.phase)
 		text = _text(key) % [r.matched, r.length] if r.phase == "answer" else _text(key)
-		key += ":" + str(r.round_index)
+	elif not _resonance_context.is_empty() and _resonance_context.phase == "idle":
+		text = _text("resonance_idle")
 	elif not _escort_context.is_empty() and _escort_context.phase in ["travelling", "alarmed", "waiting"]:
 		key = "escort_" + str(_escort_context.phase)
 		text = _text(key)
@@ -773,14 +856,14 @@ func _render_activity_context() -> void:
 	elif not _thermal_context.is_empty() and not _thermal_context.locked and _thermal_context.get("near", false):
 		key = "thermal_watch" if not _thermal_context.vent_observed else "thermal_" + str(_thermal_context.route)
 		text = _text(key)
-		importance = 35
-		refresh = false
 	elif not _wetland_context.is_empty() and _wetland_context.phase in ["alarm", "quiet", "return"]:
-		key = "study_" + str(_wetland_context.phase)
+		key = "study_wait" if _wetland_context.phase == "quiet" else "study_" + str(_wetland_context.phase)
 		text = _text(key)
-		importance = 35
-		refresh = false
-	if not key.is_empty(): _offer_whisper(key, text, importance, 6.0, 12.0, refresh)
+	if _mobile:
+		text = text.replace("Hold C to crawl.", "Crawl + Drive for a quiet pace.").replace("hold C to crawl", "Crawl + Drive").replace("按住 C 慢行", "慢行＋前進")
+		text = text.replace("E · ", "").replace("E  ", "").replace("with E", "with Observe").replace("press E", "tap Observe").replace("按 E", "點互動")
+		text = text.replace("J opens", "Journal opens").replace("J 查看", "日誌查看")
+	_activity_label.text = (navigation + "\n" if not navigation.is_empty() else "") + text
 
 func set_resonance_context(data: Dictionary) -> void:
 	_resonance_context=data
@@ -810,12 +893,51 @@ func set_interaction_kind(kind: String) -> void:
 	if not is_instance_valid(_interaction): return
 	_interaction.text=_text("thermal_observe_action" if kind=="thermal_observe" else "thermal_route_action" if kind=="thermal_route" else "root_turn" if kind.begins_with("root_relay:") else "root_pulse" if kind=="root_pulse" else "passage_action" if kind=="passage" else "escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
 
+func set_interaction_context(data: Dictionary) -> void:
+	_interaction_context = data.duplicate()
+	_render_interaction_context()
+
+func _render_interaction_context() -> void:
+	if not is_instance_valid(_ecology_label): return
+	if _interaction_context.is_empty():
+		_refresh_feedback_visibility()
+		return
+	var data := _interaction_context
+	var kind := str(data.get("kind", "none"))
+	var reason := str(data.get("reason", "none"))
+	var subject := str(data.get("subject", ""))
+	var eligible := bool(data.get("eligible", false))
+	set_interaction_kind(kind)
+	var name := _text("species_" + subject) if COPY.has("species_" + subject) else _text("site_" + subject)
+	if name.is_empty(): name = _interaction.text.replace("E · ", "").replace("E   ", "").replace("E  ", "")
+	var detail := _text("interaction_" + reason)
+	if reason == "ready": detail = _interaction.text
+	if reason == "wait" and subject == "aeral": detail = _text("study_wait")
+	if _mobile:
+		if reason == "slow": detail = "Tap Brake to stop" if _config.locale == "en" else "點煞車停下"
+		elif reason == "closer": detail = "Crawl + Drive to approach gently" if _config.locale == "en" else "慢行＋前進，慢慢靠近"
+		elif reason == "look": detail = "Steer to face the subject" if _config.locale == "en" else "轉向面對目標"
+		detail = detail.replace("E · ", "").replace("E   ", "").replace("E  ", "").replace("with E", "with Observe").replace("E 再次", "點互動再次")
+	var distance := float(data.get("distance", 0.0))
+	_ecology_label.text = name + (" · %d m" % roundi(distance) if distance > 0.0 else "")
+	# A ready desktop action is already printed on its physical button.
+	if not detail.is_empty() and (reason != "ready" or _mobile): _ecology_label.text += "\n" + detail
+	_ecology_label.visible = kind != "none" and reason != "none" and _state == "exploring"
+	_interaction.visible = eligible and _state == "exploring" and not _mobile
+	_interaction.disabled = not eligible
+	_reticle.text = "+" if eligible else "·"
+	_reticle.modulate = SIGNAL if eligible else Color(1, 1, 1, 0.35)
+	_refresh_feedback_visibility()
+
+func _refresh_feedback_visibility() -> void:
+	if is_instance_valid(_feedback_panel):
+		_feedback_panel.visible = _message.visible or _ecology_label.visible or _interaction.visible or _contact_bar.visible
 
 func set_message(key: String) -> void:
 	_message_key = key
 	if key in ["survey_guidance", "field_guidance", "survey_all"]: return
-	var importance := 100 if key in ["save_write_failed", "save_clear_failed"] else 50
-	_offer_whisper(key, _text(key), importance, 7.0, 8.0)
+	var importance := 100 if key in ["save_write_failed", "save_clear_failed"] else 90
+	_offer_whisper(key, _text(key), importance, 7.0, 8.0, true)
 
 func reset_guidance() -> void:
 	_guidance.reset()
@@ -851,6 +973,7 @@ func _refresh_whisper() -> void:
 	_message.text = _guidance.message
 	_message.visible = not _guidance.key.is_empty()
 	_message.modulate.a = 1.0 if bool(_config.reduced_motion) else clampf((_guidance.expires - _guidance.clock) / 1.2, 0.0, 1.0)
+	_refresh_feedback_visibility()
 
 func set_view_message(view_mode: String) -> void:
 	_view_mode = view_mode

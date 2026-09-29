@@ -9,9 +9,10 @@ func run() -> void:
 	game.start_expedition();game._set_phase("exploring");game.rover.set_driving_enabled(false)
 	game.rover.position=Vector3(game.world.path_x(-285),game.world.height_at(game.world.path_x(-285),-285),-285)
 	var checks: Dictionary={}
-	game._update_survey_readout();checks.initial_survey=game.ui._activity_context.target=="veil_marsh"
+	game._update_survey_readout();checks.life_before_locked_survey=game.ui._activity_context.target=="life_aeral"
 	game.activities.field.marsh_reed=true;game.activities.wetland_study.prepare()
 	game._update_survey_readout();checks.prepared_guides_to_aeral=game.ui._activity_context.target=="study_aeral"
+	game.observed_ecology.aeral=true
 	game.activities.wetland_study.observe("aeral",0.9);game._update_survey_readout();checks.alarm_still_guides_to_aeral=game.ui._activity_context.target=="study_aeral"
 	game.activities.wetland_study.observe("aeral",0.0);game._update_survey_readout();checks.recovered_guides_to_pool=game.ui._activity_context.target=="marsh_pool"
 	var expected: float=Vector2(game.rover.position.x,game.rover.position.z).distance_to(game.activities.point("marsh_pool"))
