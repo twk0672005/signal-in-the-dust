@@ -8,3 +8,6 @@ Signal in the Dust / 塵境回聲 — playable preview.
 - Rover, signal, rocks, habitat geometry and audio: project-authored assets. Third-party licenses apply only to the named third-party components; this preview grants no blanket open-source license to original game content.
 
 - Concept, entry and distant-background imagery: generated for this project. “Life in bloom” SVG/CSS artwork and animation: project-authored. These original assets are not designated CC0; the third-party licenses above remain component-specific.
+
+## Listening Reefs renewal —2026-10-01
+Project-authored Blender creatures, rover, flora and procedural maps. Active entrance images are actual Web captures. Scanned Rock055/Ground045/Grass005 maps: ambientCG CC0-1.0. Sky kloofendal_48d_partly_cloudy: Poly Haven CC0-1.0 (https://polyhaven.com/license). Signal Sans TC: Noto Sans TC derivative, SIL OFL1.1. Godot MIT/third-party notices remain included.

@@ -2,29 +2,28 @@
 
 Play: https://twk0672005.github.io/signal-in-the-dust/
 
-Bilingual alien exploration with a rover, four habitats, reactive creatures and field investigations. Public playable preview; market acceptance remains PARTIAL.
+## The Listening Reefs at Dawn — October1,2026
 
-## September 28 update
-Four-region environment update with denser reusable forest and rock groves, a reshaped Veil Marsh shoreline, distant landscape imagery, safer Continue placement, and a bilingual entry screen with the pauseable, reduced-motion-aware “Life in bloom” loading animation.
+Nova accepted this version with PASS and authorized this main/Pages publication.
+Explore four alien habitats with Veyra, Aeral and Morrow in Rover07. The renewed
+world includes mineral apertures, rooted colonies, a shared terrain/water shore,
+reactive creatures, bilingual journal and an entrance using actual game captures.
+The loader displays actual transfer and preparation states before the first view.
 
-Local validation covered the four-region driving journey, interactions, save/Continue, focus loss and emulated touch. Low720 met its 30 FPS target in all four measured moving/interaction workloads. Standard1080 did not maintain its nominal 60 FPS target in every region; stalls remain visible in the measurements. Final visual/market acceptance, physical mobile, Safari and long-session memory validation remain incomplete.
+W/S drive, brake and reverse; A/D steer; Space brake; C crawl; V change camera;
+right-drag look; E observe; J journal; Esc pause; R restart with confirmation.
+Phone controls use landscape. Device emulation passed; physical mobile/Safari
+and long-session performance remain unverified. There is one Begin my journey
+action; saved progress is replaced only after confirmation. Homepage Continue
+has been removed. Progress stays in this browser/site. No external AI/account is required.
 
-## Desktop
-WASD/arrows: drive. Space: brake. V: first/third-person. Right mouse: look. E: interact. J: journal. Esc: pause. R: reset with confirmation.
+The131.9MB pack is delivered as two streamed parts because GitHub limits individual
+files to100MiB. Reconstructed game bytes match the accepted raw candidate exactly.
+Standard1080p measured55.77–56.38FPS on RTX4060Laptop/Chrome154, below60FPS;
+Low720p passed30FPS. Cold startup45.742s/maxgap3.290s and warm10.492s are retained
+measurements. Version acceptance does not relabel these results.
 
-## Phone
-Turn your phone sideways. Use the on-screen arrows, Drive, Reverse and Brake; Crawl limits speed for quiet observation. Observe/E interacts, View switches camera, Journal and Pause open the menus. Crystal puzzle responses use on-screen1/2/3. Menus scroll with a finger. Portrait orientation asks you to rotate and pauses active play. Low quality is the initial phone default.
-
-Supports WebGL2-capable browsers. Touch behavior was checked in Chromium device emulation; physical Android/iPhone performance and Safari compatibility are not yet verified. Heavy initial loading may take time. If startup fails, use Reload. Actual phones may require lower quality or a desktop.
-
-## Saves and privacy
-Progress is stored in your browser for this site. Moving from the previous Codex Site to this new address does not transfer saves. Private browsing, cleared site data or blocked storage may prevent Continue; the game warns when saving fails. No external AI runtime or account is needed.
-
-## Release
-This repository contains the web export, credits and file hashes only. The editable Godot project and private test evidence are maintained separately. See `release.json` for source revision and exact artifact hashes. `index.wasm` is raw WebAssembly (39.5 MB); `index.pck` is 81.3 MB. Initial transfer is substantial. The loader also supports gzip exports, but this release uses the verified raw artifact. `.nojekyll` preserves static files. See CREDITS.md and licenses/.
-
-## Startup responsiveness repair
-World construction and material first-use work now yield between batches, preserving the authored scene. Coupled shell, engine, worklet and art URLs are immutable per release; old release dependencies remain available. Raw and gzip WASM stream into the engine, and failed downloads show a retry screen. First-time loading still compiles graphics on the device and may take time. See release.json for the exact artifact; final market acceptance remains PARTIAL.
-
-## Visual and gameplay update — 2026-09-29
-Four-region landforms and habitats, creature surfaces, coherent interaction guidance, observed-species journal, quiet wetland study and crawl controls. Honest Start/Continue storage states; no account service. Preserves driving, bilingual/touch controls, pause, save and staged startup. This is a public playable preview: visual targets, cold-start responsiveness and sustained Standard60FPS remain PARTIAL; physical phone/Safari and 30-minute content are unverified.
+See release.json and release-manifest.json for source and artifact hashes;
+CREDITS.md and licenses/ for provenance. The editable Godot source is maintained
+in its separate local repository. Old immutable release URLs remain available
+for cached older HTML. This repository holds the Web export and release metadata.

@@ -1,80 +1,136 @@
 {
-  "sourceCommit": "4f727820451e51da7dd2d50021f6049c0caafd03",
+  "sourceCommit": "936fd1fef22829e551b832716cf5efe1634456d1",
+  "releaseId": "0a1c861367c02356a40353c7",
+  "acceptedReleaseId": "7830ff00616c4e124b3b6440",
+  "acceptance": "NOVA_PASS",
+  "authorization": "Nova explicitly accepted this version and authorized local main and this GitHub main/Pages update on2026-10-01",
   "engine": "4.7.2",
   "renderer": "Compatibility",
   "threads": "single",
-  "preparedAt": "2026-09-29T02:12:12.546930+00:00",
-  "audience": "public playable preview",
-  "market": "PARTIAL",
-  "releaseId": "af58aba5d001b1a262549d19",
-  "wasmEncoding": "raw",
-  "files": [
+  "packTransport": "two streamed parts, each below100MiB; decoded game bytes unchanged",
+  "decodedPckSha256": "554aeae8e79340db9aedfacfc5282e6cff1aeb5b553f5a8834662f7417afd57f",
+  "decodedPckBytes": 131887468,
+  "packParts": [
     {
-      "name": "index.html",
-      "bytes": 24484,
-      "sha256": "cdfb962d6a0a4c0892c1f11247793423177a880b41e740e2a79098a47e32a5a9"
+      "name": "index.pck.part-000",
+      "bytes": 67108864,
+      "sha256": "39cc8792507b5920cc5b703a119ba6f4ab8b23e637e0f601b24dfbea2e2ba8a3"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/assets/aeral-hero-v1.png",
+      "name": "index.pck.part-001",
+      "bytes": 64778604,
+      "sha256": "a8206b821dac09004074b6ea430ae60af7507ae09b3bc497765869aa3f0a8dd5"
+    }
+  ],
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 17048,
+      "sha256": "a9bf67f232bd3822368a2401710ab20d04529085ac45df6218fd3f2d4d78db16"
+    },
+    {
+      "path": "releases/0a1c861367c02356a40353c7/assets/aeral-hero-v1.png",
       "bytes": 2721549,
       "sha256": "1793673f91d25affd671631fdd19f2e182a0623b7bd89f2272a79e95888d0f15"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/assets/veil-entry-v2.png",
+      "path": "releases/0a1c861367c02356a40353c7/assets/alien-renewal/aeral-study-web-20261001.webp",
+      "bytes": 75186,
+      "sha256": "a3b0fd2775f431769ec5df917affbcdf422fddf471c1522406b87999c9553c0a"
+    },
+    {
+      "path": "releases/0a1c861367c02356a40353c7/assets/alien-renewal/aeral-web-6da6c8ca.webp",
+      "bytes": 102512,
+      "sha256": "a3188ff333b53b25bb3bf79a8210882be00c22bebc2c716aaedae07485470d0d"
+    },
+    {
+      "path": "releases/0a1c861367c02356a40353c7/assets/alien-renewal/aurora-entry-web-20261001.webp",
+      "bytes": 143422,
+      "sha256": "9173ac9bf0a0234c08f418eecb4754fec172d6917486709db60a57fdeac7c276"
+    },
+    {
+      "path": "releases/0a1c861367c02356a40353c7/assets/alien-renewal/aurora-web-6da6c8ca.webp",
+      "bytes": 273514,
+      "sha256": "0e338f6ed35657216c6afe08f7b67b8b21bd42495174783b26676c4c14e6697a"
+    },
+    {
+      "path": "releases/0a1c861367c02356a40353c7/assets/veil-entry-v2.png",
       "bytes": 3059723,
       "sha256": "5017ba0aea023337f3fbe6b2e1924c9ceebf94d6286fea833b98e78e9256d8c9"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/index.apple-touch-icon.png",
+      "path": "releases/0a1c861367c02356a40353c7/index.apple-touch-icon.png",
       "bytes": 11944,
       "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/index.audio.position.worklet.js",
+      "path": "releases/0a1c861367c02356a40353c7/index.audio.position.worklet.js",
       "bytes": 2973,
       "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/index.audio.worklet.js",
+      "path": "releases/0a1c861367c02356a40353c7/index.audio.worklet.js",
       "bytes": 7298,
       "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/index.icon.png",
+      "path": "releases/0a1c861367c02356a40353c7/index.icon.png",
       "bytes": 5700,
       "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/index.js",
+      "path": "releases/0a1c861367c02356a40353c7/index.js",
       "bytes": 279815,
       "sha256": "33c94cb3175f3333b82e2a3be5e8e86f77986f0aa2042b1631f6367a4e5bb6ba"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/index.pck",
-      "bytes": 81067036,
-      "sha256": "7a43d118f6b86aaebfa16944be64b1351f00fcb5283db1113ecb6f68d0e4c3ea"
+      "path": "releases/0a1c861367c02356a40353c7/index.pck.part-000",
+      "bytes": 67108864,
+      "sha256": "39cc8792507b5920cc5b703a119ba6f4ab8b23e637e0f601b24dfbea2e2ba8a3"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/index.png",
+      "path": "releases/0a1c861367c02356a40353c7/index.pck.part-001",
+      "bytes": 64778604,
+      "sha256": "a8206b821dac09004074b6ea430ae60af7507ae09b3bc497765869aa3f0a8dd5"
+    },
+    {
+      "path": "releases/0a1c861367c02356a40353c7/index.png",
       "bytes": 21443,
       "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/index.wasm",
+      "path": "releases/0a1c861367c02356a40353c7/index.wasm",
       "bytes": 39514754,
       "sha256": "fc74679e3b97f76878947fcd4fbe1268cbfa6188182a2e33bbc3f5dc9bfa57d0"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/showcase.css",
-      "bytes": 21877,
-      "sha256": "a815000480d0faceb2293b82c12d543477b0442754284fffc73e7189f00778f3"
+      "path": "releases/0a1c861367c02356a40353c7/showcase.css",
+      "bytes": 24623,
+      "sha256": "0cbfdd76928ac681fcc3a63b422e7ddb075917f79e1385a66d4bc867cd8e3223"
     },
     {
-      "name": "releases/af58aba5d001b1a262549d19/showcase.js",
-      "bytes": 29583,
-      "sha256": "f5a90b4dfb39358cfd22f524a464fb249220696051e64dff385ca0c5e8c78830"
+      "path": "releases/0a1c861367c02356a40353c7/showcase.js",
+      "bytes": 35664,
+      "sha256": "00a5de6260660ca721b603b597de2ac1b608ad42c60b5b8c2d2cd26d76f50023"
     }
   ],
-  "provenance": "Copied byte-for-byte from the verified frozen visual-gameplay candidate-reviewed Web export; source/build receipts retained locally.",
-  "cacheMigration": "Prior root aliases and immutable release directories retained byte-for-byte."
+  "preparedAt": "2026-10-01T07:35:51.321706+00:00",
+  "knownMeasurements": {
+    "standard1080FpsRange": [
+      55.77,
+      56.38
+    ],
+    "low720Pass30fps": true,
+    "coldStartupSeconds": 45.742,
+    "coldMaxGapMs": 3290.4,
+    "warmStartupSeconds": 10.492
+  },
+  "unverified": [
+    "physical mobile",
+    "Safari/macOS",
+    "Firefox",
+    "long-session memory",
+    "approximately30minute content"
+  ],
+  "cacheMigration": "All prior root aliases and immutable release dependencies retained byte-for-byte"
 }
