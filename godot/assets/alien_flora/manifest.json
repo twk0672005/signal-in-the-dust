@@ -1,0 +1,281 @@
+{
+  "schema": 1,
+  "author": "project-authored original geometry; deterministic mathematical construction",
+  "blender": "5.2.1 LTS",
+  "units": "metres; Blender Z-up exported glTF Y-up",
+  "families": {
+    "aurora_crown": {
+      "triangles": 2236,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -3.6287593841552734,
+          -4.339980125427246,
+          -0.4861348271369934
+        ],
+        [
+          4.456334114074707,
+          2.7666659355163574,
+          9.353564262390137
+        ]
+      ]
+    },
+    "aurora_fork": {
+      "triangles": 2236,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -2.116128921508789,
+          -2.488166093826294,
+          -0.4907265305519104
+        ],
+        [
+          2.5549657344818115,
+          1.7210601568222046,
+          4.7047038078308105
+        ]
+      ]
+    },
+    "aurora_floor": {
+      "triangles": 90,
+      "material_surfaces": 1,
+      "bounds_blender_z_up": [
+        [
+          -0.6118999123573303,
+          -0.7176800966262817,
+          -0.10999999940395355
+        ],
+        [
+          0.6518442630767822,
+          0.5330661535263062,
+          0.5555999875068665
+        ]
+      ]
+    },
+    "ember_crown": {
+      "triangles": 2236,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -3.397118330001831,
+          -4.101953983306885,
+          -0.48995473980903625
+        ],
+        [
+          4.20516300201416,
+          2.7060770988464355,
+          8.50732421875
+        ]
+      ]
+    },
+    "ember_fork": {
+      "triangles": 2236,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -1.9702807664871216,
+          -2.355473041534424,
+          -0.4941692054271698
+        ],
+        [
+          2.396820545196533,
+          1.6829116344451904,
+          4.301263809204102
+        ]
+      ]
+    },
+    "ember_floor": {
+      "triangles": 90,
+      "material_surfaces": 1,
+      "bounds_blender_z_up": [
+        [
+          -0.5738711953163147,
+          -0.6705933809280396,
+          -0.10999999940395355
+        ],
+        [
+          0.6056593656539917,
+          0.4948321282863617,
+          0.503600001335144
+        ]
+      ]
+    },
+    "veil_crown": {
+      "triangles": 2236,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -3.8604001998901367,
+          -4.584339141845703,
+          -0.48346784710884094
+        ],
+        [
+          4.70750617980957,
+          2.8272547721862793,
+          10.05876350402832
+        ]
+      ]
+    },
+    "veil_fork": {
+      "triangles": 2236,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -2.261977195739746,
+          -2.642021656036377,
+          -0.48824140429496765
+        ],
+        [
+          2.7131106853485107,
+          1.7592086791992188,
+          5.040903568267822
+        ]
+      ]
+    },
+    "veil_floor": {
+      "triangles": 90,
+      "material_surfaces": 1,
+      "bounds_blender_z_up": [
+        [
+          -0.7944375872612,
+          -0.9436960220336914,
+          -0.10999999940395355
+        ],
+        [
+          0.8735318779945374,
+          0.7165893316268921,
+          0.8051999807357788
+        ]
+      ]
+    },
+    "pale_crown": {
+      "triangles": 2720,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -3.6287593841552734,
+          -4.3400983810424805,
+          -0.4861348271369934
+        ],
+        [
+          4.456477642059326,
+          3.7753477096557617,
+          9.353564262390137
+        ]
+      ]
+    },
+    "pale_fork": {
+      "triangles": 2720,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -2.116128921508789,
+          -2.4883177280426025,
+          -0.4907265305519104
+        ],
+        [
+          2.555063009262085,
+          2.201199531555176,
+          4.7047038078308105
+        ]
+      ]
+    },
+    "pale_floor": {
+      "triangles": 90,
+      "material_surfaces": 1,
+      "bounds_blender_z_up": [
+        [
+          -0.6195056438446045,
+          -0.7270973324775696,
+          -0.10999999940395355
+        ],
+        [
+          0.6610812544822693,
+          0.5407129526138306,
+          0.5659999847412109
+        ]
+      ]
+    },
+    "veil_rootbed": {
+      "triangles": 1418,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -2.980902671813965,
+          -3.013178586959839,
+          -0.4015696346759796
+        ],
+        [
+          3.023383855819702,
+          2.9267923831939697,
+          2.170276165008545
+        ]
+      ]
+    },
+    "fallen_root": {
+      "triangles": 980,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -4.705867767333984,
+          -1.1213881969451904,
+          -0.5031141042709351
+        ],
+        [
+          4.437093257904053,
+          1.5262752771377563,
+          1.5899863243103027
+        ]
+      ]
+    },
+    "pale_nurse": {
+      "triangles": 988,
+      "material_surfaces": 2,
+      "bounds_blender_z_up": [
+        [
+          -3.9342691898345947,
+          -1.7174043655395508,
+          -0.6447533369064331
+        ],
+        [
+          3.9520816802978516,
+          1.7177417278289795,
+          2.388951063156128
+        ]
+      ]
+    },
+    "shore_pebble": {
+      "triangles": 160,
+      "material_surfaces": 1,
+      "bounds_blender_z_up": [
+        [
+          -0.39015698432922363,
+          -0.3008669316768646,
+          -0.14303673803806305
+        ],
+        [
+          0.4174288809299469,
+          0.35711559653282166,
+          0.18000000715255737
+        ]
+      ]
+    }
+  },
+  "shared_materials": 2,
+  "alpha": "OPAQUE; closed mantle surfaces",
+  "seed": "fixed construction constants, no external generator",
+  "reused_maps": [
+    {
+      "path": "godot/assets/market_environment/cc0/Bark012_1K-JPG_NormalGL.jpg",
+      "source": "ambientCG Bark012, CC0"
+    },
+    {
+      "path": "godot/assets/market_environment/cc0/Bark012_1K-JPG_Roughness.jpg",
+      "source": "ambientCG Bark012, CC0"
+    }
+  ],
+  "new_texture_size": 512,
+  "author_seconds": 4.672,
+  "glb_bytes": 5627240,
+  "glb_sha256": "ef66d00fb732ff4e991ff240b34099efa39b61fc7aca041c53a42b800138a065"
+}

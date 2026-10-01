@@ -1,4 +1,5 @@
 extends SceneTree
+const Save = preload("res://scripts/expedition_save.gd")
 var game: Node3D
 var output:=""
 var checks: Dictionary={}
@@ -24,7 +25,10 @@ func capture(name: String) -> void:
 	checks["capture_"+name]=root.get_texture().get_image().save_png(output.path_join(name+".png"))==OK
 func run() -> void:
 	DirAccess.make_dir_recursive_absolute(output)
-	game=load("res://main.tscn").instantiate();root.add_child(game);await create_timer(0.5).timeout
+	game=load("res://main.tscn").instantiate()
+	game.save_path=output.path_join("isolated-journal-expedition.json")
+	Save.clear(game.save_path)
+	root.add_child(game);await create_timer(0.5).timeout
 	await tap(KEY_ENTER)
 	var deadline:=Time.get_ticks_msec()+10000
 	while game.phase!="exploring" and Time.get_ticks_msec()<deadline: await process_frame
@@ -47,8 +51,11 @@ func run() -> void:
 	await capture("journal-compass")
 	await tap(KEY_ESCAPE)
 	game.queue_free();await create_timer(0.4).timeout
-	game=load("res://main.tscn").instantiate();root.add_child(game);await create_timer(0.5).timeout
-	await tap(KEY_ENTER)
+	game=load("res://main.tscn").instantiate()
+	game.save_path=output.path_join("isolated-journal-expedition.json")
+	root.add_child(game);await create_timer(0.5).timeout
+	# Homepage Continue was removed; exercise the retained save-recovery API.
+	checks.restore_api=game.load_expedition()
 	checks.continue_restores=game.phase=="exploring" and game.activities.tracked_encounter=="aurora_shelf" and game.activities.discovered.aurora_shelf
 	await tap(KEY_J)
 	game.ui._config.locale="en";game.ui._build();await create_timer(0.3).timeout

@@ -18,8 +18,11 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header('Cache-Control','no-cache')
         super().end_headers()
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=4174);parser.add_argument('--no-encoding',action='store_true')
+    parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=4174);parser.add_argument('--no-encoding',action='store_true');parser.add_argument('--directory',type=Path,default=ROOT)
     args=parser.parse_args()
+    ROOT = args.directory.resolve()
+    if not (ROOT / 'index.html').is_file(): parser.error('The selected Web candidate has no index.html')
     ENCODING_HEADERS = not args.no_encoding
-    print(f'Serving {ROOT} at http://127.0.0.1:{args.port}',flush=True)
-    ThreadingHTTPServer(('127.0.0.1',args.port),Handler).serve_forever()
+    http = ThreadingHTTPServer(('127.0.0.1',args.port),Handler)
+    print(f'Serving {ROOT} at http://127.0.0.1:{http.server_port}',flush=True)
+    http.serve_forever()

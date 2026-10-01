@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 const options = Object.fromEntries(process.argv.slice(2).map(arg => {const [k,...v]=arg.replace(/^--/,'').split('=');return [k,v.join('=')||true];}));
+if(['entry','legacy'].includes(options.mode))throw Error('Continue was removed. Use tools/entry-web-qa.mjs for the current entry journey; native save tests retain migration coverage.');
 const url = String(options.url || 'http://127.0.0.1:4216/?review=1');
 if (!['127.0.0.1','localhost'].includes(new URL(url).hostname)) throw Error('Local candidate only');
 const output = resolve(String(options.output || 'evidence/world-upgrade-20260926/web-smoke'));
@@ -42,17 +43,36 @@ async function keys(next){const desired=new Set(next);for(const key of held)if(!
 const pathX=z=>18*Math.sin((150-z)*.012)+4*Math.sin((150-z)*.033);
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const waitExploring=()=>page.waitForFunction(()=>window.__EXPEDITION_STATE__?.phase==='exploring'&&document.body.dataset.shellPhase==='game',null,{timeout:150000});
+async function beginFreshJourney(){
+  await page.locator('#start').click();
+  await page.waitForFunction(()=>document.body.dataset.shellPhase==='game'&&document.getElementById('veil').classList.contains('hidden'),null,{timeout:180000});
+  if(await page.evaluate(()=>window.__EXPEDITION_BOOT_STATUS__?.stage==='confirm-new')){
+    await page.keyboard.press('Shift+Tab');await page.keyboard.press('Enter');
+  }
+  await waitExploring();
+}
 const browserFocusState=()=>page.evaluate(()=>({visibilityState:document.visibilityState,hidden:document.hidden,hasFocus:document.hasFocus(),activeElement:document.activeElement?.id||document.activeElement?.tagName||null,shellPhase:document.body.dataset.shellPhase}));
 async function captureBilingualUi(){
-  const capture=()=>page.evaluate(()=>({lang:document.documentElement.lang,shellPhase:document.body.dataset.shellPhase,homeHidden:document.getElementById('home').hidden,start:document.getElementById('start').textContent.trim(),continue:document.getElementById('continue').textContent.trim(),toggle:document.getElementById('language-toggle').textContent.trim(),toggleLabel:document.getElementById('language-toggle').getAttribute('aria-label')}));
+  const capture=()=>page.evaluate(()=>({lang:document.documentElement.lang,shellPhase:document.body.dataset.shellPhase,homeHidden:document.getElementById('home').hidden,start:document.getElementById('start').textContent.trim(),continue:document.getElementById('continue')?.textContent.trim()||null,toggle:document.getElementById('language-toggle').textContent.trim(),toggleLabel:document.getElementById('language-toggle').getAttribute('aria-label')}));
+  const settled=()=>page.waitForFunction(()=>{
+    let opacity=1;
+    for(let node=document.getElementById('start');node;node=node.parentElement){
+      const style=getComputedStyle(node);
+      if(style.visibility==='hidden'||style.display==='none')return false;
+      opacity*=Number(style.opacity);
+    }
+    return opacity>.99;
+  },null,{timeout:10000});
+  await settled();
   const english=await capture(); await page.screenshot({path:resolve(output,'ui-home-en.png')});
   await page.locator('#language-toggle').click();
-  await page.waitForFunction(()=>document.documentElement.lang==='zh-Hant'&&document.getElementById('start').textContent.includes('開始探索'));
+  await page.waitForFunction(()=>document.documentElement.lang==='zh-Hant'&&document.getElementById('start').textContent.includes('開啟我的旅程'));
+  await settled();
   const traditionalChinese=await capture(); await page.screenshot({path:resolve(output,'ui-home-zh-TW.png')});
   await page.locator('#language-toggle').click();
-  await page.waitForFunction(()=>document.documentElement.lang==='en'&&document.getElementById('start').textContent.includes('Start exploring'));
+  await page.waitForFunction(()=>document.documentElement.lang==='en'&&document.getElementById('start').textContent.includes('Begin my journey'));
   const restoredEnglish=await capture(); receipt.bilingualUi={english,traditionalChinese,restoredEnglish};
-  checks.bilingualUi=english.lang==='en'&&english.shellPhase==='home'&&!english.homeHidden&&english.start==='Start exploring'&&english.continue==='Continue'&&english.toggle==='繁中'&&traditionalChinese.lang==='zh-Hant'&&traditionalChinese.start==='開始探索'&&traditionalChinese.continue==='繼續旅程'&&traditionalChinese.toggle==='EN'&&restoredEnglish.lang==='en'&&restoredEnglish.start==='Start exploring';
+  checks.bilingualUi=english.lang==='en'&&english.shellPhase==='home'&&!english.homeHidden&&english.start==='Begin my journey'&&english.continue===null&&english.toggle==='繁中'&&traditionalChinese.lang==='zh-Hant'&&traditionalChinese.start==='開啟我的旅程'&&traditionalChinese.continue===null&&traditionalChinese.toggle==='EN'&&restoredEnglish.lang==='en'&&restoredEnglish.start==='Begin my journey';
 }
 async function driveToRegion(region,targetZ,trace){
   const deadline=Date.now()+150000;
@@ -128,6 +148,21 @@ try {
     await page.evaluate(raw=>localStorage.setItem('signal-in-the-dust:expedition:v2:user://world-review-expedition.json',raw),raw);
     await page.locator('#continue').click();
   }else await page.locator('#start').click();
+  if(options.mode==='capture'){
+    receipt.loadingViews=[];const seen=new Set(),deadline=Date.now()+180000;
+    while(Date.now()<deadline){
+      const loading=await page.evaluate(()=>({shellPhase:document.body.dataset.shellPhase,preparation:window.__EXPEDITION_PREPARATION__||null,status:document.getElementById('status')?.textContent,boot:window.__EXPEDITION_BOOT_STATUS__||null}));
+      if(loading.shellPhase==='game')break;
+      if(loading.shellPhase==='error')throw Error('Actual loading failed: '+loading.status);
+      const phase=loading.preparation?.phase||'transfer';
+      if(loading.shellPhase==='loading'&&!seen.has(phase)){
+        seen.add(phase);await page.screenshot({path:resolve(output,'loading-'+phase+'.png')});
+        receipt.loadingViews.push(loading);save();
+      }
+      await page.waitForTimeout(200);
+    }
+    checks.actualLoadingCaptured=receipt.loadingViews.length>0;
+  }
   await waitExploring();
   checks.boot=true; receipt.bootSeconds=(Date.now()-start)/1000; receipt.bootTimings=await page.evaluate(()=>window.__EXPEDITION_BOOT_TIMINGS__||null);
   if(options.locale)checks.gameLocale=(await state()).state.settings.locale===options.locale;
@@ -198,12 +233,15 @@ try {
   }
   if(options.mode==='capture') {
     receipt.views=[];
+    if(options.clean)await command({action:'overlay',hidden:true});
     for(const id of (options.views?String(options.views).split(','):['aurora_shelf','aurora_shelf_reverse','aurora_shelf_side','ember_rift','ember_rift_reverse','ember_rift_side','veil_marsh','veil_marsh_reverse','veil_marsh_side','pale_decay','pale_decay_reverse','pale_decay_side','veyra','aeral','morrow','shore','microfauna','veyra_close','aeral_close','morrow_close'])){
       await command({action:'view',id});
       await page.waitForTimeout(1200);
       await page.screenshot({path:resolve(output,id+'.png')});
       receipt.views.push(await page.evaluate(()=>({review:window.__WORLD_REVIEW__,state:window.__EXPEDITION_STATE__,metrics:window.__EXPEDITION_METRICS__})));
     }
+    if(options.clean)await command({action:'overlay',hidden:false});
+    receipt.overlayHiddenForEditorialCapture=!!options.clean;
     checks.allViewsCaptured=receipt.views.length===(options.views?String(options.views).split(',').length:20);
   }
   if(options.mode==='motion'){
@@ -243,7 +281,7 @@ try {
         await keys([]); await context.close();
         context=await browser.newContext(contextOptions); page=await context.newPage(); observePage(page);
         await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
-        await page.getByRole('button',{name:'Start exploring',exact:true}).click();
+        await page.getByRole('button',{name:'Begin my journey',exact:true}).click();
         await waitExploring();
       }
       await page.setViewportSize({width:profile.width,height:profile.height});
@@ -356,14 +394,11 @@ try {
     checks.pauseReleased=paused.state.phase==='paused'&&Math.hypot(heldPause.state.position.x-paused.state.position.x,heldPause.state.position.z-paused.state.position.z)<.03&&!heldPause.state.boosting;
     await page.screenshot({path:resolve(output,'paused.png')});
     await page.reload({waitUntil:'domcontentloaded'});
-    const continueHome=await page.locator('#continue').evaluate(button=>({visible:!button.hidden&&getComputedStyle(button).display!=='none',disabled:button.disabled,text:button.textContent.trim(),savedAvailable:button.dataset.savedAvailable||null}));
-    receipt.continueHome=continueHome;
-    checks.saveContinueAvailable=continueHome.visible&&!continueHome.disabled&&continueHome.text==='Continue';
-    await page.screenshot({path:resolve(output,'continue-home.png')});
-    await page.locator('#continue').click();await waitExploring();
-    const continued=await state();receipt.continued=continued;
-    checks.saveContinueRestored=Math.hypot(continued.state.position.x-paused.state.position.x,continued.state.position.z-paused.state.position.z)<.3&&continued.state.view===paused.state.view&&JSON.stringify(continued.state.observedEcology)===JSON.stringify(paused.state.observedEcology);
-    await page.waitForTimeout(550);await page.screenshot({path:resolve(output,'continued.png')});
+    checks.continueRemoved=await page.locator('#continue').count()===0;
+    await page.screenshot({path:resolve(output,'new-journey-home.png')});
+    await beginFreshJourney();
+    const fresh=await state();receipt.freshJourney=fresh;
+    checks.newJourneyReset=fresh.state.elapsed<10&&fresh.state.distance<1;
     receipt.focusCoverage={status:'not-run',reason:'Focus requires --mode=focus so an unsupported browser foreground transition cannot invalidate input/save journey evidence.'};
   }
   if(options.mode==='shorejourney'){
@@ -432,9 +467,9 @@ try {
     checks.shoreNoInspectionTeleport=afterReverse.review.view==='play'&&afterReverse.review.revision===0;
     checks.shoreReverseMovement=Math.hypot(afterReverse.state.position.x-beforeReverse.state.position.x,afterReverse.state.position.z-beforeReverse.state.position.z)>.5;
     await page.keyboard.press('Escape');await page.waitForFunction(()=>window.__EXPEDITION_STATE__?.phase==='paused');
-    const saved=await state();await page.reload({waitUntil:'domcontentloaded'});await page.locator('#continue').click();await waitExploring();
-    const resumed=await state();receipt.shoreResumed=resumed;
-    checks.shoreContinue=Math.hypot(saved.state.position.x-resumed.state.position.x,saved.state.position.z-resumed.state.position.z)<.3;
+    await page.reload({waitUntil:'domcontentloaded'});await beginFreshJourney();
+    const fresh=await state();receipt.shoreNewJourney=fresh;
+    checks.shoreNewJourneyReset=fresh.state.elapsed<10&&fresh.state.distance<1;
   }
   if(options.mode==='focus'){
     // A second Playwright page is only a calibration attempt. Never synthesize a
@@ -566,8 +601,8 @@ try {
     for(let i=1;i<=2;i++){
       await keys(['w']);await page.waitForTimeout(1500);await keys(['Space']);await page.waitForTimeout(700);await keys([]);
       await page.keyboard.press('Escape');await page.waitForFunction(()=>window.__EXPEDITION_STATE__?.phase==='paused');await page.waitForTimeout(500);
-      await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.locator('#continue').click();await waitExploring();
-      receipt.startupSamples.push(await bootSample('warm-context-reload-continue-'+i));save();
+      await page.reload({waitUntil:'domcontentloaded',timeout:60000});await beginFreshJourney();
+      receipt.startupSamples.push(await bootSample('warm-context-reload-new-'+i));save();
     }
     checks.startupRecorded=receipt.startupSamples.length===3&&receipt.startupSamples.every(x=>x.details.timings?.godot&&Number.isFinite(x.details.timings.shell?.durations_ms?.launch_to_first_interactive_ms));
   }

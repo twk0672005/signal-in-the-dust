@@ -1,7 +1,7 @@
 extends RefCounted
 ## Validated, idempotent homepage intent. Save authority remains in main/ExpeditionSave.
 
-const STAGES := ["initializing", "validating", "confirm-new", "continue-unavailable", "playing", "home", "error"]
+const STAGES := ["initializing", "validating", "confirm-new", "playing", "home", "error"]
 const SETTINGS := ["locale", "volume", "reduced_motion", "low_quality"]
 var request_id := ""
 var stage := "initializing"
@@ -14,7 +14,7 @@ static func validate(value: Variant) -> Dictionary:
 	if not value.get("requestId") is String or not value.get("action") is String: return {}
 	var id: String = value.requestId
 	if id.is_empty() or id.length() > 128 or id != id.strip_edges(): return {}
-	if value.action not in ["new", "continue"]: return {}
+	if value.action != "new": return {}
 	var settings: Variant = value.get("settings", {})
 	if not settings is Dictionary: return {}
 	for key in settings:

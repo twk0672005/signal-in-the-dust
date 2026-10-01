@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -35,11 +36,19 @@ if args.baseline_adapter:
 web = destination / 'web'
 web.mkdir()
 receipt = {'source': str(source), 'snapshot': str(snapshot), 'startedAt': time.time(), 'baselineAdapterOnly': bool(args.baseline_adapter), 'commands': []}
-for stage, command in [('version', ['--version']), ('import', ['--headless', '--path', str(snapshot), '--editor', '--import', '--quit']), ('export', ['--headless', '--path', str(snapshot), '--export-release', 'Web', str(web / 'index.html')])]:
+isolated_data = destination / 'native-userdata'
+isolated_data.mkdir()
+child_env = {**os.environ, 'APPDATA': str(isolated_data)}
+templates = Path(os.environ['APPDATA']) / 'Godot/export_templates/4.7.2.stable'
+isolated_templates = isolated_data / 'Godot/export_templates/4.7.2.stable'
+isolated_templates.mkdir(parents=True)
+for name in ('web_nothreads_debug.zip', 'web_nothreads_release.zip'):
+    shutil.copy2(templates / name, isolated_templates / name)
+for stage, command in [('version', ['--version']), ('import', ['--headless', '--path', str(snapshot), '--editor', '--import', '--quit']), ('world-parse', ['--headless','--path',str(snapshot),'--script','res://scripts/world.gd','--check-only']), ('main-parse', ['--headless','--path',str(snapshot),'--script','res://scripts/main.gd','--check-only']), ('export', ['--headless', '--path', str(snapshot), '--export-release', 'Web', str(web / 'index.html')])]:
     started = time.time()
     with (destination / (stage + '.log')).open('w', encoding='utf-8') as log:
         try:
-            result = subprocess.run([str(engine), *command], stdout=log, stderr=subprocess.STDOUT, timeout=300)
+            result = subprocess.run([str(engine), *command], stdout=log, stderr=subprocess.STDOUT, timeout=300, env=child_env)
             code = result.returncode
         except subprocess.TimeoutExpired:
             code = -1

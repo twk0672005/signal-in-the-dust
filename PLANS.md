@@ -1,5 +1,9 @@
 2026-09-23 active scope: GitHub Pages release + mobile landscape touch controls, actual touch regression, raw/static host validation, public deployment readback. No additional content expansion or heartbeat restart.
 
+# Autonomous market art upgrade — 2026-09-30
+
+Nova now authorizes complete autonomous game art, rendered quality, website entry/loading and market-version work against https://valley.mengto.here.now/, with WORKER assistance. Current source branch is `codex/market-art-20260930`; preexisting WIP and immutable baseline are preserved. Living plan and exact ownership: `evidence/market-art-20260930/PLAN.md`; current progress: `RUN.json` in that directory. This new scope supersedes the historical wrap-up restrictions below; it does not restart old windows or automations. Native helpers, root-owned imports/exports/Browser, consolidated integration and truthful final acceptance.
+
 # User-requested wrap-up and handoff
 
 Nova requested that the current version be wrapped up and published to the existing Codex Site. Do not expand features after delivery. Remaining market targets below are backlog, not active continuation instructions.

@@ -1,4 +1,16 @@
+## 最新本地候選 — 2026-10-01 六小時交付
+
+[開啟遊戲](http://127.0.0.1:51860/) · [完整交付與驗證](evidence/alien-renewal-20260930T200644Z/HANDOFF.md)。固定版本7830ff00616c4e124b3b6440；可玩、美術與入口已整合，整體 Valley／60FPS／冷啟動門檻仍 PARTIAL，未發布。本段覆蓋下方歷史的 current/latest/預覽埠；舊工作、版本與證據保留。
+
 # Signal in the Dust — First Contact
+
+## Latest local Blender material candidate — 2026-09-29
+
+[Play locally](http://127.0.0.1:52372/) · [Blender source, skill installation, actual Web comparison and limits](docs/BLENDER_LOOKDEV_2026-09-29.md). Includes the entry redesign below. Rock/ground improvements are locally verified; overall visual target remains PARTIAL. This candidate has not been committed or published.
+
+## Latest local entry redesign — 2026-09-29
+
+The welcome now asks “準備好開始你的旅程了嗎？” with one Start action. Continue has been removed as requested; in-session pause/resume remains. [Local preview](http://127.0.0.1:58047/) · [Changes, actual Web checks and publication status](docs/ENTRY_REDESIGN_2026-09-29.md). This local redesign has not yet replaced the GitHub release below.
 
 ## Published main — 2026-09-29
 

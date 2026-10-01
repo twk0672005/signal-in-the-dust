@@ -11,6 +11,7 @@ const ResonanceScript = preload("res://scripts/resonance_sequence.gd")
 const ActivityScript = preload("res://scripts/expedition_activities.gd")
 const RoverScript = preload("res://scripts/rover.gd")
 const ContactScript = preload("res://scripts/contact.gd")
+const RuntimeSurface = preload("res://scripts/runtime_surface.gd")
 signal _boot_browser_resumed
 var _boot_yield_callback: JavaScriptObject
 var _boot_completed_steps := 0
@@ -22,6 +23,8 @@ var _web_launch_pending := false
 var _boot_timing_origin_usec: int = 0
 var _boot_timing_timestamps_usec: Dictionary = {}
 var _boot_timing_durations_usec: Dictionary = {}
+var _boot_preparation: Dictionary = {}
+var _runtime_surface: Node
 var touch_enabled := false
 var world: Node3D
 var rover: CharacterBody3D
@@ -93,6 +96,15 @@ func _publish_boot_timings() -> void:
 	var source := "(() => { const current = window.__EXPEDITION_BOOT_TIMINGS__ || {}; const payload = " + JSON.stringify(payload) + "; const godot = Object.freeze({...payload, timestamps_usec:Object.freeze(payload.timestamps_usec), durations_usec:Object.freeze(payload.durations_usec)}); Object.defineProperty(window, '__EXPEDITION_BOOT_TIMINGS__', {value:Object.freeze({...current, godot}), writable:false, configurable:true, enumerable:true}); })();"
 	JavaScriptBridge.eval(source, true)
 
+func _set_boot_preparation(value: String, completed: int = -1, total: int = -1) -> void:
+	if value not in ["world", "materials", "first-view"]: return
+	_boot_preparation = {"version":1, "phase":value}
+	if completed >= 0 and total >= completed:
+		_boot_preparation["completed"] = completed
+		_boot_preparation["total"] = total
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("Object.defineProperty(window, '__EXPEDITION_PREPARATION__', {value:Object.freeze(" + JSON.stringify(_boot_preparation) + "), writable:false, configurable:true, enumerable:true});", true)
+
 func boot_browser_yield() -> void:
 	if not OS.has_feature("web"):
 		await get_tree().process_frame
@@ -111,6 +123,7 @@ func boot_browser_yield() -> void:
 
 func _ready() -> void:
 	_begin_boot_timings()
+	_set_boot_preparation("world")
 	var local_review := WorldReview.enabled_in_browser()
 	if local_review: save_path = "user://world-review-expedition.json"
 	# Every native evidence run uses its own disposable save, never the player's slot.
@@ -178,7 +191,6 @@ func _ready() -> void:
 	add_child(ui)
 	_boot_timing_span("ui_add_child", ui_add_child_started_usec)
 	ui.start_requested.connect(request_new_expedition)
-	ui.continue_saved_requested.connect(load_expedition)
 	ui.resume_requested.connect(resume_expedition)
 	ui.encounter_selected.connect(_on_encounter_selected)
 	ui.reset_requested.connect(reset_expedition)
@@ -190,9 +202,16 @@ func _ready() -> void:
 	var map_road := PackedVector2Array()
 	for z in range(-670, 181, 8): map_road.append(Vector2(world.path_x(float(z)), float(z)))
 	ui.set_map_road(map_road)
-	_on_settings(ui.get_settings())
+	var initial_settings: Dictionary = ui.get_settings()
+	initial_settings.merge(_read_web_launch_request().get("settings", {}), true)
+	_on_settings(initial_settings)
 	ui.show_state("menu")
 	audio.set_paused(true)
+	var surface_started := Time.get_ticks_usec()
+	_runtime_surface = RuntimeSurface.new()
+	add_child(_runtime_surface)
+	_runtime_surface.bind_scene(self)
+	_boot_timing_span("shared_surface_adaptation",surface_started)
 	if OS.has_feature("web"):
 		await _warm_web_renderer()
 	ready_for_play = true
@@ -223,18 +242,10 @@ func _warm_material_key(material: Material) -> String:
 		elif value is Texture2D: features.append([property.name,true])
 	return str(features)
 
-func _warm_web_renderer() -> void:
-	# A whole-world first draw synchronously compiles every visible GLES3 variant.
-	# Mask instances before yielding, then submit one material family per browser turn.
-	var warm_started := Time.get_ticks_usec()
-	var original_camera := get_viewport().get_camera_3d()
-	var original_paused: bool = world._paused
-	var original_low := bool(settings.get("low_quality", false))
-	world.set_paused(true)
+func _warm_material_plan() -> Array[Dictionary]:
 	var groups: Dictionary = {}
 	var material_keys: Dictionary = {}
-	var first_materials: Dictionary = {}
-	var instances: Array[Dictionary] = []
+	var omni_lights := find_children("*", "OmniLight3D", true, false)
 	for raw in find_children("*", "GeometryInstance3D", true, false):
 		var node := raw as GeometryInstance3D
 		var materials: Array[Material] = []
@@ -243,89 +254,175 @@ func _warm_web_renderer() -> void:
 			for surface in node.mesh.get_surface_count(): materials.append(node.get_active_material(surface))
 		elif node is MultiMeshInstance3D and node.multimesh != null and node.multimesh.mesh != null:
 			for surface in node.multimesh.mesh.get_surface_count(): materials.append(node.multimesh.mesh.surface_get_material(surface))
-		var keys: Array[String] = [node.get_class()]
-		for material in materials:
+		elif node is CPUParticles3D and node.mesh != null:
+			for surface in node.mesh.get_surface_count(): materials.append(node.mesh.surface_get_material(surface))
+		if node.material_overlay != null: materials.append(node.material_overlay)
+		var seen: Dictionary = {}
+		while not materials.is_empty():
+			var material: Material = materials.pop_back()
 			var id := material.get_instance_id() if material != null else 0
+			if seen.has(id): continue
+			seen[id] = true
 			if not material_keys.has(id): material_keys[id] = _warm_material_key(material)
-			keys.append(material_keys[id])
-			if material != null: first_materials[material_keys[id]] = material
-		var key := "|".join(keys)
-		if not groups.has(key): groups[key] = []
-		var entry := {"node":node,"layers":node.layers,"shadow":node.cast_shadow}
-		groups[key].append(entry)
-		instances.append(entry)
+			var key: String = material_keys[id]
+			if not groups.has(key): groups[key] = {"material":material,"mesh":false,"instanced":false,"omni":false}
+			groups[key]["instanced" if node is MultiMeshInstance3D or node is CPUParticles3D else "mesh"] = true
+			if not groups[key].omni: groups[key].omni = _warm_omni_reachable(node, omni_lights)
+			if material != null and material.next_pass != null: materials.append(material.next_pass)
+	var plan: Array[Dictionary] = []
+	for group in groups.values(): plan.append(group)
+	return plan
+
+func _warm_omni_reachable(node: GeometryInstance3D, lights: Array[Node]) -> bool:
+	if lights.is_empty(): return false
+	# Moving actors and unknown instance bounds retain every local-light variant.
+	if not node.is_inside_tree() or not node is MeshInstance3D or node.mesh == null: return true
+	if is_instance_valid(rover) and rover.is_ancestor_of(node): return true
+	if is_instance_valid(world):
+		for actor in world._ecology_nodes:
+			if actor == node or actor.is_ancestor_of(node): return true
+	var local_bounds: AABB = node.custom_aabb if node.custom_aabb.size != Vector3.ZERO else node.mesh.get_aabb()
+	if local_bounds.size == Vector3.ZERO: return true
+	var bounds: AABB = node.global_transform * local_bounds.grow(node.extra_cull_margin)
+	for raw in lights:
+		var light := raw as OmniLight3D
+		if (node.layers & light.light_cull_mask) == 0: continue
+		# GLES3 pairs the light's transformed range cube, including its dark corners.
+		var reach := Vector3.ONE * light.omni_range
+		if bounds.intersects((light.global_transform * AABB(-reach, reach * 2.0)).grow(.001)): return true
+	return false
+
+func _warm_proxy(instanced: bool) -> GeometryInstance3D:
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(.6,.6,.6)
+	var node: GeometryInstance3D
+	if instanced:
+		var multimesh := MultiMesh.new()
+		multimesh.transform_format = MultiMesh.TRANSFORM_3D
+		multimesh.use_colors = true
+		multimesh.use_custom_data = true
+		multimesh.mesh = mesh
+		multimesh.instance_count = 1
+		multimesh.set_instance_transform(0,Transform3D.IDENTITY)
+		multimesh.set_instance_color(0,Color.WHITE)
+		multimesh.set_instance_custom_data(0,Color(0,0,0,0))
+		var batch := MultiMeshInstance3D.new()
+		batch.multimesh = multimesh
+		node = batch
+	else:
+		var instance := MeshInstance3D.new()
+		instance.mesh = mesh
+		node = instance
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return node
+
+func _warm_web_renderer() -> void:
+	# Godot 4.7.2 initializes all base color/depth/instancing variants together.
+	# Prepare one material family on tiny geometry, including the actual local-light
+	# combinations, rather than redrawing every family in every region and quality.
+	var warm_started := Time.get_ticks_usec()
+	var original_camera := get_viewport().get_camera_3d()
+	var original_paused: bool = world._paused
+	var original_low := bool(settings.get("low_quality", false))
+	world.set_paused(true)
+	var plan := _warm_material_plan()
+	var instances: Array[Dictionary] = []
+	for raw in find_children("*", "GeometryInstance3D", true, false):
+		var node := raw as GeometryInstance3D
+		instances.append({"node":node,"layers":node.layers})
 		node.layers = 0
 	var reflection := world.get_node_or_null("PairedMarshStudy/LocalShoreReflection") as ReflectionProbe
 	if reflection != null: reflection.visible = false
+	var stage := Node3D.new()
+	stage.name = "StartupMaterialSamples"
+	stage.position = Vector3(0,1000,0)
+	add_child(stage)
 	var warm_camera := Camera3D.new()
 	warm_camera.name = "StartupMaterialWarmup"
 	warm_camera.fov = 68.0
-	warm_camera.far = 650.0
+	warm_camera.far = 40.0
 	warm_camera.near = 0.06
 	add_child(warm_camera)
 	warm_camera.current = true
-	warm_camera.position = Vector3(0,1000,4)
+	warm_camera.position = Vector3(0,1001,7)
+	warm_camera.look_at(stage.position)
+	var samples: Array[GeometryInstance3D] = []
+	for layer in [1,2]:
+		for instanced in [false,true]:
+			var sample := _warm_proxy(instanced)
+			sample.layers = layer
+			sample.position = Vector3(-1.0 if layer == 1 else 1.0,0,-.4 if instanced else .4)
+			sample.visible = false
+			stage.add_child(sample)
+			samples.append(sample)
+	var omni := OmniLight3D.new()
+	omni.position = Vector3(0,1,0)
+	omni.omni_range = 12.0
+	omni.visible = false
+	stage.add_child(omni)
+	var spot := SpotLight3D.new()
+	spot.position = Vector3(0,1,4)
+	spot.spot_range = 12.0
+	spot.spot_angle = 60.0
+	spot.visible = false
+	stage.add_child(spot)
+	spot.look_at(stage.position)
+	_set_boot_preparation("materials",0,plan.size())
 	# Compile the sky separately before the first spatial material.
 	await RenderingServer.frame_post_draw
 	await boot_browser_yield()
-	# Initialize one shader version at a time, including materials of multi-surface meshes.
-	# GLES3 itself compiles that version's base variants synchronously; no script can
-	# yield inside that engine call. The later real draws cover instance/light variants.
-	var primer := MeshInstance3D.new()
-	primer.mesh = BoxMesh.new()
-	primer.position = Vector3(0,1000,0)
-	primer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(primer)
 	var material_index := 0
-	for material in first_materials.values():
+	var submissions := 0
+	for family in plan:
 		var material_started := Time.get_ticks_usec()
-		primer.material_override = material
-		await RenderingServer.frame_post_draw
-		await boot_browser_yield()
+		for sample in samples:
+			sample.material_override = family.material
+			sample.visible = family.instanced if sample is MultiMeshInstance3D else family.mesh
+			sample.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		# Fixed mesh bounds outside every authored Omni need only no-light/spot.
+		# Instance batches and moving actors keep all four light-presence combinations.
+		for lighting in (3 if family.omni else 2):
+			omni.visible = lighting > 0 and family.omni
+			spot.visible = lighting > 0
+			omni.light_cull_mask = 3 if lighting == 2 else 1
+			spot.light_cull_mask = 3 if lighting == 2 or not family.omni else 2
+			if lighting == (2 if family.omni else 1):
+				for sample in samples: sample.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+			await RenderingServer.frame_post_draw
+			await boot_browser_yield()
+			submissions += 1
 		_boot_timing_span("renderer_material_initialize_%d" % material_index, material_started)
 		material_index += 1
+		_set_boot_preparation("materials",material_index,plan.size())
 		_publish_boot_timings()
-	primer.visible = false
-	primer.queue_free()
-	var group_index := 0
-	var views := 0
-	for key in groups:
-		var group_started := Time.get_ticks_usec()
-		for entry in groups[key]: entry.node.layers = entry.layers
-		for low in [false, true]:
-			world.set_low_quality(low)
-			rover.set_low_quality(low)
-			if reflection != null: reflection.visible = false
-			for z in [125.0, -100.0, -275.0, -495.0]:
-				var x: float = world.path_x(z)
-				var h: float = world.height_at(x,z)
-				warm_camera.position = Vector3(x+5.5,h+3.5,z+8.0)
-				warm_camera.look_at(Vector3(world.path_x(z-24.0),h+2.6,z-24.0))
-				# Color and shadow submission have independent browser task boundaries.
-				var shadows: Array[int] = []
-				for entry in groups[key]:
-					shadows.append(entry.node.cast_shadow)
-					entry.node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-				await RenderingServer.frame_post_draw
-				await boot_browser_yield()
-				for i in groups[key].size(): groups[key][i].node.cast_shadow = shadows[i]
-				await RenderingServer.frame_post_draw
-				await boot_browser_yield()
-				views += 1
-		for entry in groups[key]: entry.node.layers = 0
-		_boot_timing_span("renderer_material_group_%d" % group_index, group_started)
-		group_index += 1
-		_publish_boot_timings()
-	# Restore exact authored layers/settings before the final real scene frame.
+	stage.visible = false
+	stage.queue_free()
+	_set_boot_preparation("first-view",0,7)
+	# Restore authored geometry once. Real region/camera draws cover buffers and
+	# textures as well as the ready view; no gameplay or ecology time has advanced.
 	for entry in instances:
 		entry.node.layers = entry.layers
-		entry.node.cast_shadow = entry.shadow
-	world.set_low_quality(original_low)
-	rover.set_low_quality(original_low)
+	warm_camera.far = 650.0
+	var views := 0
+	for z in [125.0,-100.0,-275.0,-495.0]:
+		var x: float = world.path_x(z)
+		var h: float = world.height_at(x,z)
+		warm_camera.position = Vector3(x+5.5,h+3.5,z+8.0)
+		warm_camera.look_at(Vector3(world.path_x(z-24.0),h+2.6,z-24.0))
+		await RenderingServer.frame_post_draw
+		await boot_browser_yield()
+		views += 1
+		_set_boot_preparation("first-view",views,7)
+	for camera in [rover.camera,rover.third_camera]:
+		camera.current = true
+		await RenderingServer.frame_post_draw
+		await boot_browser_yield()
+		views += 1
+		_set_boot_preparation("first-view",views,7)
 	if is_instance_valid(original_camera): original_camera.current = true
 	else: exterior.current = true
 	warm_camera.queue_free()
-	if reflection != null:
+	if reflection != null and not original_low:
 		# UPDATE_ONCE does not notice restored geometry. A transform change dirties it.
 		# Keep it hidden for the offset frame, then restore the exact authored transform.
 		var reflection_position := reflection.position
@@ -334,25 +431,34 @@ func _warm_web_renderer() -> void:
 		await RenderingServer.frame_post_draw
 		await boot_browser_yield()
 		reflection.position = reflection_position
-		reflection.visible = not original_low
+		reflection.visible = true
 	# UPDATE_ONCE radiance generation spans six subsequent frames.
-	for frame in 7:
+	for frame in (7 if reflection != null and not original_low else 1):
 		await RenderingServer.frame_post_draw
 		await boot_browser_yield()
+	views += 1
+	_set_boot_preparation("first-view",views,7)
 	world.set_paused(original_paused)
 	_boot_timing_span("renderer_first_use_warmup", warm_started)
 	_boot_timing_durations_usec["renderer_warmup_views"] = views
-	_boot_timing_durations_usec["renderer_warmup_material_groups"] = group_index
+	_boot_timing_durations_usec["renderer_warmup_material_groups"] = plan.size()
 	_boot_timing_durations_usec["renderer_warmup_material_initializations"] = material_index
+	_boot_timing_durations_usec["renderer_warmup_omni_families"] = plan.filter(func(family): return family.omni).size()
+	_boot_timing_durations_usec["renderer_warmup_sample_submissions"] = submissions
 	_boot_timing_durations_usec["renderer_warmup_capped"] = 0
 
 func _install_web_launch() -> void:
 	if not OS.has_feature("web"): return
 	_web_launch_callback = JavaScriptBridge.create_callback(_on_web_launch)
 	JavaScriptBridge.get_interface("window").expeditionLaunch = _web_launch_callback
+	_begin_web_launch.call_deferred(_read_web_launch_request())
+
+func _read_web_launch_request() -> Dictionary:
+	if not OS.has_feature("web"): return {}
 	var serialized: Variant = JavaScriptBridge.eval("JSON.stringify(window.__EXPEDITION_BOOT_REQUEST__ || null)", true)
 	if serialized is String and serialized.length() <= 8192:
-		_begin_web_launch.call_deferred(JSON.parse_string(serialized))
+		return ShowcaseBoot.validate(JSON.parse_string(serialized))
+	return {}
 
 func _on_web_launch(args: Array) -> void:
 	if args.size() != 1 or not args[0] is String or args[0].length() > 8192: return
@@ -368,17 +474,12 @@ func _begin_web_launch(value: Variant) -> void:
 	_web_launch_pending = true
 	ui.apply_startup_settings(request.settings)
 	_publish_web_boot()
-	if request.action == "continue":
-		if not load_expedition():
-			_web_launch_pending = false
-			_set_web_boot_stage("continue-unavailable")
-	else:
-		request_new_expedition()
-		if ui.current_state() == "confirm_new":
-			_set_web_boot_stage("confirm-new")
-		elif phase == "menu":
-			_web_launch_pending = false
-			_set_web_boot_stage("error")
+	request_new_expedition()
+	if ui.current_state() == "confirm_new":
+		_set_web_boot_stage("confirm-new")
+	elif phase == "menu":
+		_web_launch_pending = false
+		_set_web_boot_stage("error")
 
 func _set_web_boot_stage(value: String) -> void:
 	_web_boot.set_stage(value)
@@ -626,7 +727,8 @@ func _nearby_survey() -> String:
 func _input(event: InputEvent) -> void:
 	if not ready_for_play or event.is_echo(): return
 	if event.is_action_pressed("pause_mission"):
-		if phase == "paused" and ui.current_state() == "settings": ui.show_state("paused")
+		if phase == "menu" and ui.current_state() == "confirm_new": ui._cancel_new()
+		elif phase == "paused" and ui.current_state() == "settings": ui.show_state("paused")
 		elif phase in ["paused","confirm_reset"]: resume_expedition()
 		elif phase in ["arrival","exploring","contact"]: pause_expedition()
 		get_viewport().set_input_as_handled()
@@ -774,6 +876,21 @@ func _free_resume_position(position: Vector3, heading: float) -> Variant:
 		if _resume_space_clear(candidate,heading): return candidate
 	return null
 
+func _resume_terrain(position: Vector3) -> Dictionary:
+	var ground_y: float = world.height_at(position.x,position.z)
+	var changed := false
+	var valid_height := absf(position.y-ground_y) <= 5.0
+	if world.environment_terrain_changed_at(position.x,position.z):
+		var known_heights: Array[float] = [world.legacy_height_at(position.x,position.z)]
+		for method in ["previous_height_at","revision_3_height_at","revision_4_height_at","revision_5_height_at","revision_6_height_at"]:
+			if world.has_method(method): known_heights.append(world.call(method,position.x,position.z))
+		for height in known_heights: changed = changed or absf(ground_y-height) > .001
+		# Bounding areas include unchanged roads/clearances. Keep their exact feet;
+		# accept historical heights only where an authored surface actually changed.
+		if changed:
+			for height in known_heights: valid_height = valid_height or absf(position.y-height) <= 5.0
+	return {"height":ground_y,"changed":changed,"valid":valid_height}
+
 func load_expedition() -> bool:
 	var parsed: Dictionary = ExpeditionSave.read(save_path)
 	if parsed.is_empty():
@@ -785,29 +902,14 @@ func load_expedition() -> bool:
 	var position := Vector3(float(point.x),float(point.y),float(point.z))
 	# Accept known old terrain within the authored revision area, without relaxing
 	# validation elsewhere or changing any saved progression.
-	var ground_y: float = world.height_at(position.x,position.z)
-	var changed_terrain: bool = world.environment_terrain_changed_at(position.x,position.z)
-	var previous_y: float = world.previous_height_at(position.x,position.z) if world.has_method("previous_height_at") else ground_y
-	var revision3_y: float = world.revision_3_height_at(position.x,position.z) if world.has_method("revision_3_height_at") else ground_y
-	var revision4_y: float = world.revision_4_height_at(position.x,position.z) if world.has_method("revision_4_height_at") else ground_y
-	# A revision's bounding area includes unchanged roads and activity clearances.
-	# Preserve their exact saved feet height; only changed surfaces need re-grounding.
-	changed_terrain = changed_terrain and (absf(ground_y-previous_y)>.001 or absf(ground_y-revision3_y)>.001 or absf(ground_y-revision4_y)>.001 or absf(ground_y-world.legacy_height_at(position.x,position.z))>.001)
-	var valid_height := absf(position.y-ground_y) <= 5.0
-	if changed_terrain:
-		valid_height = valid_height or absf(position.y-world.legacy_height_at(position.x,position.z)) <= 5.0
-		if world.has_method("previous_height_at"):
-			valid_height = valid_height or absf(position.y-world.previous_height_at(position.x,position.z)) <= 5.0
-		if world.has_method("revision_3_height_at"):
-			valid_height = valid_height or absf(position.y-revision3_y) <= 5.0
-		if world.has_method("revision_4_height_at"):
-			valid_height = valid_height or absf(position.y-revision4_y) <= 5.0
-	if not valid_height:
+	var terrain := _resume_terrain(position)
+	var ground_y: float = terrain.height
+	if not terrain.valid:
 		_save_state = "unreadable"
 		_save_available = false
 		if phase == "menu": ui.set_saved_available(false,true)
 		return false
-	if changed_terrain:
+	if terrain.changed:
 		# Find support at/below the old feet, without lifting a valid under-canopy
 		# save onto its roof. New solids at this position use the clearance fallback.
 		var from := Vector3(position.x,maxf(position.y,ground_y)+0.25,position.z)
@@ -1091,11 +1193,15 @@ func _on_locale(value: String) -> void:
 
 func _on_settings(value: Dictionary) -> void:
 	settings = value.duplicate()
+	_apply_display_quality(bool(settings.get("low_quality",false)))
 	rover.reduced_motion = bool(settings.get("reduced_motion",false))
 	rover.set_low_quality(bool(settings.get("low_quality",false)))
 	world.set_low_quality(bool(settings.get("low_quality",false)))
 	audio.set_mix(float(settings.get("volume",0.5)))
 	_publish_snapshot()
+
+func _apply_display_quality(low: bool) -> void:
+	get_viewport().msaa_3d = Viewport.MSAA_DISABLED if low else Viewport.MSAA_2X
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
@@ -1108,7 +1214,7 @@ func metrics() -> Dictionary:
 	var ordered := frames.duplicate()
 	ordered.sort()
 	var count := ordered.size()
-	return {"sampleFrames":count,"fps":Engine.get_frames_per_second(),"p50ms":ordered[int((count-1)*0.5)] if count else 0,"p95ms":ordered[int((count-1)*0.95)] if count else 0,"p99ms":ordered[int((count-1)*0.99)] if count else 0,"worstMs":ordered[count-1] if count else 0,"drawCalls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"nodes":Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"worldBuild":world.build_stats.duplicate(true),"viewport":str(get_viewport().get_visible_rect().size),"activityCount":activities.count(),"optionalCount":activities.optional_count(),"fieldCount":activities.field_count()}
+	return {"sampleFrames":count,"fps":Engine.get_frames_per_second(),"p50ms":ordered[int((count-1)*0.5)] if count else 0,"p95ms":ordered[int((count-1)*0.95)] if count else 0,"p99ms":ordered[int((count-1)*0.99)] if count else 0,"worstMs":ordered[count-1] if count else 0,"drawCalls":Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME),"primitives":Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),"nodes":Performance.get_monitor(Performance.OBJECT_NODE_COUNT),"worldBuild":world.build_stats.duplicate(true),"viewport":str(get_viewport().get_visible_rect().size),"display":{"msaa3d":get_viewport().msaa_3d},"activityCount":activities.count(),"optionalCount":activities.optional_count(),"fieldCount":activities.field_count(),"runtimeSurface":_runtime_surface.snapshot() if is_instance_valid(_runtime_surface) else {}}
 
 func _publish_snapshot() -> void:
 	if OS.has_feature("web"):

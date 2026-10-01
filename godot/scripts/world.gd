@@ -5,14 +5,14 @@ const HABITAT_FEATURES = preload("res://scripts/living_habitat.gd")
 const CREATURE_VISUAL = preload("res://scripts/creature_visual.gd")
 var _living_habitat:Node3D
 const ECOLOGY_RESPONSE = preload("res://scripts/ecology_response.gd")
-const TERRAIN_REVISION := 5
+const TERRAIN_REVISION := 7
 var _landform_clearances: Array[Vector2] = []
 var _environment_access_segments: Array[Vector4] = []
 var _cool_access_start := 0
 const BOUNDARY_TEXTURE := "res://assets/environment_upgrade/boundary-rocks-v1.png"
 const BOUNDARY_TERRACES := "res://assets/environment_upgrade/boundary-terraces-v1.png"
 const BOUNDARY_SHADER := preload("res://shaders/boundary_cutout.gdshader")
-const ROCKS_PATH := "res://assets/models/rocks.glb"
+const ROCKS_PATH := "res://assets/environment_upgrade/fractured/rocks.glb"
 const TERRAIN_SHADER = preload("res://shaders/terrain.gdshader")
 const SKY_SHADER = preload("res://shaders/storm_sky.gdshader")
 const ROOT_SHADER = preload("res://shaders/response_roots.gdshader")
@@ -44,6 +44,7 @@ var _bank_transforms: Array[Array] = []
 var _small_transforms: Array[Array] = []
 var _low_quality := false
 var _world_time: float = 0.0
+var _distant_pose_clock := 0.0
 var _paused: bool = false
 # Main explicitly awaits the Web build; native callers retain synchronous _ready.
 var staged_boot := false
@@ -136,23 +137,29 @@ func _previous_terrain_changed_at(x: float,z: float) -> bool:
 	return p.x>-48.0 and p.x<18.0 and p.y>-35.0 and p.y<34.0
 
 func environment_terrain_changed_at(x: float,z: float) -> bool:
-	return _previous_terrain_changed_at(x,z) or (x>-164.0 and x<164.0 and z>-632.0 and z<180.0)
+	return _previous_terrain_changed_at(x,z) or (x>-180.0 and x<180.0 and z>-644.0 and z<192.0)
 
 func wetland_water_level() -> float:
 	var center:=_wetland_center()
 	return _base_height_at(center.x,center.y)-.83
 
-func wetland_basin_distance(point: Vector2) -> float:
+func _revision_5_basin_distance(point: Vector2) -> float:
 	var p:=point-_wetland_center()
 	# Connected unequal lobes open westward, away from the protected road.
 	return minf((p/Vector2(6.2,6.0)).length(),minf(((p-Vector2(-15.0,2.0))/Vector2(22.0,14.0)).length(),((p-Vector2(-28.0,9.0))/Vector2(12.0,12.0)).length()))
+
+func wetland_basin_distance(point: Vector2) -> float:
+	var p:=point-_wetland_center()
+	# One water level joins the old research cove to a long western backwater.
+	# The east levee and the cross-marsh investigation remain dry access floors.
+	return minf(_revision_5_basin_distance(point),minf(((p-Vector2(-24,23))/Vector2(29,30)).length(),minf(((p-Vector2(-49,31))/Vector2(22,20)).length(),((p-Vector2(-64,63))/Vector2(18,38)).length())))
 
 func previous_height_at(x: float,z: float) -> float:
 	var original:=legacy_height_at(x,z)
 	if not _previous_terrain_changed_at(x,z):return original
 	var center:=_wetland_center()
 	var p:=Vector2(x,z)-center
-	var d:=wetland_basin_distance(Vector2(x,z))
+	var d:=_revision_5_basin_distance(Vector2(x,z))
 	var level:=wetland_water_level()
 	var bed:=level-.37-.55*(1.0-smoothstep(.0,.82,d))
 	bed+=.06*sin(x*.48+z*.13)*sin(z*.41)
@@ -180,12 +187,7 @@ func _landform_mask(x: float,z: float) -> float:
 	var outside:=maxf(maxf(-48.0-pool.x,pool.x-18.0),maxf(-35.0-pool.y,pool.y-34.0))
 	mask*=smoothstep(0.0,18.0,outside)
 	if mask==0.0:return 0.0
-	if _landform_clearances.is_empty():
-		for id in SURVEYS.SITES:_landform_clearances.append(SURVEYS.point(id))
-		_landform_clearances.append_array(passage_route())
-		_landform_clearances.append_array(root_network_points())
-		_landform_clearances.append_array(ecology_anchor_points())
-		_landform_clearances.append(Vector2(-61,-148))
+	_prepare_landform_clearances()
 	for point in _landform_clearances:
 		if absf(z-point.y)>24.0:continue
 		mask*=smoothstep(9.0,24.0,Vector2(x,z).distance_to(point))
@@ -197,6 +199,14 @@ func _landform_mask(x: float,z: float) -> float:
 		if x>minf(road,point.x)-6.0 and x<maxf(road,point.x)+6.0:
 			mask*=smoothstep(5.0,18.0,absf(z-point.y))
 	return mask
+
+func _prepare_landform_clearances() -> void:
+	if not _landform_clearances.is_empty():return
+	for id in SURVEYS.SITES:_landform_clearances.append(SURVEYS.point(id))
+	_landform_clearances.append_array(passage_route())
+	_landform_clearances.append_array(root_network_points())
+	_landform_clearances.append_array(ecology_anchor_points())
+	_landform_clearances.append(Vector2(-61,-148))
 
 func revision_3_height_at(x: float,z: float) -> float:
 	var original:=previous_height_at(x,z)
@@ -273,8 +283,95 @@ func environment_access_distance(x: float,z: float,include_cool: bool=true) -> f
 		distance=minf(distance,point.distance_to(nearest)-(6.0 if index>=_cool_access_start else 0.0))
 	return distance
 
-func height_at(x: float,z: float) -> float:
+func revision_5_height_at(x: float,z: float) -> float:
 	return _access_height_at(x,z,environment_access_distance(x,z))
+
+func revision_6_height_at(x: float,z: float) -> float:
+	return _revision_6_surface(x,z,revision_5_height_at(x,z))
+
+func _revision_6_surface(x: float,z: float,original: float) -> float:
+	if x<=-180.0 or x>=180.0 or z<=-644.0 or z>=192.0:return original
+	var road_distance:=absf(x-path_x(z))
+	var mask:=smoothstep(8.0,23.0,road_distance)
+	mask*=smoothstep(0.0,18.0,minf(180.0-absf(x),minf(z+644.0,192.0-z)))
+	if mask==0.0:return original
+	var access:=environment_access_distance(x,z)
+	mask*=smoothstep(9.0,21.0,access)
+	if mask==0.0:return original
+	_prepare_landform_clearances()
+	for point in _landform_clearances:
+		if absf(z-point.y)<17.0:mask*=smoothstep(6.5,17.0,Vector2(x,z).distance_to(point))
+	if mask==0.0:return original
+	var shaped:=original
+	var point:=Vector2(x,z)
+	var frost:=smoothstep(-28.0,8.0,z)
+	var ember:=smoothstep(-188.0,-156.0,z)*(1.0-smoothstep(-28.0,8.0,z))
+	var marsh:=smoothstep(-383.0,-338.0,z)*(1.0-smoothstep(-188.0,-156.0,z))
+	var pale:=1.0-smoothstep(-383.0,-338.0,z)
+	# Wind-planed, flat-topped tables with cut faces and an eroded diagonal cleft.
+	var table:=Vector2((x+61.0+(z-95.0)*.12)/45.0,(z-99.0)/94.0).length()
+	var shelf:=20.0*(1.0-smoothstep(.67,.84,table))+7.0*(1.0-smoothstep(.93,1.17,table))
+	var cleft:=exp(-pow((z-87.0+(x+51.0)*.46)/10.0,2.0))
+	shelf*=1.0-cleft*.78
+	var east:=Vector2((x-65.0)/39.0,(z-72.0)/65.0).length()
+	shelf+=14.0*(1.0-smoothstep(.62,.80,east))+4.0*(1.0-smoothstep(.90,1.15,east))
+	shaped+=frost*(shelf-7.0*(1.0-smoothstep(.52,1.19,table)))
+	# A narrow fault wall opposes a low broken bench; the thermal floor stays quiet.
+	var fault_axis:=x+50.0-(z+75.0)*.20
+	var along:=1.0-smoothstep(.56,1.0,absf(z+76.0)/87.0)
+	var fault:=24.0*(1.0-smoothstep(8.0,14.0,absf(fault_axis)))*along
+	fault+=7.0*(1.0-smoothstep(17.0,29.0,absf(fault_axis)))*along
+	var bench:=Vector2((x-61.0+(z+60.0)*.14)/32.0,(z+69.0)/63.0).length()
+	fault+=13.0*(1.0-smoothstep(.58,.79,bench))+3.0*(1.0-smoothstep(.86,1.14,bench))
+	shaped+=ember*(fault-4.0*exp(-pow((x+31.0)/27.0,2.0)-pow((z+123.0)/29.0,2.0)))
+	# Lower wetland shoulders interrupt the former grass-covered bowl. Root levees
+	# follow the backwater instead of surrounding it with evenly raised banks.
+	var drainage:=x+55.0+8.0*sin((z+255.0)*.026)
+	shaped+=marsh*(-3.8*exp(-pow(drainage/31.0,2.0))+3.7*exp(-pow((drainage-34.0)/10.0,2.0)))
+	# Pale has a collapsed amphitheatre and broad bare slipface, with broken terraces.
+	var collapse:=Vector2((x+63.0+(z+493.0)*.16)/48.0,(z+492.0)/105.0).length()
+	var rim:=15.0*exp(-pow((collapse-.94)/.15,2.0))*(.24+.76*(1.0-smoothstep(-80.0,-25.0,x)))
+	var slip:=Vector2((x-76.0)/43.0,(z+527.0)/81.0).length()
+	var decay:=rim-4.8*(1.0-smoothstep(.43,.81,collapse))+16.0*(1.0-smoothstep(.60,.83,slip))
+	shaped+=pale*decay
+	# Metre-scale gullies erode exposed feet. Their amplitude is bounded and zero on
+	# protected driving floors; texture detail cannot supply these actual silhouettes.
+	var erosion:=sin(x*.19+sin(z*.043)*1.7)*sin(z*.16+x*.025)
+	shaped+=erosion*(.50*frost+.72*ember+.17*marsh+.58*pale)
+	var basin:=wetland_basin_distance(point)
+	if basin<1.48:
+		var level:=wetland_water_level()
+		var bed:=level-.35-.70*(1.0-smoothstep(.0,.78,basin))+.035*erosion
+		var bank:=maxf(shaped,level+.40)
+		var bowl:=lerpf(bed,bank,smoothstep(.70,1.09,basin))
+		shaped=lerpf(bowl,shaped,smoothstep(1.09,1.48,basin))
+		# Retain the established paired-study cove exactly at its anchor, including
+		# the radial shoreline query's seed. New branches are continuous outside it.
+		shaped=lerpf(original,shaped,smoothstep(5.0,10.0,point.distance_to(_wetland_center())))
+	return lerpf(original,shaped,mask)
+
+func height_at(x: float,z: float) -> float:
+	var floor:=revision_5_height_at(x,z)
+	var original:=_revision_6_surface(x,z,floor)
+	if x<=-180 or x>=180 or z<=-644 or z>=192:return original
+	var road_distance:=absf(x-path_x(z))
+	var mask:=smoothstep(10.0,25.0,road_distance)
+	mask*=smoothstep(9.0,22.0,environment_access_distance(x,z))
+	mask*=smoothstep(0.0,18.0,minf(180.0-absf(x),minf(z+644.0,192.0-z)))
+	if mask==0.0 or wetland_basin_distance(Vector2(x,z))<1.70:return original
+	_prepare_landform_clearances()
+	for point in _landform_clearances:
+		if absf(z-point.y)<19.0:mask*=smoothstep(8.0,19.0,Vector2(x,z).distance_to(point))
+	if mask==0.0:return original
+	# Large table walls made the road read as a cleared bowl. Keep the outer
+	# geological route, but replace their near-slope bulk with eroded smaller ribs.
+	var shaped:=floor+(original-floor)*.30
+	var joints:=sin(x*.13+z*.069+sin(z*.045)*1.7)*sin(z*.087-x*.04)
+	var gullies:=pow(absf(sin(z*.061+x*.025+sin(x*.048))),8.0)
+	var grain:=sin(x*.30-z*.14)*sin(z*.32)
+	var factor:=1.0 if z>-10 else 1.35 if z>-170 else .45 if z>-350 else .85
+	shaped+=(joints*2.7+grain*.8-gullies*4.1)*factor
+	return lerpf(original,shaped,mask)
 
 func revision_4_height_at(x: float,z: float) -> float:
 	return _access_height_at(x,z,environment_access_distance(x,z,false))
@@ -300,7 +397,7 @@ func wetland_shore_point(angle: float,bank_offset: float=0.0) -> Vector2:
 	var level:=wetland_water_level()
 	var inside:=0.0
 	var outside:=1.0
-	while outside<55.0 and height_at(center.x+direction.x*outside,center.y+direction.y*outside)<level+.025:
+	while outside<135.0 and height_at(center.x+direction.x*outside,center.y+direction.y*outside)<level+.025:
 		inside=outside
 		outside+=.5
 	for step in 10:
@@ -308,7 +405,12 @@ func wetland_shore_point(angle: float,bank_offset: float=0.0) -> Vector2:
 		var point:=center+direction*radius
 		if height_at(point.x,point.y)<level+.025:inside=radius
 		else:outside=radius
-	return center+direction*((inside+outside)*.5+bank_offset)
+	var radius:float=(inside+outside)*.5+bank_offset
+	# A narrow dry tongue can turn back into water after the first intersection.
+	# Every positive offset must still seat shore plants and fauna on dry ground.
+	if bank_offset>0.0:
+		while radius<135.0 and height_at(center.x+direction.x*radius,center.y+direction.y*radius)<level+.035:radius+=.20
+	return center+direction*radius
 
 func spawn_origin() -> Vector3:
 	return Vector3(path_x(150.0), height_at(path_x(150.0), 150.0), 150.0)
@@ -357,9 +459,9 @@ func build_world() -> void:
 	stage_started = Time.get_ticks_usec()
 	_build_horizon()
 	await boot_yield()
-	_build_boundary_outcrops()
-	await boot_yield()
 	_build_landmarks()
+	await boot_yield()
+	_build_mineral_vistas()
 	await boot_yield()
 	_build_rocks()
 	await boot_yield()
@@ -422,6 +524,9 @@ func _process(delta: float) -> void:
 	_tick_wetland(delta)
 
 func _tick_ecology(delta: float) -> void:
+	_distant_pose_clock += delta
+	var distant_pose_due := _distant_pose_clock >= .1
+	if distant_pose_due: _distant_pose_clock = fmod(_distant_pose_clock,.1)
 	for i in _ecology_nodes.size():
 		var node := _ecology_nodes[i]
 		var data := _ecology_meta[i]
@@ -490,7 +595,10 @@ func _tick_ecology(delta: float) -> void:
 		var width := 1.0 + pulse * 0.12
 		node.scale = Vector3(width, (1.0 - alarm * (0.55 if kind=="root_choir" else 0.3) if kind=="root_choir" or (i==0 and not _escort_state.is_empty()) else 1.0) + pulse * 0.1, width)
 		var detailed=node.get_node_or_null("DetailedVisual")
-		if detailed!=null:detailed.pose(_world_time+phase,alarm,pulse,visual_motion)
+		# All reactions and positions keep their full tick. Sub-pixel distant limbs
+		# need not run terrain IK sixty times per second; near animals stay smooth.
+		if detailed!=null and (distant_pose_due or node.position.distance_squared_to(_player_position)<25600.0):
+			detailed.pose(_world_time+phase,alarm,pulse,visual_motion)
 		for entry: Dictionary in _ecology_glow[i]:
 			entry["material"].emission_energy_multiplier = float(entry["energy"]) * (1.0 + pulse * 2.0 - alarm * 0.65)
 
@@ -512,19 +620,19 @@ func region_label(position: Vector3) -> String:
 
 func set_region_mood(region: String, delta: float = 0.016) -> void:
 	if not is_instance_valid(_environment): return
-	var tint:=Color(0.21,0.25,0.29)
-	var begin:=65.0
-	var finish:=550.0
+	var tint:=Color(0.56,0.67,0.67)
+	var begin:=55.0
+	var finish:=430.0
 	match region:
 		"ember_rift":
-			tint=Color(0.26,0.23,0.24);begin=65.0;finish=500.0
+			tint=Color(0.67,0.56,0.46);begin=58.0;finish=425.0
 		"veil_marsh":
-			tint=Color(0.20,0.25,0.27);begin=55.0;finish=420.0
+			tint=Color(0.45,0.64,0.61);begin=42.0;finish=310.0
 		"pale_decay":
-			tint=Color(0.26,0.24,0.28);begin=65.0;finish=550.0
+			tint=Color(0.59,0.55,0.61);begin=48.0;finish=390.0
 	var blend:=1.0-exp(-maxf(delta,0.0)*2.0)
 	_environment.fog_light_color=_environment.fog_light_color.lerp(tint,blend)
-	_environment.fog_light_energy=lerpf(_environment.fog_light_energy,0.72,blend)
+	_environment.fog_light_energy=lerpf(_environment.fog_light_energy,1.0,blend)
 	_environment.fog_depth_begin=lerpf(_environment.fog_depth_begin,begin,blend)
 	_environment.fog_depth_end=lerpf(_environment.fog_depth_end,finish,blend)
 	_environment.fog_depth_curve=lerpf(_environment.fog_depth_curve,0.86,blend)
@@ -836,23 +944,24 @@ func _build_atmosphere() -> void:
 	var sky_mat := ShaderMaterial.new()
 	sky_mat.shader = SKY_SHADER
 	sky.sky_material = sky_mat
-	sky.radiance_size = Sky.RADIANCE_SIZE_64
+	sky.radiance_size = Sky.RADIANCE_SIZE_128
 	_environment.sky = sky
-	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	_environment.ambient_light_color = Color(0.59, 0.65, 0.75)
-	_environment.ambient_light_energy = 0.32
+	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	_environment.ambient_light_color = Color(0.67, 0.78, 0.81)
+	_environment.ambient_light_energy = 0.72
 	_environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
-	_environment.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	_environment.tonemap_mode = Environment.TONE_MAPPER_ACES
 	_environment.tonemap_exposure = 1.0
+	_environment.tonemap_white = 6.0
 	_environment.fog_enabled = true
 	_environment.fog_mode = Environment.FOG_MODE_DEPTH
 	# Depth mode uses density as maximum opacity, not exponential extinction.
 	# Its 0.01 default left the regional distance controls effectively invisible.
-	_environment.fog_density = 0.52
-	_environment.fog_light_color = Color(0.215, 0.225, 0.31)
-	_environment.fog_light_energy = 0.72
-	_environment.fog_depth_begin = 95.0
-	_environment.fog_depth_end = 550.0
+	_environment.fog_density = 0.78
+	_environment.fog_light_color = Color(0.56, 0.67, 0.67)
+	_environment.fog_light_energy = 1.0
+	_environment.fog_depth_begin = 55.0
+	_environment.fog_depth_end = 430.0
 	_environment.fog_depth_curve = 0.86
 	_environment.fog_sky_affect = 0.08
 	var world_environment := WorldEnvironment.new()
@@ -861,15 +970,15 @@ func _build_atmosphere() -> void:
 	add_child(world_environment)
 	var sun := DirectionalLight3D.new()
 	sun.name = "LowWarmSun"
-	sun.rotation_degrees = Vector3(-29.0, -52.0, 0.0)
-	sun.light_color = Color(1.0, 0.87, 0.72)
-	sun.light_energy = 1.08
+	sun.rotation_degrees = Vector3(-28.0, -135.0, 0.0)
+	sun.light_color = Color(1.0, 0.90, 0.74)
+	sun.light_energy = 0.66
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 140.0
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	sun.shadow_bias = 0.04
 	sun.shadow_blur = 2.0
-	sun.shadow_opacity = 0.84
+	sun.shadow_opacity = 0.56
 	add_child(sun)
 	var rim := DirectionalLight3D.new()
 	rim.name = "DistantWarmHorizon"
@@ -878,10 +987,16 @@ func _build_atmosphere() -> void:
 	rim.light_energy = 0.06
 	rim.shadow_enabled = false
 	add_child(rim)
-	for location in [Vector2(path_x(-242)-13,-242),Vector2(path_x(-328)-25,-328),Vector2(path_x(-88)+16,-88)]:
-		var fill:=OmniLight3D.new();fill.position=Vector3(location.x,height_at(location.x,location.y)+3.0,location.y)
-		fill.light_color=Color("dbac72") if location.y>-150 else Color("65c1ce")
-		fill.light_energy=.07;fill.omni_range=18;fill.shadow_enabled=false;add_child(fill)
+
+func _market_texture(path: String) -> Texture2D:
+	if ResourceLoader.exists(path):return load(path) as Texture2D
+	# CPU authoring can read its own newly written maps without an editor/cache
+	# import. The exported game uses the imported resources supplied by root.
+	if OS.has_feature("web"):return null
+	var image:=Image.load_from_file(ProjectSettings.globalize_path(path))
+	if image==null:return null
+	image.generate_mipmaps()
+	return ImageTexture.create_from_image(image)
 
 func _build_material() -> void:
 	_terrain_material = ShaderMaterial.new()
@@ -892,22 +1007,42 @@ func _build_material() -> void:
 	_terrain_material.set_shader_parameter("basalt_map", load("res://assets/terrain/basalt_albedo.png"))
 	_terrain_material.set_shader_parameter("dust_map", load("res://assets/terrain/dust_albedo.png"))
 	_terrain_material.set_shader_parameter("normal_map", load("res://assets/terrain/geology_normal.png"))
-	_terrain_material.set_shader_parameter("rough_map", load("res://assets/terrain/geology_roughness.png"))
-	_terrain_material.set_shader_parameter("rock_detail",load("res://assets/terrain/cc0/rock023_alb_ht.png"))
-	_terrain_material.set_shader_parameter("wet_detail",load(GROUND037_ALBEDO_PATH))
-	_terrain_material.set_shader_parameter("wet_normal",load(GROUND037_NORMAL_PATH))
+	_terrain_material.set_shader_parameter("rough_map",_market_texture("res://assets/market_environment/cc0/Ground045_1K-JPG_Roughness.jpg"))
+	_terrain_material.set_shader_parameter("rock_detail",_market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_Color.jpg"))
+	_terrain_material.set_shader_parameter("rock_normal",_market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_NormalGL.jpg"))
+	_terrain_material.set_shader_parameter("wet_detail",_market_texture("res://assets/market_environment/cc0/Ground045_1K-JPG_Color.jpg"))
+	_terrain_material.set_shader_parameter("wet_normal",_market_texture("res://assets/market_environment/cc0/Ground045_1K-JPG_NormalGL.jpg"))
+	_terrain_material.set_shader_parameter("grass_detail",_market_texture("res://assets/market_environment/cc0/Grass005_1K-JPG_Color.jpg"))
 	_strata_material = ShaderMaterial.new()
 	_strata_material.shader = STRATA_SHADER
-	_strata_material.set_shader_parameter("basalt_map", load("res://assets/terrain/cc0/rock023_alb_ht.png"))
-	_strata_material.set_shader_parameter("rough_map", load("res://assets/terrain/cc0/rock023_nrm_rgh.png"))
-	_strata_material.set_shader_parameter("structure_normal",load("res://assets/terrain/cc0/rock023_nrm_rgh.png"))
+	_strata_material.set_shader_parameter("basalt_map",_market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_Color.jpg"))
+	_strata_material.set_shader_parameter("rough_map",_market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_Roughness.jpg"))
+	_strata_material.set_shader_parameter("roughness_alpha",false)
+	_strata_material.set_shader_parameter("structure_normal",_market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_NormalGL.jpg"))
 
-func _build_terrain() -> void:
-	const NX := 155
-	const NZ := 193
+func _build_terrain(authoring: bool = false) -> void:
+	var baked_path := "res://assets/alien_renewal/terrain_v%d.res" % TERRAIN_REVISION
+	if not authoring and ResourceLoader.exists(baked_path):
+		var ground := MeshInstance3D.new()
+		ground.name = "CollidableDustBasin"
+		ground.mesh = load(baked_path) as ArrayMesh
+		ground.material_override = _terrain_material
+		ground.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(ground)
+		var body := StaticBody3D.new()
+		var shape := CollisionShape3D.new()
+		shape.shape = load("res://assets/alien_renewal/terrain_collision_v%d.res" % TERRAIN_REVISION)
+		ground.add_child(body)
+		body.add_child(shape)
+		build_stats["terrain_triangles"] = _triangle_count(ground.mesh)
+		build_stats["terrain_baked_revision"] = TERRAIN_REVISION
+		build_stats["terrain_unique_samples"] = ground.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size()
+		build_stats["terrain_grid_metres"] = Vector2(2,3)
+		return
+	const NX := 193
+	const NZ := 301
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var pool := _wetland_center()
 	var triangles := 0
 	var sampled: Dictionary = {}
 	for iz in NZ-1:
@@ -919,11 +1054,11 @@ func _build_terrain() -> void:
 			var cell_x := 384.0/float(NX-1)
 			var cell_z := 900.0/float(NZ-1)
 			var center := Vector2(x0+cell_x*.5,z0+cell_z*.5)
-			var divisions := 4 if center.distance_to(pool+Vector2(-14,1))<45.0 else 1
-			var stitch_left := divisions>1 and (center-Vector2(cell_x,0)).distance_to(pool+Vector2(-14,1))>=45.0
-			var stitch_right := divisions>1 and (center+Vector2(cell_x,0)).distance_to(pool+Vector2(-14,1))>=45.0
-			var stitch_front := divisions>1 and (center-Vector2(0,cell_z)).distance_to(pool+Vector2(-14,1))>=45.0
-			var stitch_back := divisions>1 and (center+Vector2(0,cell_z)).distance_to(pool+Vector2(-14,1))>=45.0
+			var divisions := 3 if wetland_basin_distance(center)<1.48 else 1
+			var stitch_left := divisions>1 and wetland_basin_distance(center-Vector2(cell_x,0))>=1.48
+			var stitch_right := divisions>1 and wetland_basin_distance(center+Vector2(cell_x,0))>=1.48
+			var stitch_front := divisions>1 and wetland_basin_distance(center-Vector2(0,cell_z))>=1.48
+			var stitch_back := divisions>1 and wetland_basin_distance(center+Vector2(0,cell_z))>=1.48
 			var dx := 384.0/float(NX-1)/divisions
 			var dz := 900.0/float(NZ-1)/divisions
 			for rz in divisions:
@@ -939,16 +1074,15 @@ func _build_terrain() -> void:
 								y=lerpf(height_at(x,z0),height_at(x,z0+cell_z),(z-z0)/cell_z)
 							if (stitch_front and rz+corner.y==0) or (stitch_back and rz+corner.y==divisions):
 								y=lerpf(height_at(x0,z),height_at(x0+cell_x,z),(x-x0)/cell_x)
-							var hx:float=(height_at(x+.15,z)-height_at(x-.15,z))/.3
-							var hz:float=(height_at(x,z+.15)-height_at(x,z-.15))/.3
-							sampled[key]=[Vector3(x,y,z),Vector3(-hx,1,-hz).normalized()]
-						st.set_normal(sampled[key][1])
+							sampled[key]=Vector3(x,y,z)
 						st.set_uv(Vector2(x,z)*.11)
-						st.add_vertex(sampled[key][0])
+						st.add_vertex(sampled[key])
 					triangles += 2
 	await boot_yield()
 	st.index()
-	st.generate_tangents()
+	# The shader uses world-space projection. Indexed smooth normals come from the
+	# actual collision surface and avoid four extra height queries per vertex.
+	st.generate_normals()
 	await boot_yield()
 	var ground := MeshInstance3D.new()
 	ground.name = "CollidableDustBasin"
@@ -959,8 +1093,20 @@ func _build_terrain() -> void:
 	ground.create_trimesh_collision()
 	build_stats["terrain_triangles"] = triangles
 	build_stats["terrain_unique_samples"] = sampled.size()
+	build_stats["terrain_grid_metres"] = Vector2(384.0/float(NX-1),900.0/float(NZ-1))
 
-func _build_horizon() -> void:
+func _build_horizon(authoring: bool = false) -> void:
+	var baked_path := "res://assets/alien_renewal/horizon_v1.res"
+	if not authoring and ResourceLoader.exists(baked_path):
+		var rim := MeshInstance3D.new()
+		rim.name = "AuthoredDistantCaldera"
+		rim.mesh = load(baked_path) as ArrayMesh
+		rim.material_override = _horizon_material()
+		rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(rim)
+		build_stats["horizon_triangles"] = _triangle_count(rim.mesh)
+		build_stats["horizon_baked"] = true
+		return
 	const SEGMENTS := 256
 	const RINGS := 17
 	var points: Array[Vector3] = []
@@ -978,7 +1124,7 @@ func _build_horizon() -> void:
 				if normal.y<0: normal=-normal
 				st.set_normal(normal)
 				# Broad exposed ridge versus cooler recess, not repeated height bands.
-				st.set_color(Color(.19,.23,.25).lerp(Color(.30,.28,.24),smoothstep(40.0,155.0,p.y)))
+				st.set_color(Color(.35,.44,.45).lerp(Color(.55,.56,.48),smoothstep(40.0,155.0,p.y)))
 				st.set_uv(Vector2(p.x,p.z)*.008)
 				st.add_vertex(p)
 	st.index()
@@ -986,13 +1132,26 @@ func _build_horizon() -> void:
 	var rim:=MeshInstance3D.new()
 	rim.name="AuthoredDistantCaldera"
 	rim.mesh=st.commit()
-	var material:=_strata_material.duplicate() as ShaderMaterial
-	material.set_shader_parameter("use_vertex_color",true)
-	material.set_shader_parameter("surface_roughness",.94)
-	rim.material_override=material
+	rim.material_override=_horizon_material()
 	rim.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(rim)
 	build_stats["horizon_triangles"] = SEGMENTS*(RINGS-1)*2
+
+func _horizon_material() -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.vertex_color_use_as_albedo = true
+	material.vertex_color_is_srgb = true
+	material.albedo_texture = _market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_Color.jpg")
+	material.normal_enabled = true
+	material.normal_texture = _market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_NormalGL.jpg")
+	material.normal_scale = .14
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = true
+	material.uv1_scale = Vector3.ONE * .025
+	material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	material.roughness = .97
+	material.metallic_specular = .06
+	return material
 
 func _horizon_point(a: int, r: int) -> Vector3:
 	var angle := float(a) / 256.0 * TAU
@@ -1008,17 +1167,17 @@ func _horizon_point(a: int, r: int) -> Vector3:
 	var index := posmod(floori(sector),RIM_HEIGHTS.size())
 	var blend := sector-float(floori(sector))
 	blend = blend*blend*(3.0-2.0*blend)
-	var peak: float = lerpf(RIM_HEIGHTS[index],RIM_HEIGHTS[(index+1)%RIM_HEIGHTS.size()],blend)
-	peak += 18.0*sin(angle*7.0+1.3*sin(angle*3.0)) + 7.0*sin(angle*19.0+sin(angle*5.0))
+	var peak: float = lerpf(RIM_HEIGHTS[index],RIM_HEIGHTS[(index+1)%RIM_HEIGHTS.size()],blend)*1.38
+	peak += 31.0*sin(angle*7.0+1.3*sin(angle*3.0)) + 18.0*sin(angle*23.0+sin(angle*5.0))
 	# Signal corridor points north; the far gap frames the mineral silhouette.
 	peak *= 1.0 - 0.64 * exp(-pow((angle - 4.71) / 0.24, 2.0))
 	var crest := .34+.065*sin(angle*3.0+.8)+.03*sin(angle*7.0)
-	var ridge := exp(-pow((radial - crest) / (.14+.035*sin(angle*5.0)), 2.0)) * peak
+	var ridge := peak*smoothstep(crest-.19,crest-.018,radial)*(1.0-smoothstep(crest+.024,crest+.22,radial))
 	var fissures := pow(absf(sin(angle*13.0+radial*3.0+sin(angle*4.0))),5.0)*.19
 	ridge *= 1.0 - fissures
 	# Unequal lava benches interrupt the continuous soft cone profile.
 	ridge += exp(-pow((radial-.13-.035*sin(angle*5.0))/.08,2.0))*(22.0+13.0*sin(angle*4.0+1.0))
-	var biome_scale:=.12 if z>-12.0 else .20 if z>-170.0 else .10 if z>-360.0 else .075
+	var biome_scale:=.91 if z>-12.0 else 1.04 if z>-170.0 else .79 if z>-360.0 else .83
 	var height := lerpf(foothill - 3.0, ridge*biome_scale + 5.0, smoothstep(0.0, 0.18, radial))
 	return Vector3(x, height, z)
 
@@ -1119,6 +1278,85 @@ func _build_landmarks() -> void:
 	landmark.create_trimesh_collision()
 	build_stats["landmark_triangles"] = _triangle_count(landmark.mesh)
 
+func _build_mineral_vistas() -> void:
+	# One large, incomplete mineral rib at each ecological landmark. All footings
+	# sit beyond the driving floor; the Aurora arch frames the first actual route.
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var vistas := [Vector4(0,68,32,21),Vector4(-55,-78,18,31),Vector4(-70,-262,24,17),Vector4(55,-514,22,24)]
+	var tones := [Color("b9cbc7"),Color("b38c66"),Color("738f83"),Color("b5a7b1")]
+	for kind in vistas.size():
+		var v: Vector4 = vistas[kind]
+		var cx := path_x(v.y)+v.x
+		var points: Array[Vector3] = []
+		const RINGS := 29
+		const SIDES := 11
+		for ring in RINGS:
+			var t := float(ring)/float(RINGS-1)
+			var angle := PI*(1.0-pow(t,.86))
+			var x := cos(angle)*v.z+sin(t*TAU)*v.z*.095
+			var z := (t-.5)*6.0+sin(t*PI)*6.0+sin(t*TAU)*2.2
+			var y := sin(angle)*v.w*(.83+.23*t)+lerpf(height_at(cx-v.z,v.y-3),height_at(cx+v.z,v.y+3),t)-1.1
+			var spine := Vector3(cx+x,y,v.y+z)
+			var tangent := Vector3(sin(angle)*v.z,-cos(angle)*v.w,3).normalized()
+			var across := Vector3.FORWARD
+			var up := tangent.cross(across).normalized()
+			var thickness := 2.1+5.4*pow(absf(2.0*t-1.0),1.5)+.65*sin(t*17.0+kind)
+			for side in SIDES:
+				var a := float(side)/SIDES*TAU
+				var fracture := 1.0+.19*sin(a*4.0+ring*.47+kind)+.06*cos(a*7.0-ring*.31)
+				var broken_edge := .42*sin(a*3.0+kind)+.21*cos(a*7.0) if ring in [16-kind,17-kind] else 0.0
+				points.append(spine+(across*cos(a)*1.6+up*sin(a)*.85)*thickness*fracture+tangent*broken_edge)
+		for ring in RINGS-1:
+			# The crown fracture exposes a gap rather than an engineered perfect arc.
+			if ring == 16-kind or (kind == 3 and ring > 21): continue
+			for side in SIDES:
+				var a := ring*SIDES+side
+				var b := ring*SIDES+(side+1)%SIDES
+				for i: int in [a,a+SIDES,b,b,a+SIDES,b+SIDES]:
+					st.set_color(tones[kind].darkened(.06+.10*(.5+.5*sin(side*1.8+ring*.21))))
+					st.set_uv(Vector2(points[i].x+points[i].z,points[i].y)*.12)
+					st.add_vertex(points[i])
+		# Buttressed ledges merge the aperture into adjoining hills. Unequal strata
+		# broaden outwards, leaving every road/activity approach open.
+		for side in [-1.0,1.0]:
+			var foot := Vector2(cx+side*(v.z+17.0),v.y+(-9.0 if side<0 else 13.0))
+			if environment_access_distance(foot.x,foot.y)<24.0:continue
+			var bottom := height_at(foot.x,foot.y)-3.0
+			for layer in 3:
+				var scale := 1.0-float(layer)*.19
+				var width := (22.0 if side<0 else 18.0)*scale
+				var depth := (27.0 if side<0 else 34.0)*scale
+				var low := bottom+layer*4.3
+				var high := low+5.8
+				var rim: Array[Vector3] = []
+				for edge in 8:
+					var a := float(edge)/8.0*TAU+.12*layer
+					var p := Vector3(cos(a)*width,0,sin(a)*depth).rotated(Vector3.UP,side*.22)
+					rim.append(Vector3(foot.x+p.x,high+.8*sin(edge*2.1+layer),foot.y+p.z))
+				for edge in 8:
+					var a: Vector3=Vector3(rim[edge].x,low,rim[edge].z)
+					var b: Vector3=Vector3(rim[(edge+1)%8].x,low,rim[(edge+1)%8].z)
+					for p: Vector3 in [a,rim[edge],b,b,rim[edge],rim[(edge+1)%8],Vector3(foot.x,high+.3,foot.y),rim[edge],rim[(edge+1)%8]]:
+						st.set_color(tones[kind].darkened(.11+layer*.035))
+						st.set_uv(Vector2(p.x+p.z,p.y)*.12)
+						st.add_vertex(p)
+	st.index()
+	st.generate_normals()
+	st.generate_tangents()
+	var node := MeshInstance3D.new()
+	node.name = "ListeningReefMineralRibs"
+	node.mesh = st.commit()
+	var material := _strata_material.duplicate() as ShaderMaterial
+	material.set_shader_parameter("use_vertex_color",true)
+	material.set_shader_parameter("surface_roughness",.88)
+	node.material_override = material
+	add_child(node)
+	node.create_trimesh_collision()
+	for child in node.get_children():
+		if child is CollisionObject3D: child.collision_layer = 129
+	build_stats["listening_reef_rib_triangles"] = _triangle_count(node.mesh)
+
 func _ecology_material(color: Color, emission: Color = Color.BLACK, energy: float = 0.0, roughness: float = 0.65) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = color
@@ -1170,11 +1408,29 @@ func _passage_material(color: Color) -> StandardMaterial3D:
 	material.uv1_scale = Vector3.ONE * 0.36
 	return material
 
+func _membrane_leaf_mesh() -> ArrayMesh:
+	# Thin folded lamina, with a narrow living stalk and a curled interrupted edge.
+	# Reused by all response plants; their existing pivots/scale/state stay intact.
+	var st:=SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rows:Array[Vector3]=[]
+	for row in 7:
+		var t:=row/6.0
+		var width:float=[.03,.38,.78,.96,.75,.41,.015][row]
+		for side:float in [-1.0,0.0,1.0]:
+			var edge:=1.0-.18*exp(-pow((t-.66)/.15,2.0)) if side<0 else 1.0
+			rows.append(Vector3(side*width*edge+.10*sin(t*PI),t*2.0-1.0,sin(t*PI)*(.16-.19*absf(side))+side*.05*t*t))
+	for row in 6:
+		for index:int in [0,3,1,1,3,4,1,4,2,2,4,5]:
+			var vertex:=row*3+index
+			st.set_uv(Vector2((float(vertex%3))*.5,float(vertex/3)/6.0))
+			st.add_vertex(rows[vertex])
+	st.index();st.generate_normals();st.generate_tangents()
+	return st.commit()
+
 func _build_passage_gates() -> void:
 	var route := passage_route()
-	var leaf_mesh := SphereMesh.new()
-	leaf_mesh.radial_segments = 8
-	leaf_mesh.rings = 6
+	var leaf_mesh := _membrane_leaf_mesh()
 	var rib_material := _passage_material(Color("36544f"))
 	rib_material.emission_energy_multiplier = 0.04
 	for i in route.size():
@@ -1208,7 +1464,7 @@ func _build_passage_gates() -> void:
 				leaf.mesh = leaf_mesh
 				leaf.material_override = material
 				leaf.position = Vector3(side * (0.22 + leaf_index * 0.12), 1.8 + leaf_index * 0.68, (leaf_index - 1) * 1.05)
-				leaf.scale = Vector3(0.62 - leaf_index * 0.07, 2.15 + leaf_index * 0.42, 0.24)
+				leaf.scale = Vector3(0.72 - leaf_index * 0.07, 2.15 + leaf_index * 0.42, 1.0)
 				leaf.rotation = Vector3(0.08 * (leaf_index - 1), side * 0.12 * leaf_index, side * (0.13 + leaf_index * 0.04))
 				wing.add_child(leaf)
 				# Sphere fins have a narrow base above their parent origin. Give each
@@ -1634,8 +1890,8 @@ func _build_rocks() -> void:
 	if _rock_meshes.is_empty():
 		push_error("WORLD_ROCK_ASSET_EMPTY")
 		return
-	if ResourceLoader.exists("res://assets/models/rocks_low.glb"):
-		var low_source: Node = (load("res://assets/models/rocks_low.glb") as PackedScene).instantiate()
+	if ResourceLoader.exists("res://assets/environment_upgrade/fractured/rocks_low.glb"):
+		var low_source: Node = (load("res://assets/environment_upgrade/fractured/rocks_low.glb") as PackedScene).instantiate()
 		_collect_rock_meshes(low_source, _low_meshes)
 		low_source.free()
 	if _low_meshes.size() != _rock_meshes.size():
@@ -1664,16 +1920,29 @@ func _build_rocks() -> void:
 		var x := path_x(z) + _rng.randf_range(6.5, 80.0) * (-1.0 if i % 2 == 0 else 1.0)
 		var s := _rng.randf_range(0.12, 0.58)
 		_place_rock(x, z, Vector3(s * 1.7, s * 0.7, s), true, false)
+	# Small erosion deposits share existing batches and retain later placement randomness.
+	var placement_state := _rng.state
+	for i in 780:
+		var z := _rng.randf_range(-610.0, 170.0)
+		var side := -1.0 if i % 2 == 0 else 1.0
+		var x := path_x(z) + side * _rng.randf_range(6.5, 22.0)
+		var size := _rng.randf_range(.09, .32)
+		_place_rock(x,z,Vector3(size*1.5,size*.5,size),true,false)
+	_rng.state = placement_state
 	var rock_material := StandardMaterial3D.new()
-	rock_material.albedo_color = Color(0.64, 0.59, 0.56)
-	rock_material.albedo_texture = load("res://assets/terrain/basalt_albedo.png")
+	rock_material.vertex_color_use_as_albedo = true
+	rock_material.albedo_color = Color(0.74, 0.72, 0.69)
+	rock_material.albedo_texture = _market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_Color.jpg")
 	rock_material.normal_enabled = true
-	rock_material.normal_texture = load("res://assets/terrain/geology_normal.png")
-	rock_material.normal_scale = 0.75
-	rock_material.roughness_texture = load("res://assets/terrain/geology_roughness.png")
+	rock_material.normal_texture = _market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_NormalGL.jpg")
+	rock_material.normal_scale = 0.65
+	rock_material.roughness_texture = _market_texture("res://assets/market_environment/cc0/Rock055_1K-JPG_Roughness.jpg")
+	rock_material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
 	rock_material.roughness = 0.95
 	rock_material.uv1_triplanar = true
-	rock_material.uv1_scale = Vector3(1.7, 1.7, 1.7)
+	rock_material.uv1_world_triplanar = true
+	rock_material.uv1_scale = Vector3(.36, .36, .36)
+	rock_material.metallic_specular = .22
 	var rock_triangles := 0
 	for i in _rock_meshes.size():
 		_make_multimesh(_rock_meshes[i], _rock_transforms[i], rock_material, false)
@@ -1722,14 +1991,14 @@ func _build_wetland_pool() -> void:
 	_wetland_root.add_child(water)
 	var reflection := ReflectionProbe.new()
 	reflection.name = "LocalShoreReflection"
-	reflection.position = Vector3(-13,6.0,2)
-	reflection.size = Vector3(95,32,85)
+	reflection.position = Vector3(-21,8.0,32)
+	reflection.size = Vector3(120,42,145)
 	reflection.max_distance = 600.0
 	reflection.cull_mask = 1
 	reflection.reflection_mask = 2
 	reflection.update_mode = ReflectionProbe.UPDATE_ONCE
 	reflection.box_projection = true
-	reflection.intensity = .85
+	reflection.intensity = 1.05
 	_wetland_root.add_child(reflection)
 
 	# Moist sediment is shaded directly on the authoritative terrain; no intersecting apron.
@@ -1737,6 +2006,7 @@ func _build_wetland_pool() -> void:
 	var rock_material := _passage_material(Color("4e5d58"))
 	rock_material.emission_energy_multiplier = 0.015
 	var plant_material := _wetland_ground_material(Color("456253"))
+	var membrane_mesh:=_membrane_leaf_mesh()
 	plant_material.emission = Color("6aa88f")
 	plant_material.emission_energy_multiplier = 0.025
 	# Three depositional tongues, not an evenly spaced necklace. Low stones share
@@ -1772,6 +2042,8 @@ func _build_wetland_pool() -> void:
 				plant_material
 			)
 			lobe.name = "MembraneLobe%d" % lobe_index
+			lobe.mesh = membrane_mesh
+			lobe.scale.z = 1.0
 			var closed_angle := side * 0.12
 			var open_angle := side * (0.58 + float(i % 3) * 0.08)
 			lobe.rotation.z = closed_angle
@@ -1782,7 +2054,7 @@ func _build_wetland_pool() -> void:
 
 	for i in 4:
 		var angle := float(i) / 4.0 * TAU + 0.18
-		var vein_material := _ecology_material(Color("373c2b"), Color("598b66"), 0.015, 0.94)
+		var vein_material := _ecology_material(Color("514638"), Color("598b66"), 0.015, 0.94)
 		vein_material.metallic_specular = 0.0
 		_wetland_vein_materials.append(vein_material)
 		for segment in 4:
@@ -1796,16 +2068,26 @@ func _build_wetland_pool() -> void:
 			var p1 := Vector3(cos(a1)*r1,0,sin(a1)*r1)
 			p0.y=height_at(center.x+p0.x,center.y+p0.z)-_wetland_root.position.y+.035
 			p1.y=height_at(center.x+p1.x,center.y+p1.z)-_wetland_root.position.y+.035
-			_eco_rod(_wetland_root,p0,p1,.018,vein_material)
+			_eco_rod(_wetland_root,p0-Vector3.UP*.08,p1-Vector3.UP*.08,.010,vein_material)
 
 	_build_wetland_reader(plant_material)
 	build_stats["wetland_pool_radius"] = 41.0
 	build_stats["wetland_water_level_offset"] = .37
 	build_stats["wetland_static_reflection_probes"] = 1
 	build_stats["wetland_bowl_radius"] = 48.0
+	build_stats["wetland_connected_backwater_length_m"] = water.mesh.get_aabb().size.z
 	build_stats["wetland_membrane_plants"] = _wetland_plants.size()
 
-func _terrain_clipped_water(origin: Vector3,level_offset: float) -> ArrayMesh:
+func _terrain_clipped_water(origin: Vector3,level_offset: float,authoring: bool = false) -> ArrayMesh:
+	var center := _wetland_center()
+	var expected := Vector3(center.x,height_at(center.x,center.y),center.y)
+	var baked_path := "res://assets/alien_renewal/water_surface_v%d.res" % TERRAIN_REVISION
+	if not authoring and is_equal_approx(level_offset,.37) and origin.distance_to(expected)<.001 and ResourceLoader.exists(baked_path):
+		var mesh := load(baked_path) as ArrayMesh
+		build_stats["water_clipped_triangles"] = _triangle_count(mesh)
+		build_stats["water_contact_source"] = "baked_existing_collidable_terrain_triangles"
+		build_stats["water_baked_revision"] = TERRAIN_REVISION
+		return mesh
 	var ground: MeshInstance3D = get_node("CollidableDustBasin")
 	var faces := ground.mesh.get_faces()
 	var level := origin.y+level_offset
@@ -1815,7 +2097,7 @@ func _terrain_clipped_water(origin: Vector3,level_offset: float) -> ArrayMesh:
 	var seed := 0
 	for i in range(0,faces.size(),3):
 		var a := faces[i]
-		if Vector2(a.x-origin.x,a.z-origin.z).length()>55.0: continue
+		if Vector2(a.x-origin.x,a.z-origin.z).length()>135.0: continue
 		var polygon: Array[Vector3] = []
 		for j in 3:
 			var p := faces[i+j]
@@ -1835,6 +2117,9 @@ func _terrain_clipped_water(origin: Vector3,level_offset: float) -> ArrayMesh:
 			if distance<nearest: nearest=distance; seed=index
 	# Keep only the water component connected to the actual bowl centre.
 	# Nearby low terrain outside the bowl must not become disconnected puddles.
+	if polygons.is_empty():
+		push_error("WETLAND_WATER_COMPONENT_EMPTY")
+		return ArrayMesh.new()
 	var queue: Array[int] = [seed]
 	var visited: Dictionary = {seed:true}
 	var cursor := 0
@@ -1859,7 +2144,7 @@ func _terrain_clipped_water(origin: Vector3,level_offset: float) -> ArrayMesh:
 			count+=1
 	surface.index()
 	surface.generate_tangents()
-	build_stats["water_clipped_triangles"] = count
+	build_stats["water_clipped_triangles"] = count/3
 	build_stats["water_contact_source"] = "existing_collidable_terrain_triangles"
 	return surface.commit()
 
@@ -1964,9 +2249,14 @@ func _place_rock(x: float, z: float, size: Vector3, small: bool, collidable: boo
 	var yaw := _rng.randf_range(-PI, PI)
 	var basis := Basis.from_euler(Vector3(_rng.randf_range(-0.13, 0.13), yaw, _rng.randf_range(-0.12, 0.12))).scaled(size)
 	# Consume the original random draws before omitting a pond rock; other placements stay stable.
-	if Vector2(x,z).distance_to(_wetland_center()) < 48.0+footprint:return
+	if wetland_basin_distance(Vector2(x,z))<1.45+footprint*.055:return
+	if environment_access_distance(x,z)<7.0+footprint:return
 	var bounds := _rock_meshes[type].get_aabb()
 	var position := Vector3(x, height_at(x, z) - bounds.position.y * size.y - size.y * 0.12, z)
+	for ix in 2:
+		for iz in 2:
+			var foot:=basis*(bounds.position+Vector3(bounds.size.x*ix,0,bounds.size.z*iz))
+			position.y=minf(position.y,height_at(x+foot.x,z+foot.z)-foot.y-size.y*.06)
 	var transform := Transform3D(basis, position)
 	if small:
 		_small_transforms[type].append(transform)
@@ -1992,10 +2282,14 @@ func _make_multimesh(mesh: Mesh, transforms: Array, material: Material, small: b
 		return
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = true
 	mm.mesh = mesh
 	mm.instance_count = transforms.size()
 	for i in transforms.size():
 		mm.set_instance_transform(i, transforms[i])
+		var p:Vector3=transforms[i].origin
+		var tone:Color=Color("a2b7b6") if p.z>-10 else Color("b69a7c") if p.z>-170 else Color("8d9f89") if p.z>-350 else Color("b2a4ae")
+		mm.set_instance_color(i,tone.darkened(.10+.09*sin(p.x*.16+p.z*.04)).srgb_to_linear())
 	var instance := MultiMeshInstance3D.new()
 	instance.name = "SmallBasaltDressing" if small else "AuthoredBasaltClusters"
 	instance.multimesh = mm
@@ -2096,6 +2390,7 @@ func reset() -> void:
 	set_resonance_visual(-1,false)
 	set_passage_state({"phase":"idle", "gate":0, "alarm":0.0}, 0.0, true)
 	_world_time = 0.0
+	_distant_pose_clock = 0.0
 	set_wetland_study_state({"prepared":false,"startled":false,"recovered":false,"complete":false}, true)
 	set_thermal_state({"vent_observed":false,"route":"warm","locked":false},true)
 	set_root_network_state({"ports":[0, 0, 0], "powered":0, "complete":false}, true)

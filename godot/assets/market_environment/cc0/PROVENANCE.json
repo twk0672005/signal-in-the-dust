@@ -1,0 +1,74 @@
+[
+  {
+    "asset": "Rock055",
+    "page": "https://ambientcg.com/view?id=Rock055",
+    "download": "https://ambientcg.com/get?file=Rock055_1K-JPG.zip",
+    "resolved_download": "https://acg-download.struffelproductions.com/file/ambientCG-Web/download/Rock055_f4MjBY8x/Rock055_1K-JPG.zip",
+    "license": "CC0-1.0",
+    "license_verified_at": "https://docs.ambientcg.com/license/",
+    "archive_sha256": "bd20bc16a50cc80d8344b91a16d712650f8c9843f607d08c0f2cd5dac78294ff",
+    "maps": [
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Rock055_1K-JPG_AmbientOcclusion.jpg",
+        "sha256": "3661bb87d0d6d1baa9ef4a6d3bafe3d5bfa9ae6cd91d41b737bdca778077ae67",
+        "bytes": 331668
+      },
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Rock055_1K-JPG_Color.jpg",
+        "sha256": "19c461dd9a5898572d8be26e9c40c43a9b9ddf3f800c4e222ab06b1f62c8380a",
+        "bytes": 740238
+      },
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Rock055_1K-JPG_Displacement.jpg",
+        "sha256": "201eceaf0e17abe690645aeaf2738277348fddbeeee6ad3641c4573137c65fb1",
+        "bytes": 126116
+      },
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Rock055_1K-JPG_NormalGL.jpg",
+        "sha256": "208aa4a6ba6f5c27d09a9d606b07a40fb04845aeb6fe93886ee709b74489b64b",
+        "bytes": 828412
+      },
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Rock055_1K-JPG_Roughness.jpg",
+        "sha256": "96948c91a2d8b96ba5ef7dd8ed21dd7265963d124c0a2b1b9d6bc4e725f0c4f6",
+        "bytes": 257065
+      }
+    ]
+  },
+  {
+    "asset": "Ground045",
+    "page": "https://ambientcg.com/view?id=Ground045",
+    "download": "https://ambientcg.com/get?file=Ground045_1K-JPG.zip",
+    "resolved_download": "https://acg-download.struffelproductions.com/file/ambientCG-Web/download/Ground045_vOWk0Tpi/Ground045_1K-JPG.zip",
+    "license": "CC0-1.0",
+    "license_verified_at": "https://docs.ambientcg.com/license/",
+    "archive_sha256": "f2c7b562e363b04f17b51fb9a4cacd5dc040608de4dd7f8a8b24086839934a52",
+    "maps": [
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Ground045_1K-JPG_AmbientOcclusion.jpg",
+        "sha256": "a911f741676e60d66fb44612cfc7e6771c94ab99a25f5776b23b392c1cbefc3b",
+        "bytes": 926347
+      },
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Ground045_1K-JPG_Color.jpg",
+        "sha256": "afd77f192105e5fb30416f7bba7c5fcedd6d4b0d2d08f6bec9eee64e706f7ca6",
+        "bytes": 1373506
+      },
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Ground045_1K-JPG_Displacement.jpg",
+        "sha256": "234056425f4dd6f563567c720bb48b29af8bf051aae0f7a8d7e799bc9a8c6817",
+        "bytes": 580555
+      },
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Ground045_1K-JPG_NormalGL.jpg",
+        "sha256": "1b4841eaabaa739993b4932814571b315a07ea4d90327b380b53eb4031ebdccb",
+        "bytes": 2461621
+      },
+      {
+        "path": "godot\\assets\\market_environment\\cc0\\Ground045_1K-JPG_Roughness.jpg",
+        "sha256": "5b16fc14db11cd58c80c3dd94f0c8e7813418040ccfd22143796ad8d9af170fd",
+        "bytes": 692604
+      }
+    ]
+  }
+]

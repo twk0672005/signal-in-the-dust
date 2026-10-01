@@ -1,0 +1,26 @@
+{
+  "asset": "Grass005",
+  "source": "https://ambientcg.com/view?id=Grass005",
+  "download": "https://ambientcg.com/get?file=Grass005_1K-JPG.zip",
+  "resolved_download": "https://acg-download.struffelproductions.com/file/ambientCG-Web/download/Grass005_MPzT24Bl/Grass005_1K-JPG.zip",
+  "license": "CC0-1.0",
+  "license_verified_at": "https://docs.ambientcg.com/license/",
+  "archive_sha256": "58a7fb7f32c44a86879483325b62781d04e0ab8f70b0f70ede36c8f1726f8a22",
+  "maps": [
+    {
+      "path": "godot\\assets\\market_environment\\cc0\\Grass005_1K-JPG_Color.jpg",
+      "bytes": 1875015,
+      "sha256": "5fd8edc1a04e2b9b093229dd0ec41f29668dda9fc698f6610b12cdd83b7690cb"
+    },
+    {
+      "path": "godot\\assets\\market_environment\\cc0\\Grass005_1K-JPG_NormalGL.jpg",
+      "bytes": 2137845,
+      "sha256": "f89e3a1701511d379a9772774ec6b9d7b7ccf3e944fdcc2b98c09dee4cfd804f"
+    },
+    {
+      "path": "godot\\assets\\market_environment\\cc0\\Grass005_1K-JPG_Roughness.jpg",
+      "bytes": 851896,
+      "sha256": "04ca3a66eee6105cac9754ac773ffd4ee63ca2222984554c4c04b0cdca80da26"
+    }
+  ]
+}

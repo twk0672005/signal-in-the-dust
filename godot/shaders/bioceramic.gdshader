@@ -15,6 +15,13 @@ uniform bool structure_enabled = false;
 uniform bool dermal_projection = false;
 uniform float normal_strength = 0.55;
 uniform float surface_age = 0.35;
+uniform bool authored_enabled = false;
+uniform bool authored_normal_enabled = false;
+uniform bool authored_roughness_enabled = false;
+uniform sampler2D authored_albedo : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D authored_roughness : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform vec4 authored_roughness_channel = vec4(0.0,1.0,0.0,0.0);
+uniform sampler2D authored_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 varying vec3 local_p;
 void vertex() {
     local_p = VERTEX;
@@ -25,7 +32,23 @@ void vertex() {
 void fragment() {
     ALBEDO = tint.rgb;
     ROUGHNESS = roughness;
-    if (structure_enabled) {
+    if (authored_enabled) {
+        // The rest-pose atlas carries anatomy, pigment and actual tissue depth.
+        // Alpha stores thickness; opaque rendering avoids a sorting/pass cost.
+        vec4 authored = texture(authored_albedo,UV);
+        ALBEDO *= authored.rgb;
+        ALBEDO *= 1.0-shell*surface_age*.025;
+        if (authored_roughness_enabled) {
+            ROUGHNESS = clamp(roughness*dot(texture(authored_roughness,UV),authored_roughness_channel),.18,.98);
+        }
+        if (authored_normal_enabled) {
+            NORMAL_MAP = texture(authored_normal,UV).rgb;
+            NORMAL_MAP_DEPTH = normal_strength;
+        }
+        if (membrane > 0.0) {
+            BACKLIGHT = ALBEDO*membrane*(1.0-authored.a)*.90;
+        }
+    } else if (structure_enabled) {
         // Authored linear data. No procedural noise, screen derivatives,
         // transparency or additional pass. Mipmaps provide distance filtering.
         vec2 coord = dermal_projection ? local_p.zy * 0.7 : clamp(UV,vec2(0.001),vec2(0.999));
@@ -45,6 +68,6 @@ void fragment() {
     }
     METALLIC = 0.0;
     SPECULAR = specular_amount;
-    EMISSION = tint.rgb * glow * response;
+    EMISSION = (authored_enabled ? ALBEDO : tint.rgb) * glow * response;
     if (!FRONT_FACING) { NORMAL = -NORMAL; }
 }

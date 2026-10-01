@@ -1,6 +1,6 @@
 extends Node3D
 ## Anatomy only. World owns positions, time and ecology reactions.
-## Rebuild: art-source/creature_upgrade/build_creatures.py.
+## Rebuild: art-source/alien_renewal/biological/build_fauna.py.
 const BIO_SHADER = preload("res://shaders/bioceramic.gdshader")
 static var _scene_cache: Dictionary = {}
 static var _material_cache: Dictionary = {}
@@ -107,7 +107,7 @@ func _configure_mesh(node: MeshInstance3D) -> void:
 				if "mineral" in label: tint = Color("75816f"); shell = 0.65; roughness = 0.73
 				elif "membrane" in label: tint = Color("436b73"); membrane = 1.0; roughness = 0.65
 			if "eyes" in label: tint = Color("111e21"); roughness = 0.24; shell = 0.0
-			material.set_shader_parameter("specular_amount", 0.5 if "eyes" in label else 0.42 if membrane > 0.0 else 0.36 if shell > 0.0 else 0.35)
+			material.set_shader_parameter("specular_amount", 0.5 if "eyes" in label else 0.52 if membrane > 0.0 else 0.36 if shell > 0.0 else 0.35)
 			var role := "fan" if membrane > 0.0 and species == "aeral" else "frond" if membrane > 0.0 else "scute" if species != "aeral" and "mineral" in label else "dermis"
 			if "eyes" not in label and "signal" not in label:
 				material.set_shader_parameter("structure_enabled", true)
@@ -121,6 +121,31 @@ func _configure_mesh(node: MeshInstance3D) -> void:
 			material.set_shader_parameter("membrane", membrane)
 			material.set_shader_parameter("glow", glow)
 			material.set_shader_parameter("shell_uv", 1.0 if species != "aeral" and "mineral" in label else 0.0)
+			material.set_meta("previous_tint", tint)
+			material.set_meta("previous_roughness", roughness)
+			# Preserve the authored GLB PBR maps at the common material entry point.
+			# The reaction shader still owns wing flex and signal response.
+			var source := original as StandardMaterial3D
+			if source != null and source.albedo_texture != null:
+				material.set_shader_parameter("authored_enabled", true)
+				material.set_shader_parameter("authored_albedo", source.albedo_texture)
+				material.set_shader_parameter("tint", source.albedo_color)
+				material.set_shader_parameter("roughness", source.roughness)
+				if source.roughness_texture != null:
+					var channel := Vector4.ZERO
+					match source.roughness_texture_channel:
+						BaseMaterial3D.TEXTURE_CHANNEL_RED: channel.x = 1.0
+						BaseMaterial3D.TEXTURE_CHANNEL_GREEN: channel.y = 1.0
+						BaseMaterial3D.TEXTURE_CHANNEL_BLUE: channel.z = 1.0
+						BaseMaterial3D.TEXTURE_CHANNEL_ALPHA: channel.w = 1.0
+						_: channel = Vector4(0.333333,0.333333,0.333333,0.0)
+					material.set_shader_parameter("authored_roughness_enabled", true)
+					material.set_shader_parameter("authored_roughness", source.roughness_texture)
+					material.set_shader_parameter("authored_roughness_channel", channel)
+				if source.normal_enabled and source.normal_texture != null:
+					material.set_shader_parameter("authored_normal_enabled", true)
+					material.set_shader_parameter("authored_normal", source.normal_texture)
+					material.set_shader_parameter("normal_strength", source.normal_scale)
 			_material_cache[key] = material
 		var selected: ShaderMaterial = _material_cache[key]
 		if "signal" in label:
@@ -149,6 +174,8 @@ func debug_set_material_mode(mode: String) -> Dictionary:
 			if mode == "previous":
 				material = (binding.current as ShaderMaterial).duplicate() as ShaderMaterial
 				material.shader = load("res://shaders/creature_previous.gdshader")
+				material.set_shader_parameter("tint", material.get_meta("previous_tint"))
+				material.set_shader_parameter("roughness", material.get_meta("previous_roughness"))
 				if "signal" in str(binding.label): signal_materials.append(material)
 			else:
 				var source := binding.source as StandardMaterial3D
@@ -166,8 +193,8 @@ func debug_set_material_mode(mode: String) -> Dictionary:
 			binding[mode] = material
 		binding.node.set_surface_override_material(binding.surface,binding[mode])
 	_debug_material_mode = mode
-	return {"applied":true,"mode":mode,"surfaces":_material_bindings.size(),"maps_available":false,"current_external_structure_maps":true,
-		"comparison":"authored_factors reproduces original GLB constants with identical wing flex; no original texture maps exist"}
+	return {"applied":true,"mode":mode,"surfaces":_material_bindings.size(),"maps_available":true,"current_external_structure_maps":true,
+		"comparison":"current retains the GLB baked PBR maps; authored_factors isolates original constants with identical wing flex"}
 
 func pose(time: float, alarm: float, pulse: float, moving: float = 0.0) -> void:
 	if model == null: return

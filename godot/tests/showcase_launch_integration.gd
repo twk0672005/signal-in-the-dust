@@ -22,7 +22,7 @@ func run() -> void:
 	checks.native_menu_preserved = game.phase == "menu" and game.ui.current_state() == "menu"
 	checks.whisper_is_short_and_non_looping = game.ui._whisper_chime.stream.loop_mode == AudioStreamWAV.LOOP_DISABLED and game.ui._whisper_chime.stream.get_length() < 0.5
 	game._begin_web_launch(intent("missing", "continue"))
-	checks.missing_continue_returns_explicit_failure = game.phase == "menu" and game._web_boot.stage == "continue-unavailable"
+	checks.legacy_continue_is_rejected = game.phase == "menu" and game._web_boot.request_id.is_empty()
 	checks.failed_continue_does_not_start_new = game.elapsed == 0.0 and not game.has_saved_expedition()
 	game._begin_web_launch(intent("new-first", "new", {"locale": "zh_TW", "volume": 0.35}))
 	checks.new_intent_uses_existing_arrival = game.phase == "arrival" and game._web_boot.stage == "playing"
@@ -34,14 +34,16 @@ func run() -> void:
 	game._set_phase("menu")
 	game._begin_web_launch(intent("ask-new", "new"))
 	checks.saved_new_requires_confirmation = game.phase == "menu" and game.ui.current_state() == "confirm_new" and game._web_boot.stage == "confirm-new"
+	checks.no_continue_button = game.ui._root.find_child("ContinueSaved", true, false) == null
+	checks.invitation_is_used = game.ui._root.find_child("BeginJourney", true, false) != null and game.ui._root.find_child("BackHome", true, false) != null
 	checks.confirmation_did_not_clear_save = is_equal_approx(float(Save.read(game.save_path).get("elapsed", -1)), 85.0)
 	game.ui._cancel_new()
 	checks.cancel_returns_home_and_preserves_save = game._web_boot.stage == "home" and not Save.read(game.save_path).is_empty()
-	game._begin_web_launch(intent("resume", "continue"))
-	checks.continue_restores_existing_progress = game.phase == "exploring" and is_equal_approx(game.elapsed, 85.0)
+	game.load_expedition() # Internal save recovery remains tested; no player-facing Continue action.
+	checks.internal_recovery_restores_existing_progress = game.phase == "exploring" and is_equal_approx(game.elapsed, 85.0)
 	game.elapsed = 86.0
 	game._begin_web_launch(intent("resume", "continue"))
-	checks.duplicate_intent_does_not_reload_progress = is_equal_approx(game.elapsed, 86.0)
+	checks.disabled_continue_does_not_reload_progress = is_equal_approx(game.elapsed, 86.0)
 	game._set_phase("contact")
 	game.transmit_count = 1
 	game._on_contact_completed()

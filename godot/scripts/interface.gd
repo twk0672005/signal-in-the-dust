@@ -2,7 +2,6 @@ extends CanvasLayer
 const ShowcaseMinimap = preload("res://scripts/showcase_minimap.gd")
 const ShowcaseWhispers = preload("res://scripts/showcase_whispers.gd")
 ## Bilingual expedition HUD. Every gameplay mutation is delegated through signals.
-signal continue_saved_requested
 signal start_requested
 signal resume_requested
 signal reset_requested
@@ -13,10 +12,10 @@ signal settings_changed(config: Dictionary)
 signal menu_requested
 signal explore_requested
 
-const PAPER := Color("eee8dc")
-const MUTED := Color("b1aa9c")
-const AMBER := Color("d5a56d")
-const SIGNAL := Color("83c8c5")
+const PAPER := Color("f1ede1")
+const MUTED := Color("c0cbc1")
+const AMBER := Color("e4c995")
+const SIGNAL := Color("a9d9c8")
 const FONT_PATH := "res://assets/fonts/SignalSansTC.otf"
 const COPY := {
 	"study_title": ["WETLAND · QUIET OBSERVATION", "濕地 · 安靜觀察"],
@@ -42,7 +41,7 @@ const COPY := {
 	"escort_idle_cool": ["E · Accompany Veyra along the cool mineral trail.", "E · 陪 Veyra 沿冷礦脈前進。"],
 	"escort_complete_cool": ["The cool basin glows. The herd gathers at the mineral bed.", "冷礦盆地亮起，群體聚集在新礦床。"],
 	"save_clear_failed": ["The saved expedition could not be cleared. Your previous checkpoint is still available; try again when browser storage is writable.", "未能清除已儲存的探勘。舊進度仍然保留，請在瀏覽器可寫入儲存空間後再試。"],
-	"save_write_failed": ["Progress could not be saved. You can keep playing; Continue may use an older checkpoint.", "未能儲存進度。仍可繼續遊玩，但續玩可能回到較早的進度。"],
+	"save_write_failed": ["Progress could not be saved. You can keep playing.", "未能儲存進度。你仍可繼續遊玩。"],
 	"root_title": ["ROOT CHOIR · %d / 3 CONNECTED", "根脈合唱 · 已接通 %d / 3"],
 	"root_hint": ["Follow the living conduit. E turns a junction toward the next shell.", "沿活根前進，E 轉動節點，導向下一座殼礁。"],
 	"root_changed": ["Trace the lit root. Dark downstream roots need another direction.", "追蹤發光根脈，下游熄暗時需要調整方向。"],
@@ -136,7 +135,6 @@ const COPY := {
 	"crawl_hint": ["CRAWL", "慢行"],
 	"ecology_near": ["Life nearby", "附近有生命"],
 	"ecology_disturbed": ["Life disturbed · slow down", "生物受驚 · 請減速"],
-	"continue_saved": ["Continue last expedition", "繼續上次探勘"],
 	"new_run": ["New expedition", "開始新探勘"],
 	"save_invalid": ["Saved progress could not be read. You can start a new expedition.", "無法讀取上次進度，可開始新探勘。"],
 	"speed_label": ["SPEED", "車速"],
@@ -147,7 +145,7 @@ const COPY := {
 	"edition": ["FIELD EXPEDITION  /  07", "地表探勘  /  07"],
 	"intro": ["Something beneath the storm is listening.\nFollow its signal. Let it hear you.", "風暴之下，有什麼正在聆聽。\n循著訊號前進，讓它聽見你。"],
 	"duration": ["Explore the four regions. Stop and listen.", "探索四大地區，停車聆聽生命。"],
-	"begin": ["Begin expedition", "開始探勘"],
+	"begin": ["Begin my journey", "開啟我的旅程"],
 	"controls": ["WASD / arrows   Drive     C (hold)   Crawl\nSHIFT   Boost     SPACE   Brake     S   Brake / reverse\nRight-drag   Look     V   Camera     E   Observe\nJ   Journal     ESC   Pause", "WASD / 方向鍵   駕駛     按住 C   慢行\nSHIFT   加速     空白鍵   煞車     S   煞車／倒車\n按住右鍵拖曳   環顧     V   視角     E   觀察\nJ   日誌     ESC   暫停"],
 	"volume": ["Sound", "音量"],
 	"motion": ["Reduced motion", "減少動態效果"],
@@ -167,7 +165,7 @@ const COPY := {
 	"recorded": ["FIRST CONTACT  /  RECORDED", "初次接觸  /  已記錄"],
 	"replay": ["Explore again", "再次探索"],
 	"paused": ["Expedition paused", "探勘已暫停"],
-	"resume": ["Continue expedition", "繼續探勘"],
+	"resume": ["Return to game", "返回遊戲"],
 	"restart": ["Restart expedition", "重新開始探勘"],
 	"journal": ["Expedition journal", "探勘日誌"],
 	"journal_title": ["FIELD JOURNAL", "探勘日誌"],
@@ -184,10 +182,15 @@ const COPY := {
 	"journal_tracking": ["TRACKING", "追蹤中"],
 	"journal_track_surveys": ["RETURN TO LOCAL INVESTIGATION", "返回當地調查"],
 	"journal_back": ["ESC · BACK TO EXPEDITION", "ESC · 返回探勘"],
+	"ready_title": ["Ready to begin\nyour journey?", "準備好開始\n你的旅程了嗎？"],
+	"ready_detail": ["Four habitats. A living signal.\nLet curiosity lead the way.", "四片棲地，一段等待回應的訊號。\n駕上探測車，讓好奇心帶路。"],
+	"fresh_notice": ["Starting replaces the previous expedition.\nYour language and settings stay with you.", "出發後將取代上次的探勘進度。\n語言與設定會為你保留。"],
+	"back_home": ["Back to title", "返回首頁"],
+	"departure": ["A NEW BEGINNING  /  07", "新的起點  /  07"],
 	"confirm_reset": ["Return to the beginning?", "返回旅程起點？"],
 	"reset_detail": ["Your current expedition will restart.\nYour language and settings will be kept.", "目前的探勘進度將會重置。\n語言與設定會保留。"],
 	"confirm": ["Yes, restart", "確定重新開始"],
-	"cancel": ["Keep exploring", "繼續探索"],
+	"cancel": ["Return to game", "返回遊戲"],
 	"near": ["Stop beside the structure. Send a pulse.", "在構造體旁停車，發送一道脈衝。"],
 	"blocked": ["The ground is too steep. Find another path.", "坡面過於陡峭，請尋找另一條路。"],
 	"signal_found": ["Signal acquired. Follow the pale glow.", "已鎖定訊號，沿著微光前進。"],
@@ -224,6 +227,7 @@ var _root: Control
 var _hud: Control
 var _overlay: Control
 var _distance_label: Label
+var _navigation_label: Label
 var _speed_label: Label
 var _speed_mps: float = 0.0
 var _max_speed_mps: float = 8.0
@@ -346,9 +350,9 @@ func _build() -> void:
 		theme.set_color("font_color", type_name, PAPER)
 		theme.set_color("font_hover_color", type_name, Color.WHITE)
 		theme.set_color("font_focus_color", type_name, Color.WHITE)
-	theme.set_stylebox("normal", "Button", _style(Color("232523"), Color("686052")))
-	theme.set_stylebox("hover", "Button", _style(Color("3d382f"), AMBER))
-	theme.set_stylebox("pressed", "Button", _style(Color("65513a"), AMBER))
+	theme.set_stylebox("normal", "Button", _style(Color("1b302d"), Color("688477")))
+	theme.set_stylebox("hover", "Button", _style(Color("30473d"), AMBER))
+	theme.set_stylebox("pressed", "Button", _style(Color("5d6145"), AMBER))
 	theme.set_stylebox("focus", "Button", _style(Color(0, 0, 0, 0), PAPER, 3))
 	theme.set_stylebox("focus", "CheckButton", _style(Color(0, 0, 0, 0), PAPER, 3))
 	_root.theme = theme
@@ -377,14 +381,14 @@ func _label(text: String, size: int = 14, color: Color = PAPER) -> Label:
 	result.add_theme_font_size_override("font_size", size)
 	result.add_theme_color_override("font_color", color)
 	result.add_theme_color_override("font_outline_color", Color(0.035,0.055,0.055,0.9))
-	result.add_theme_constant_override("outline_size", 3)
+	result.add_theme_constant_override("outline_size", 2)
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return result
 
 func _button(key: String, action: Callable) -> Button:
 	var result := Button.new()
 	result.text = _text(key)
-	result.custom_minimum_size.y = 42
+	result.custom_minimum_size.y = 48
 	result.focus_mode = Control.FOCUS_ALL
 	result.pressed.connect(action)
 	return result
@@ -394,40 +398,66 @@ func _build_hud() -> void:
 	var scale := maxf(1.0, get_viewport().get_visible_rect().size.y / maxf(1.0, DisplayServer.window_get_size().y)) if _mobile else 1.0
 	var top := HBoxContainer.new()
 	top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-	top.offset_left = 14 * scale if _mobile else 32
-	top.offset_top = 10 * scale if _mobile else 26
-	top.offset_right = -14 * scale if _mobile else -32
+	top.offset_left = 14 * scale if _mobile else 36
+	top.offset_top = 10 * scale if _mobile else 32
+	top.offset_right = -14 * scale if _mobile else -36
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hud.add_child(top)
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size.x = 290 * scale if _mobile else 430
+	panel.name = "CurrentInvestigation"
+	panel.custom_minimum_size.x = 290 * scale if _mobile else minf(410.0, get_viewport().get_visible_rect().size.x * 0.36)
 	panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", _style(Color(0.025, 0.055, 0.065, 0.88), Color(0.5, 0.77, 0.74, 0.35), roundi(12 * scale)))
+	var route_style := _style(Color(0.035, 0.09, 0.08, 0.76), Color(0.66, 0.85, 0.78, 0.42), roundi(14 * scale))
+	route_style.set_border_width_all(0)
+	route_style.border_width_left = 2
+	panel.add_theme_stylebox_override("panel", route_style)
 	top.add_child(panel)
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	left.add_theme_constant_override("separation", roundi(5 * scale))
+	left.add_theme_constant_override("separation", roundi(6 * scale))
 	panel.add_child(left)
-	_region_label = _label("", roundi(14 * scale), SIGNAL)
+	_region_label = _label("", roundi(11 * scale) if _mobile else 12, SIGNAL)
 	left.add_child(_region_label)
 	_distance_label = _label("", roundi(17 * scale) if _mobile else 22)
 	_distance_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	left.add_child(_distance_label)
-	_activity_label = _label("", roundi(14 * scale) if _mobile else 17, PAPER)
+	_navigation_label = _label("", roundi(13 * scale) if _mobile else 16, AMBER)
+	_navigation_label.name = "RouteDirection"
+	left.add_child(_navigation_label)
+	_activity_label = _label("", roundi(13 * scale) if _mobile else 15, PAPER)
 	_activity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	left.add_child(_activity_label)
-	_speed_label = _label("", roundi(13 * scale) if _mobile else 16, MUTED)
-	left.add_child(_speed_label)
+	var instruments := left
+	if not _mobile:
+		var glass := PanelContainer.new()
+		glass.name = "RoverInstrumentGlass"
+		glass.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+		glass.offset_left = 22
+		glass.offset_right = 313
+		glass.offset_top = -106
+		glass.offset_bottom = -21
+		glass.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		glass.add_theme_stylebox_override("panel",_style(Color(0.035,0.09,0.09,0.78),Color(0.45,0.61,0.56,0.3),12))
+		_hud.add_child(glass)
+		instruments = VBoxContainer.new()
+		instruments.name = "RoverInstruments"
+		instruments.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		instruments.add_theme_constant_override("separation", 8)
+		glass.add_child(instruments)
+		instruments.add_child(_label(_text("rover"), 10, SIGNAL))
+	_speed_label = _label("", roundi(12 * scale) if _mobile else 19, PAPER)
+	_speed_label.name = "Speedometer"
+	instruments.add_child(_speed_label)
 	_speed_bar = ProgressBar.new()
-	_speed_bar.custom_minimum_size = Vector2(210 * scale, 3 * scale)
+	_speed_bar.custom_minimum_size = Vector2(190 * scale, 2 * scale)
 	_speed_bar.max_value = 1.0
 	_speed_bar.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_speed_bar.show_percentage = false
 	_speed_bar.add_theme_stylebox_override("background", _style(Color("252b2b"), Color.TRANSPARENT, 0))
 	_speed_bar.add_theme_stylebox_override("fill", _style(AMBER, Color.TRANSPARENT, 0))
-	left.add_child(_speed_bar)
+	instruments.add_child(_speed_bar)
 	var spacer := Control.new()
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -440,14 +470,14 @@ func _build_hud() -> void:
 		right.add_child(touch_space)
 	_minimap = ShowcaseMinimap.new()
 	_minimap.name = "ExplorerMinimap"
-	_minimap.custom_minimum_size = Vector2(86, 86) * scale if _mobile else Vector2(168, 168)
+	_minimap.custom_minimum_size = Vector2(86, 86) * scale if _mobile else Vector2(136, 136)
 	_minimap.set_road(_map_road)
 	right.add_child(_minimap)
-	var hint := _label(_text("pause_hint"), 16, PAPER)
+	var hint := _label(_text("pause_hint"), 13, PAPER)
 	hint.visible = not _mobile
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(hint)
-	_view_label = _label("", roundi(12 * scale) if _mobile else 15, PAPER)
+	_view_label = _label("", roundi(11 * scale) if _mobile else 13, PAPER)
 	_view_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(_view_label)
 	if not _map_context.is_empty():
@@ -462,25 +492,28 @@ func _build_hud() -> void:
 	_hud.add_child(_reticle)
 	_feedback_panel = PanelContainer.new()
 	_feedback_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-	var half_width := minf(260 * scale, get_viewport().get_visible_rect().size.x * 0.5 - 24 * scale) if _mobile else 350.0
+	var half_width := minf(235 * scale, get_viewport().get_visible_rect().size.x * 0.5 - 24 * scale) if _mobile else minf(330.0, get_viewport().get_visible_rect().size.x * 0.29)
 	_feedback_panel.offset_left = -half_width
 	_feedback_panel.offset_right = half_width
-	_feedback_panel.offset_top = -160 * scale if _mobile else -164
-	_feedback_panel.offset_bottom = -88 * scale if _mobile else -34
+	_feedback_panel.offset_top = -121 * scale if _mobile else -60
+	_feedback_panel.offset_bottom = -88 * scale if _mobile else -31
 	_feedback_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	_feedback_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_feedback_panel.add_theme_stylebox_override("panel", _style(Color(0.025, 0.055, 0.065, 0.88), Color(0.5, 0.77, 0.74, 0.35), roundi(10 * scale)))
+	var feedback_style := _style(Color(0.035, 0.09, 0.08, 0.78), Color(0.66, 0.85, 0.78, 0.35), roundi(10 * scale))
+	feedback_style.set_border_width_all(0)
+	feedback_style.border_width_top = 1
+	_feedback_panel.add_theme_stylebox_override("panel", feedback_style)
 	_hud.add_child(_feedback_panel)
 	var bottom := VBoxContainer.new()
 	bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom.add_theme_constant_override("separation", roundi(5 * scale))
 	_feedback_panel.add_child(bottom)
-	_message = _label(_guidance.message, roundi(14 * scale) if _mobile else 18)
+	_message = _label(_guidance.message, roundi(13 * scale) if _mobile else 16)
 	_message.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.visible = not _guidance.key.is_empty()
 	bottom.add_child(_message)
-	_ecology_label = _label("", roundi(14 * scale) if _mobile else 18, AMBER)
+	_ecology_label = _label("", roundi(13 * scale) if _mobile else 16, AMBER)
 	_ecology_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_ecology_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bottom.add_child(_ecology_label)
@@ -488,7 +521,7 @@ func _build_hud() -> void:
 	_interaction = _button("transmit", func() -> void: interact_requested.emit())
 	_interaction.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_interaction.custom_minimum_size.x = 260
-	_interaction.add_theme_font_size_override("font_size", 18)
+	_interaction.add_theme_font_size_override("font_size", 16)
 	_interaction.visible = not _mobile
 	_interaction.add_theme_color_override("font_color", SIGNAL)
 	bottom.add_child(_interaction)
@@ -520,16 +553,19 @@ func _build_overlay() -> void:
 			captions.add_child(caption)
 		return
 	var panel := PanelContainer.new()
+	panel.name = "JourneyPanel"
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
 	panel.offset_left = 20 if _mobile else 64
 	panel.offset_right = minf(550.0, available.x - 20.0) if _mobile else 654
 	if _mobile and _state == "settings":
 		panel.offset_right = minf(780.0, available.x - 20.0)
-	var desired_panel_height := 720.0 if _state in ["menu", "settings"] else (640.0 if _state == "journal" else 560.0)
+	var desired_panel_height := 720.0 if _state in ["menu", "settings"] else (640.0 if _state == "journal" else ((340.0 if _mobile else 480.0) if _state == "confirm_new" else (290.0 if _state == "confirm_reset" else 560.0)))
 	var panel_height := minf(desired_panel_height, maxf(220.0, available.y - 32.0))
 	panel.offset_top = -panel_height * 0.5
 	panel.offset_bottom = panel_height * 0.5
-	panel.add_theme_stylebox_override("panel", _style(Color(0.055, 0.063, 0.064, 0.88), Color(0.55, 0.48, 0.36, 0.30), 20 if _mobile else 26))
+	var sheet_style := _style(Color(0.035, 0.09, 0.08, 0.9), Color(0.66, 0.85, 0.78, 0.4), 20 if _mobile else 30)
+	sheet_style.border_width_top = 2
+	panel.add_theme_stylebox_override("panel", sheet_style)
 	_overlay.add_child(panel)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -542,7 +578,7 @@ func _build_overlay() -> void:
 	column.add_theme_constant_override("separation", 8 if _mobile else 13)
 	scroll.add_child(column)
 	if not (_mobile and _state == "settings"):
-		column.add_child(_label(_text("edition"), 12, AMBER))
+		column.add_child(_label(_text("departure" if _state == "confirm_new" else "edition"), 12, SIGNAL if _state == "confirm_new" else AMBER))
 	if _clear_failed or _write_failed:
 		var warning:=_label(_text("save_clear_failed" if _clear_failed else "save_write_failed"),13,AMBER)
 		warning.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
@@ -552,14 +588,9 @@ func _build_overlay() -> void:
 		column.add_child(_label(_text("title"), 26 if _mobile else 38))
 		column.add_child(_label(_text("intro"), 16))
 		column.add_child(_label(_text("duration"), 12, MUTED))
-		if _saved_available:
-			primary = _button("continue_saved", func() -> void: continue_saved_requested.emit())
-			primary.name = "ContinueSaved"
-			column.add_child(primary)
-			column.add_child(_button("new_run", func() -> void: start_requested.emit()))
-		else:
-			primary = _button("begin", func() -> void: start_requested.emit())
-			column.add_child(primary)
+		primary = _button("begin", func() -> void: start_requested.emit())
+		primary.name = "BeginJourney"
+		column.add_child(primary)
 		if _save_invalid: column.add_child(_label(_text("save_invalid"),12,AMBER))
 		column.add_child(_label(("Touch controls · landscape · Crawl for observation" if _config.locale == "en" else "橫向遊玩 · 觸控駕駛 · 慢行觀察") if _mobile else _text("controls"), 12, MUTED))
 		_build_settings(column)
@@ -609,11 +640,32 @@ func _build_overlay() -> void:
 		column.add_child(primary)
 		column.add_child(_label(_text("journal_back"), 12, MUTED))
 	elif _state == "confirm_new":
-		column.add_child(_label(_text("confirm_reset"),25))
-		column.add_child(_label(_text("reset_detail"),14,MUTED))
-		primary = _button("cancel", _cancel_new)
-		column.add_child(primary)
-		column.add_child(_button("confirm", func() -> void: reset_requested.emit()))
+		var heading := _label(_text("ready_title"), 26 if _mobile else 36)
+		heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		column.add_child(heading)
+		var invitation := _label(_text("ready_detail"), 16, PAPER)
+		invitation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		if not _mobile: column.add_child(invitation)
+		else: invitation.free()
+		var notice := _label(_text("fresh_notice"), 13, MUTED)
+		notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		column.add_child(notice)
+		var actions := HBoxContainer.new()
+		actions.add_theme_constant_override("separation", 10)
+		column.add_child(actions)
+		var depart := _button("begin", func() -> void: reset_requested.emit())
+		depart.name = "BeginJourney"
+		depart.custom_minimum_size.y = 50
+		depart.add_theme_stylebox_override("normal", _style(PAPER, PAPER))
+		depart.add_theme_stylebox_override("hover", _style(Color.WHITE, SIGNAL))
+		for state in ["font_color", "font_hover_color", "font_focus_color"]:
+			depart.add_theme_color_override(state, Color("152c29"))
+		depart.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		actions.add_child(depart)
+		primary = _button("back_home", _cancel_new)
+		primary.name = "BackHome"
+		primary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		actions.add_child(primary)
 	elif _state == "confirm_reset":
 		column.add_child(_label(_text("confirm_reset"), 25))
 		column.add_child(_label(_text("reset_detail"), 14, MUTED))
@@ -813,8 +865,12 @@ func update_readout(distance: float, elapsed: float, contact_progress: float, ca
 
 func set_activity_progress(done: int, optional_done: int, field_done: int, region: String, target: String = "", distance: float = 0.0, quiet: float = 0.0, bearing: float = 0.0) -> void:
 	_activity_context={"done":done,"optional":optional_done,"field":field_done,"region":region,"target":target,"distance":distance,"quiet":quiet,"bearing":bearing}
-	if is_instance_valid(_region_label): _region_label.text = _text(region)
+	if is_instance_valid(_region_label): _region_label.text = _region_title(region)
 	_render_activity_context()
+
+func _region_title(region: String) -> String:
+	var index := ["aurora_shelf", "ember_rift", "veil_marsh", "pale_decay"].find(region)
+	return ("%02d  /  " % (index + 1) if index >= 0 else "") + _text(region)
 
 func _target_name(target: String) -> String:
 	return _text("site_" + target) if COPY.has("site_" + target) else _text("goal")
@@ -822,7 +878,7 @@ func _target_name(target: String) -> String:
 func _render_activity_context() -> void:
 	if not is_instance_valid(_activity_label): return
 	if is_instance_valid(_region_label) and not _activity_context.is_empty():
-		_region_label.text = _text(str(_activity_context.region))
+		_region_label.text = _region_title(str(_activity_context.region))
 	if _state != "exploring": return
 	var target := str(_activity_context.get("target", ""))
 	_distance_label.text = _target_name(target)
@@ -831,6 +887,9 @@ func _render_activity_context() -> void:
 	var bearing := float(_activity_context.get("bearing", 0.0))
 	var direction := "behind" if absf(bearing) > 2.35 else "left" if bearing < -0.55 else "right" if bearing > 0.55 else "ahead"
 	var navigation := _text("navigation") % [_text("direction_" + direction), roundi(float(_activity_context.get("distance", 0.0)))] if not target.is_empty() else ""
+	var arrow := "↓" if direction == "behind" else "←" if direction == "left" else "→" if direction == "right" else "↑"
+	_navigation_label.text = arrow + "  " + navigation if not navigation.is_empty() else ""
+	_navigation_label.visible = not navigation.is_empty()
 	var key := ""
 	var text := _text("exploration_hint")
 	if target == "aurora_shelf":
@@ -863,7 +922,7 @@ func _render_activity_context() -> void:
 		text = text.replace("Hold C to crawl.", "Crawl + Drive for a quiet pace.").replace("hold C to crawl", "Crawl + Drive").replace("按住 C 慢行", "慢行＋前進")
 		text = text.replace("E · ", "").replace("E  ", "").replace("with E", "with Observe").replace("press E", "tap Observe").replace("按 E", "點互動")
 		text = text.replace("J opens", "Journal opens").replace("J 查看", "日誌查看")
-	_activity_label.text = (navigation + "\n" if not navigation.is_empty() else "") + text
+	_activity_label.text = text
 
 func set_resonance_context(data: Dictionary) -> void:
 	_resonance_context=data

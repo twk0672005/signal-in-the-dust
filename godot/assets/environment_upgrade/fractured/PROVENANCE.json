@@ -1,0 +1,19 @@
+{
+  "blender": "5.2.1 LTS",
+  "seed": 92807,
+  "meshes": 5,
+  "geometry": "Single closed loft, fractured bedding and narrow bevels; original per-family bounds",
+  "maps": "Blender source uses existing CC0 Rock023; GLB shares the same project maps via Godot material override, no duplicate embedded textures",
+  "files": [
+    {
+      "path": "rocks.glb",
+      "bytes": 178012,
+      "sha256": "ffb110a3516fb09b9f23c67fee10598f9dd2188f0357bbb66bdb0b1588b71b9f"
+    },
+    {
+      "path": "rocks_low.glb",
+      "bytes": 55408,
+      "sha256": "8f440e292680426bbe3b7a5d28193fedcc7e8626cf25122e0ad2b67dfcc0dee6"
+    }
+  ]
+}

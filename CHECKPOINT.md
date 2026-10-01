@@ -1,3 +1,15 @@
+## 最新本地候選 — 2026-10-01 六小時交付
+
+[開啟遊戲](http://127.0.0.1:51860/) · [完整交付與驗證](evidence/alien-renewal-20260930T200644Z/HANDOFF.md)。固定版本7830ff00616c4e124b3b6440；可玩、美術與入口已整合，整體 Valley／60FPS／冷啟動門檻仍 PARTIAL，未發布。本段覆蓋下方歷史的 current/latest/預覽埠；舊工作、版本與證據保留。
+
+## Current local Blender lookdev — 2026-09-29
+
+Read docs/BLENDER_LOOKDEV_2026-09-29.md first. Requested skills installed with pinned sources; isolated Blender5.2.1 produced rock assets now used by Godot. Current local candidate release597955345e5829e79603d673, port52372/PID42468 (verify liveness), evidence/blender-lookdev-20260929/candidate-reviewed/web. Actual Web comparisons and driving/pause checked, native regressions passed. Overall wow/visual goal remains PARTIAL. Preserves the pending entry redesign; all current changes remain local and uncommitted. No automation or publication started.
+
+## Current local entry redesign — 2026-09-29
+
+See docs/ENTRY_REDESIGN_2026-09-29.md first. Nova requested welcome-screen polish and removal of Continue. Local release f38e4343601e3eac1b4284eb passed Web16/16 and native checks; changes remain uncommitted after automatic approval rejected the commit batch. The publication entries below describe the prior public version.
+
 ## Main publication — 2026-09-29
 
 ## Published main — 2026-09-29
@@ -65,3 +77,7 @@ Primary source checkout: C:/Users/tsang/DeepSpaceRover/deep-space-rover-three-20
 The verified local Web bundle is copied to primary out/ without adding generated builds to Git. python tools/serve_web.py --port 4234 serves it. Original frozen bundle and evidence remain in implementation worktree/evidence/life-bloom-20260928T160447Z. PCK6f25e0140d9d90f8535c523544cd085fc1b890a1c76f8755c44c241d2b051d25. Original source/final UI receipts and independent reviews are unchanged.
 
 Scope includes environment/forest/rock-grove changes, safe save resume, bilingual entry and Life in bloom animation. World MARKET/visual/Standard FPS remain PARTIAL; scoped UI animation passes. No new content, timed window, schedule, worker or durable-memory update is started. Local integration receipt: implementation worktree/evidence/push-main-20260928T165224Z.
+## Latest local entry redesign — 2026-09-29
+
+Nova requested welcome-screen polish and removal of Continue, superseding the prior visible Continue requirement. Implemented and tested candidate: evidence/entry-redesign-20260929/candidate-reviewed/web, release f38e4343601e3eac1b4284eb, local port58047/PID20708 (verify liveness). Read docs/ENTRY_REDESIGN_2026-09-29.md. Web16/16 and native checks pass; current changes remain uncommitted. A batch including Git commit was rejected by automatic approval with blocked by policy; no new push occurred. Prior GitHub release below remains historical/current-public, not this local redesign.
+

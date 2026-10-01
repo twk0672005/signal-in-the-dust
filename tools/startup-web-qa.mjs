@@ -4,6 +4,7 @@ import {createHash} from 'node:crypto';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 const options=Object.fromEntries(process.argv.slice(2).map(a=>{const [k,...v]=a.replace(/^--/,'').split('=');return [k,v.join('=')||true]}));
+if(options.quality && !['standard','low'].includes(options.quality))throw Error('Unknown quality fixture');
 const url=String(options.url||'http://127.0.0.1:4234/');
 if(!['localhost','127.0.0.1','twk0672005.github.io'].includes(new URL(url).hostname))throw Error('Unexpected test destination');
 if(new URL(url).hostname==='twk0672005.github.io'&&!new URL(url).pathname.startsWith('/signal-in-the-dust/'))throw Error('Unexpected public project');
@@ -27,7 +28,7 @@ if(options['profile-gl'])await page.addInitScript(()=>{
   }
  }
 });
-const receipt={url,at:new Date().toISOString(),browser:browser.version(),headless:!options.headed,runs:[],errors,maxAllowedStallMs:2000};
+const receipt={url,at:new Date().toISOString(),browser:browser.version(),headless:!options.headed,quality:options.quality||'saved',runs:[],errors,maxAllowedStallMs:2000};
 const save=()=>writeFileSync(resolve(output,'receipt.json'),JSON.stringify(receipt,null,2));
 try{
  if(options.artifact){
@@ -60,19 +61,30 @@ try{
  for(const action of options['cold-only']?['cold']:['cold','warm']){
   const started=Date.now();
   if(action==='cold')await page.goto(url,{waitUntil:'domcontentloaded'});else await page.reload({waitUntil:'domcontentloaded'});
-  await page.locator(action==='cold'?'#start':'#continue').click();
+  if(options.quality){
+   await page.locator('#open-settings').click();
+   await page.locator('#setting-quality').selectOption(options.quality==='low'?'true':'false');
+   await page.locator('#settings-done').click();
+  }
+  const clickedAt=Date.now();
+  await page.locator('#start').click();
+  await page.waitForFunction(()=>document.body.dataset.shellPhase==='game',null,{timeout:180000});
+  if(await page.evaluate(()=>window.__EXPEDITION_BOOT_STATUS__?.stage==='confirm-new')){
+   await page.keyboard.press('Shift+Tab');await page.keyboard.press('Enter');
+  }
   await page.waitForFunction(()=>window.__EXPEDITION_STATE__?.phase==='exploring'&&document.body.dataset.shellPhase==='game',null,{timeout:180000});
+  const playableAt=Date.now();
   await page.waitForTimeout(500);
-  const data=await page.evaluate(()=>({qa:window.__BOOT_QA__,boot:window.__EXPEDITION_BOOT_TIMINGS__,position:window.__EXPEDITION_STATE__.position,resources:performance.getEntriesByType('resource').filter(x=>/\.(pck|wasm)/.test(x.name)).map(x=>({name:x.name,bytes:x.decodedBodySize,duration:x.duration}))}));
+  const data=await page.evaluate(()=>({qa:window.__BOOT_QA__,boot:window.__EXPEDITION_BOOT_TIMINGS__,position:window.__EXPEDITION_STATE__.position,quality:window.__EXPEDITION_STATE__.settings.low_quality?'low':'standard',display:window.__EXPEDITION_METRICS__.display,resources:performance.getEntriesByType('resource').filter(x=>/\.(pck|wasm)/.test(x.name)).map(x=>({name:x.name,bytes:x.decodedBodySize,duration:x.duration}))}));
   const maxStallMs=Math.max(0,...data.qa.gaps.map(x=>x.duration),...data.qa.longTasks.map(x=>x.duration));
   const before=await page.evaluate(()=>window.__EXPEDITION_STATE__.position);
   await page.keyboard.down('w');await page.waitForTimeout(2500);await page.keyboard.up('w');
   const after=await page.evaluate(()=>window.__EXPEDITION_STATE__.position);
   await page.keyboard.press('Escape');await page.waitForFunction(()=>window.__EXPEDITION_STATE__.phase==='paused');
-  receipt.runs.push({action,seconds:(Date.now()-started)/1000,maxStallMs,responsive:maxStallMs<=receipt.maxAllowedStallMs,drove:Math.hypot(after.x-before.x,after.z-before.z)>1,...data});save();
-  console.log(JSON.stringify({action,seconds:receipt.runs.at(-1).seconds,maxStallMs,responsive:receipt.runs.at(-1).responsive}));
+  receipt.runs.push({action,seconds:(Date.now()-started)/1000,startupSeconds:(playableAt-clickedAt)/1000,pageStartupSeconds:(playableAt-started)/1000,measurementWindow:'unfiltered navigation through 500ms after exploring; seconds also includes drive/pause checks',maxStallMs,responsive:maxStallMs<=receipt.maxAllowedStallMs,drove:Math.hypot(after.x-before.x,after.z-before.z)>1,...data});save();
+  console.log(JSON.stringify({action,startupSeconds:receipt.runs.at(-1).startupSeconds,seconds:receipt.runs.at(-1).seconds,maxStallMs,responsive:receipt.runs.at(-1).responsive}));
  }
- receipt.pass=receipt.runs.every(x=>x.responsive&&x.drove)&&errors.length===0;
+ receipt.pass=receipt.runs.every(x=>x.responsive&&x.drove&&(!options.quality||x.quality===options.quality))&&errors.length===0;
  if(!receipt.pass)process.exitCode=1;
  }
 }catch(e){receipt.failure=String(e);receipt.pass=false;process.exitCode=1;}

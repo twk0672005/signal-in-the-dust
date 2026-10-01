@@ -1,0 +1,26 @@
+{
+  "asset": "Bark012",
+  "source": "https://ambientcg.com/view?id=Bark012",
+  "download": "https://ambientcg.com/get?file=Bark012_1K-JPG.zip",
+  "resolved_download": "https://acg-download.struffelproductions.com/file/ambientCG-Web/download/Bark012_QvMcRb6t/Bark012_1K-JPG.zip",
+  "license": "CC0-1.0",
+  "license_verified_at": "https://docs.ambientcg.com/license/",
+  "archive_sha256": "6e26e4c24fe53cf564909b371afbfc84041d9077f39bf8eb4ae16951df1c4763",
+  "maps": [
+    {
+      "path": "godot\\assets\\market_environment\\cc0\\Bark012_1K-JPG_Color.jpg",
+      "bytes": 1711274,
+      "sha256": "772d7a35b1d93bce6de7ad8adeabfb6cc126ba52d07b7c9103ed9a7e65dac577"
+    },
+    {
+      "path": "godot\\assets\\market_environment\\cc0\\Bark012_1K-JPG_NormalGL.jpg",
+      "bytes": 2443285,
+      "sha256": "516a7c92605277d05c7fcdc8fb468572ccdba10a661da1212a10c57977d449b6"
+    },
+    {
+      "path": "godot\\assets\\market_environment\\cc0\\Bark012_1K-JPG_Roughness.jpg",
+      "bytes": 728470,
+      "sha256": "65bba089b8b7589e0dd6107fe418faaaa2ededcd610de4f9c9897bde763356a9"
+    }
+  ]
+}

@@ -79,11 +79,11 @@ func _ready() -> void:
 
 func _build_headlamps() -> void:
 	var lens := StandardMaterial3D.new()
-	lens.albedo_color = Color(0.65, 0.78, 0.83)
+	lens.albedo_color = Color(0.94, 0.86, 0.69)
 	lens.roughness = 0.2
 	lens.metallic = 0.25
 	lens.emission_enabled = true
-	lens.emission = Color(0.64, 0.79, 0.85)
+	lens.emission = Color(0.94, 0.86, 0.69)
 	lens.emission_energy_multiplier = 1.1
 	for side in [-1.0, 1.0]:
 		var glass := MeshInstance3D.new()
@@ -97,7 +97,7 @@ func _build_headlamps() -> void:
 		light.name = "TerrainLampLeft" if side < 0.0 else "TerrainLampRight"
 		light.position = glass.position + Vector3(0, 0, -0.08)
 		light.rotation_degrees.x = -8.0
-		light.light_color = Color(0.72, 0.84, 0.92)
+		light.light_color = Color(1.0, 0.89, 0.72)
 		light.light_energy = 1.65
 		light.spot_range = 32.0
 		light.spot_angle = 31.0

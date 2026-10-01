@@ -25,7 +25,13 @@ export function finalizeWebRelease(folder) {
     const bytes = readFileSync(resolve(folder,path));
     return { path, bytes: bytes.length, sha256: hash(bytes) };
   });
-  for (const required of ['index.js','index.wasm','index.pck','showcase.js','showcase.css']) {
+  const packFiles = config.packParts ? config.packParts.map(part => part.name) : ['index.pck'];
+  if (config.packParts && (sourceFiles.some(file => file.path === 'index.pck') || config.packParts.length < 2 ||
+    config.packParts.some((part,index) => part.name !== 'index.pck.part-' + String(index).padStart(3,'0') ||
+      !Number.isSafeInteger(part.bytes) || part.bytes <= 0 || part.bytes > 64*1024*1024 ||
+      !sourceFiles.some(file => file.path === part.name && file.bytes === part.bytes)) ||
+    config.packParts.reduce((sum,part) => sum + part.bytes,0) !== config.fileSizes['index.pck'])) throw new Error('Invalid split package');
+  for (const required of ['index.js','index.wasm','showcase.js','showcase.css',...packFiles]) {
     if (!sourceFiles.some(file => file.path === required)) throw new Error('Missing release asset: ' + required);
   }
   const releaseId = hash(JSON.stringify(sourceFiles)).slice(0,24);

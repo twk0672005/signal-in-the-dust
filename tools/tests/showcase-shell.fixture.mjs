@@ -75,7 +75,7 @@ addEventListener('DOMContentLoaded', () => {
    window.__EXPEDITION_STATE__.phase = 'menu'; fixtureStatus('home',true);
    await delay(170);
    check('home recovery preserves independent game menu phase', document.body.dataset.shellPhase === 'home' && document.body.dataset.phase === 'menu' && !document.getElementById('home').hidden && window.__fixture.starts === 1, {...state(),starts:window.__fixture.starts});
-   check('existing Chinese title is unchanged', document.querySelector('.title-sub').textContent === '塵境回聲', document.querySelector('.title-sub').textContent);
+   check('exact journey action remains available', document.querySelector('#start [data-copy="start"]').textContent === 'Begin my journey', document.querySelector('#start [data-copy="start"]').textContent);
   } catch (error) { checks.push({name:'regression execution',pass:false,observed:String(error)}); }
   fixtureSnapshot();
   regressionResults.textContent = JSON.stringify({kind:'shell-only-periodic-game-snapshot',checks,errors:window.__fixture.errors},null,2);
@@ -114,7 +114,7 @@ const server = createServer((req, res) => {
  }
  const file = resolve(web, '.' + decodeURIComponent(url.pathname));
  if (!file.startsWith(web + sep) || !existsSync(file)) { res.writeHead(404); res.end('Not found'); return; }
- res.setHeader('Content-Type', ({'.css':'text/css','.js':'text/javascript','.png':'image/png'})[extname(file)] || 'application/octet-stream');
+ res.setHeader('Content-Type', ({'.css':'text/css','.js':'text/javascript','.png':'image/png','.webp':'image/webp'})[extname(file)] || 'application/octet-stream');
  res.end(readFileSync(file));
 });
 server.listen(port,'127.0.0.1',() => console.log(JSON.stringify({kind:'shell-only-fixture',pid:process.pid,port,root,web})));

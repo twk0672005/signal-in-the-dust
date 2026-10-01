@@ -90,7 +90,7 @@ test('boot timeout follows actual completed work but retains the ten-minute ceil
   let now = 0, timer, failures = 0;
   const context = vm.createContext({window:{},performance:{now:()=>now},
     setTimeout:(callback,delay)=>{timer={callback,delay};return 1;},clearTimeout:()=>{},
-    fail:()=>failures++});
+    fail:()=>failures++,updateLoadingExperience:()=>{}});
   vm.runInContext(`let guard=0,bootDeadline=600000,lastBootProgress=0,busy=true,restoreFetch=null,started=false,pending=null;${guard}${inspect}`,context);
   context.refreshBootGuard(); assert.equal(timer.delay,120000);
   const firstTimer = timer;

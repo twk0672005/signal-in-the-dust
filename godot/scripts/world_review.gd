@@ -52,6 +52,8 @@ func _execute(data: Dictionary) -> void:
 			var settings: Dictionary = game.settings.duplicate(true)
 			settings.low_quality = bool(data.get("low", false))
 			game._on_settings(settings)
+		"overlay":
+			game.ui.visible = not bool(data.get("hidden",false))
 		"measure": begin_measure(clampf(float(data.get("seconds", 30.0)), 5.0, 60.0))
 		"freeze": _set_review_frozen(bool(data.get("enabled", true)))
 		"material": _set_material_comparison(str(data.get("scope", "creature")), str(data.get("mode", "current")))
