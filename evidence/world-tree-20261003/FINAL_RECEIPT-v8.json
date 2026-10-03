@@ -1,0 +1,30 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v8-web-showcase-camera",
+  "at": "2026-10-03T23:40:00Z",
+  "visualDecision": "The exported Web build now reads the current main_web script and uses ContactShowcaseCamera during contact/ending. The endpoint hero shot is a real full-tree composition with textured trunk and branch lace, no rover hood, and no shell 404s. The tree remains darker/browner and more procedural than the supplied ivory-gold target, so keep the second art update unpublished.",
+  "web": {
+    "snapshotProbe": "activeCamera=FirstPersonCamera during exploring; activeCamera=ContactShowcaseCamera after ending",
+    "journey": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json",
+    "realKeyboardRoute": true,
+    "fourRegionsDiscovered": true,
+    "readyToInteract": true,
+    "endingObserved": true,
+    "targetDistanceAfterShowcase": 20.0000076293945,
+    "pageErrors": 0,
+    "shell404": 0,
+    "coldStartup": "not re-measured in v8; prior fresh candidate was under 30 s"
+  },
+  "native": {
+    "physicsCameraRegression": true,
+    "contactShowcaseProbe": "PASS",
+    "runtimeFixture": "PARTIAL: legacy contact_started assertion remains false while ending/pause checks pass"
+  },
+  "asset": {
+    "glb": "godot/assets/world_tree_v3/world_tree.glb",
+    "triangles": 59632,
+    "embeddedAlbedoImages": 3,
+    "blenderRenders": ["blender-v3/far.png", "blender-v3/mid.png", "blender-v3/near.png"]
+  },
+  "publish": "not published to main/GitHub; Nova visual acceptance remains open"
+}
