@@ -46,7 +46,9 @@ const exploring = ()=>page.waitForFunction(()=>window.__EXPEDITION_STATE__?.phas
 try {
   await page.goto(url); await page.locator('.hero-art').evaluate(img=>img.decode());
   const hero=await page.locator('.hero-art').evaluate(img=>({source:img.currentSrc,width:img.naturalWidth,height:img.naturalHeight}));
-  check('actual Aurora runtime hero decoded',hero.source.includes('aurora-web-6da6c8ca.webp')&&hero.width>0&&hero.height>0);
+  check('original concept hero decoded',hero.source.includes('listening-arch-keyart.webp')&&hero.width>0&&hero.height>0);
+  check('concept artwork honestly labelled',await page.locator('[data-art-copy=keyArt]').innerText()==='概念主視覺');
+  check('actual gameplay preview separate',await page.locator('.preview-heading [data-art-copy=actual]').innerText()==='實際遊戲畫面');
   check('Chinese runtime artwork credit',await page.locator('.art-credit').innerText()==='極光高原 · 遊戲實景');
   check('Chinese rover and alien planet invitation', (await page.locator('h1').innerText()).replace(/\s+/g,' ').trim()==='駕駛探索車， 探索外星星球');
   check('Chinese explicit game label',await page.locator('.home .eyebrow').innerText()==='外星星球探索遊戲');
@@ -54,6 +56,11 @@ try {
   check('Chinese journey action',await page.locator('#start [data-copy=start]').innerText()==='開啟我的旅程');
   check('Continue removed',await page.locator('#continue').count()===0);
   check('home does not launch engine',await page.evaluate(()=>!window.__EXPEDITION_BOOT_REQUEST__));
+  for(const [region,title] of [['ember_rift','熱泉裂谷'],['veil_marsh','濃霧沼澤'],['pale_decay','孢子衰變'],['aurora_shelf','極光高原']]){
+    await page.locator('[data-region='+region+']').click();
+    await page.locator('#region-preview').evaluate(img=>img.decode());
+    check(region+' actual preview and selected button',await page.locator('#region-name').innerText()===title&&(await page.locator('[data-region='+region+']').getAttribute('aria-pressed'))==='true'&&(await page.locator('#region-preview').getAttribute('src')).includes(region+'-actual.webp'));
+  }
   await shot('home-zh-desktop');
   await page.locator('#language-toggle').click(); await shot('home-en-desktop');
   check('English rover and alien planet invitation',(await page.locator('h1').innerText()).replace(/\s+/g,' ').trim()==='Drive a rover. Explore an alien planet.');

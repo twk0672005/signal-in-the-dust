@@ -43,7 +43,8 @@ test('complete bilingual entry retains the action, DOM, motion and player-data b
   assert.equal(dictionary.en.specimenHabitat,'VEIL MARSH');
   assert.equal(dictionary.zh_TW.habitat,'極光高原');
   assert.equal(dictionary.zh_TW.specimenHabitat,'濃霧沼澤');
-  assert.ok(!/Concept|概念/.test(html));
+  assert.match(html,/data-art-copy="keyArt"/,'generated illustration must retain honest concept labelling');
+  assert.match(html,/class="game-preview"/,'actual game image remains separate');
   assert.ok(!ids.includes('continue'));
   assert.ok(!/localStorage|indexedDB|removeItem|clear\(/.test(source),'shell must not own player storage');
   assert.match(html,/setPointerCapture\(e.pointerId\)/);
@@ -54,7 +55,7 @@ test('complete bilingual entry retains the action, DOM, motion and player-data b
   assert.match(css,/@media \(max-height: 450px\) and \(orientation: landscape\)/);
 });
 
-test('both runtime images and preloads match preserved capture provenance', () => {
+test('actual captures and concept marketing art retain distinct provenance', () => {
   const provenance = JSON.parse(readFileSync(resolve(root,'evidence/alien-renewal-20260930T200644Z/delivery-images/image-provenance.json'),'utf8'));
   const hash = bytes=>createHash('sha256').update(bytes).digest('hex');
   assert.equal(provenance.captureRuntime.kind,'isolated_chromium_actual_web');
@@ -66,12 +67,20 @@ test('both runtime images and preloads match preserved capture provenance', () =
     assert.equal(data.subarray(0,4).toString(),'RIFF');
     assert.equal(data.subarray(8,12).toString(),'WEBP');
     const url=image.assetPath.replace('godot/web/','');
-    assert.ok(html.includes('href="'+url+'"'),'missing preload: '+url);
-    assert.ok(html.includes('src="'+url+'"'),'missing image: '+url);
+    if(url.includes('aeral-web')){
+      assert.ok(html.includes('href="'+url+'"'),'missing loading preload: '+url);
+      assert.ok(html.includes('src="'+url+'"'),'missing loading specimen: '+url);
+    }
     assert.equal(image.outputDimensions[0],image.crop[2]-image.crop[0]);
     assert.equal(image.outputDimensions[1],image.crop[3]-image.crop[1]);
   }
-  assert.match(html,/<li class="featured"><span aria-hidden="true">01<\/span>/);
+  const art=JSON.parse(readFileSync(resolve(root,'evidence/home-grand-20261003/ART_PROVENANCE.json'),'utf8'));
+  assert.equal(art.images.length,5);
+  for(const row of art.images)assert.equal(hash(readFileSync(resolve(root,row.asset))),row.sha256);
+  assert.match(art.images[0].kind,/not an in-game screenshot/);
+  assert.ok(art.images.slice(1).every(row=>row.kind.includes('actual exported Godot')));
+  assert.match(html,/src="assets\/grand-home\/listening-arch-keyart.webp"/);
+  assert.match(html,/data-region="aurora_shelf" aria-pressed="true"/);
 });
 
 test('measured bytes and preparation stay distinct from rendered-frame readiness', () => {

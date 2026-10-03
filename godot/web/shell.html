@@ -7,18 +7,21 @@
 <meta name="theme-color" content="#13292b">
 <title>$GODOT_PROJECT_NAME</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080d1e'/%3E%3Cpath d='M12 21v6m6-12v18m6-24v30m6-24v18m6-12v6' stroke='%23a5e4ee' stroke-width='2'/%3E%3C/svg%3E">
-<link rel="preload" as="image" type="image/webp" href="assets/alien-renewal/aurora-web-6da6c8ca.webp" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" href="assets/grand-home/listening-arch-keyart.webp" fetchpriority="high">
 <link rel="preload" as="image" type="image/webp" href="assets/alien-renewal/aeral-web-6da6c8ca.webp" fetchpriority="low">
 <link rel="stylesheet" href="showcase.css">
+<link rel="stylesheet" href="showcase-grand.css">
 $GODOT_HEAD_INCLUDE
 </head>
 <body data-shell-phase="home">
 <canvas id="canvas" tabindex="0" aria-label="Signal in the Dust alien-planet rover exploration game" aria-hidden="true" inert></canvas>
 <noscript>JavaScript is required to play. / 請啟用 JavaScript 以開始探索。</noscript>
 <main id="veil">
-  <img class="hero-art" src="assets/alien-renewal/aurora-web-6da6c8ca.webp" width="1152" height="648" alt="" fetchpriority="high" decoding="async">
+  <img class="hero-art" src="assets/grand-home/listening-arch-keyart.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async">
   <div class="art-shade" aria-hidden="true"></div>
   <div class="entry-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="arrival-light" aria-hidden="true"></div>
+  <div class="scene-caption"><span class="caption-line" aria-hidden="true"></span><span data-art-copy="scene">Beneath the listening arch</span><span data-art-copy="keyArt">Concept artwork</span></div>
   <header class="entry-header">
     <div class="wordmark"><span class="signal-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>SIGNAL IN THE DUST</span></div>
     <nav class="entry-tools" aria-label="Preferences">
@@ -28,6 +31,7 @@ $GODOT_HEAD_INCLUDE
   </header>
   <section id="home" class="home" aria-labelledby="title">
     <div class="home-copy">
+      <p class="expedition-id"><span class="signal-dot" aria-hidden="true"></span><span data-art-copy="expedition">AN EXPEDITION INTO THE UNKNOWN</span></p>
       <p class="eyebrow" data-copy="eyebrow">ALIEN PLANET EXPLORATION GAME</p>
       <h1 id="title" data-copy="ready">Drive a rover.
 Explore an alien planet.</h1>
@@ -39,21 +43,20 @@ Explore an alien planet.</h1>
       <p class="notice"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 21h8m-4-5v5"/></svg><span data-copy="desktop">For the richest detail, explore on a desktop. Mobile play uses landscape.</span></p>
       <p id="home-message" class="home-message" role="status" hidden></p>
     </div>
-    <aside class="landscape-note">
-      <span class="landscape-rule" aria-hidden="true"><i></i></span>
-      <span class="landscape-atlas" data-copy="atlas">Four alien regions to explore</span>
-      <span class="landscape-kicker" data-copy="habitat">AURORA SHELF</span>
-      <p data-copy="landscapeNote">Start in Aurora Shelf. Follow the gold marker.</p>
-      <span class="art-credit" data-copy="art">Aurora Shelf · In-game capture</span>
-    </aside>
+
   </section>
   <footer id="home-footer" class="entry-footer">
-    <div class="footer-left"><span data-copy="footer">Drive · Observe creatures · Investigate signals</span><span data-copy="controls">Keyboard &amp; mouse · Landscape touch</span></div>
-    <ol class="habitat-index">
-      <li class="featured"><span aria-hidden="true">01</span><span data-copy="aurora">Aurora Shelf</span></li>
-      <li><span aria-hidden="true">02</span><span data-copy="ember">Ember Rift</span></li>
-      <li><span aria-hidden="true">03</span><span data-copy="veil">Veil Marsh</span></li>
-      <li><span aria-hidden="true">04</span><span data-copy="pale">Pale Decay</span></li>
+    <aside class="game-preview" aria-label="Actual gameplay preview">
+      <div class="preview-heading"><span class="live-tick" aria-hidden="true"></span><span data-art-copy="actual">Actual gameplay</span><span id="preview-index">01 / 04</span></div>
+      <div class="preview-image-window"><img id="region-preview" src="assets/grand-home/aurora_shelf-actual.webp" width="640" height="360" alt="" decoding="async"><span class="preview-reticle" aria-hidden="true"></span></div>
+      <div class="preview-description"><span id="region-name">Aurora Shelf</span><span id="region-detail">Crystal ridges · first signals</span></div>
+      <span class="art-credit" data-copy="art">Aurora Shelf · In-game capture</span>
+    </aside>
+    <ol class="habitat-index" aria-label="Preview the four regions">
+      <li class="featured"><button type="button" data-region="aurora_shelf" aria-pressed="true"><span aria-hidden="true">01</span><span data-copy="aurora">Aurora Shelf</span><span class="habitat-tick" aria-hidden="true"></span></button></li>
+      <li><button type="button" data-region="ember_rift" aria-pressed="false"><span aria-hidden="true">02</span><span data-copy="ember">Ember Rift</span><span class="habitat-tick" aria-hidden="true"></span></button></li>
+      <li><button type="button" data-region="veil_marsh" aria-pressed="false"><span aria-hidden="true">03</span><span data-copy="veil">Veil Marsh</span><span class="habitat-tick" aria-hidden="true"></span></button></li>
+      <li><button type="button" data-region="pale_decay" aria-pressed="false"><span aria-hidden="true">04</span><span data-copy="pale">Pale Decay</span><span class="habitat-tick" aria-hidden="true"></span></button></li>
     </ol>
   </footer>
   <section id="loading" class="loading" aria-labelledby="loading-title" hidden>
@@ -163,5 +166,6 @@ Explore an alien planet.</h1>
 <script id="engine-source" type="application/json" data-src="$GODOT_URL">{}</script>
 <script>window.__EXPEDITION_ENGINE_CONFIG__=$GODOT_CONFIG;</script>
 <script src="showcase.js" defer></script>
+<script src="showcase-art.js" defer></script>
 </body>
 </html>
