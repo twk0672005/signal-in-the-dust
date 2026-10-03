@@ -34,29 +34,29 @@ func _ready() -> void:
 			tree_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 			tree_material.roughness = 0.82
 			if material_name.contains("leaves"):
-				tree_material.albedo_color = Color("e8ad34")
+				tree_material.albedo_color = Color("f2c866")
 				tree_material.roughness = 0.68
 				tree_material.emission_enabled = true
-				tree_material.emission = Color("b76613")
-				tree_material.emission_energy_multiplier = 1.70
+				tree_material.emission = Color("e2a82f")
+				tree_material.emission_energy_multiplier = 2.05
 				mesh_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			elif material_name.contains("luminous") or material_name.contains("vein"):
-				tree_material.albedo_color = Color("ffd56a")
+				tree_material.albedo_color = Color("fff0b3")
 				tree_material.roughness = 0.42
 				tree_material.emission_enabled = true
-				tree_material.emission = Color("f2a51e")
-				tree_material.emission_energy_multiplier = 4.2
+				tree_material.emission = Color("ffe278")
+				tree_material.emission_energy_multiplier = 4.3
 				tree_glow_materials.append(tree_material)
 			elif material_name.contains("branch"):
-				tree_material.albedo_color = Color("9b551c")
+				tree_material.albedo_color = Color("d7c28b")
 				tree_material.emission_enabled = true
-				tree_material.emission = Color("5c1f05")
-				tree_material.emission_energy_multiplier = 0.72
+				tree_material.emission = Color("b9913f")
+				tree_material.emission_energy_multiplier = 1.10
 			else:
-				tree_material.albedo_color = Color("6e3a18")
+				tree_material.albedo_color = Color("eee0b2")
 				tree_material.emission_enabled = true
-				tree_material.emission = Color("421405")
-				tree_material.emission_energy_multiplier = 0.72
+				tree_material.emission = Color("b99a57")
+				tree_material.emission_energy_multiplier = 0.82
 			mesh_node.material_override = tree_material
 		for part in model.find_children("rib_*", "Node3D",true,false):
 			ribs.append(part)
