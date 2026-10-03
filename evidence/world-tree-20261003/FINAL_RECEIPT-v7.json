@@ -1,0 +1,24 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v7-textured-fine-lace-endpoint-cliff-tone",
+  "at": "2026-10-03T20:55:00Z",
+  "visualDecision": "The tree asset is materially better in Blender far/mid views and the endpoint terrain cliff now has an explicit dark value correction. The actual browser ending still shows a large endpoint terrain/root enclosure and is not a market-quality close-up; keep unpublished.",
+  "asset": {
+    "glb": "godot/assets/world_tree_v3/world_tree.glb",
+    "source": "art-source/world_tree_20261003_v3/world_tree.blend",
+    "triangles": 59632,
+    "embeddedAlbedoImages": 3,
+    "rootSpreadMeters": "26-34",
+    "renders": ["evidence/world-tree-20261003/blender-v3/far.png", "evidence/world-tree-20261003/blender-v3/mid.png", "evidence/world-tree-20261003/blender-v3/near.png"]
+  },
+  "runtime": {
+    "webJourney": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json",
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "physicsCameraRegression": true,
+    "runtimeFixture": "PARTIAL: legacy contact fixture reports contact_started=false although ending and pause checks pass"
+  },
+  "latestRepair": "godot/shaders/terrain.gdshader darkens steep CollidableDustBasin faces around signal_origin; a Godot AABB probe identified CollidableDustBasin, AuthoredDistantCaldera and SubsurfaceResponseRoots as the endpoint-near geometry.",
+  "publish": "not published; Nova visual acceptance remains open"
+}
