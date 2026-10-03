@@ -40,7 +40,7 @@ function fileEntries(directory, prefix = '') {
 export function copyShellAssets(checkout, target) {
   assertCheckoutTarget(checkout,target);
   const source = resolve(checkout,'godot/web');
-  const names = ['showcase.css','showcase.js', ...fileEntries(resolve(source,'assets'),'assets/')];
+  const names = ['showcase.css','showcase-grand.css','showcase.js','showcase-art.js', ...fileEntries(resolve(source,'assets'),'assets/')];
   for (const name of names) {
     const destination = assertCheckoutTarget(checkout,resolve(target,name));
     mkdirSync(dirname(destination),{recursive:true});

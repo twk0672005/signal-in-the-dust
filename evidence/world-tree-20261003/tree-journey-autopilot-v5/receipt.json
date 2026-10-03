@@ -1,7 +1,7 @@
 {
   "samples": [
     {
-      "at": 1791064649401,
+      "at": 1791070741571,
       "z": 150,
       "x": 0,
       "target": 0,
@@ -11,127 +11,128 @@
       "phase": "exploring"
     },
     {
-      "at": 1791064652494,
-      "z": 112.057998657227,
-      "x": 11.9492988586426,
-      "target": 11.713798149779572,
-      "targetDistance": 762.141296386719,
+      "at": 1791070744626,
+      "z": 113.764572143555,
+      "x": 11.7017021179199,
+      "target": 11.304523284690763,
+      "targetDistance": 763.844116210938,
       "speed": 24,
       "collisions": 3,
       "phase": "exploring"
     },
     {
-      "at": 1791064655581,
-      "z": 37.6606750488281,
-      "x": 13.3715963363647,
-      "target": 15.411679983016484,
-      "targetDistance": 687.777770996094,
+      "at": 1791070747660,
+      "z": 41.3043670654297,
+      "x": 16.3376731872559,
+      "target": 15.641674095715192,
+      "targetDistance": 691.481689453125,
       "speed": 24,
       "collisions": 3,
       "phase": "exploring"
     },
     {
-      "at": 1791064658683,
-      "z": -36.056079864502,
-      "x": 11.2935771942139,
-      "target": 13.627746928222063,
-      "targetDistance": 614.03564453125,
+      "at": 1791070750758,
+      "z": -31.579137802124,
+      "x": 13.4149856567383,
+      "target": 13.624757400436858,
+      "targetDistance": 618.551940917969,
       "speed": 24,
       "collisions": 3,
       "phase": "exploring"
     },
     {
-      "at": 1791064661701,
-      "z": -107.058624267578,
-      "x": 0.996660709381104,
-      "target": 4.258028345402431,
-      "targetDistance": 542.941467285156,
+      "at": 1791070753779,
+      "z": -105.760589599609,
+      "x": 4.22605419158936,
+      "target": 4.635616320318963,
+      "targetDistance": 544.2509765625,
       "speed": 24,
       "collisions": 3,
       "phase": "exploring"
     },
     {
-      "at": 1791064664737,
-      "z": -172.665084838867,
-      "x": -21.3076152801514,
-      "target": -15.769597464218357,
-      "targetDistance": 477.841003417969,
-      "speed": 18.6000000000001,
+      "at": 1791070756809,
+      "z": -175.597137451172,
+      "x": -14.3039770126343,
+      "target": -16.34789270475807,
+      "targetDistance": 474.639404296875,
+      "speed": 24,
       "collisions": 3,
       "phase": "exploring"
     },
     {
-      "at": 1791064667810,
-      "z": -226.837066650391,
-      "x": -22.1378707885742,
-      "target": -18.196406014913123,
-      "targetDistance": 423.777648925781,
-      "speed": 22.4999999999999,
-      "collisions": 3,
-      "phase": "exploring"
-    },
-    {
-      "at": 1791064670982,
-      "z": -303.086822509766,
-      "x": -14.4919404983521,
-      "target": -10.732780089474204,
-      "targetDistance": 347.244750976562,
+      "at": 1791070759971,
+      "z": -248.907119750977,
+      "x": -12.618091583252,
+      "target": -15.699553351016135,
+      "targetDistance": 401.313262939453,
       "speed": 24,
       "collisions": 0,
       "phase": "exploring"
     },
     {
-      "at": 1791064674184,
-      "z": -377.940765380859,
-      "x": -4.92002534866333,
-      "target": -3.021563148142114,
-      "targetDistance": 272.116851806641,
+      "at": 1791070763002,
+      "z": -322.785125732422,
+      "x": -6.52341222763062,
+      "target": -9.884707460167435,
+      "targetDistance": 327.294128417969,
       "speed": 24,
       "collisions": 3,
       "phase": "exploring"
     },
     {
-      "at": 1791064677227,
-      "z": -448.416137695312,
-      "x": 17.1886978149414,
-      "target": 17.204096862328544,
-      "targetDistance": 202.2587890625,
-      "speed": 24,
-      "collisions": 3,
+      "at": 1791070766012,
+      "z": -389.693206787109,
+      "x": 4.95833015441895,
+      "target": 0.0058565921715962865,
+      "targetDistance": 260.341949462891,
+      "speed": 16.6500000000001,
+      "collisions": 2,
       "phase": "exploring"
     },
     {
-      "at": 1791064680336,
-      "z": -512.665405273438,
-      "x": 12.0692644119263,
-      "target": 18.40514287577618,
-      "targetDistance": 137.806106567383,
+      "at": 1791070769076,
+      "z": -436.661529541016,
+      "x": 19.6208667755127,
+      "target": 14.31182494396301,
+      "targetDistance": 214.177703857422,
       "speed": 16.5,
       "collisions": 3,
       "phase": "exploring"
     },
     {
-      "at": 1791064683463,
-      "z": -567.734741210938,
-      "x": 4.21121311187744,
-      "target": 9.091850836477374,
-      "targetDistance": 82.3410415649414,
-      "speed": 16.5,
-      "collisions": 3,
+      "at": 1791070772253,
+      "z": -501.107025146484,
+      "x": 24.0493850708008,
+      "target": 19.918983561930073,
+      "targetDistance": 150.715896606445,
+      "speed": 24,
+      "collisions": 1,
       "phase": "exploring"
     },
     {
-      "at": 1791064686595,
-      "z": -634.854919433594,
-      "x": 0.116367727518082,
-      "target": 2.8946098623932084,
-      "targetDistance": 15.1555376052856,
-      "speed": 24,
+      "at": 1791070775377,
+      "z": -562.968933105469,
+      "x": 13.5867023468018,
+      "target": 9.750366636981077,
+      "targetDistance": 87.9830017089844,
+      "speed": 19.95,
       "collisions": 0,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791070778482,
+      "z": -626.258666992188,
+      "x": 9.01744174957275,
+      "target": 3.830743183828075,
+      "targetDistance": 25.162992477417,
+      "speed": 16.5,
+      "collisions": 3,
       "phase": "exploring"
     }
   ],
   "before": {
+    "activeCamera": "FirstPersonCamera",
     "activities": {
       "completed_regions": {
         "aurora_shelf": false,
@@ -247,13 +248,13 @@
     },
     "collisions": 1,
     "contactProgress": 0,
-    "distance": 812.105534133851,
+    "distance": 811.731811249047,
     "ecology": {
       "aeral": "quiet",
       "rootChoir": "quiet",
       "veyra": "quiet"
     },
-    "elapsed": 44.1972333333335,
+    "elapsed": 45.5625424242424,
     "escort": {
       "alarm": 0,
       "complete": false,
@@ -271,16 +272,16 @@
       "waypoint": 0
     },
     "floor": true,
-    "heading": -0.00767895833333386,
+    "heading": -1.07573875,
     "interaction": {
-      "distance": 5.69140768051147,
+      "distance": 8.87696552276611,
       "eligible": true,
       "key": "contact",
       "kind": "contact",
       "reason": "ready",
       "subject": "contact"
     },
-    "maxSpeedMps": 24,
+    "maxSpeedMps": 16.5,
     "observedEcology": {},
     "passage": {
       "alarm": 0,
@@ -314,9 +315,9 @@
     },
     "phase": "exploring",
     "position": {
-      "x": 0.0416457764804363,
-      "y": -0.827957332134247,
-      "z": -644.344421386719
+      "x": 8.99215221405029,
+      "y": -0.423128485679626,
+      "z": -646.886108398438
     },
     "ready": true,
     "resetCount": 0,
@@ -350,14 +351,14 @@
     "speed": 0,
     "speedKph": 0,
     "speedMps": 0,
-    "targetDistance": 5.69140768051147,
+    "targetDistance": 8.87696552276611,
     "thermal": {
       "locked": false,
       "route": "warm",
       "vent_observed": false,
       "version": 1
     },
-    "thermalPulse": 0.878653344076296,
+    "thermalPulse": 0.229596839784003,
     "touchEnabled": false,
     "transmitCount": 0,
     "view": "first_person",
@@ -369,6 +370,7 @@
     }
   },
   "finalState": {
+    "activeCamera": "ContactShowcaseCamera",
     "activities": {
       "completed_regions": {
         "aurora_shelf": false,
@@ -484,13 +486,13 @@
     },
     "collisions": 1,
     "contactProgress": 1,
-    "distance": 812.105534133851,
+    "distance": 811.731811249047,
     "ecology": {
       "aeral": "quiet",
       "rootChoir": "quiet",
       "veyra": "quiet"
     },
-    "elapsed": 68.2671603333343,
+    "elapsed": 69.5919764242441,
     "escort": {
       "alarm": 0,
       "complete": false,
@@ -508,7 +510,7 @@
       "waypoint": 0
     },
     "floor": true,
-    "heading": -0.00767895833333386,
+    "heading": -1.21238797211371,
     "interaction": {
       "distance": 0,
       "eligible": false,
@@ -517,7 +519,7 @@
       "reason": "none",
       "subject": ""
     },
-    "maxSpeedMps": 24,
+    "maxSpeedMps": 16.5,
     "observedEcology": {},
     "passage": {
       "alarm": 0,
@@ -551,9 +553,9 @@
     },
     "phase": "ending",
     "position": {
-      "x": 0.0416457764804363,
-      "y": -0.827957332134247,
-      "z": -644.344421386719
+      "x": 19.4083919525146,
+      "y": 1.14475917816162,
+      "z": -642.984313964844
     },
     "ready": true,
     "resetCount": 0,
@@ -587,14 +589,14 @@
     "speed": 0,
     "speedKph": 0,
     "speedMps": 0,
-    "targetDistance": 5.69140768051147,
+    "targetDistance": 20.0000076293945,
     "thermal": {
       "locked": false,
       "route": "warm",
       "vent_observed": false,
       "version": 1
     },
-    "thermalPulse": 0.847143201526562,
+    "thermalPulse": 0.209516497094325,
     "touchEnabled": false,
     "transmitCount": 1,
     "view": "first_person",
@@ -608,6 +610,6 @@
   "readyToInteract": true,
   "completionObserved": true,
   "errors": [],
-  "seconds": 63.325,
+  "seconds": 64.733,
   "pass": true
 }
