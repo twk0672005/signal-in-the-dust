@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://f8nparxp4xol"
-path="res://.godot/imported/veyra_runtime_veyra_normal.png-cc63e07559084bab2c01df941d357529.ctex"
+path.s3tc="res://.godot/imported/veyra_runtime_veyra_normal.png-cc63e07559084bab2c01df941d357529.s3tc.ctex"
+path.etc2="res://.godot/imported/veyra_runtime_veyra_normal.png-cc63e07559084bab2c01df941d357529.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0d51c1f34ebfeab70a7092a1af3079e1"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/visual_fauna/veyra_runtime_veyra_normal.png"
-dest_files=["res://.godot/imported/veyra_runtime_veyra_normal.png-cc63e07559084bab2c01df941d357529.ctex"]
+dest_files=["res://.godot/imported/veyra_runtime_veyra_normal.png-cc63e07559084bab2c01df941d357529.s3tc.ctex", "res://.godot/imported/veyra_runtime_veyra_normal.png-cc63e07559084bab2c01df941d357529.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

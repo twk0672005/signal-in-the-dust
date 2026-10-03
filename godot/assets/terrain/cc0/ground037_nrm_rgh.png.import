@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2jrtg8k1clbx"
-path="res://.godot/imported/ground037_nrm_rgh.png-11fddfa8530a85071b55b01ea9cf9f54.ctex"
+path.s3tc="res://.godot/imported/ground037_nrm_rgh.png-11fddfa8530a85071b55b01ea9cf9f54.s3tc.ctex"
+path.etc2="res://.godot/imported/ground037_nrm_rgh.png-11fddfa8530a85071b55b01ea9cf9f54.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/terrain/cc0/ground037_nrm_rgh.png"
-dest_files=["res://.godot/imported/ground037_nrm_rgh.png-11fddfa8530a85071b55b01ea9cf9f54.ctex"]
+dest_files=["res://.godot/imported/ground037_nrm_rgh.png-11fddfa8530a85071b55b01ea9cf9f54.s3tc.ctex", "res://.godot/imported/ground037_nrm_rgh.png-11fddfa8530a85071b55b01ea9cf9f54.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

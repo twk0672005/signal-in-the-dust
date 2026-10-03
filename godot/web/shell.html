@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="The Listening Reefs at Dawn. A quiet rover expedition through four living alien habitats. English / 繁體中文.">
+<meta name="description" content="Signal in the Dust is an alien-planet rover exploration game. Drive across four regions, observe creatures and investigate signals. English / 繁體中文.">
 <meta name="theme-color" content="#13292b">
 <title>$GODOT_PROJECT_NAME</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080d1e'/%3E%3Cpath d='M12 21v6m6-12v18m6-24v30m6-24v18m6-12v6' stroke='%23a5e4ee' stroke-width='2'/%3E%3C/svg%3E">
@@ -13,7 +13,7 @@
 $GODOT_HEAD_INCLUDE
 </head>
 <body data-shell-phase="home">
-<canvas id="canvas" tabindex="0" aria-label="Signal in the Dust exploration game" aria-hidden="true" inert></canvas>
+<canvas id="canvas" tabindex="0" aria-label="Signal in the Dust alien-planet rover exploration game" aria-hidden="true" inert></canvas>
 <noscript>JavaScript is required to play. / 請啟用 JavaScript 以開始探索。</noscript>
 <main id="veil">
   <img class="hero-art" src="assets/alien-renewal/aurora-web-6da6c8ca.webp" width="1152" height="648" alt="" fetchpriority="high" decoding="async">
@@ -28,10 +28,10 @@ $GODOT_HEAD_INCLUDE
   </header>
   <section id="home" class="home" aria-labelledby="title">
     <div class="home-copy">
-      <p class="eyebrow" data-copy="eyebrow">Rover 07 · The dawn expedition</p>
-      <h1 id="title" data-copy="ready">The Listening
-Reefs at Dawn</h1>
-      <p class="intro" data-copy="intro">A rover. Four living habitats. Follow the mineral signal, and discover a world that listens back.</p>
+      <p class="eyebrow" data-copy="eyebrow">ALIEN PLANET EXPLORATION GAME</p>
+      <h1 id="title" data-copy="ready">Drive a rover.
+Explore an alien planet.</h1>
+      <p class="intro" data-copy="intro">Drive across four alien regions. Stop to observe creatures and investigate signals.</p>
       <div class="entry-actions">
         <button id="start" class="primary-button" type="button"><span data-copy="start">Begin my journey</span><span class="button-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></span></button>
       </div>
@@ -41,14 +41,14 @@ Reefs at Dawn</h1>
     </div>
     <aside class="landscape-note">
       <span class="landscape-rule" aria-hidden="true"><i></i></span>
-      <span class="landscape-atlas" data-copy="atlas">A living field atlas · 01—04</span>
+      <span class="landscape-atlas" data-copy="atlas">Four alien regions to explore</span>
       <span class="landscape-kicker" data-copy="habitat">AURORA SHELF</span>
-      <p data-copy="landscapeNote">A path beneath the listening ribs.</p>
+      <p data-copy="landscapeNote">Start in Aurora Shelf. Follow the gold marker.</p>
       <span class="art-credit" data-copy="art">Aurora Shelf · In-game capture</span>
     </aside>
   </section>
   <footer id="home-footer" class="entry-footer">
-    <div class="footer-left"><span data-copy="footer">Four habitats. One quiet expedition.</span><span data-copy="controls">Keyboard &amp; mouse · Landscape touch</span></div>
+    <div class="footer-left"><span data-copy="footer">Drive · Observe creatures · Investigate signals</span><span data-copy="controls">Keyboard &amp; mouse · Landscape touch</span></div>
     <ol class="habitat-index">
       <li class="featured"><span aria-hidden="true">01</span><span data-copy="aurora">Aurora Shelf</span></li>
       <li><span aria-hidden="true">02</span><span data-copy="ember">Ember Rift</span></li>
@@ -58,20 +58,20 @@ Reefs at Dawn</h1>
   </footer>
   <section id="loading" class="loading" aria-labelledby="loading-title" hidden>
     <div class="loading-card">
-      <p class="eyebrow" data-copy="expedition">Departure / Rover 07</p>
-      <h2 id="loading-title" tabindex="-1" data-copy="loadingTitle">A world is coming into view</h2>
+      <p class="eyebrow" data-copy="expedition">Loading the game</p>
+      <h2 id="loading-title" tabindex="-1" data-copy="loadingTitle">Loading your rover exploration game</h2>
       <p id="status" role="status" aria-live="polite"></p>
-      <ol id="loading-stages" class="loading-stages" aria-label="Journey preparation">
-        <li data-step="download"><span class="stage-number" aria-hidden="true">01</span><span data-copy="downloadStep">Download</span></li>
-        <li data-step="world"><span class="stage-number" aria-hidden="true">02</span><span data-copy="worldStep">Living world</span></li>
-        <li data-step="view"><span class="stage-number" aria-hidden="true">03</span><span data-copy="viewStep">First view</span></li>
+      <ol id="loading-stages" class="loading-stages" aria-label="Game loading stages">
+        <li data-step="download"><span class="stage-number" aria-hidden="true">01</span><span data-copy="downloadStep">Game download</span></li>
+        <li data-step="world"><span class="stage-number" aria-hidden="true">02</span><span data-copy="worldStep">Planet preparation</span></li>
+        <li data-step="view"><span class="stage-number" aria-hidden="true">03</span><span data-copy="viewStep">First game view</span></li>
       </ol>
       <div id="progress-line" class="progress-line"><progress id="progress" max="100" aria-label="Download progress"></progress><span id="percent" class="percent" aria-hidden="true">—</span></div>
       <div class="loading-meta"><p id="phase-detail" class="phase-detail"></p><span class="elapsed-label"><span data-copy="elapsed">Elapsed</span><time id="waiting-elapsed" aria-live="off">00:00</time></span></div>
-      <p id="wait-note" class="wait-note" data-copy="longWait" hidden>First visits need a little more preparation. Keep this tab open while the landscape takes shape.</p>
+      <p id="wait-note" class="wait-note" data-copy="longWait" hidden>First-time downloads and graphics preparation can take longer. Keep this tab open until the game view is ready. If the browser stops responding, let it recover.</p>
       <div class="arrival-guide">
-        <p class="guide-kicker" data-copy="firstDiscovery">Your first discovery</p>
-        <p id="arrival-purpose" data-copy="firstStep">You are tracing a living signal. Follow the gold map marker to the crystals, then stop and listen.</p>
+        <p class="guide-kicker" data-copy="firstDiscovery">Your first objective</p>
+        <p id="arrival-purpose" data-copy="firstStep">Drive to the gold map marker. Brake beside the crystals, then observe the signal.</p>
         <p id="control-drive"></p>
         <p id="control-observe" data-copy="observeTip">Right-drag · Look    V · Camera    E · Observe    J · Journal</p>
       </div>
@@ -93,7 +93,7 @@ Reefs at Dawn</h1>
       <figcaption><span data-copy="specimenHabitat">VEIL MARSH</span><span data-copy="studyArt">Ecology · In-game capture</span></figcaption>
       <p id="specimen-note" class="specimen-note"></p>
     </figure>
-    <div class="loading-footer"><span data-copy="loadingFooter">Take a moment. There is no hurry here.</span><span data-copy="art">Aurora Shelf · In-game capture</span></div>
+    <div class="loading-footer"><span data-copy="loadingFooter">Explore four regions. Drive, observe and follow signals.</span><span data-copy="art">Aurora Shelf · In-game capture</span></div>
   </section>
 </main>
 <dialog id="settings-dialog" aria-labelledby="settings-title" aria-describedby="settings-note">

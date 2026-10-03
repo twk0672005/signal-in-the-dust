@@ -1,0 +1,185 @@
+{
+  "sealed_utc": "2026-10-03T06:23:23.862689+00:00",
+  "status": "BUILT_STATICALLY_VERIFIED_RUNTIME_UNVERIFIED",
+  "source_commit": "ed1daf0bf001b61586d9930840f2f1394092c079",
+  "numeric_version": "4.7.2-stable",
+  "template": {
+    "path": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\sealed-01\\godot-4.7.2-web-release-parallel-scene.zip",
+    "bytes": 10191386,
+    "sha256": "2dc35de6fbc02f79434e62fa4e2a95a4c942576aa192534aec0f7e4ce572c2b0",
+    "entries": [
+      {
+        "name": "godot.js",
+        "bytes": 279858,
+        "sha256": "7dbe74ca854c283711ad761a315296c65735dd2c5198c0692f6073e9267fede5"
+      },
+      {
+        "name": "godot.wasm",
+        "bytes": 39517308,
+        "sha256": "36546afc954b3bf1d1eee2e7dd0f3e84984967c89c83e711c3fc1940f186d0a4"
+      },
+      {
+        "name": "godot.audio.worklet.js",
+        "bytes": 7298,
+        "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3"
+      },
+      {
+        "name": "godot.audio.position.worklet.js",
+        "bytes": 2973,
+        "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8"
+      },
+      {
+        "name": "godot.html",
+        "bytes": 5088,
+        "sha256": "3a5f265e788646513c32494fc0faead64c6b7f92ef005bf475da0c622bd481f4"
+      },
+      {
+        "name": "godot.service.worker.js",
+        "bytes": 5739,
+        "sha256": "c72e9a688cd06978be343fd8481130e89dd81439267e1cfd8aef8343ea9f4139"
+      },
+      {
+        "name": "godot.offline.html",
+        "bytes": 971,
+        "sha256": "b0a5d443e78f58717adac780bac91c1431bfa3b801c41f4707d507fb5ad2e47f"
+      }
+    ]
+  },
+  "build": {
+    "start_utc": "2026-10-03T06:16:20.086254+00:00",
+    "end_utc": "2026-10-03T06:21:42.355242+00:00",
+    "elapsed_s": 322.265,
+    "command": [
+      "C:\\Users\\tsang\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-m",
+      "SCons",
+      "platform=web",
+      "target=template_release",
+      "arch=wasm32",
+      "threads=no",
+      "dlink_enabled=no",
+      "vulkan=no",
+      "opengl3=yes",
+      "use_closure_compiler=no",
+      "debug_symbols=no",
+      "lto=thin",
+      "-j6"
+    ],
+    "cwd": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\godot",
+    "exit_code": 0,
+    "child_pid": 46304,
+    "local_configuration": {
+      "EM_CONFIG": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\emsdk\\.emscripten",
+      "EMSDK": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\emsdk",
+      "EMSDK_NODE": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\emsdk\\node\\22.16.0_64bit\\bin\\node.exe",
+      "EMSDK_PYTHON": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\emsdk\\python\\3.13.3_64bit\\python.exe",
+      "PYTHONPATH": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\pytools",
+      "TEMP": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\tmp",
+      "TMP": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\tmp",
+      "GODOT_VERSION_BUILD": "custom_parallel_scene"
+    }
+  },
+  "patch_checks": [
+    {
+      "command": [
+        "git",
+        "-c",
+        "core.autocrlf=false",
+        "-c",
+        "core.eol=lf",
+        "apply",
+        "--check",
+        "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\web-parallel-scene-shaders.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "-c",
+        "core.autocrlf=false",
+        "-c",
+        "core.eol=lf",
+        "apply",
+        "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\startup-clear-20261003\\custom-template\\web-parallel-scene-shaders.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "patch_sha256": "09c108d310a348a01d32ce8b7f3c758bfb07d2cc6aa5debb876a23f01165cc0a",
+  "tools": [
+    {
+      "path": "godot-official.zip",
+      "bytes": 83072560,
+      "sha256": "098b0a71e95ad98ab44651199d55c3f085e4e02c735514e284a2d5263ac81fb2"
+    },
+    {
+      "path": "emsdk-official.zip",
+      "bytes": 251043,
+      "sha256": "c75be35da8755ec378664325f147fe93b883bbcd46598cb483bf13871f7fcc19"
+    },
+    {
+      "path": "emsdk\\upstream\\bin\\clang.exe",
+      "bytes": 88381952,
+      "sha256": "da7bdfb50afce6651836fad509ed8d1c2484370c590864029961c40049f8a34c"
+    },
+    {
+      "path": "emsdk\\upstream\\bin\\wasm-ld.exe",
+      "bytes": 53834752,
+      "sha256": "0b285bc77741f81e5170386feaa07dd75be22d643acec407dfa811dcf0f09643"
+    },
+    {
+      "path": "emsdk\\upstream\\bin\\wasm-opt.exe",
+      "bytes": 12101120,
+      "sha256": "50c6fbb09d2aea5952996655ef61d606263a04354103b43d09bbf41c892ee35d"
+    },
+    {
+      "path": "emsdk\\upstream\\emscripten\\emcc.py",
+      "bytes": 22827,
+      "sha256": "8aceac1889631c2902b2265c7991a18d187e3deec157e8194e489e0988a564d1"
+    },
+    {
+      "path": "emsdk\\python\\3.13.3_64bit\\python.exe",
+      "bytes": 105832,
+      "sha256": "d87063e5597f257004c731b66c59c56c91038861c6877b1a3dca6b8c4e919125"
+    },
+    {
+      "path": "emsdk\\node\\22.16.0_64bit\\bin\\node.exe",
+      "bytes": 85119640,
+      "sha256": "c5ff4c736112dd483c750fd4149d30c8a116db1a49b8b3ec88be4b65e6c86c19"
+    },
+    {
+      "path": "pytools\\scons-4.8.1.dist-info\\METADATA",
+      "bytes": 9060,
+      "sha256": "64c187dd628411f59f2c916d1246b6506ab8720be4bb8a045e3561bb45d241b9"
+    },
+    {
+      "path": "emsdk\\.emscripten",
+      "bytes": 339,
+      "sha256": "cf771ef7a46b1c7ce1d36454f94d6643bbc034635831bcc1f10559ec260cbc2b"
+    }
+  ],
+  "wasm_validation": {
+    "valid": true,
+    "node_version": "22.16.0",
+    "memory": [
+      {
+        "flags": 1,
+        "minimum_pages": 512,
+        "maximum_pages": 32768,
+        "shared": false
+      }
+    ],
+    "import_count": 338,
+    "export_count": 16
+  },
+  "limitations": [
+    "No GPU/browser runs performed by this worker.",
+    "Root must verify extension, async compile behavior, visibility/reflection readiness, startup time, driving and visual fidelity.",
+    "Non-scene Web shaders and unsupported-extension fallback remain synchronous."
+  ]
+}

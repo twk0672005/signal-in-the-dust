@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0n8jowrx7dme"
-path="res://.godot/imported/frond_structure.png-912819392378541386c30f121be4a1fb.ctex"
+path.s3tc="res://.godot/imported/frond_structure.png-912819392378541386c30f121be4a1fb.s3tc.ctex"
+path.etc2="res://.godot/imported/frond_structure.png-912819392378541386c30f121be4a1fb.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/visual_fauna/surface_maps/frond_structure.png"
-dest_files=["res://.godot/imported/frond_structure.png-912819392378541386c30f121be4a1fb.ctex"]
+dest_files=["res://.godot/imported/frond_structure.png-912819392378541386c30f121be4a1fb.s3tc.ctex", "res://.godot/imported/frond_structure.png-912819392378541386c30f121be4a1fb.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c2l886h1yfqwl"
-path="res://.godot/imported/aeral_runtime_aeral_orm.png-e33626e69720cf6af608ff09d90d7989.ctex"
+path.s3tc="res://.godot/imported/aeral_runtime_aeral_orm.png-e33626e69720cf6af608ff09d90d7989.s3tc.ctex"
+path.etc2="res://.godot/imported/aeral_runtime_aeral_orm.png-e33626e69720cf6af608ff09d90d7989.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "cb1633a76060808e9f91d980b1abb435"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/visual_fauna/aeral_runtime_aeral_orm.png"
-dest_files=["res://.godot/imported/aeral_runtime_aeral_orm.png-e33626e69720cf6af608ff09d90d7989.ctex"]
+dest_files=["res://.godot/imported/aeral_runtime_aeral_orm.png-e33626e69720cf6af608ff09d90d7989.s3tc.ctex", "res://.godot/imported/aeral_runtime_aeral_orm.png-e33626e69720cf6af608ff09d90d7989.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

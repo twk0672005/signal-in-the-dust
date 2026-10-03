@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bchdvjkufjaob"
-path="res://.godot/imported/listening-flora_lamina-veins-albedo.png-1c05a21ef62c53d391d3d086e826311f.ctex"
+path.s3tc="res://.godot/imported/listening-flora_lamina-veins-albedo.png-1c05a21ef62c53d391d3d086e826311f.s3tc.ctex"
+path.etc2="res://.godot/imported/listening-flora_lamina-veins-albedo.png-1c05a21ef62c53d391d3d086e826311f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b537631ea613dbfdd36be2ec926f36f1"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/alien_flora/listening-flora_lamina-veins-albedo.png"
-dest_files=["res://.godot/imported/listening-flora_lamina-veins-albedo.png-1c05a21ef62c53d391d3d086e826311f.ctex"]
+dest_files=["res://.godot/imported/listening-flora_lamina-veins-albedo.png-1c05a21ef62c53d391d3d086e826311f.s3tc.ctex", "res://.godot/imported/listening-flora_lamina-veins-albedo.png-1c05a21ef62c53d391d3d086e826311f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

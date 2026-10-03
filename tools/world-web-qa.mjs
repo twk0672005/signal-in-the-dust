@@ -29,9 +29,37 @@ function observePage(target){
   target.on('requestfailed',request=>log('requestfailed',{url:request.url(),failure:request.failure()}));
 }
 observePage(page);
+if(options['compile-audit'])await context.addInitScript(()=>{
+  window.__COMPILE_AUDIT__={gaps:[],queries:[],pendingWhilePlaying:[],programs:[]};
+  const programIds=new WeakMap();
+  let previous=performance.now();
+  setInterval(()=>{const at=performance.now();const phase=window.__EXPEDITION_STATE__?.phase;
+    window.__COMPILE_AUDIT__.gaps.push({at,duration:at-previous,shell:document.body?.dataset.shellPhase,phase});previous=at;},50);
+  const original=WebGL2RenderingContext.prototype.getProgramParameter;
+  WebGL2RenderingContext.prototype.getProgramParameter=function(...args){
+    const at=performance.now();const result=original.apply(this,args);const duration=performance.now()-at;
+    const sample={at,duration,parameter:args[1],shell:document.body?.dataset.shellPhase,phase:window.__EXPEDITION_STATE__?.phase};
+    if(duration>5)window.__COMPILE_AUDIT__.queries.push(sample);
+    if(args[1]===0x91b1&&result===false&&sample.shell==='game'&&sample.phase==='exploring'){
+      if(!programIds.has(args[0])){
+        const id=window.__COMPILE_AUDIT__.programs.length;
+        programIds.set(args[0],id);
+        window.__COMPILE_AUDIT__.programs.push({id,at,position:window.__EXPEDITION_STATE__?.position,
+          shaders:this.getAttachedShaders(args[0]).map(shader=>this.getShaderSource(shader))});
+      }
+      sample.program=programIds.get(args[0]);window.__COMPILE_AUDIT__.pendingWhilePlaying.push(sample);
+    }
+    return result;
+  };
+});
 let receipt={url,output,harnessSha256:createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),pid:process.pid,browser:browser.version(),headless:!options.headed,launchArgs,checks,kind:'isolated_chromium_actual_web',mode:options.mode||'smoke',physicalMobile:false};
 if(options.artifact){const folder=resolve(String(options.artifact));receipt.artifactFiles=readdirSync(folder).filter(n=>/\.(pck|wasm|html|js|css)$/.test(n)).sort().map(name=>{const bytes=readFileSync(resolve(folder,name));return {name,bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')}});}
 const save = () => writeFileSync(resolve(output,'receipt.json'),JSON.stringify({...receipt,seconds:(Date.now()-start)/1000,events},null,2));
+async function retainCompileAudit(label){
+  if(!options['compile-audit'])return;
+  receipt.compileAuditSegments??=[];
+  receipt.compileAuditSegments.push({label,data:await page.evaluate(()=>window.__COMPILE_AUDIT__)});
+}
 const state = () => page.evaluate(()=>({state:window.__EXPEDITION_STATE__,probe:window.__WORLD_REVIEW_PROBE__,review:window.__WORLD_REVIEW__}));
 const command = async data => {
   const accepted=await page.evaluate(data=>window.expeditionReview(JSON.stringify(data)),data);
@@ -393,6 +421,7 @@ try {
     const paused=await state();await page.waitForTimeout(500);const heldPause=await state();receipt.paused=paused;
     checks.pauseReleased=paused.state.phase==='paused'&&Math.hypot(heldPause.state.position.x-paused.state.position.x,heldPause.state.position.z-paused.state.position.z)<.03&&!heldPause.state.boosting;
     await page.screenshot({path:resolve(output,'paused.png')});
+    await retainCompileAudit('complete-four-region-input-before-reload');
     await page.reload({waitUntil:'domcontentloaded'});
     checks.continueRemoved=await page.locator('#continue').count()===0;
     await page.screenshot({path:resolve(output,'new-journey-home.png')});
@@ -637,6 +666,14 @@ try {
     receipt.memoryLimits='Three actual forward/reverse-direction world traversals; CDP JS/embedder/backing-storage counters and engine counters retained. No isolated WASM allocation or process GPU allocation, no long-run leak/no-leak conclusion.';
   }
 
+  if(options['compile-audit']){
+    await retainCompileAudit('final-page');
+    const data=receipt.compileAuditSegments.map(x=>x.data);
+    receipt.compileAudit={gaps:data.flatMap(x=>x.gaps),queries:data.flatMap(x=>x.queries),pendingWhilePlaying:data.flatMap(x=>x.pendingWhilePlaying),programs:data.flatMap(x=>x.programs),segments:receipt.compileAuditSegments.map(x=>x.label)};
+    receipt.compileAudit.maxPlayingGapMs=Math.max(0,...receipt.compileAudit.gaps.filter(x=>x.shell==='game'&&x.phase==='exploring').map(x=>x.duration));
+    checks.noDeferredShaderCompilation=receipt.compileAudit.pendingWhilePlaying.length===0;
+    checks.drivingStallsWithinTwoSeconds=receipt.compileAudit.maxPlayingGapMs<=2000;
+  }
   checks.noPageErrors=!events.some(e=>e.type==='pageerror'||e.type==='crash'||e.type==='console'&&(e.data.level==='error'||/SCRIPT ERROR|Parse Error/.test(e.data.text)));
   const strictPass=Object.values(checks).every(Boolean);
   receipt.partialReasons=partialReasons;

@@ -21,8 +21,20 @@ test('complete bilingual entry retains the action, DOM, motion and player-data b
   }
   assert.equal(dictionary.en.start,'Begin my journey');
   assert.equal(dictionary.zh_TW.start,'開啟我的旅程');
-  assert.match(dictionary.en.ready,/The Listening\nReefs at Dawn/);
-  assert.match(dictionary.zh_TW.ready,/聆聽礁原/);
+  assert.equal(dictionary.en.ready,'Drive a rover.\nExplore an alien planet.');
+  assert.equal(dictionary.zh_TW.ready,'駕駛探索車，\n探索外星星球');
+  assert.equal(dictionary.en.eyebrow,'ALIEN PLANET EXPLORATION GAME');
+  assert.equal(dictionary.zh_TW.eyebrow,'外星星球探索遊戲');
+  assert.match(dictionary.en.intro,/four alien regions/);
+  assert.match(dictionary.en.intro,/observe creatures and investigate signals/);
+  assert.match(dictionary.zh_TW.intro,/四個外星區域/);
+  assert.match(dictionary.zh_TW.intro,/觀察生物與調查生命訊號/);
+  assert.match(html,/SIGNAL IN THE DUST/);
+  assert.match(html,/Drive a rover\.\r?\nExplore an alien planet\./);
+  assert.equal(dictionary.en.downloadTitle,'Downloading\nthe game');
+  assert.equal(dictionary.zh_TW.downloadTitle,'正在下載\n遊戲內容');
+  assert.equal(dictionary.en.viewTitle,'Opening\nthe game view');
+  assert.equal(dictionary.zh_TW.viewTitle,'正在開啟\n遊戲畫面');
   assert.match(dictionary.en.art,/In-game capture/);
   assert.match(dictionary.zh_TW.art,/遊戲實景/);
   assert.match(dictionary.en.studyArt,/In-game capture/);
@@ -108,5 +120,11 @@ test('measured bytes and preparation stay distinct from rendered-frame readiness
   window.__EXPEDITION_BOOT_STATUS__={version:1,requestId:'current',stage:'playing',firstFrameReady:false}; context.inspectStatus();
   assert.equal(finished,0);
   window.__EXPEDITION_BOOT_STATUS__.firstFrameReady=true; context.inspectStatus();
+  assert.equal(finished,1);
+  const failures=[];
+  context.fail=(...args)=>failures.push(args);
+  window.__EXPEDITION_BOOT_STATUS__={version:1,requestId:'current',stage:'error',firstFrameReady:false,fatal:true};
+  context.inspectStatus();
+  assert.deepEqual(failures,[['error',null,true]],'failed graphics initialization requires visible reload without releasing the first-frame gate');
   assert.equal(finished,1);
 });

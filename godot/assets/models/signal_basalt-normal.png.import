@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://duhesutoiqrx8"
-path="res://.godot/imported/signal_basalt-normal.png-a70e433e511b5ff9f1eb84f5a8c93d3d.ctex"
+path.s3tc="res://.godot/imported/signal_basalt-normal.png-a70e433e511b5ff9f1eb84f5a8c93d3d.s3tc.ctex"
+path.etc2="res://.godot/imported/signal_basalt-normal.png-a70e433e511b5ff9f1eb84f5a8c93d3d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ae5f68c817696f38f1d856f1990aeb46"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/signal_basalt-normal.png"
-dest_files=["res://.godot/imported/signal_basalt-normal.png-a70e433e511b5ff9f1eb84f5a8c93d3d.ctex"]
+dest_files=["res://.godot/imported/signal_basalt-normal.png-a70e433e511b5ff9f1eb84f5a8c93d3d.s3tc.ctex", "res://.godot/imported/signal_basalt-normal.png-a70e433e511b5ff9f1eb84f5a8c93d3d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

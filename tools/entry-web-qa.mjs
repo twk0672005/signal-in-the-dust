@@ -48,22 +48,34 @@ try {
   const hero=await page.locator('.hero-art').evaluate(img=>({source:img.currentSrc,width:img.naturalWidth,height:img.naturalHeight}));
   check('actual Aurora runtime hero decoded',hero.source.includes('aurora-web-6da6c8ca.webp')&&hero.width>0&&hero.height>0);
   check('Chinese runtime artwork credit',await page.locator('.art-credit').innerText()==='極光高原 · 遊戲實景');
-  check('Chinese reef invitation', (await page.locator('h1').innerText()).includes('聆聽礁原'));
+  check('Chinese rover and alien planet invitation', (await page.locator('h1').innerText()).replace(/\s+/g,' ').trim()==='駕駛探索車， 探索外星星球');
+  check('Chinese explicit game label',await page.locator('.home .eyebrow').innerText()==='外星星球探索遊戲');
+  check('Chinese exploration loop',await page.locator('.intro').innerText()==='駕駛探索車穿越四個外星區域，減速停車，觀察生物與調查生命訊號。');
   check('Chinese journey action',await page.locator('#start [data-copy=start]').innerText()==='開啟我的旅程');
   check('Continue removed',await page.locator('#continue').count()===0);
   check('home does not launch engine',await page.evaluate(()=>!window.__EXPEDITION_BOOT_REQUEST__));
   await shot('home-zh-desktop');
   await page.locator('#language-toggle').click(); await shot('home-en-desktop');
-  check('English reef invitation',(await page.locator('h1').innerText()).includes('The Listening'));
+  check('English rover and alien planet invitation',(await page.locator('h1').innerText()).replace(/\s+/g,' ').trim()==='Drive a rover. Explore an alien planet.');
+  check('English explicit game label',await page.locator('.home .eyebrow').innerText()==='ALIEN PLANET EXPLORATION GAME');
+  check('English exploration loop',await page.locator('.intro').innerText()==='Drive across four alien regions. Stop to observe creatures and investigate signals.');
   check('English journey action',await page.locator('#start [data-copy=start]').innerText()==='Begin my journey');
   await page.locator('#language-toggle').click();
-  for(const [width,height,name] of [[390,844,'portrait'],[844,390,'landscape']]) {
-    await page.setViewportSize({width,height}); await shot('home-zh-'+name);
-    const box=await page.locator('#start').boundingBox();
-    check(name+' start visible without scrolling',box.y>=0&&box.y+box.height<=height);
-    check(name+' no horizontal overflow',await page.evaluate(()=>document.getElementById('veil').scrollWidth<=innerWidth));
-    check(name+' journey action meets touch target',box.height>=44&&box.width>=44);
+  for(const [language,title] of [['zh','駕駛探索車， 探索外星星球'],['en','Drive a rover. Explore an alien planet.']]) {
+    if(await page.locator('html').getAttribute('lang')!==(language==='zh'?'zh-Hant':'en')) await page.locator('#language-toggle').click();
+    for(const [width,height,name] of [[390,844,'portrait'],[844,390,'landscape']]) {
+      await page.setViewportSize({width,height}); await shot('home-'+language+'-'+name);
+      const label=language+' '+name;
+      check(label+' explicit rover and planet heading',(await page.locator('h1').innerText()).replace(/\s+/g,' ').trim()===title);
+      const heading=await page.locator('h1').boundingBox();
+      check(label+' heading visible without scrolling',heading.y>=0&&heading.y+heading.height<=height);
+      const box=await page.locator('#start').boundingBox();
+      check(label+' start visible without scrolling',box.y>=0&&box.y+box.height<=height);
+      check(label+' no horizontal overflow',await page.evaluate(()=>document.getElementById('veil').scrollWidth<=innerWidth));
+      check(label+' journey action meets touch target',box.height>=44&&box.width>=44);
+    }
   }
+  await page.locator('#language-toggle').click();
   await page.setViewportSize({width:1440,height:900});
   await page.locator('#open-settings').click();
   await page.locator('#close-settings').focus(); await page.keyboard.press('Shift+Tab');

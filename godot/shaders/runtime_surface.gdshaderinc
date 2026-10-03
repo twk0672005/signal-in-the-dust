@@ -62,6 +62,7 @@ void vertex() {
 	tri_weights1 /= max(dot(tri_weights1,vec3(1.0)),.00001);
 	tri_weights2 = pow(abs(n2),vec3(uv2_triplanar_sharpness));
 	tri_weights2 /= max(dot(tri_weights2,vec3(1.0)),.00001);
+#ifndef SURFACE_UNSHADED
 	if (uv1_triplanar || uv2_triplanar) {
 		// Same projection frame used by the pinned BaseMaterial3D generator.
 		vec3 t = vec3(0.0,0.0,-1.0)*abs(n1.x)+vec3(1.0,0.0,0.0)*(abs(n1.y)+abs(n1.z));
@@ -73,6 +74,7 @@ void vertex() {
 			BINORMAL = inverse(MODEL_NORMAL_MATRIX) * BINORMAL;
 		}
 	}
+#endif
 }
 
 vec4 surface_sample(sampler2D tex, bool second, vec2 uv) {
@@ -93,6 +95,7 @@ void fragment() {
 		else ALBEDO *= COLOR.rgb;
 		color.a *= COLOR.a;
 	}
+#ifndef SURFACE_UNSHADED
 	ROUGHNESS = roughness * dot(surface_sample(roughness_texture,false,UV),roughness_channel);
 	METALLIC = metallic * dot(surface_sample(metallic_texture,false,UV),metallic_channel);
 	SPECULAR = metallic_specular;
@@ -100,6 +103,7 @@ void fragment() {
 	NORMAL_MAP_DEPTH = normal_enabled ? normal_scale : 0.0;
 	AO = ao_enabled ? dot(surface_sample(ao_texture,ao_on_uv2,ao_on_uv2 ? UV2 : UV),ao_channel) : 1.0;
 	AO_LIGHT_AFFECT = ao_enabled ? ao_light_affect : 0.0;
+#endif
 	if (emission_enabled) {
 		vec3 map = surface_sample(emission_texture,emission_on_uv2,emission_on_uv2 ? UV2 : UV).rgb;
 		EMISSION = (emission_multiply ? emission.rgb*map : emission.rgb+map) * emission_energy_multiplier;

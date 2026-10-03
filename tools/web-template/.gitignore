@@ -1,0 +1,9 @@
+godot/
+emsdk/
+pytools/
+tmp/
+baseline/
+verification/
+sealed-*/
+build-*.json
+build.log

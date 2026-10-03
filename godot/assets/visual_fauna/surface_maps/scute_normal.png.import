@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cd4xttlw4amyg"
-path="res://.godot/imported/scute_normal.png-d38215ab8f3a8ca036fdda4bb7c2202e.ctex"
+path.s3tc="res://.godot/imported/scute_normal.png-d38215ab8f3a8ca036fdda4bb7c2202e.s3tc.ctex"
+path.etc2="res://.godot/imported/scute_normal.png-d38215ab8f3a8ca036fdda4bb7c2202e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/visual_fauna/surface_maps/scute_normal.png"
-dest_files=["res://.godot/imported/scute_normal.png-d38215ab8f3a8ca036fdda4bb7c2202e.ctex"]
+dest_files=["res://.godot/imported/scute_normal.png-d38215ab8f3a8ca036fdda4bb7c2202e.s3tc.ctex", "res://.godot/imported/scute_normal.png-d38215ab8f3a8ca036fdda4bb7c2202e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

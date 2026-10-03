@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cb2l8sggy2et1"
-path="res://.godot/imported/listening-flora_mineral-stem-albedo.png-e3a916e1251a0031b94900b4225fbabb.ctex"
+path.s3tc="res://.godot/imported/listening-flora_mineral-stem-albedo.png-e3a916e1251a0031b94900b4225fbabb.s3tc.ctex"
+path.etc2="res://.godot/imported/listening-flora_mineral-stem-albedo.png-e3a916e1251a0031b94900b4225fbabb.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "54be557fce416440ca5d59ba3a0fa044"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/alien_flora/listening-flora_mineral-stem-albedo.png"
-dest_files=["res://.godot/imported/listening-flora_mineral-stem-albedo.png-e3a916e1251a0031b94900b4225fbabb.ctex"]
+dest_files=["res://.godot/imported/listening-flora_mineral-stem-albedo.png-e3a916e1251a0031b94900b4225fbabb.s3tc.ctex", "res://.godot/imported/listening-flora_mineral-stem-albedo.png-e3a916e1251a0031b94900b4225fbabb.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

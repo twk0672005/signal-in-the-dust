@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://8fknebofn2nb"
-path="res://.godot/imported/aeral_runtime_aeral_color.png-84b7b47ad3718f7ff8e16dcf3d6a07e7.ctex"
+path.s3tc="res://.godot/imported/aeral_runtime_aeral_color.png-84b7b47ad3718f7ff8e16dcf3d6a07e7.s3tc.ctex"
+path.etc2="res://.godot/imported/aeral_runtime_aeral_color.png-84b7b47ad3718f7ff8e16dcf3d6a07e7.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "19e0f9fa99864b5519fec59c2511efa4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/visual_fauna/aeral_runtime_aeral_color.png"
-dest_files=["res://.godot/imported/aeral_runtime_aeral_color.png-84b7b47ad3718f7ff8e16dcf3d6a07e7.ctex"]
+dest_files=["res://.godot/imported/aeral_runtime_aeral_color.png-84b7b47ad3718f7ff8e16dcf3d6a07e7.s3tc.ctex", "res://.godot/imported/aeral_runtime_aeral_color.png-84b7b47ad3718f7ff8e16dcf3d6a07e7.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

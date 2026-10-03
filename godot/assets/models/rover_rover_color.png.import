@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dp3npjqgps2a5"
-path="res://.godot/imported/rover_rover_color.png-06afc025edb588b1d57b3beffd145876.ctex"
+path.s3tc="res://.godot/imported/rover_rover_color.png-06afc025edb588b1d57b3beffd145876.s3tc.ctex"
+path.etc2="res://.godot/imported/rover_rover_color.png-06afc025edb588b1d57b3beffd145876.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "feaba6a9e66bb94897f38c07f7c032d0"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/rover_rover_color.png"
-dest_files=["res://.godot/imported/rover_rover_color.png-06afc025edb588b1d57b3beffd145876.ctex"]
+dest_files=["res://.godot/imported/rover_rover_color.png-06afc025edb588b1d57b3beffd145876.s3tc.ctex", "res://.godot/imported/rover_rover_color.png-06afc025edb588b1d57b3beffd145876.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

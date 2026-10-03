@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cjgmxlm7auvef"
-path="res://.godot/imported/morrow_runtime_morrow_orm.png-8f3e3168d4300034ecc345af6d4dd5e3.ctex"
+path.s3tc="res://.godot/imported/morrow_runtime_morrow_orm.png-8f3e3168d4300034ecc345af6d4dd5e3.s3tc.ctex"
+path.etc2="res://.godot/imported/morrow_runtime_morrow_orm.png-8f3e3168d4300034ecc345af6d4dd5e3.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a8d20bd02c034b960d34abc55dd4c8c0"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/visual_fauna/morrow_runtime_morrow_orm.png"
-dest_files=["res://.godot/imported/morrow_runtime_morrow_orm.png-8f3e3168d4300034ecc345af6d4dd5e3.ctex"]
+dest_files=["res://.godot/imported/morrow_runtime_morrow_orm.png-8f3e3168d4300034ecc345af6d4dd5e3.s3tc.ctex", "res://.godot/imported/morrow_runtime_morrow_orm.png-8f3e3168d4300034ecc345af6d4dd5e3.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

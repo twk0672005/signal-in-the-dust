@@ -24,6 +24,8 @@ var _boot_timing_origin_usec: int = 0
 var _boot_timing_timestamps_usec: Dictionary = {}
 var _boot_timing_durations_usec: Dictionary = {}
 var _boot_preparation: Dictionary = {}
+var _boot_material_inventory: Array[Dictionary] = []
+var _boot_shader_status: Dictionary = {}
 var _runtime_surface: Node
 var touch_enabled := false
 var world: Node3D
@@ -91,7 +93,9 @@ func _publish_boot_timings() -> void:
 		"clock": "Time.get_ticks_usec() monotonic microseconds",
 		"origin_usec": _boot_timing_origin_usec,
 		"timestamps_usec": _boot_timing_timestamps_usec.duplicate(true),
-		"durations_usec": _boot_timing_durations_usec.duplicate(true)
+		"durations_usec": _boot_timing_durations_usec.duplicate(true),
+		"material_inventory": _boot_material_inventory.duplicate(true),
+		"shader_compilation": _boot_shader_status.duplicate(true)
 	}
 	var source := "(() => { const current = window.__EXPEDITION_BOOT_TIMINGS__ || {}; const payload = " + JSON.stringify(payload) + "; const godot = Object.freeze({...payload, timestamps_usec:Object.freeze(payload.timestamps_usec), durations_usec:Object.freeze(payload.durations_usec)}); Object.defineProperty(window, '__EXPEDITION_BOOT_TIMINGS__', {value:Object.freeze({...current, godot}), writable:false, configurable:true, enumerable:true}); })();"
 	JavaScriptBridge.eval(source, true)
@@ -213,7 +217,7 @@ func _ready() -> void:
 	_runtime_surface.bind_scene(self)
 	_boot_timing_span("shared_surface_adaptation",surface_started)
 	if OS.has_feature("web"):
-		await _warm_web_renderer()
+		if not await _warm_web_renderer(): return
 	ready_for_play = true
 	_boot_timing_mark("ready_for_play")
 	_publish_boot_timings()
@@ -273,6 +277,18 @@ func _warm_material_plan() -> Array[Dictionary]:
 	for group in groups.values(): plan.append(group)
 	return plan
 
+func _warm_material_inventory(plan: Array[Dictionary]) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for index in plan.size():
+		var family: Dictionary = plan[index]
+		var material: Material = family.material
+		var shader: Shader = material.shader if material is ShaderMaterial else null
+		var row := {"index":index,"material":material.resource_name if material != null else "default","shader":shader.resource_path if shader != null and not shader.resource_path.is_empty() else shader.resource_name if shader != null else material.get_class() if material != null else "default","shader_sha256":shader.code.sha256_text() if shader != null else "","mesh":family.mesh,"instanced":family.instanced,"omni":family.omni,"sample_submissions":3 if family.omni else 2}
+		if material is StandardMaterial3D:
+			row["stock"] = {"shading_mode":material.shading_mode,"texture_filter":material.texture_filter,"texture_repeat":material.texture_repeat,"unsupported":RuntimeSurface.unsupported(material)}
+		result.append(row)
+	return result
+
 func _warm_omni_reachable(node: GeometryInstance3D, lights: Array[Node]) -> bool:
 	if lights.is_empty(): return false
 	# Moving actors and unknown instance bounds retain every local-light variant.
@@ -316,16 +332,51 @@ func _warm_proxy(instanced: bool) -> GeometryInstance3D:
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return node
 
-func _warm_web_renderer() -> void:
-	# Godot 4.7.2 initializes all base color/depth/instancing variants together.
-	# Prepare one material family on tiny geometry, including the actual local-light
-	# combinations, rather than redrawing every family in every region and quality.
+func _read_web_shader_status() -> Dictionary:
+	if not OS.has_feature("web") or not RenderingServer.has_method("get_web_shader_compile_status"):
+		return {"available":false,"async_enabled":false,"pending":0,"failed":0}
+	var value: Variant = RenderingServer.call("get_web_shader_compile_status")
+	if not value is Dictionary:
+		return {"available":true,"pending":0,"failed":1,"errors":["Invalid renderer compilation status"]}
+	value["available"] = true
+	return value
+
+func _wait_web_shader_queue() -> bool:
+	var started := Time.get_ticks_usec()
+	while true:
+		_boot_shader_status = _read_web_shader_status()
+		_publish_boot_timings()
+		var engine_error := bool(JavaScriptBridge.eval("window.__EXPEDITION_FATAL_BOOT_ERROR__ === true",true))
+		if int(_boot_shader_status.get("failed",0)) > 0 or engine_error or Time.get_ticks_usec()-started > 120000000:
+			push_error("Web graphics preparation failed: " + JSON.stringify(_boot_shader_status))
+			_web_boot.begin(_read_web_launch_request())
+			_set_web_boot_stage("error")
+			return false
+		if int(_boot_shader_status.get("pending",0)) == 0: return true
+		await RenderingServer.frame_post_draw
+		await boot_browser_yield()
+	return false
+
+func _render_settled_web_view() -> bool:
+	while true:
+		var before := _read_web_shader_status()
+		await RenderingServer.frame_post_draw
+		await boot_browser_yield()
+		if not await _wait_web_shader_queue(): return false
+		if int(before.get("submitted",0)) == int(_boot_shader_status.get("submitted",0)) and int(before.get("skipped_binds",0)) == int(_boot_shader_status.get("skipped_binds",0)):
+			return true
+	return false
+
+func _warm_web_renderer() -> bool:
+	# Stock templates prepare synchronously. The compatible custom Web template
+	# queues real variants; submit every light/instance family before settling them.
 	var warm_started := Time.get_ticks_usec()
 	var original_camera := get_viewport().get_camera_3d()
 	var original_paused: bool = world._paused
 	var original_low := bool(settings.get("low_quality", false))
 	world.set_paused(true)
 	var plan := _warm_material_plan()
+	_boot_material_inventory = _warm_material_inventory(plan)
 	var instances: Array[Dictionary] = []
 	for raw in find_children("*", "GeometryInstance3D", true, false):
 		var node := raw as GeometryInstance3D
@@ -393,8 +444,49 @@ func _warm_web_renderer() -> void:
 			submissions += 1
 		_boot_timing_span("renderer_material_initialize_%d" % material_index, material_started)
 		material_index += 1
-		_set_boot_preparation("materials",material_index,plan.size())
+		_boot_shader_status = _read_web_shader_status()
+		if bool(_boot_shader_status.get("async_enabled",false)):
+			_set_boot_preparation("materials")
+		else:
+			_set_boot_preparation("materials",material_index,plan.size())
 		_publish_boot_timings()
+	if not await _wait_web_shader_queue(): return false
+	# Replay the complete submission set after compilation. No family is declared
+	# ready from a skipped draw, and late depth/light variants join the same gate.
+	if bool(_boot_shader_status.get("available",false)):
+		# Compile the real reflection/light matrix explicitly. The water vertex
+		# shader and narrow lamp cone can miss a road-position camera warmup.
+		var sample_reflection := ReflectionProbe.new()
+		sample_reflection.name = "StartupReflectionSample"
+		sample_reflection.size = Vector3(18,18,18)
+		sample_reflection.cull_mask = 3
+		sample_reflection.update_mode = ReflectionProbe.UPDATE_ONCE
+		stage.add_child(sample_reflection)
+		for frame in 7:
+			await RenderingServer.frame_post_draw
+			await boot_browser_yield()
+		if not await _wait_web_shader_queue(): return false
+		_set_boot_preparation("materials",0,plan.size())
+		for index in plan.size():
+			var family: Dictionary = plan[index]
+			for sample in samples:
+				sample.material_override = family.material
+				sample.visible = family.instanced if sample is MultiMeshInstance3D else family.mesh
+				sample.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			for lighting in (3 if family.omni else 2):
+				omni.visible = lighting > 0 and family.omni
+				spot.visible = lighting > 0
+				omni.light_cull_mask = 3 if lighting == 2 else 1
+				spot.light_cull_mask = 3 if lighting == 2 or not family.omni else 2
+				if lighting == (2 if family.omni else 1):
+					for sample in samples: sample.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+				await RenderingServer.frame_post_draw
+				await boot_browser_yield()
+			if bool(_boot_shader_status.get("async_enabled",false)):
+				_set_boot_preparation("materials")
+			else: _set_boot_preparation("materials",index+1,plan.size())
+		if not await _wait_web_shader_queue(): return false
+		_set_boot_preparation("materials",plan.size(),plan.size())
 	stage.visible = false
 	stage.queue_free()
 	_set_boot_preparation("first-view",0,7)
@@ -411,12 +503,14 @@ func _warm_web_renderer() -> void:
 		warm_camera.look_at(Vector3(world.path_x(z-24.0),h+2.6,z-24.0))
 		await RenderingServer.frame_post_draw
 		await boot_browser_yield()
+		if not await _wait_web_shader_queue(): return false
 		views += 1
 		_set_boot_preparation("first-view",views,7)
 	for camera in [rover.camera,rover.third_camera]:
 		camera.current = true
 		await RenderingServer.frame_post_draw
 		await boot_browser_yield()
+		if not await _wait_web_shader_queue(): return false
 		views += 1
 		_set_boot_preparation("first-view",views,7)
 	if is_instance_valid(original_camera): original_camera.current = true
@@ -436,6 +530,55 @@ func _warm_web_renderer() -> void:
 	for frame in (7 if reflection != null and not original_low else 1):
 		await RenderingServer.frame_post_draw
 		await boot_browser_yield()
+	if not await _wait_web_shader_queue(): return false
+	if reflection != null and not original_low and bool(_boot_shader_status.get("async_enabled",false)):
+		# A first async cubemap can contain skipped geometry. Refresh only after
+		# every submitted shader has settled, then require stable face coverage.
+		var stable := false
+		while not stable:
+			var before := int(_boot_shader_status.get("submitted",0))
+			var reflection_position := reflection.position
+			reflection.visible = false
+			reflection.position += Vector3(.001,0,0)
+			await RenderingServer.frame_post_draw
+			await boot_browser_yield()
+			reflection.position = reflection_position
+			reflection.visible = true
+			for frame in 7:
+				await RenderingServer.frame_post_draw
+				await boot_browser_yield()
+			if not await _wait_web_shader_queue(): return false
+			stable = int(_boot_shader_status.get("submitted",0)) == before
+	# A stationary sample outside the marsh probe cannot prepare the rover's
+	# reflection specialization. Exercise real headlights and both player cameras
+	# inside each region while gameplay/time/input remain disabled, then restore.
+	if bool(_boot_shader_status.get("available",false)):
+		var rover_transform := rover.global_transform
+		var stable_views := false
+		while not stable_views:
+			var before := _read_web_shader_status()
+			for z in [125.0,-100.0,-195.0,-213.0,-275.0,-495.0]:
+				var x: float = world.path_x(z)
+				rover.global_position = Vector3(x,world.height_at(x,z)+.08,z)
+				world.set_player_state(rover.global_position,0.0)
+				for camera in [rover.camera,rover.third_camera]:
+					camera.current = true
+					if not await _render_settled_web_view(): return false
+			rover.global_transform = rover_transform
+			world.set_player_state(rover.global_position,0.0)
+			if is_instance_valid(original_camera): original_camera.current = true
+			else: exterior.current = true
+			if not await _render_settled_web_view(): return false
+			if reflection != null and not original_low:
+				var reflection_position := reflection.position
+				reflection.visible = false
+				reflection.position += Vector3(.001,0,0)
+				if not await _render_settled_web_view(): return false
+				reflection.position = reflection_position
+				reflection.visible = true
+				for frame in 7:
+					if not await _render_settled_web_view(): return false
+			stable_views = int(before.get("submitted",0)) == int(_boot_shader_status.get("submitted",0)) and int(before.get("skipped_binds",0)) == int(_boot_shader_status.get("skipped_binds",0))
 	views += 1
 	_set_boot_preparation("first-view",views,7)
 	world.set_paused(original_paused)
@@ -446,6 +589,7 @@ func _warm_web_renderer() -> void:
 	_boot_timing_durations_usec["renderer_warmup_omni_families"] = plan.filter(func(family): return family.omni).size()
 	_boot_timing_durations_usec["renderer_warmup_sample_submissions"] = submissions
 	_boot_timing_durations_usec["renderer_warmup_capped"] = 0
+	return true
 
 func _install_web_launch() -> void:
 	if not OS.has_feature("web"): return
@@ -503,6 +647,7 @@ func _web_status() -> Dictionary:
 	var data: Dictionary = _web_boot.snapshot(_save_available)
 	data["saveState"] = _save_state
 	data["saveWriteFailed"] = _save_write_failed
+	data["fatal"] = _web_boot.stage == "error" and not ready_for_play
 	return data
 
 func _on_menu_requested() -> void:

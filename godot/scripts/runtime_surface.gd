@@ -47,6 +47,7 @@ func _shader(source: StandardMaterial3D) -> Shader:
 	if source.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS: modes.append("depth_prepass_alpha")
 	var defines := "#define SURFACE_ALPHA\n" if source.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED else ""
 	if source.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR: defines += "#define SURFACE_SCISSOR\n"
+	if source.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED: defines += "#define SURFACE_UNSHADED\n"
 	var shader := Shader.new()
 	shader.resource_name = "RoverSharedSurface_" + key
 	shader.code = "shader_type spatial;\nrender_mode " + ",".join(modes) + ";\n" + defines + SURFACE.code

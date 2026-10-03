@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkoi1rl3gdlwf"
-path="res://.godot/imported/ground037_alb_ht.png-b18d999b755719dc709195166aa1a31f.ctex"
+path.s3tc="res://.godot/imported/ground037_alb_ht.png-b18d999b755719dc709195166aa1a31f.s3tc.ctex"
+path.etc2="res://.godot/imported/ground037_alb_ht.png-b18d999b755719dc709195166aa1a31f.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/terrain/cc0/ground037_alb_ht.png"
-dest_files=["res://.godot/imported/ground037_alb_ht.png-b18d999b755719dc709195166aa1a31f.ctex"]
+dest_files=["res://.godot/imported/ground037_alb_ht.png-b18d999b755719dc709195166aa1a31f.s3tc.ctex", "res://.godot/imported/ground037_alb_ht.png-b18d999b755719dc709195166aa1a31f.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

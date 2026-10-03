@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dj11dh5nwkp8o"
-path="res://.godot/imported/Ground045_1K-JPG_NormalGL.jpg-8e3474891503414ab70ecdeba2119922.ctex"
+path.s3tc="res://.godot/imported/Ground045_1K-JPG_NormalGL.jpg-8e3474891503414ab70ecdeba2119922.s3tc.ctex"
+path.etc2="res://.godot/imported/Ground045_1K-JPG_NormalGL.jpg-8e3474891503414ab70ecdeba2119922.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/market_environment/cc0/Ground045_1K-JPG_NormalGL.jpg"
-dest_files=["res://.godot/imported/Ground045_1K-JPG_NormalGL.jpg-8e3474891503414ab70ecdeba2119922.ctex"]
+dest_files=["res://.godot/imported/Ground045_1K-JPG_NormalGL.jpg-8e3474891503414ab70ecdeba2119922.s3tc.ctex", "res://.godot/imported/Ground045_1K-JPG_NormalGL.jpg-8e3474891503414ab70ecdeba2119922.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

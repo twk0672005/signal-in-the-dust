@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bn3mlsfthrr66"
-path="res://.godot/imported/listening-flora_lamina-veins-normal.png-5b7953f8aacc69cd856ce889ada95845.ctex"
+path.s3tc="res://.godot/imported/listening-flora_lamina-veins-normal.png-5b7953f8aacc69cd856ce889ada95845.s3tc.ctex"
+path.etc2="res://.godot/imported/listening-flora_lamina-veins-normal.png-5b7953f8aacc69cd856ce889ada95845.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "63c858bafe625e06c3d58e76dfcabc6c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/alien_flora/listening-flora_lamina-veins-normal.png"
-dest_files=["res://.godot/imported/listening-flora_lamina-veins-normal.png-5b7953f8aacc69cd856ce889ada95845.ctex"]
+dest_files=["res://.godot/imported/listening-flora_lamina-veins-normal.png-5b7953f8aacc69cd856ce889ada95845.s3tc.ctex", "res://.godot/imported/listening-flora_lamina-veins-normal.png-5b7953f8aacc69cd856ce889ada95845.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

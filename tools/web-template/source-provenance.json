@@ -1,0 +1,18 @@
+{
+  "godot": {
+    "repo": "godotengine/godot",
+    "tag": "4.7.2-stable",
+    "commit": "ed1daf0bf001b61586d9930840f2f1394092c079",
+    "url": "https://codeload.github.com/godotengine/godot/zip/ed1daf0bf001b61586d9930840f2f1394092c079",
+    "archive_sha256": "098b0a71e95ad98ab44651199d55c3f085e4e02c735514e284a2d5263ac81fb2",
+    "bytes": 83072560
+  },
+  "emsdk": {
+    "repo": "emscripten-core/emsdk",
+    "tag": "4.0.20",
+    "commit": "e4fe26ef59168ff44f4c23c466e497bf60b3411e",
+    "url": "https://codeload.github.com/emscripten-core/emsdk/zip/e4fe26ef59168ff44f4c23c466e497bf60b3411e",
+    "archive_sha256": "c75be35da8755ec378664325f147fe93b883bbcd46598cb483bf13871f7fcc19",
+    "bytes": 251043
+  }
+}
