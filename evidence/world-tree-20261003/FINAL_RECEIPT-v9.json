@@ -1,0 +1,26 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v9-web-hero-camera-gold-calibration",
+  "at": "2026-10-03T23:50:00Z",
+  "web": {
+    "activeCamera": "ContactShowcaseCamera",
+    "heroDistanceMeters": 20.0000076293945,
+    "realKeyboardRoute": true,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "shell404": 0,
+    "journeyReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json",
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v5/arrival.png"
+  },
+  "native": {
+    "contactShowcaseCamera": "PASS: active camera owner read back as ContactShowcaseCamera",
+    "physicsCameraRegression": "PASS",
+    "runtimeFixture": "PARTIAL: legacy contact_started assertion remains false although ending and pause checks pass"
+  },
+  "visual": {
+    "improved": ["full tree hero framing", "textured bark", "fine branch lace", "golden runtime tint", "dark atmospheric sky", "no rover hood"],
+    "remaining": ["leaf clusters and branch junctions remain stylized/procedural", "reference ivory-white crown fidelity is not exact", "cold startup was not remeasured after v9"]
+  },
+  "publish": "not published to main/GitHub; second art update remains Nova-review pending"
+}
