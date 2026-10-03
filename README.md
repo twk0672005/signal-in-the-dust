@@ -24,3 +24,7 @@ are not newly proven. All prior release dependencies remain available.
 This repository holds the Web export. Editable Godot source is maintained in its
 separate local repository. release.json / release-manifest.json bind source,
 template and artifact identities; CREDITS.md / licenses retain provenance.
+
+Public freshChrome154/RTX4060 read-back onOctober3:21.488s cold /16.377s warm,
+maximum startup gaps966/630ms. Public50/50entry/save/responsive checks pass and
+20deployed files match hashes. See startup-verification.json for exact scope.

@@ -1,0 +1,71 @@
+{
+  "measuredAt": "2026-10-03T08:14:53.850Z",
+  "releaseId": "0e1abcb454373902c6aabd80",
+  "sourceCodeCommit": "daa2960cff71016afc9844d7a94cfa83b391a2da",
+  "gamePublicationCommit": "c443f53bfce64bd501278dae334fdd6954238e2e",
+  "browser": "154.0.8037.58",
+  "headless": true,
+  "coldDefinition": "Fresh isolated browser/profile, new engine instance and empty HTTP cache. OS/GPU driver caches are not modified and remain uncontrolled.",
+  "targetSeconds": 30,
+  "targetPassed": true,
+  "measurements": [
+    {
+      "kind": "cold",
+      "clickToDriveSeconds": 21.488,
+      "maxStartupGapMs": 965.7000000476837,
+      "drove": true,
+      "quality": "standard",
+      "gpu": {
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 Laptop GPU (0x000028A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "Google Inc. (NVIDIA)",
+        "parallelCompile": true
+      },
+      "shaderCompilation": {
+        "async_enabled": true,
+        "available": true,
+        "cancelled": 0,
+        "completed": 105,
+        "errors": [],
+        "extension": true,
+        "extension_checked": true,
+        "failed": 0,
+        "pending": 0,
+        "scope": "Web scene shaders; other shader classes remain synchronous",
+        "skipped_binds": 309,
+        "submitted": 105
+      }
+    },
+    {
+      "kind": "warm",
+      "clickToDriveSeconds": 16.377,
+      "maxStartupGapMs": 629.7000000476837,
+      "drove": true,
+      "quality": "standard",
+      "gpu": {
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 Laptop GPU (0x000028A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "Google Inc. (NVIDIA)",
+        "parallelCompile": true
+      },
+      "shaderCompilation": {
+        "async_enabled": true,
+        "available": true,
+        "cancelled": 0,
+        "completed": 105,
+        "errors": [],
+        "extension": true,
+        "extension_checked": true,
+        "failed": 0,
+        "pending": 0,
+        "scope": "Web scene shaders; other shader classes remain synchronous",
+        "skipped_binds": 180,
+        "submitted": 105
+      }
+    }
+  ],
+  "publicEntryChecks": 50,
+  "publicFileHashesMatched": 20,
+  "firstFrameAndSaveProtectionPassed": true,
+  "physicalMobile": false,
+  "simulatedMissingKhrLocalSeconds": 32.194,
+  "limits": "DeclaredChrome/NVIDIA/network result; driver caches uncontrolled. Missing-KHR simulation exceeds30s. No all-device guarantee or new Valley/market/60FPS claim."
+}
