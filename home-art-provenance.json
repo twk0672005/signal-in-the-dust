@@ -1,0 +1,67 @@
+{
+  "generator": "built-in image_gen; no paid external API/secret used",
+  "direction": "Beneath the Listening Arch / first encounter, selected after actual3roleClawTeam consultation",
+  "runtimeUse": "Concept marketing hero explicitly labelled; actual gameplay previews separate",
+  "images": [
+    {
+      "asset": "godot/web/assets/grand-home/listening-arch-keyart.webp",
+      "source": "listening-arch-concept.png",
+      "kind": "original AI concept/marketing illustration; not an in-game screenshot",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "sourceSha256": "021122943ffc58d4f55eaaa245f11ba2d84775aad6bef38ddd751597a3848a27",
+      "bytes": 345526,
+      "sha256": "29ab7ba049303bebaf289b1c024e113f9730b1fd2a928f95351eae9148f3d5e7"
+    },
+    {
+      "asset": "godot/web/assets/grand-home/aurora_shelf-actual.webp",
+      "source": "aurora_shelf.png",
+      "kind": "actual exported Godot game capture; resized/encoded only, no illustration edits",
+      "dimensions": [
+        640,
+        360
+      ],
+      "sourceSha256": "517e1e92b96658d595d3fb18b9aa4757591dfd6360055e41ef0f2e07b76acbc7",
+      "bytes": 33636,
+      "sha256": "fb0aa474830e93bdbead9c112b655c646852e50505ee603347beec08912362c9"
+    },
+    {
+      "asset": "godot/web/assets/grand-home/ember_rift-actual.webp",
+      "source": "ember_rift.png",
+      "kind": "actual exported Godot game capture; resized/encoded only, no illustration edits",
+      "dimensions": [
+        640,
+        360
+      ],
+      "sourceSha256": "e2a181968ff35a4fd8d32ee168abc94ee78d4b6bf245cbb5224a1fbaab306831",
+      "bytes": 22904,
+      "sha256": "21b92686c16e38903678ee5b59b416c52bce57b692544f93eb8ab77541f2115d"
+    },
+    {
+      "asset": "godot/web/assets/grand-home/veil_marsh-actual.webp",
+      "source": "veil_marsh.png",
+      "kind": "actual exported Godot game capture; resized/encoded only, no illustration edits",
+      "dimensions": [
+        640,
+        360
+      ],
+      "sourceSha256": "b2edde3ce9c633a57303a578b83d5b96640dc7ec5bc1050b2091ce36d08b5bcd",
+      "bytes": 17870,
+      "sha256": "ae7a0cca71ced50cb7d1f92884efcf2a7f8f5bed6a83ed9030ba7e98a3cdf907"
+    },
+    {
+      "asset": "godot/web/assets/grand-home/pale_decay-actual.webp",
+      "source": "pale_decay.png",
+      "kind": "actual exported Godot game capture; resized/encoded only, no illustration edits",
+      "dimensions": [
+        640,
+        360
+      ],
+      "sourceSha256": "7ad885e54aac161bd3984d71048f755a2cfaa6660380635cf9096db8cfbdd720",
+      "bytes": 25940,
+      "sha256": "af10713ed4d13333fc6ede578b605d856a5ebb512d15f2b291da74b6b4f22741"
+    }
+  ]
+}

@@ -11,3 +11,11 @@ Signal in the Dust / 塵境回聲 — playable preview.
 
 ## Listening Reefs renewal —2026-10-01
 Project-authored Blender creatures, rover, flora and procedural maps. Active entrance images are actual Web captures. Scanned Rock055/Ground045/Grass005 maps: ambientCG CC0-1.0. Sky kloofendal_48d_partly_cloudy: Poly Haven CC0-1.0 (https://polyhaven.com/license). Signal Sans TC: Noto Sans TC derivative, SIL OFL1.1. Godot MIT/third-party notices remain included.
+
+## October3 cinematic entrance
+
+The Listening Arch hero is original built-in AI concept/marketing artwork,
+labelled as concept art in the interface. It is not a game screenshot. The four
+region previews are actual exported Godot captures, resized/encoded only.
+See home-art-provenance.json for original-source and delivered-image hashes.
+No commercial-game assets were extracted. Prior credits/licenses are retained.
