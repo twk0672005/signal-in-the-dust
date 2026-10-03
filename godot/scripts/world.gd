@@ -644,6 +644,12 @@ func set_region_mood(region: String, delta: float = 0.016) -> void:
 func set_player_state(position: Vector3, speed: float) -> void:
 	_player_position = position
 	_player_speed = speed
+	# The baked caldera is a distant ring. Near the signal beacon its inner
+	# skirt can enter the camera as a pale wall; let the endpoint terrain and
+	# world tree own that close composition while retaining the ring elsewhere.
+	var caldera := get_node_or_null("AuthoredDistantCaldera") as Node3D
+	if caldera != null:
+		caldera.visible = Vector2(position.x-signal_origin().x, position.z+650.0).length() > 180.0
 	if is_instance_valid(_living_habitat):_living_habitat.update_shadow_culling(position)
 
 func ecology_state(kind: String, position: Vector3) -> String:
