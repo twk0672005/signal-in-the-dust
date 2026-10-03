@@ -17,7 +17,7 @@ var clock: float = 0.0
 const DURATION: float = 24.0
 
 func _ready() -> void:
-	var packed = load("res://assets/world_tree_v2/world_tree.glb")
+	var packed = load("res://assets/world_tree_v3/world_tree.glb")
 	if packed is PackedScene:
 		var model: Node3D = packed.instantiate()
 		model.name = "GoldenWorldTree"

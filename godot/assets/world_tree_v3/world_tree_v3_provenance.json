@@ -1,0 +1,129 @@
+{
+  "asset": "Signal in the Dust reference-locked ivory-gold world tree v3",
+  "generator": "art-source/world_tree_20261003_v3/build_world_tree_v3.py",
+  "blender": "5.2.1 LTS",
+  "blender_build_hash": "9e2066aef7ef",
+  "seed": 20261003,
+  "authoring": {
+    "units": "metres",
+    "up": "+Z",
+    "forward_corridor": "-Y",
+    "export": "glTF Y-up via export_yup=True"
+  },
+  "receiver_axes_note": "Raw glTF accessors confirm authored -Y maps to receiver +Z under export_yup=True; root should still confirm with its placement harness.",
+  "dimensions_authoring_m": {
+    "min": [
+      -115.6074,
+      -120.0577,
+      -1.6336
+    ],
+    "max": [
+      103.026,
+      114.6693,
+      245.4178
+    ],
+    "size": [
+      218.6334,
+      234.727,
+      247.0515
+    ]
+  },
+  "target_dimensions_m": {
+    "height": 230.0,
+    "crown_width": 240.0,
+    "trunk_flare_diameter": 14.8,
+    "root_spread_radius": 55.0,
+    "approach_clear_radius": 9.5
+  },
+  "approach_clearance": {
+    "receiver_direction": "+Z",
+    "authoring_direction": "-Y",
+    "nearest_root_angle_deg": 32.7,
+    "corridor_is_unblocked_by_large_root": true
+  },
+  "materials": [
+    "WorldTree_Bark",
+    "WorldTree_Branches",
+    "WorldTree_Leaves",
+    "WorldTree_LuminousVeins"
+  ],
+  "mesh_stats": {
+    "WorldTree_Bark": {
+      "vertices": 2724,
+      "triangles": 5364,
+      "material": "WorldTree_Bark"
+    },
+    "WorldTree_Branches": {
+      "vertices": 7471,
+      "triangles": 14426,
+      "material": "WorldTree_Branches"
+    },
+    "WorldTree_Leaves": {
+      "vertices": 27510,
+      "triangles": 36680,
+      "material": "WorldTree_Leaves"
+    },
+    "WorldTree_LuminousVeins": {
+      "vertices": 801,
+      "triangles": 1554,
+      "material": "WorldTree_LuminousVeins"
+    }
+  },
+  "triangles": 58024,
+  "primitive_count": 4,
+  "gltf_material_count": 4,
+  "gltf_image_count": 0,
+  "gltf_node_names": [
+    "WorldTree_Bark",
+    "WorldTree_Branches",
+    "WorldTree_Leaves",
+    "WorldTree_LuminousVeins"
+  ],
+  "leaf_surface": {
+    "opaque": true,
+    "alpha_blended": false,
+    "recommended_cast_shadow": false
+  },
+  "files": [
+    {
+      "path": "godot/assets/world_tree_v3/world_tree.glb",
+      "bytes": 4741496,
+      "sha256": "1662cbc989f926ee481007c2cbafbb9eb3109d4dded37ec71450efb36db5e292"
+    },
+    {
+      "path": "art-source/world_tree_20261003_v3/world_tree.blend",
+      "bytes": 1528598,
+      "sha256": "dab07d8bb51d69a8eede89c2c6fff5480698bdf330ecaa3e3709509fc2a9757c"
+    },
+    {
+      "path": "art-source/world_tree_20261003_v3/build_world_tree_v3.py",
+      "bytes": 34369,
+      "sha256": "bb5fe43c2161496479e8c5f0cb4f04f172ec4c8bc2053480ba2c6be60f6adb82"
+    },
+    {
+      "path": "art-source/world_tree_20261003_v3/render_v3.py",
+      "bytes": 3071,
+      "sha256": "1efc2478154d456f5e83cd679d4276328cbb4e836acce5f2110090b72dffda4e"
+    },
+    {
+      "path": "evidence/world-tree-20261003/blender-v3/reference_manifest.json",
+      "bytes": 905,
+      "sha256": "9ba4c3d7319c61cd142c1013125d91f4590a513193db34dbb196894a546ccf6a"
+    }
+  ],
+  "provenance": "All geometry, textures and shaders are locally authored by this deterministic script. No downloads, paid assets, ripped assets or external runtime services.",
+  "limitations": [
+    "No baked normal map is included; relief is carried by the low-poly ridged geometry and albedo variation.",
+    "Leaf shadow suppression is represented as receiver metadata; root should disable leaf shadow casting in Godot.",
+    "Godot importer/browser placement and visual quality remain root-owned runtime acceptance gates.",
+    "No native LOD nodes are included; the Godot importer may generate LODs from this merged mesh."
+  ],
+  "reference": "C:/Users/tsang/AppData/Local/Temp/codex-clipboard-6164c820-11e3-4c74-8781-bf1c0dc8d5e0.png",
+  "referenceContract": "Massive ivory central trunk; dense upward and lateral fine branch lace; broad luminous crown; warm gold leaf points; green-gold atmospheric context.",
+  "renderProof": [
+    "evidence/world-tree-20261003/blender-v3/far.png",
+    "evidence/world-tree-20261003/blender-v3/mid.png",
+    "evidence/world-tree-20261003/blender-v3/near.png"
+  ],
+  "runtimeStatus": "Godot Web v3 candidate integrated and browser inspected."
+}
