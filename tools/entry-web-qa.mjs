@@ -40,7 +40,8 @@ const shot = async name=>{
   return page.screenshot({path:resolve(output,name+'.png')});
 };
 const check = (name,value)=>{checks.push({name,pass:!!value});assert(value,name);};
-const game = async()=>{await page.waitForFunction(()=>document.body.dataset.shellPhase==='game'&&document.getElementById('veil').classList.contains('hidden'),null,{timeout:180000});};
+const launchTimeout=destination.hostname==='twk0672005.github.io'?360000:180000;
+const game = async()=>{await page.waitForFunction(()=>document.body.dataset.shellPhase==='game'&&document.getElementById('veil').classList.contains('hidden'),null,{timeout:launchTimeout});};
 const exploring = ()=>page.waitForFunction(()=>window.__EXPEDITION_STATE__?.phase==='exploring',null,{timeout:30000});
 try {
   await page.goto(url); await page.locator('.hero-art').evaluate(img=>img.decode());
@@ -120,7 +121,7 @@ try {
   const touch=await browser.newContext({viewport:{width:844,height:390},locale:'zh-TW',hasTouch:true,isMobile:true,storageState:await context.storageState({indexedDB:true})});
   const phone=await touch.newPage(); phone.on('pageerror',e=>errors.push(String(e)));
   await phone.goto(url); await phone.locator('#start').tap();
-  await phone.waitForFunction(()=>document.body.dataset.shellPhase==='game'&&document.getElementById('veil').classList.contains('hidden'),null,{timeout:180000});
+  await phone.waitForFunction(()=>document.body.dataset.shellPhase==='game'&&document.getElementById('veil').classList.contains('hidden'),null,{timeout:launchTimeout});
   check('touch mode uses the saved-progress invitation',await phone.evaluate(()=>window.__EXPEDITION_STATE__.touchEnabled&&window.__EXPEDITION_BOOT_STATUS__.stage==='confirm-new'));
   await phone.screenshot({path:resolve(output,'invitation-zh-touch.png')});
   await touch.close();

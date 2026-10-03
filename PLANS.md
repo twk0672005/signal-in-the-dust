@@ -1,3 +1,13 @@
+## 已接受並發布 — 2026-10-03 核對完成
+
+Nova已對本版給予PASS並授權兩邊main。本地來源main與獨立GitHub Web main已更新；
+[公開遊戲](https://twk0672005.github.io/signal-in-the-dust/?v=0a1c861367c02356a40353c7)
+使用你已接受的遊戲內容，分檔重組後PCK完全相同。GitHub提交9cccf30472987676dba5997766d9ebd005960da1，
+發布版本0a1c861367c02356a40353c7，遊戲來源提交936fd1fef22829e551b832716cf5efe1634456d1。
+Pages建置成功、23個公開檔案雜湊一致，公開Chrome的32項入口／駕駛／存檔檢查通過。
+[發布紀錄](docs/RELEASE_2026-10-01.md)。原量測及舊版本保留；下方未發布／PARTIAL為各歷史階段記錄。
+本次冷啟動重驗約164.7秒、最大停頓約14秒，回應速度門檻仍未過；NOVA版本接受與實測分開記錄。
+
 2026-09-23 active scope: GitHub Pages release + mobile landscape touch controls, actual touch regression, raw/static host validation, public deployment readback. No additional content expansion or heartbeat restart.
 
 # Autonomous market art upgrade — 2026-09-30
