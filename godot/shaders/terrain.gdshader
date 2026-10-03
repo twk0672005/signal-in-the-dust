@@ -85,7 +85,7 @@ void fragment(){
  // pale-decay palette wash them into a white wall at driving height.
  float signal_x=18.0*sin(800.0*.012)+4.0*sin(800.0*.033);
  float endpoint_cliff=(1.0-smoothstep(18.0,118.0,length(world_pos.xz-vec2(signal_x,-650.0))))*slope;
- ALBEDO*=mix(vec3(1.0),vec3(.20,.18,.16),endpoint_cliff*.92);
+ ALBEDO*=mix(vec3(1.0),vec3(.08,.07,.06),endpoint_cliff*.98);
  // Scanned growth supplies microstructure; pigment belongs to this alien watershed.
  vec3 growth_scan=texture(grass_detail,world_pos.xz*.65).rgb;
  float growth_luma=dot(growth_scan,vec3(.2126,.7152,.0722));
