@@ -1,29 +1,26 @@
 # Signal in the Dust · 塵境回聲
 
-Play: https://twk0672005.github.io/signal-in-the-dust/
+Drive a rover. Explore an alien planet. 駕駛探索車，探索外星星球。
 
-## The Listening Reefs at Dawn — October1,2026
+Play: https://twk0672005.github.io/signal-in-the-dust/?v=0e1abcb454373902c6aabd80
 
-Nova accepted this version with PASS and authorized this main/Pages publication.
-Explore four alien habitats with Veyra, Aeral and Morrow in Rover07. The renewed
-world includes mineral apertures, rooted colonies, a shared terrain/water shore,
-reactive creatures, bilingual journal and an entrance using actual game captures.
-The loader displays actual transfer and preparation states before the first view.
+Drive through four alien regions, stop to observe Veyra, Aeral and Morrow, and
+investigate life signals. English / 繁體中文; landscape touch controls.
+W/S drive, brake and reverse; A/D steer; Space brake; C crawl; V camera;
+right-drag look; E observe; J journal; Esc pause. Saved progress is replaced
+only after confirmation. Homepage Continue remains removed.
 
-W/S drive, brake and reverse; A/D steer; Space brake; C crawl; V change camera;
-right-drag look; E observe; J journal; Esc pause; R restart with confirmation.
-Phone controls use landscape. Device emulation passed; physical mobile/Safari
-and long-session performance remain unverified. There is one Begin my journey
-action; saved progress is replaced only after confirmation. Homepage Continue
-has been removed. Progress stays in this browser/site. No external AI/account is required.
+October3 loading update uses a same-version4.7.2 Web template with real parallel
+scene shader preparation and complete rendered-view/reflection readiness gates.
+The approved world is retained. The77.66MB pack includes desktop/mobile compressed
+textures; WASM is10.05MB streamed gzip. Local fresh Chrome154/RTX4060 start-to-drive
+measured16.188s cold and11.071s warm, versus164.676s on the previous public version.
+Driver caches were uncontrolled. Actual public timings are in the delivery receipt.
+The simulated missing-parallel-extension path remains functional but took32.194s;
+this is not a30-second guarantee for every device/network. Physical phones,
+Safari/macOS/Firefox, long-session memory and the historical Valley/60FPS targets
+are not newly proven. All prior release dependencies remain available.
 
-The131.9MB pack is delivered as two streamed parts because GitHub limits individual
-files to100MiB. Reconstructed game bytes match the accepted raw candidate exactly.
-Standard1080p measured55.77–56.38FPS on RTX4060Laptop/Chrome154, below60FPS;
-Low720p passed30FPS. Cold startup45.742s/maxgap3.290s and warm10.492s are retained
-measurements. Version acceptance does not relabel these results.
-
-See release.json and release-manifest.json for source and artifact hashes;
-CREDITS.md and licenses/ for provenance. The editable Godot source is maintained
-in its separate local repository. Old immutable release URLs remain available
-for cached older HTML. This repository holds the Web export and release metadata.
+This repository holds the Web export. Editable Godot source is maintained in its
+separate local repository. release.json / release-manifest.json bind source,
+template and artifact identities; CREDITS.md / licenses retain provenance.
