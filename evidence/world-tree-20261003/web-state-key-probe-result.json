@@ -1,0 +1,9 @@
+{
+  "status": "PARTIAL",
+  "url": "http://127.0.0.1:52880/",
+  "phase": "exploring",
+  "pageErrors": [],
+  "activeCameraKeyPresent": false,
+  "observedKeys": ["activities", "activityCount", "boosting", "camera", "collisions", "contactProgress", "distance", "ecology", "elapsed", "escort", "floor", "heading", "interaction", "maxSpeedMps", "observedEcology", "passage", "phase", "position", "ready", "resetCount", "resonance", "rootNetwork", "saveAvailable", "saveState", "saveWriteFailed", "settings", "speed", "speedKph", "speedMps", "targetDistance", "thermal", "thermalPulse", "touchEnabled", "transmitCount", "view", "wetlandStudy"],
+  "interpretation": "The native ContactShowcaseCamera probe passes, but the current served Web export still exposes the older snapshot schema. Keep release status PARTIAL until the export path is corrected and a fresh browser ending capture shows the camera owner and hero composition."
+}
