@@ -88,6 +88,8 @@ var _thermal_vent_plates: Array[Dictionary] = []
 var _thermal_steam: Array[MeshInstance3D] = []
 var _thermal_steam_material: StandardMaterial3D
 var _thermal_cue_material: StandardMaterial3D
+var _world_tree_arrival: Node3D
+var _world_tree_ruin_material: StandardMaterial3D
 var _thermal_open: float = 0.0
 var _cool_bed_material: StandardMaterial3D
 var _wetland_state: Dictionary = {"prepared":false, "startled":false, "recovered":false, "complete":false}
@@ -463,6 +465,8 @@ func build_world() -> void:
 	await boot_yield()
 	_build_mineral_vistas()
 	await boot_yield()
+	_build_world_tree_arrival()
+	await boot_yield()
 	_build_rocks()
 	await boot_yield()
 	build_stats["build_ms_horizon_landmarks_rocks"] = (Time.get_ticks_usec()-stage_started)/1000.0
@@ -620,19 +624,19 @@ func region_label(position: Vector3) -> String:
 
 func set_region_mood(region: String, delta: float = 0.016) -> void:
 	if not is_instance_valid(_environment): return
-	var tint:=Color(0.56,0.67,0.67)
-	var begin:=55.0
-	var finish:=430.0
+	var tint:=Color(0.24,0.31,0.30)
+	var begin:=42.0
+	var finish:=480.0
 	match region:
 		"ember_rift":
-			tint=Color(0.67,0.56,0.46);begin=58.0;finish=425.0
+			tint=Color(0.36,0.25,0.18);begin=48.0;finish=460.0
 		"veil_marsh":
-			tint=Color(0.45,0.64,0.61);begin=42.0;finish=310.0
+			tint=Color(0.18,0.30,0.28);begin=34.0;finish=350.0
 		"pale_decay":
-			tint=Color(0.59,0.55,0.61);begin=48.0;finish=390.0
+			tint=Color(0.30,0.25,0.31);begin=40.0;finish=430.0
 	var blend:=1.0-exp(-maxf(delta,0.0)*2.0)
 	_environment.fog_light_color=_environment.fog_light_color.lerp(tint,blend)
-	_environment.fog_light_energy=lerpf(_environment.fog_light_energy,1.0,blend)
+	_environment.fog_light_energy=lerpf(_environment.fog_light_energy,0.84,blend)
 	_environment.fog_depth_begin=lerpf(_environment.fog_depth_begin,begin,blend)
 	_environment.fog_depth_end=lerpf(_environment.fog_depth_end,finish,blend)
 	_environment.fog_depth_curve=lerpf(_environment.fog_depth_curve,0.86,blend)
@@ -947,23 +951,23 @@ func _build_atmosphere() -> void:
 	sky.radiance_size = Sky.RADIANCE_SIZE_128
 	_environment.sky = sky
 	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	_environment.ambient_light_color = Color(0.67, 0.78, 0.81)
-	_environment.ambient_light_energy = 0.72
+	_environment.ambient_light_color = Color(0.40, 0.45, 0.42)
+	_environment.ambient_light_energy = 0.54
 	_environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	_environment.tonemap_mode = Environment.TONE_MAPPER_ACES
-	_environment.tonemap_exposure = 1.0
+	_environment.tonemap_exposure = 0.96
 	_environment.tonemap_white = 6.0
 	_environment.fog_enabled = true
 	_environment.fog_mode = Environment.FOG_MODE_DEPTH
 	# Depth mode uses density as maximum opacity, not exponential extinction.
 	# Its 0.01 default left the regional distance controls effectively invisible.
-	_environment.fog_density = 0.78
-	_environment.fog_light_color = Color(0.56, 0.67, 0.67)
-	_environment.fog_light_energy = 1.0
-	_environment.fog_depth_begin = 55.0
-	_environment.fog_depth_end = 430.0
+	_environment.fog_density = 0.66
+	_environment.fog_light_color = Color(0.28, 0.34, 0.32)
+	_environment.fog_light_energy = 0.84
+	_environment.fog_depth_begin = 42.0
+	_environment.fog_depth_end = 480.0
 	_environment.fog_depth_curve = 0.86
-	_environment.fog_sky_affect = 0.08
+	_environment.fog_sky_affect = 0.035
 	var world_environment := WorldEnvironment.new()
 	world_environment.name = "BasinAtmosphere"
 	world_environment.environment = _environment
@@ -972,19 +976,19 @@ func _build_atmosphere() -> void:
 	sun.name = "LowWarmSun"
 	sun.rotation_degrees = Vector3(-28.0, -135.0, 0.0)
 	sun.light_color = Color(1.0, 0.90, 0.74)
-	sun.light_energy = 0.66
+	sun.light_energy = 0.88
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 140.0
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	sun.shadow_bias = 0.04
 	sun.shadow_blur = 2.0
-	sun.shadow_opacity = 0.56
+	sun.shadow_opacity = 0.72
 	add_child(sun)
 	var rim := DirectionalLight3D.new()
 	rim.name = "DistantWarmHorizon"
 	rim.rotation_degrees = Vector3(-18.0, 135.0, 0.0)
 	rim.light_color = Color(0.91, 0.66, 0.45)
-	rim.light_energy = 0.06
+	rim.light_energy = 0.10
 	rim.shadow_enabled = false
 	add_child(rim)
 
@@ -1356,6 +1360,50 @@ func _build_mineral_vistas() -> void:
 	for child in node.get_children():
 		if child is CollisionObject3D: child.collision_layer = 129
 	build_stats["listening_reef_rib_triangles"] = _triangle_count(node.mesh)
+
+func _build_world_tree_arrival() -> void:
+	# The endpoint gets a grounded ruin field so the tree reads as a destination
+	# inside an ancient place, rather than a lone decorative mesh on flat terrain.
+	_world_tree_arrival = Node3D.new()
+	_world_tree_arrival.name = "WorldTreeArrivalRuins"
+	add_child(_world_tree_arrival)
+	_world_tree_ruin_material = StandardMaterial3D.new()
+	_world_tree_ruin_material.albedo_color = Color("171917")
+	_world_tree_ruin_material.roughness = 0.94
+	_world_tree_ruin_material.metallic = 0.02
+	_world_tree_ruin_material.normal_enabled = false
+	var origin := signal_origin()
+	var stones := [
+		Vector4(-18.0,-15.0,15.0,2.8), Vector4(17.0,-18.0,11.0,2.2),
+		Vector4(-28.0,18.0,9.0,2.7), Vector4(27.0,24.0,14.0,2.4),
+		Vector4(-38.0,2.0,7.0,2.0), Vector4(38.0,7.0,10.0,2.6),
+		Vector4(-12.0,-31.0,5.5,2.0), Vector4(14.0,-34.0,7.0,1.8)]
+	for i in stones.size():
+		var spec: Vector4 = stones[i]
+		var pillar := MeshInstance3D.new()
+		pillar.name = "AncientButtress_%02d" % i
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(spec.w, spec.z, spec.w*0.78)
+		pillar.mesh = mesh
+		pillar.material_override = _world_tree_ruin_material
+		pillar.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		var px := origin.x + spec.x
+		var pz := origin.z + spec.y
+		pillar.position = Vector3(px, height_at(px,pz) + spec.z*.5, pz)
+		pillar.rotation.y = float(i)*.47 + sin(float(i)*2.1)*.12
+		_world_tree_arrival.add_child(pillar)
+		# A smaller broken cap gives each ruin a readable, non-repeating silhouette.
+		var cap := MeshInstance3D.new()
+		cap.name = "BrokenCap_%02d" % i
+		var cap_mesh := BoxMesh.new()
+		cap_mesh.size = Vector3(spec.w*1.35, .65, spec.w*1.05)
+		cap.mesh = cap_mesh
+		cap.material_override = _world_tree_ruin_material
+		cap.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		cap.position = pillar.position + Vector3(0, spec.z*.54, 0)
+		cap.rotation = Vector3(.04*sin(float(i)), float(i)*.47+.21, .07*cos(float(i)*1.7))
+		_world_tree_arrival.add_child(cap)
+	build_stats["world_tree_arrival_ruins"] = stones.size()*2
 
 func _ecology_material(color: Color, emission: Color = Color.BLACK, energy: float = 0.0, roughness: float = 0.65) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
