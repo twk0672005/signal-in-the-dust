@@ -28,6 +28,12 @@ while(Date.now()-begin<150000){
 }
 await page.keyboard.up('w'); if(steer)await page.keyboard.up(steer); await page.waitForTimeout(700);
 await page.screenshot({path:out+'/approach-near.png'});
+for(let turn=0;turn<24;turn++){
+  const aim=await page.evaluate(()=>{const s=window.__EXPEDITION_STATE__;const p=s.position;const dx=-p.x;const dz=-650-p.z;const desired=Math.atan2(dx,-dz);const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));return {error:wrap(desired-s.heading)};});
+  if(Math.abs(aim.error)<0.08)break;
+  const key=aim.error>0?'d':'a';await page.keyboard.down(key);await page.waitForTimeout(90);await page.keyboard.up(key);
+}
+await page.waitForTimeout(250);
 const before=await page.evaluate(()=>window.__EXPEDITION_STATE__||null);
 let readyToInteract=before?.interaction?.eligible===true;
 if(!readyToInteract){await page.keyboard.press('v');await page.waitForTimeout(500);readyToInteract=await page.evaluate(()=>window.__EXPEDITION_STATE__?.interaction?.eligible===true);}
