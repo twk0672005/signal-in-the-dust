@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "kind": "Godot native camera-owner probe",
+  "phase": "contact",
+  "activeCamera": "ContactShowcaseCamera",
+  "position": "(-17.3564, 8.500956, -608.0153)",
+  "note": "The endpoint showcase camera is active in the native scene. Browser visual acceptance remains open because the exported Web candidate still needs a fresh readback after this camera-owner change."
+}
