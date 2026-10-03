@@ -1,3 +1,10 @@
+# 載入與入口改善已發布 — 2026-10-03
+
+公開冷載入21.488秒、再次載入16.377秒，已達本輪Chrome/RTX4060的20–30秒目標。首頁直接寫明探索車／外星星球遊戲。兩邊main已更新；四區駕駛、雙語、觸控模擬及存檔保護通過。
+公開版本0e1abcb454373902c6aabd80：https://twk0672005.github.io/signal-in-the-dust/?v=0e1abcb454373902c6aabd80
+完整驗證：evidence/startup-clear-20261003/HANDOFF.md、FINAL_RECEIPT.json。
+無KHR的相容模擬32.194秒未達30秒；其他實體裝置及舊Valley／市場門檻仍未新宣稱完成。舊版本／失敗證據／386項匯入WIP保留；未重啟舊六小時窗口。
+
 ## 已接受並發布 — 2026-10-03 核對完成
 
 Nova已對本版給予PASS並授權兩邊main。本地來源main與獨立GitHub Web main已更新；
