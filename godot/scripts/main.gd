@@ -189,6 +189,7 @@ func _ready() -> void:
 	exterior.current = true
 	contact_showcase = Camera3D.new()
 	contact_showcase.name = "ContactShowcaseCamera"
+	# Web exports must keep a dedicated endpoint owner for the contact/ending shot.
 	contact_showcase.fov = 55
 	contact_showcase.near = 0.08
 	contact_showcase.far = 650.0
