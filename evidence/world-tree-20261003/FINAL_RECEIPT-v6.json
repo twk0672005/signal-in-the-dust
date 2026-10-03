@@ -1,0 +1,47 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v6-textured-fine-lace",
+  "at": "2026-10-03T20:35:00Z",
+  "decision": "Texture assignment and branch/leaf scale are materially improved, but the integrated browser endpoint still has a trunk/root wall in the close contact view. Keep the candidate local and do not publish the second art update.",
+  "githubSkillAudit": "evidence/world-tree-20261003/GITHUB_SKILL_GAP_AUDIT_20261003.md",
+  "blender": {
+    "mcp": "PASS: official Blender bridge on 127.0.0.1:9876",
+    "source": "art-source/world_tree_20261003_v3/world_tree.blend",
+    "glb": "godot/assets/world_tree_v3/world_tree.glb",
+    "triangles": 59632,
+    "embeddedAlbedoImages": 3,
+    "materials": ["WorldTree_Bark", "WorldTree_Branches", "WorldTree_Leaves", "WorldTree_LuminousVeins"],
+    "beautyRenders": ["blender-v3/far.png", "blender-v3/mid.png", "blender-v3/near.png"],
+    "result": "PASS directionally for texture grain and fine leaf scale; near still needs a hero composition pass"
+  },
+  "godot": {
+    "import": "PASS during fresh 4.7.2 export/import",
+    "webExport": "EXPORT COMPLETED; packaging guard reports Sites asset exceeds 25 MiB because index.pck is approximately 85 MiB",
+    "sourceChanges": [
+      "contact.gd preserves duplicated imported GLB materials and lowers runtime overexposure",
+      "main.gd uses an 18 m interaction envelope and contact reveal guard",
+      "world tree root spread reduced from 42–55 m to 26–34 m",
+      "v3 generator now embeds bark/branch/leaf albedo maps and adds smaller hanging offshoots"
+    ]
+  },
+  "browser": {
+    "journey": "tree-journey-autopilot-v5/receipt.json",
+    "realKeyboardRoute": true,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "visualVerdict": "REVISE: contact view is still dominated by pale trunk/root geometry; far/mid direction is improved",
+    "coldStartup": "not re-measured after this candidate; prior fresh candidate was under 30 s"
+  },
+  "preserved": {
+    "v1Asset": "godot/assets/world_tree/world_tree.glb",
+    "v2Asset": "godot/assets/world_tree_v2/world_tree.glb",
+    "oldEvidence": true,
+    "unrelatedImportWIP": true
+  },
+  "publish": {
+    "main": "not updated",
+    "github": "not updated",
+    "reason": "Nova's visual acceptance is not met for the close endpoint view"
+  }
+}

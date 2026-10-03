@@ -773,6 +773,9 @@ func _process(delta: float) -> void:
 			_boot_timing_mark_once("first_playable")
 			_publish_boot_timings()
 	elif phase == "contact":
+		# Keep the 24-second response readable even if the last input frame
+		# slipped through before the contact state froze the rover.
+		if target_distance() < 18.0: _stage_contact_reveal()
 		if contact.elapsed >= 6.0 and not reveal_audio_played:
 			reveal_audio_played = true
 			audio.play_reveal()
@@ -1181,7 +1184,10 @@ func interaction_context() -> Dictionary:
 	if phase != "exploring": return empty
 	var choices: Array[Dictionary] = []
 	if target_distance() < 24.0:
-		choices.append(_candidate("contact","contact",contact.global_position+Vector3(0,2,0),9.5,contact))
+		# Keep the endpoint readable at driving height: the v3 buttressed trunk
+		# is ~15 m across, so a 18 m interaction envelope preserves the crown,
+		# roots and horizon instead of placing the camera inside the base.
+		choices.append(_candidate("contact","contact",contact.global_position+Vector3(0,2,0),18.0,contact))
 	for id in ActivityScript.SITES:
 		if id == "aurora_shelf" or activities.done(id): continue
 		var point: Vector3 = world.survey_position(id)+Vector3(0,1,0)
@@ -1232,6 +1238,22 @@ func interaction_target() -> String:
 
 func can_interact() -> bool:
 	return interaction_target() != "none"
+
+func _stage_contact_reveal() -> void:
+	# The world tree is a monumental hero asset. If an old route, saved position
+	# or a physics edge leaves the rover inside the 20 m presentation envelope,
+	# settle it back on the approach side before the transmission shot. This is
+	# a bounded endpoint framing correction; progress, controls and save bytes
+	# remain owned by the normal contact flow.
+	var flat := Vector2(rover.global_position.x-contact.global_position.x, rover.global_position.z-contact.global_position.z)
+	if flat.length() >= 18.0: return
+	if flat.length_squared() < 0.01: flat = Vector2(0.0, 1.0)
+	var reveal := Vector2(contact.global_position.x, contact.global_position.z) + flat.normalized() * 20.0
+	rover.global_position = Vector3(reveal.x, world.height_at(reveal.x,reveal.y)+0.08, reveal.y)
+	var to_tree := contact.global_position-rover.global_position
+	rover.heading = atan2(to_tree.x,-to_tree.z)
+	rover.rotation.y = -rover.heading
+	_publish_snapshot()
 
 func interact() -> void:
 	var context := interaction_context()
@@ -1311,9 +1333,13 @@ func interact() -> void:
 			save_expedition()
 			_publish_snapshot()
 		return
+	_stage_contact_reveal()
 	save_expedition()
 	transmit_count += 1
 	rover.set_driving_enabled(false)
+	# Re-apply after the driving state is frozen so the endpoint reveal cannot
+	# be overwritten by the final physics frame of the real keyboard journey.
+	_stage_contact_reveal()
 	audio.play_transmit()
 	contact.begin()
 	_set_phase("contact")

@@ -1,0 +1,17 @@
+{
+  "score": 42,
+  "verdict": "revise",
+  "category_match": true,
+  "differences": [
+    "The far and mid Blender views preserve the intended monumental ivory trunk and fine gold branch crown, but the browser approach view at approximately 11 m clips the trunk against the left edge.",
+    "The arrival and arrival-third-person captures at targetDistance 5.72 m are dominated by a nearly flat ivory surface; the crown silhouette, green atmospheric separation, and branch spacing are no longer readable.",
+    "The supplied reference presents a distant full-tree composition with a visible central trunk, airy branch network, and atmospheric negative space; the current endpoint camera is inside the authored trunk envelope."
+  ],
+  "suggestions": [
+    "Keep the v3 GLB scale for the distant silhouette (authored target height 230 m, crown width 240 m, trunk flare diameter 14.8 m).",
+    "Move the interaction/completion envelope from the current 9.5 m contact radius to roughly 18-22 m, or use a destination camera pullback to keep the rover outside the trunk while E remains available.",
+    "Aim the endpoint view above the base (roughly 18-25 m local Y) so the first contact frame includes trunk, branch negative space, and a strip of the atmospheric horizon.",
+    "Lower runtime leaf and luminous-vein emission during close approach (current contact overrides are 2.05 and 4.3) until ivory surfaces retain visible value separation; preserve stronger pulse only after the interaction starts."
+  ],
+  "reasoning": "The reference-locked asset is directionally correct at far range, so rebuilding the mesh is not the highest-impact repair. The failure is a runtime scale/framing mismatch: a 230 m tree is being viewed from roughly 6 m, which turns the endpoint into a clipped white wall and invalidates visual acceptance."
+}

@@ -89,9 +89,11 @@ def make_texture(path: Path, kind: str):
                 fine = 0.5 + 0.5 * math.sin(u * 210.0 + v * 31.0)
                 crack = 1.0 if grain < 0.16 else 0.0
                 mineral = max(0.0, math.sin(u * 31.0 + v * 19.0)) ** 18
-                r = 0.075 + grain * 0.095 + fine * 0.018 + mineral * 0.10
-                g = 0.046 + grain * 0.062 + fine * 0.013 + mineral * 0.064
-                b = 0.030 + grain * 0.038 + fine * 0.010 + mineral * 0.028
+                # Ivory mineral bark: keep the grain readable without turning
+                # the runtime landmark into a flat brown trunk.
+                r = 0.58 + grain * 0.25 + fine * 0.030 + mineral * 0.12
+                g = 0.52 + grain * 0.23 + fine * 0.025 + mineral * 0.10
+                b = 0.39 + grain * 0.18 + fine * 0.020 + mineral * 0.08
                 r *= 1.0 - crack * 0.55
                 g *= 1.0 - crack * 0.62
                 b *= 1.0 - crack * 0.68
@@ -99,15 +101,15 @@ def make_texture(path: Path, kind: str):
                 grain = 0.5 + 0.5 * math.sin(u * 42.0 + math.sin(v * 23.0) * 1.7)
                 fine = 0.5 + 0.5 * math.sin(u * 180.0 - v * 47.0)
                 mineral = max(0.0, math.sin(u * 25.0 - v * 9.0)) ** 20
-                r = 0.095 + grain * 0.12 + fine * 0.015 + mineral * 0.11
-                g = 0.059 + grain * 0.075 + fine * 0.014 + mineral * 0.070
-                b = 0.031 + grain * 0.046 + fine * 0.009 + mineral * 0.026
+                r = 0.62 + grain * 0.24 + fine * 0.030 + mineral * 0.14
+                g = 0.55 + grain * 0.22 + fine * 0.025 + mineral * 0.10
+                b = 0.42 + grain * 0.18 + fine * 0.020 + mineral * 0.08
             else:
                 fleck = max(0.0, math.sin(u * 39.0 + math.sin(v * 11.0) * 3.0)) ** 7
                 warm = 0.5 + 0.5 * math.sin((u + v) * 25.0)
-                r = 0.52 + 0.30 * fleck + 0.04 * warm
-                g = 0.18 + 0.21 * fleck + 0.05 * warm
-                b = 0.025 + 0.035 * fleck
+                r = 0.58 + 0.32 * fleck + 0.05 * warm
+                g = 0.31 + 0.34 * fleck + 0.05 * warm
+                b = 0.060 + 0.040 * fleck
             pixels[i:i + 4] = (_clamp(r), _clamp(g), _clamp(b), 1.0)
     image.pixels = pixels
     image.filepath_raw = str(path)
@@ -146,11 +148,13 @@ def make_material(name, colour, roughness, image=None, emission=None, emission_s
 
 
 materials = {
-    "bark": make_material("WorldTree_Bark", (0.68, 0.58, 0.37), 0.86, None, (0.30,0.20,0.06), 1.25),
-    "branches": make_material("WorldTree_Branches", (0.80, 0.70, 0.46), 0.78, None, (0.44,0.28,0.08), 1.45),
-    "leaves": make_material("WorldTree_Leaves", (0.95, 0.68, 0.20), 0.60, None, (0.70,0.36,0.04), 3.8),
+    # Keep the authored albedo maps in the GLB.  v3 previously generated the
+    # maps but passed None here, so the browser could only show a flat tint.
+    "bark": make_material("WorldTree_Bark", (0.86, 0.79, 0.62), 0.86, bark_image, (0.18,0.12,0.04), 0.22),
+    "branches": make_material("WorldTree_Branches", (0.90, 0.82, 0.63), 0.78, branch_image, (0.24,0.16,0.05), 0.28),
+    "leaves": make_material("WorldTree_Leaves", (0.98, 0.78, 0.28), 0.60, leaf_image, (0.42,0.20,0.03), 0.85),
     "veins": make_material("WorldTree_LuminousVeins", (1.0, 0.73, 0.29), 0.28,
-                            None, (1.0, 0.82, 0.38), 8.0),
+                            None, (1.0, 0.82, 0.38), 2.6),
 }
 
 # One aggregate mesh per shared material keeps draw calls and material count
@@ -290,7 +294,11 @@ for seam in range(8):
 # Blender +Y maps to receiver -Z under export_yup=True.  Keep authored -Y
 # open so the receiver's local +Z approach corridor has no large root.
 root_angles = [-2.96, -2.58, -2.18, -1.00, -0.35, 0.30, 0.95, 1.45, 2.42, 2.93, 3.48, 4.05]
-root_spreads = [49.0, 53.0, 46.0, 42.0, 51.0, 47.0, 54.0, 43.0, 50.0, 55.0, 48.0, 44.0]
+# Keep the buttressed root silhouette monumental without filling the player's
+# endpoint camera.  The prior 42–55 m spread intersected the approach corridor
+# even after the tree was staged beyond the beacon; 26–34 m preserves grounding
+# and leaves readable road, ruins and horizon around the destination.
+root_spreads = [29.0, 32.0, 28.0, 26.0, 34.0, 30.0, 33.0, 27.0, 31.0, 34.0, 29.0, 27.0]
 for i, (angle, spread) in enumerate(zip(root_angles, root_spreads)):
     direction = Vector((math.cos(angle), math.sin(angle), 0.0))
     side = Vector((-direction.y, direction.x, 0.0))
@@ -363,15 +371,18 @@ for bi in range(18):
     tip=start+radial*length+side*(math.sin(bi*.77)*28.0)+Vector((0,0,34+(bi%5)*9))
     path=[start,bend,high,tip];dense_paths.append(path)
     add_tube("branches",path,[2.4,1.55,.72,.10],sides=9,steps_per_segment=3,ellipticity=(1.0,.78),phase=bi*.23)
-    # Five thin offshoots per primary limb create the reference's fine lace.
-    for ti in range(4):
-        t=.28+ti*.13
-        anchor=Vector(path[0]).lerp(Vector(path[-1]),t)+side*((ti-2)*2.2)
-        fork_angle=angle+(-.68+ti*.34)+math.sin(bi+ti)*.06
+    # Six thin offshoots per primary limb create a hanging lace instead of a
+    # clean radial spoke.  The last two dip slightly before turning outward,
+    # which breaks the synthetic starburst silhouette at driving distance.
+    for ti in range(6):
+        t=.22+ti*.115
+        anchor=Vector(path[0]).lerp(Vector(path[-1]),t)+side*((ti-2.5)*2.0)
+        fork_angle=angle+(-.78+ti*.31)+math.sin(bi+ti)*.06
         fr=Vector((math.cos(fork_angle),math.sin(fork_angle),0.0))
-        tip2=anchor+fr*(18+ti*4+bi%4*2)+Vector((0,0,12+ti*4))
-        add_tube("branches",[anchor,anchor+fr*8+Vector((0,0,6)),tip2],[.52,.25,.045],sides=7,steps_per_segment=2,ellipticity=(.9,.65),phase=ti*.4)
-        secondary_tips.append((tip2,fr+Vector((0,0,.38)),18+ti*4))
+        dip = -3.5 if ti >= 4 else 0.0
+        tip2=anchor+fr*(16+ti*3+bi%4*2)+Vector((0,0,9+ti*3+dip))
+        add_tube("branches",[anchor,anchor+fr*6+Vector((0,0,4+dip*.3)),tip2],[.46,.21,.038],sides=6,steps_per_segment=2,ellipticity=(.9,.65),phase=ti*.4)
+        secondary_tips.append((tip2,fr+Vector((0,0,.32 if dip >= 0 else -.12)),16+ti*3))
 # Pair luminous veins with selected primary limbs, echoing the reference's white
 # internal glow without turning every branch into a neon tube.
 for bi,path in enumerate(dense_paths):
@@ -412,9 +423,9 @@ for site_index, (centre, outward, scale) in enumerate(leaf_sites):
         radial = Vector((math.cos(az), math.sin(az), 0.0))
         direction = (outward * 0.56 + radial * 0.56 + Vector((0.0, 0.0, local_rng.uniform(0.12, 0.48)))).normalized()
         base = Vector(centre) + radial * local_rng.uniform(0.5, 2.4) + Vector((0.0, 0.0, local_rng.uniform(-1.0, 1.6)))
-        length = local_rng.uniform(5.2, 9.0) * scale
-        width = local_rng.uniform(2.4, 4.8) * scale
-        thickness = local_rng.uniform(0.24, 0.52) * scale
+        length = local_rng.uniform(2.2, 4.6) * scale
+        width = local_rng.uniform(0.65, 1.45) * scale
+        thickness = local_rng.uniform(0.10, 0.22) * scale
         add_leaf("leaves", base, direction, length, width, thickness, (site_index % 7) * 0.13)
 
 
@@ -427,12 +438,12 @@ def add_leaf_cluster(center, scale, phase):
     # faceted orange ball. The negative spaces between leaves preserve volume.
     local=random.Random(SEED + int(abs(phase)*1000.0) + int(scale*17.0))
     c=Vector(center)
-    for leaf_index in range(30):
-        angle=math.tau*leaf_index/30.0 + phase + local.uniform(-.18,.18)
+    for leaf_index in range(24):
+        angle=math.tau*leaf_index/24.0 + phase + local.uniform(-.18,.18)
         radial=Vector((math.cos(angle),math.sin(angle),0.0))
         base=c + radial*local.uniform(.15,scale*.55) + Vector((0,0,local.uniform(-scale*.3,scale*.3)))
         direction=(radial*.58 + Vector((0,0,local.uniform(.16,.65)))).normalized()
-        add_leaf("leaves",base,direction,local.uniform(scale*.45,scale*.85),local.uniform(scale*.22,scale*.42),local.uniform(.16,.28),phase*.1)
+        add_leaf("leaves",base,direction,local.uniform(scale*.24,scale*.46),local.uniform(scale*.09,scale*.18),local.uniform(.10,.18),phase*.1)
 
 # Build layered crown pockets around every primary limb and a few secondary
 # forks. The overlap is deliberate: it makes a canopy rather than stick figure.
@@ -441,9 +452,9 @@ for ci,(tip,outward,length) in enumerate(primary_tips):
     out=Vector(outward).normalized()
     for layer in range(4):
         offset=out*(layer*4.0-6.0)+Vector((0,0,(layer-1.5)*4.0+math.sin(ci+layer)*1.8))
-        add_leaf_cluster(center+offset, 7.0+layer*.75+(ci%3)*.65, ci*.41+layer*.77)
+        add_leaf_cluster(center+offset, 5.2+layer*.55+(ci%3)*.45, ci*.41+layer*.77)
 for ci,(tip,outward,length) in enumerate(secondary_tips):
-    if ci%2: add_leaf_cluster(Vector(tip)+Vector((0,0,2.5)), 5.0+(ci%3)*.55, ci*.63)
+    if ci%2: add_leaf_cluster(Vector(tip)+Vector((0,0,2.0)), 3.8+(ci%3)*.45, ci*.63)
 
 # High crown veil: a broad, broken halo keeps the landmark monumental from the
 # long approach. The gaps between lobes expose branches and sky instead of a
@@ -453,7 +464,7 @@ for crown_index in range(24):
     radius=32.0 + (crown_index%6)*12.0
     height=135.0 + (crown_index%8)*9.0 + math.sin(crown_index*1.3)*4.0
     centre=Vector((math.cos(angle)*radius, math.sin(angle)*radius, height))
-    add_leaf_cluster(centre, 8.5+(crown_index%3)*1.4, crown_index*.37)
+    add_leaf_cluster(centre, 6.2+(crown_index%3)*.85, crown_index*.37)
 
 def build_mesh(name, key):
     bucket = buckets[key]

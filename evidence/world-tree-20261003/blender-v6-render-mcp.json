@@ -1,0 +1,18 @@
+{
+  "meta": null,
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"status\": \"ok\",\n  \"result\": {},\n  \"stdout\": \"BLENDER_V2_RENDERS [('far', 'C:\\\\\\\\Users\\\\\\\\tsang\\\\\\\\DeepSpaceRover\\\\\\\\deep-space-rover-three-20260906\\\\\\\\evidence\\\\\\\\world-tree-20261003\\\\\\\\blender-v3\\\\\\\\far.png'), ('mid', 'C:\\\\\\\\Users\\\\\\\\tsang\\\\\\\\DeepSpaceRover\\\\\\\\deep-space-rover-three-20260906\\\\\\\\evidence\\\\\\\\world-tree-20261003\\\\\\\\blender-v3\\\\\\\\mid.png'), ('near', 'C:\\\\\\\\Users\\\\\\\\tsang\\\\\\\\DeepSpaceRover\\\\\\\\deep-space-rover-three-20260906\\\\\\\\evidence\\\\\\\\world-tree-20261003\\\\\\\\blender-v3\\\\\\\\near.png')]\\n\",\n  \"stderr\": \"C:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\art-source\\\\world_tree_20261003_v3\\\\render_v3.py:17: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\\n  world=scene.world;world.use_nodes=True;bg=world.node_tree.nodes.get('Background');bg.inputs['Color'].default_value=(0.025,0.055,0.045,1);bg.inputs['Strength'].default_value=.34\\nC:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\art-source\\\\world_tree_20261003_v3\\\\render_v3.py:19: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0\\n  m=bpy.data.materials.get(name) or bpy.data.materials.new(name);m.diffuse_color=(*color,1);m.use_nodes=True;bs=m.node_tree.nodes.get('Principled BSDF');bs.inputs['Base Color'].default_value=(*color,1);bs.inputs['Roughness'].default_value=rough;return m\\n\"\n}",
+      "annotations": null,
+      "meta": null
+    }
+  ],
+  "structuredContent": {
+    "status": "ok",
+    "result": {},
+    "stdout": "BLENDER_V2_RENDERS [('far', 'C:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\evidence\\\\world-tree-20261003\\\\blender-v3\\\\far.png'), ('mid', 'C:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\evidence\\\\world-tree-20261003\\\\blender-v3\\\\mid.png'), ('near', 'C:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\evidence\\\\world-tree-20261003\\\\blender-v3\\\\near.png')]\n",
+    "stderr": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\art-source\\world_tree_20261003_v3\\render_v3.py:17: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\n  world=scene.world;world.use_nodes=True;bg=world.node_tree.nodes.get('Background');bg.inputs['Color'].default_value=(0.025,0.055,0.045,1);bg.inputs['Strength'].default_value=.34\nC:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\art-source\\world_tree_20261003_v3\\render_v3.py:19: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0\n  m=bpy.data.materials.get(name) or bpy.data.materials.new(name);m.diffuse_color=(*color,1);m.use_nodes=True;bs=m.node_tree.nodes.get('Principled BSDF');bs.inputs['Base Color'].default_value=(*color,1);bs.inputs['Roughness'].default_value=rough;return m\n"
+  },
+  "isError": false
+}
