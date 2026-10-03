@@ -34,6 +34,7 @@ var contact: Node3D
 var ui: CanvasLayer
 var audio: Node
 var exterior: Camera3D
+var contact_showcase: Camera3D
 var phase: String = "menu"
 var previous_phase: String = "exploring"
 var elapsed: float = 0.0
@@ -186,6 +187,12 @@ func _ready() -> void:
 	add_child(exterior)
 	_place_exterior()
 	exterior.current = true
+	contact_showcase = Camera3D.new()
+	contact_showcase.name = "ContactShowcaseCamera"
+	contact_showcase.fov = 55
+	contact_showcase.near = 0.08
+	contact_showcase.far = 650.0
+	add_child(contact_showcase)
 	audio = load("res://scripts/expedition_audio.gd").new()
 	add_child(audio)
 	var ui_new_started_usec := Time.get_ticks_usec()
@@ -773,6 +780,7 @@ func _process(delta: float) -> void:
 			_boot_timing_mark_once("first_playable")
 			_publish_boot_timings()
 	elif phase == "contact":
+		_show_contact_camera()
 		# Keep the 24-second response readable even if the last input frame
 		# slipped through before the contact state froze the rover.
 		if target_distance() < 18.0: _stage_contact_reveal()
@@ -780,6 +788,8 @@ func _process(delta: float) -> void:
 			reveal_audio_played = true
 			audio.play_reveal()
 			ui.set_message("response")
+	elif phase == "ending":
+		_show_contact_camera()
 	if running:
 		audio.set_drive(rover.speed)
 		audio.set_signal(target_distance())
@@ -1255,6 +1265,18 @@ func _stage_contact_reveal() -> void:
 	rover.rotation.y = -rover.heading
 	_publish_snapshot()
 
+func _show_contact_camera() -> void:
+	if not is_instance_valid(contact_showcase): return
+	var flat := Vector2(rover.global_position.x-contact.global_position.x, rover.global_position.z-contact.global_position.z)
+	if flat.length_squared() < 0.01: flat = Vector2(0.0, 1.0)
+	var approach := Vector3(flat.x, 0.0, flat.y).normalized()
+	var side := Vector3(-approach.z, 0.0, approach.x)
+	var position := contact.global_position + approach * 42.0 + side * 18.0 + Vector3.UP * 9.0
+	position.y = maxf(position.y, world.height_at(position.x, position.z) + 6.0)
+	contact_showcase.global_position = position
+	contact_showcase.look_at(contact.global_position + Vector3.UP * 42.0, Vector3.UP)
+	contact_showcase.current = true
+
 func interact() -> void:
 	var context := interaction_context()
 	# Revalidate the displayed identity. A moving/occluded subject cannot silently
@@ -1343,6 +1365,7 @@ func interact() -> void:
 	audio.play_transmit()
 	contact.begin()
 	_set_phase("contact")
+	_show_contact_camera()
 	ui.set_message("transmitting")
 
 func _on_contact_completed() -> void:
@@ -1355,6 +1378,7 @@ func _continue_exploring() -> void:
 	world.set_paused(false)
 	audio.set_paused(false)
 	rover.set_driving_enabled(true)
+	rover.set_camera_mode(rover.camera_mode)
 	_set_phase("exploring")
 	save_expedition()
 
@@ -1376,7 +1400,8 @@ func _apply_display_quality(low: bool) -> void:
 
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
-	return {"ready":true,"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"boosting":rover.is_boosting(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available,"saveState":_save_state,"saveWriteFailed":_save_write_failed,"interaction":_shown_interaction.duplicate(true)}
+	var active_camera := get_viewport().get_camera_3d()
+	return {"ready":true,"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"boosting":rover.is_boosting(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"activeCamera":str(active_camera.name) if active_camera != null else "none","ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available,"saveState":_save_state,"saveWriteFailed":_save_write_failed,"interaction":_shown_interaction.duplicate(true)}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
