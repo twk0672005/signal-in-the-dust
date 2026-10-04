@@ -389,7 +389,9 @@ for bi in range(18):
 # Pair luminous veins with selected primary limbs, echoing the reference's white
 # internal glow without turning every branch into a neon tube.
 for bi,path in enumerate(dense_paths):
-    if bi%3==0:
+    # Reference glow travels through a visible lace network rather than only
+    # five hero limbs. Every second fine path receives a restrained vein.
+    if bi%2==0:
         add_tube("veins",[Vector(p)+Vector((0,0,.16)) for p in path],[.22,.16,.09,.025],sides=6,steps_per_segment=3,ellipticity=(.82,.62),phase=bi*.31)
 
 # A second, very thin lace layer keeps the upper crown from reading as eleven
