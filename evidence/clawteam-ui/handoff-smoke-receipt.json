@@ -1,0 +1,46 @@
+{
+  "receiptVersion": 1,
+  "taskId": "608e6c33",
+  "identity": {
+    "name": "handoff-smoke",
+    "id": "1f9953cd580e",
+    "type": "verifier",
+    "team": "signal-dust-clawteam-repair-20261004"
+  },
+  "source": {
+    "path": "evidence/world-tree-20261003/FINAL_RECEIPT-v21.json",
+    "sha256": "253D8FCCE31FD001D75EDBED09BF89CF8EFF7160FA65A41B2548D85639825945",
+    "status": "PARTIAL",
+    "candidate": "reference-locked-world-tree-v6-broad-crown",
+    "observedAt": "2026-10-04T04:08:07.7158781Z",
+    "asset": {
+      "glb": "godot/assets/world_tree_v6/world_tree.glb",
+      "sha256": "B9C5AAB7854C3540ED9928438A9ED0C4BDC0000D090F5A3C1F30D410ABF0AAE2",
+      "triangles": 87976,
+      "embeddedImages": 3
+    },
+    "web": {
+      "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v11/receipt.json",
+      "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v11/arrival.png",
+      "activeCamera": "ContactShowcaseCamera",
+      "completionObserved": true,
+      "readyToInteract": true,
+      "pageErrors": 0,
+      "targetDistanceMeters": 20.0000038,
+      "seconds": 65.958
+    },
+    "clawteam": {
+      "team": "signal-dust-worldtree-20261004",
+      "status": "in_progress_without_returned_handoffs",
+      "usedAsProof": false
+    }
+  },
+  "conclusion": {
+    "readOnlyInspection": true,
+    "runtimeEvidenceForwarded": true,
+    "visualAcceptanceClaimed": false,
+    "releaseClaimed": false,
+    "note": "Source receipt remains PARTIAL; visual remaining items and human Nova taste acceptance are unresolved."
+  },
+  "createdAt": "2026-10-04T07:20:47.1189095Z"
+}
