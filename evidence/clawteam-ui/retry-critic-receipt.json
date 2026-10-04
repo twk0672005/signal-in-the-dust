@@ -1,0 +1,32 @@
+{
+  "taskId": "20051ec6",
+  "verdict": "PARTIAL",
+  "inspectedPaths": [
+    "evidence/world-tree-20261003/tree-journey-autopilot-v11/arrival.png",
+    "evidence/world-tree-20261003/tree-journey-autopilot-v11/approach-mid.png",
+    "evidence/world-tree-20261003/FINAL_RECEIPT-v21.json"
+  ],
+  "blockers": [
+    {
+      "id": "crown-interweaving",
+      "fact": "The world-tree crown is still less organically interwoven than the supplied reference image.",
+      "evidence": "FINAL_RECEIPT-v21.json visual.remaining[0]; the bright branch and micro-lace structure remain visibly more sparse/linear in arrival.png and approach-mid.png."
+    },
+    {
+      "id": "lighting-and-ruins-treatment",
+      "fact": "The scene still has a restrained light-shaft layer and simple ruins, so the environment treatment is not fully resolved.",
+      "evidence": "FINAL_RECEIPT-v21.json visual.remaining[1]; approach-mid.png shows restrained atmospheric shafts and minimal side-ruin forms."
+    }
+  ],
+  "runtimeProof": {
+    "source": "evidence/world-tree-20261003/FINAL_RECEIPT-v21.json",
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v11/receipt.json",
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v11/arrival.png",
+    "activeCamera": "ContactShowcaseCamera",
+    "completionObserved": true,
+    "readyToInteract": true,
+    "pageErrors": 0,
+    "targetDistanceMeters": 20.0000038,
+    "seconds": 65.958
+  }
+}
