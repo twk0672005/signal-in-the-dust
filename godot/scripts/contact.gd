@@ -60,10 +60,10 @@ func _ready() -> void:
 				tree_material.emission_energy_multiplier = 1.45
 				tree_glow_materials.append(tree_material)
 			elif material_name.contains("branch"):
-				tree_material.albedo_color = Color(1.75, 1.55, 1.30, 1.0)
+				tree_material.albedo_color = Color(1.90, 1.72, 1.45, 1.0)
 				tree_material.emission_enabled = true
 				tree_material.emission = Color("987b3b")
-				tree_material.emission_energy_multiplier = 0.28
+				tree_material.emission_energy_multiplier = 0.46
 			else:
 				tree_material.albedo_color = Color(1.90, 1.75, 1.50, 1.0)
 				tree_material.emission_enabled = true

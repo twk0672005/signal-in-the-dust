@@ -1,0 +1,29 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v17-ivory-branch-emission",
+  "at": "2026-10-04T01:35:00Z",
+  "web": {
+    "activeCamera": "ContactShowcaseCamera",
+    "heroDistanceMeters": 20.0000171661,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "shell404": 0,
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v5/arrival.png",
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json"
+  },
+  "asset": {
+    "triangles": 77380,
+    "embeddedAlbedoImages": 3,
+    "fineLacePaths": 12,
+    "luminousVeinCoverage": "every second dense path",
+    "runtimeLook": "ivory branch lace, gold-brown textured trunk, pale-gold crown"
+  },
+  "startup": {
+    "coldSeconds": 14.82,
+    "firstPlayableSeconds": 15.141,
+    "targetUnder30s": true
+  },
+  "remainingGap": "Exact supplied-image species fidelity and ruins/shafts remain an interpretation gap; no second art publish.",
+  "publish": "not published to main/GitHub"
+}
