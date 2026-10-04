@@ -64,12 +64,12 @@
       "material": "WorldTree_Leaves"
     },
     "WorldTree_LuminousVeins": {
-      "vertices": 801,
-      "triangles": 1554,
+      "vertices": 981,
+      "triangles": 1902,
       "material": "WorldTree_LuminousVeins"
     }
   },
-  "triangles": 77032,
+  "triangles": 77380,
   "primitive_count": 4,
   "gltf_material_count": 4,
   "gltf_image_count": 3,
@@ -87,23 +87,23 @@
   "files": [
     {
       "path": "godot/assets/world_tree_v3/world_tree.glb",
-      "bytes": 7184096,
-      "sha256": "9a9de62c82d9f3d9949585f6d2aa6fbfb85df82979a4a04f842bde63b3920590"
+      "bytes": 7201976,
+      "sha256": "91c8a172adf6db76c1abe6e3f548b346c866bbca18969dba7ca410ddaa4f3da5"
     },
     {
       "path": "art-source/world_tree_20261003_v3/world_tree.blend",
-      "bytes": 2598362,
-      "sha256": "db32cac034c5d5e7179f828f2fc9786574640d7fa4d0514ca8873335853a5bfe"
+      "bytes": 2609775,
+      "sha256": "14509871565a961acb65c76fa997762ee337e2a0f558a3925f3ea56c82536150"
     },
     {
       "path": "art-source/world_tree_20261003_v3/build_world_tree_v3.py",
-      "bytes": 36661,
-      "sha256": "7c13cd127ddceb90abc5aa29311bcc7cb20ead87dc0e9e4915676363b8fbd364"
+      "bytes": 36970,
+      "sha256": "3a38705c796cd5ff9dd16c2199bd62d3ef1279d10ca93a24ed800a03d4afd56b"
     },
     {
       "path": "godot/assets/world_tree_v3/textures/world_tree_bark_albedo_v2.png",
-      "bytes": 226462,
-      "sha256": "0b21dfe569b638f64cff2390f15011ad9b7cc525952ca768e369b27ab76e2824"
+      "bytes": 230731,
+      "sha256": "547aab539e53c12d5c2577a1dda2ba94760c10970e7428189097861f4ae9c4fd"
     },
     {
       "path": "godot/assets/world_tree_v3/textures/world_tree_branch_albedo_v2.png",
