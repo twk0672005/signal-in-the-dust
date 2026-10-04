@@ -1,0 +1,21 @@
+{
+  "acceptedReleaseId": "f883e019fb7c4d8c674d73bf",
+  "publishedReleaseId": "bedf501e10b0277026060294",
+  "acceptedPckSha256": "bdf174558652e7f79bda7fd0513af0fd4bcbc0cd962d799f74ef4255af610824",
+  "packBytes": 99858684,
+  "parts": [
+    {
+      "name": "index.pck.part-000",
+      "bytes": 67108864,
+      "sha256": "cd6f044a52ba6eb2182bd5b8e53a15c42728db305326fd1486b365cd6a03619e"
+    },
+    {
+      "name": "index.pck.part-001",
+      "bytes": 32749820,
+      "sha256": "71e2058a8497077f5647745863062befc0cb49a032046ea38eef758f6675f44b"
+    }
+  ],
+  "gameContentChanged": false,
+  "change": "Only transport loader/config and physical PCK parts; all decoded game bytes retained",
+  "files": 25
+}

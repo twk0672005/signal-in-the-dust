@@ -1,0 +1,71 @@
+{
+  "at": "2026-10-04T14:35:10.426553+00:00",
+  "publicationStatus": "RELEASED",
+  "visualQualityStatus": "PARTIAL",
+  "authorization": "Nova requested closeout and GitHub publication of the last 24 hours of alien website updates on 2026-10-04.",
+  "website": "https://twk0672005.github.io/signal-in-the-dust/?v=bedf501e10b0277026060294",
+  "repository": "https://github.com/twk0672005/signal-in-the-dust",
+  "githubMainCommit": "0f5936c0ff9d48c52c3f7a7024b2e2a62090c169",
+  "releaseId": "bedf501e10b0277026060294",
+  "sourceSnapshotCommit": "3808df73de55e6f2339808329d7a7918a37141b4",
+  "sourceBranch": "codex/world-tree-v2-20261003",
+  "gameImplementationCommit": "864fc57",
+  "sourceAndWebHistoriesSeparate": true,
+  "publicVerification": {
+    "pagesBuilt": true,
+    "publishedFileHashesMatched": 25,
+    "metadataFilesMatched": 2,
+    "entryChecksPassed": 56,
+    "entryErrors": [],
+    "fourRegionsDiscovered": {
+      "aurora_shelf": true,
+      "ember_rift": true,
+      "pale_decay": true,
+      "veil_marsh": true
+    },
+    "endingObserved": true,
+    "contactCamera": "ContactShowcaseCamera",
+    "transmitCount": 1,
+    "journeyErrors": [],
+    "coldStartToPlayableSeconds": 22.628,
+    "navigationToPlayableSeconds": 24.814,
+    "diagnosticRunSecondsIncludingDrivingAndPause": 27.91,
+    "maxUnfilteredStallMs": 793.3999998569489,
+    "quality": "standard",
+    "browser": "154.0.8037.58",
+    "gpu": {
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 Laptop GPU (0x000028A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (NVIDIA)",
+      "parallelCompile": true
+    },
+    "cacheDefinition": "Fresh isolated browser/profile, new engine instance and empty HTTP cache. OS/GPU driver caches are not modified and remain uncontrolled.",
+    "measurementNote": "Public hash readback downloaded release files during this boot; timing is one measured environment, not a guarantee on other networks."
+  },
+  "package": {
+    "decodedPckBytes": 99858684,
+    "decodedPckSha256": "bdf174558652e7f79bda7fd0513af0fd4bcbc0cd962d799f74ef4255af610824",
+    "transportParts": 2,
+    "decodedContentUnchanged": true,
+    "priorImmutableFilesPreserved": 72
+  },
+  "independentPackageReview": "GPT-6.1-SOL read-only release_verify returned PASS for publishing mechanics; no files changed.",
+  "wipPreservation": {
+    "preexistingEntries": 448,
+    "localMainAdvancedWithoutCheckout": true
+  },
+  "knownRemaining": [
+    "organic reference crown fidelity",
+    "rich ruin/light-shaft environment",
+    "Nova visual taste acceptance",
+    "physical phone/Safari and sustained performance"
+  ],
+  "evidence": {
+    "hashes": "PUBLIC_HASH_READBACK.json",
+    "pages": "PAGES_BUILD.json",
+    "entry": "public-entry/receipt.json",
+    "boot": "public-startup/receipt.json",
+    "treeJourney": "public-tree-route/receipt.json",
+    "rootHomepageCapture": "public-home-root.png",
+    "treeEndingCapture": "public-tree-route/arrival.png"
+  }
+}

@@ -1,3 +1,9 @@
+## 已發布世界樹 v6 — 2026-10-04
+
+[開啟最新公開遊戲](https://twk0672005.github.io/signal-in-the-dust/?v=bedf501e10b0277026060294) · [發布與實測紀錄](docs/RELEASE_2026-10-04.md)
+
+已依 Nova 最新收尾／GitHub push 要求更新 Pages main。公開版 56 項入口、駕駛、保存、雙語及觸控模擬檢查通過；四區至世界樹的 E 互動與結局通過。此次公開 Chrome 冷載入：按開始至可駕駛 22.6 秒，開頁至可駕駛 24.8 秒。美術還原度仍 PARTIAL，發布不等同 Valley 或參考圖品質驗收。舊版本、失敗證據與未提交 WIP 保留；下方各日期皆為歷史紀錄。
+
 ## 已接受並發布 — 2026-10-03 核對完成
 
 Nova已對本版給予PASS並授權兩邊main。本地來源main與獨立GitHub Web main已更新；

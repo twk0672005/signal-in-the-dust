@@ -1,0 +1,232 @@
+{
+  "url": "https://twk0672005.github.io/signal-in-the-dust/?v=bedf501e10b0277026060294",
+  "browser": "154.0.8037.58",
+  "checks": [
+    {
+      "name": "original concept hero decoded",
+      "pass": true
+    },
+    {
+      "name": "concept artwork honestly labelled",
+      "pass": true
+    },
+    {
+      "name": "actual gameplay preview separate",
+      "pass": true
+    },
+    {
+      "name": "Chinese runtime artwork credit",
+      "pass": true
+    },
+    {
+      "name": "Chinese rover and alien planet invitation",
+      "pass": true
+    },
+    {
+      "name": "Chinese explicit game label",
+      "pass": true
+    },
+    {
+      "name": "Chinese exploration loop",
+      "pass": true
+    },
+    {
+      "name": "Chinese journey action",
+      "pass": true
+    },
+    {
+      "name": "Continue removed",
+      "pass": true
+    },
+    {
+      "name": "home does not launch engine",
+      "pass": true
+    },
+    {
+      "name": "ember_rift actual preview and selected button",
+      "pass": true
+    },
+    {
+      "name": "veil_marsh actual preview and selected button",
+      "pass": true
+    },
+    {
+      "name": "pale_decay actual preview and selected button",
+      "pass": true
+    },
+    {
+      "name": "aurora_shelf actual preview and selected button",
+      "pass": true
+    },
+    {
+      "name": "English rover and alien planet invitation",
+      "pass": true
+    },
+    {
+      "name": "English explicit game label",
+      "pass": true
+    },
+    {
+      "name": "English exploration loop",
+      "pass": true
+    },
+    {
+      "name": "English journey action",
+      "pass": true
+    },
+    {
+      "name": "zh portrait explicit rover and planet heading",
+      "pass": true
+    },
+    {
+      "name": "zh portrait heading visible without scrolling",
+      "pass": true
+    },
+    {
+      "name": "zh portrait start visible without scrolling",
+      "pass": true
+    },
+    {
+      "name": "zh portrait no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "zh portrait journey action meets touch target",
+      "pass": true
+    },
+    {
+      "name": "zh landscape explicit rover and planet heading",
+      "pass": true
+    },
+    {
+      "name": "zh landscape heading visible without scrolling",
+      "pass": true
+    },
+    {
+      "name": "zh landscape start visible without scrolling",
+      "pass": true
+    },
+    {
+      "name": "zh landscape no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "zh landscape journey action meets touch target",
+      "pass": true
+    },
+    {
+      "name": "en portrait explicit rover and planet heading",
+      "pass": true
+    },
+    {
+      "name": "en portrait heading visible without scrolling",
+      "pass": true
+    },
+    {
+      "name": "en portrait start visible without scrolling",
+      "pass": true
+    },
+    {
+      "name": "en portrait no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "en portrait journey action meets touch target",
+      "pass": true
+    },
+    {
+      "name": "en landscape explicit rover and planet heading",
+      "pass": true
+    },
+    {
+      "name": "en landscape heading visible without scrolling",
+      "pass": true
+    },
+    {
+      "name": "en landscape start visible without scrolling",
+      "pass": true
+    },
+    {
+      "name": "en landscape no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "en landscape journey action meets touch target",
+      "pass": true
+    },
+    {
+      "name": "preferences keyboard focus remains in modal",
+      "pass": true
+    },
+    {
+      "name": "preferences keyboard focus wraps to first control",
+      "pass": true
+    },
+    {
+      "name": "preferences Escape returns focus",
+      "pass": true
+    },
+    {
+      "name": "reduced motion stops artwork animation",
+      "pass": true
+    },
+    {
+      "name": "actual Aeral runtime specimen decoded",
+      "pass": true
+    },
+    {
+      "name": "real loading samples observed",
+      "pass": true
+    },
+    {
+      "name": "preparation keeps transfer progress indeterminate",
+      "pass": true
+    },
+    {
+      "name": "game opens only on matching first frame",
+      "pass": true
+    },
+    {
+      "name": "no reported engine errors",
+      "pass": true
+    },
+    {
+      "name": "real driving",
+      "pass": true
+    },
+    {
+      "name": "saved during pause",
+      "pass": true
+    },
+    {
+      "name": "existing save opens invitation",
+      "pass": true
+    },
+    {
+      "name": "cancel returns home",
+      "pass": true
+    },
+    {
+      "name": "cancel preserved old progress",
+      "pass": true
+    },
+    {
+      "name": "confirmed new journey",
+      "pass": true
+    },
+    {
+      "name": "restart cancel resumes play",
+      "pass": true
+    },
+    {
+      "name": "touch mode uses the saved-progress invitation",
+      "pass": true
+    },
+    {
+      "name": "no JS errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "pass": true
+}
