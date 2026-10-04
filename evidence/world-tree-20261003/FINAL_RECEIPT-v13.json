@@ -1,0 +1,28 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v13-fine-lace-ivory-gold-startup-pass",
+  "at": "2026-10-04T00:45:00Z",
+  "web": {
+    "activeCamera": "ContactShowcaseCamera",
+    "heroDistanceMeters": 20.00002670288,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "shell404": 0,
+    "coldStartupSeconds": 14.82,
+    "firstPlayableSeconds": 15.141,
+    "maxObservedUnfilteredStallMs": 759.8,
+    "startupTargetUnder30s": true,
+    "startupReceipt": "evidence/world-tree-20261003/startup-v12/receipt.json",
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v5/arrival.png"
+  },
+  "asset": {
+    "triangles": 77032,
+    "embeddedAlbedoImages": 3,
+    "fineLacePaths": 12,
+    "leavesPerCluster": 34,
+    "runtimeLook": "HDR ivory/gold bark and pale mineral-gold crown"
+  },
+  "remainingGap": "Exact supplied-image species fidelity and dense luminous lace/ruins remain a visual interpretation gap; second art update is not published.",
+  "publish": "not published to main/GitHub"
+}
