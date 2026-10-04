@@ -94,9 +94,11 @@ def make_texture(path: Path, kind: str):
                 r = 0.58 + grain * 0.25 + fine * 0.030 + mineral * 0.12
                 g = 0.52 + grain * 0.23 + fine * 0.025 + mineral * 0.10
                 b = 0.39 + grain * 0.18 + fine * 0.020 + mineral * 0.08
-                r *= 1.0 - crack * 0.55
-                g *= 1.0 - crack * 0.62
-                b *= 1.0 - crack * 0.68
+                # Reference bark is ivory with quiet mineral seams. Keep the
+                # grain visible, but avoid black zebra bands in the runtime.
+                r *= 1.0 - crack * 0.20
+                g *= 1.0 - crack * 0.18
+                b *= 1.0 - crack * 0.14
             elif kind == "branch":
                 grain = 0.5 + 0.5 * math.sin(u * 42.0 + math.sin(v * 23.0) * 1.7)
                 fine = 0.5 + 0.5 * math.sin(u * 180.0 - v * 47.0)

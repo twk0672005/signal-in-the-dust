@@ -1,0 +1,30 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v15-ivory-bark-fine-lace",
+  "at": "2026-10-04T01:05:00Z",
+  "web": {
+    "activeCamera": "ContactShowcaseCamera",
+    "heroDistanceMeters": 20.0000247955322,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "shell404": 0,
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v5/arrival.png",
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json"
+  },
+  "asset": {
+    "triangles": 77032,
+    "embeddedAlbedoImages": 3,
+    "fineLacePaths": 12,
+    "leavesPerCluster": 34,
+    "runtimeLook": "ivory bark with low-contrast mineral seams, golden branch lace, pale-gold crown"
+  },
+  "startup": {
+    "coldSeconds": 14.82,
+    "firstPlayableSeconds": 15.141,
+    "targetUnder30s": true,
+    "receipt": "evidence/world-tree-20261003/startup-v12/receipt.json"
+  },
+  "remainingGap": "Exact supplied-image species fidelity and ruins/shafts remain an interpretation gap; second art update is not published.",
+  "publish": "not published to main/GitHub"
+}
