@@ -1,0 +1,50 @@
+{
+  "receiptVersion": 1,
+  "taskId": "87859334",
+  "identity": {
+    "name": "art-retry",
+    "id": "8709d0c6499d",
+    "type": "art-director",
+    "team": "signal-dust-clawteam-repair-20261004"
+  },
+  "sources": {
+    "arrivalImage": {
+      "path": "evidence/world-tree-20261003/tree-journey-autopilot-v11/arrival.png",
+      "sha256": "0C86247C27619CD1429811769A5D42FB5DE618D58D2765739C6B9B7CD04E7A93"
+    },
+    "finalReceipt": {
+      "path": "evidence/world-tree-20261003/FINAL_RECEIPT-v21.json",
+      "sha256": "253D8FCCE31FD001D75EDBED09BF89CF8EFF7160FA65A41B2548D85639825945",
+      "status": "PARTIAL",
+      "candidate": "reference-locked-world-tree-v6-broad-crown",
+      "observedAt": "2026-10-04T04:08:07.7158781Z"
+    }
+  },
+  "verdict": "PARTIAL",
+  "action": "RETRY_ART_DIRECTION",
+  "factualGaps": [
+    {
+      "id": "crown-interweaving",
+      "fact": "FINAL_RECEIPT-v21 records that the reference crown is still less organically interwoven than the supplied image; the inspected arrival frame shows a sparse, mostly radial upper crown with large open gaps."
+    },
+    {
+      "id": "light-shaft-and-ruins",
+      "fact": "FINAL_RECEIPT-v21 records that the light-shaft layer is restrained and the ruins remain simple; both conditions are visible in the arrival frame."
+    },
+    {
+      "id": "human-acceptance",
+      "fact": "FINAL_RECEIPT-v21 explicitly leaves human Nova taste acceptance unresolved; the inspected evidence contains no human acceptance record."
+    }
+  ],
+  "runtimeBoundary": {
+    "completionObserved": true,
+    "readyToInteract": true,
+    "pageErrors": 0,
+    "activeCamera": "ContactShowcaseCamera",
+    "targetDistanceMeters": 20.0000038,
+    "seconds": 65.958
+  },
+  "readOnlyInspection": true,
+  "productFilesEdited": false,
+  "createdAt": "2026-10-04T07:34:26.3054636Z"
+}
