@@ -59,8 +59,8 @@
       "material": "WorldTree_Branches"
     },
     "WorldTree_Leaves": {
-      "vertices": 27744,
-      "triangles": 36992,
+      "vertices": 35844,
+      "triangles": 47792,
       "material": "WorldTree_Leaves"
     },
     "WorldTree_LuminousVeins": {
@@ -69,7 +69,7 @@
       "material": "WorldTree_LuminousVeins"
     }
   },
-  "triangles": 59632,
+  "triangles": 70432,
   "primitive_count": 4,
   "gltf_material_count": 4,
   "gltf_image_count": 3,
@@ -87,18 +87,18 @@
   "files": [
     {
       "path": "godot/assets/world_tree_v3/world_tree.glb",
-      "bytes": 5461780,
-      "sha256": "ff77c84a7b4d202f401bf205ffe5c731d8160d7397309994e8ff10a009ffed9e"
+      "bytes": 6589084,
+      "sha256": "ee9dc866340683c510d7547d57fda3549a4bc4af2940ab2e00513779dafcbb59"
     },
     {
       "path": "art-source/world_tree_20261003_v3/world_tree.blend",
-      "bytes": 2203011,
-      "sha256": "61ae4f6f19a1b78735f3699a1c64839235103bb7129b0f6bcbf35a02c766a23f"
+      "bytes": 2427700,
+      "sha256": "8bac28590d9be94c5a54e71eeee5f97506ae39bca02bd01e11019dbf0b39774d"
     },
     {
       "path": "art-source/world_tree_20261003_v3/build_world_tree_v3.py",
-      "bytes": 35221,
-      "sha256": "26597ec19ef5874201a5aa51572062d9218126f8f3b9f101a6d78d5c1d0330b6"
+      "bytes": 35296,
+      "sha256": "45cf31d203e30ee25b3f69054ff3fd5931b38d54bbf86594ef434cd46d17000b"
     },
     {
       "path": "godot/assets/world_tree_v3/textures/world_tree_bark_albedo_v2.png",
@@ -112,8 +112,8 @@
     },
     {
       "path": "godot/assets/world_tree_v3/textures/world_tree_leaf_albedo_v2.png",
-      "bytes": 172665,
-      "sha256": "a4cd93d35b584098de1860abbad4fbdb350ca054513d355a42d465f8e3158760"
+      "bytes": 133565,
+      "sha256": "5b2c7102c248e23f136af995479d97e8afb0a45c6f47f7e474becbf00e47aeb6"
     }
   ],
   "provenance": "All geometry, textures and shaders are locally authored by this deterministic script. No downloads, paid assets, ripped assets or external runtime services.",

@@ -107,9 +107,10 @@ def make_texture(path: Path, kind: str):
             else:
                 fleck = max(0.0, math.sin(u * 39.0 + math.sin(v * 11.0) * 3.0)) ** 7
                 warm = 0.5 + 0.5 * math.sin((u + v) * 25.0)
-                r = 0.58 + 0.32 * fleck + 0.05 * warm
-                g = 0.31 + 0.34 * fleck + 0.05 * warm
-                b = 0.060 + 0.040 * fleck
+                # The crown is a pale mineral-gold veil, not orange petals.
+                r = 0.62 + 0.30 * fleck + 0.05 * warm
+                g = 0.42 + 0.30 * fleck + 0.05 * warm
+                b = 0.12 + 0.08 * fleck
             pixels[i:i + 4] = (_clamp(r), _clamp(g), _clamp(b), 1.0)
     image.pixels = pixels
     image.filepath_raw = str(path)
@@ -438,8 +439,8 @@ def add_leaf_cluster(center, scale, phase):
     # faceted orange ball. The negative spaces between leaves preserve volume.
     local=random.Random(SEED + int(abs(phase)*1000.0) + int(scale*17.0))
     c=Vector(center)
-    for leaf_index in range(24):
-        angle=math.tau*leaf_index/24.0 + phase + local.uniform(-.18,.18)
+    for leaf_index in range(34):
+        angle=math.tau*leaf_index/34.0 + phase + local.uniform(-.18,.18)
         radial=Vector((math.cos(angle),math.sin(angle),0.0))
         base=c + radial*local.uniform(.15,scale*.55) + Vector((0,0,local.uniform(-scale*.3,scale*.3)))
         direction=(radial*.58 + Vector((0,0,local.uniform(.16,.65)))).normalized()

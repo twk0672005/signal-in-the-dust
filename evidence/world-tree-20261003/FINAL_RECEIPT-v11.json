@@ -1,0 +1,23 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v11-dense-pale-gold-crown",
+  "at": "2026-10-04T00:20:00Z",
+  "web": {
+    "activeCamera": "ContactShowcaseCamera",
+    "heroDistanceMeters": 20.000026702651,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "shell404": 0,
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json",
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v5/arrival.png"
+  },
+  "asset": {
+    "triangles": 70432,
+    "embeddedAlbedoImages": 3,
+    "change": "34 leaves per crown cluster with pale mineral-gold albedo",
+    "glb": "godot/assets/world_tree_v3/world_tree.glb"
+  },
+  "remainingGap": "The procedural branch language remains an interpretation rather than the supplied image's extremely dense luminous lace; release remains pending Nova visual acceptance.",
+  "publish": "not published to main/GitHub"
+}
