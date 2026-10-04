@@ -190,7 +190,7 @@ func _ready() -> void:
 	contact_showcase = Camera3D.new()
 	contact_showcase.name = "ContactShowcaseCamera"
 	# Web exports must keep a dedicated endpoint owner for the contact/ending shot.
-	contact_showcase.fov = 55
+	contact_showcase.fov = 50
 	contact_showcase.near = 0.08
 	contact_showcase.far = 650.0
 	add_child(contact_showcase)
@@ -1273,10 +1273,10 @@ func _show_contact_camera() -> void:
 	if flat.length_squared() < 0.01: flat = Vector2(0.0, 1.0)
 	var approach := Vector3(flat.x, 0.0, flat.y).normalized()
 	var side := Vector3(-approach.z, 0.0, approach.x)
-	var position := contact.global_position + approach * 120.0 + side * 50.0 + Vector3.UP * 25.0
+	var position := contact.global_position + approach * 292.0 + side * 88.0 + Vector3.UP * 84.0
 	position.y = maxf(position.y, world.height_at(position.x, position.z) + 6.0)
 	contact_showcase.global_position = position
-	contact_showcase.look_at(contact.global_position + Vector3.UP * 100.0, Vector3.UP)
+	contact_showcase.look_at(contact.global_position + Vector3(0.0, 112.0, -18.0), Vector3.UP)
 	contact_showcase.current = true
 
 func _build_contact_showcase_ruins() -> void:
@@ -1287,8 +1287,8 @@ func _build_contact_showcase_ruins() -> void:
 	stone.albedo_color = Color("101515")
 	stone.roughness = 0.98
 	for spec in [
-		{"x":-31.0,"y":6.0,"z":-92.0,"h":28.0},
-		{"x":31.0,"y":8.0,"z":-104.0,"h":34.0}
+		{"x":-92.0,"y":6.0,"z":-122.0,"h":28.0},
+		{"x":92.0,"y":8.0,"z":-136.0,"h":34.0}
 	]:
 		var pillar := MeshInstance3D.new()
 		var mesh := BoxMesh.new()
@@ -1304,6 +1304,29 @@ func _build_contact_showcase_ruins() -> void:
 		cap.position = pillar.position + Vector3(0.0, spec.h * 0.53, 0.0)
 		cap.material_override = stone
 		frame.add_child(cap)
+
+	# Four translucent atmosphere shafts give the endpoint the reference image's
+	# pale-gold volume without a postprocess dependency or a texture download.
+	var shaft_material := StandardMaterial3D.new()
+	shaft_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	shaft_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	shaft_material.albedo_color = Color(1.0, 0.88, 0.56, 0.018)
+	shaft_material.emission_enabled = true
+	shaft_material.emission = Color(1.0, 0.78, 0.34)
+	shaft_material.emission_energy_multiplier = 0.08
+	for i in 4:
+		var shaft := MeshInstance3D.new()
+		shaft.name = "WorldTreeLightShaft_%02d" % i
+		var shaft_mesh := CylinderMesh.new()
+		shaft_mesh.top_radius = 0.8
+		shaft_mesh.bottom_radius = 6.2
+		shaft_mesh.height = 190.0
+		shaft_mesh.radial_segments = 12
+		shaft.mesh = shaft_mesh
+		shaft.position = Vector3(-62.0 + i * 38.0, 94.0, -176.0 - i * 13.0)
+		shaft.rotation = Vector3(0.12 + i * 0.035, 0.08 * sin(float(i)), -0.06 + i * 0.03)
+		shaft.material_override = shaft_material
+		frame.add_child(shaft)
 
 func interact() -> void:
 	var context := interaction_context()
@@ -1621,5 +1644,9 @@ func _wetland_context() -> Dictionary:
 	var data:=_wetland_world_state()
 	data.phase="complete" if data.complete else "return" if data.recovered else "quiet" if data.prepared else "prepare"
 	return data
+
+
+
+
 
 

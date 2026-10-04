@@ -1,0 +1,126 @@
+{
+  "asset": "Signal in the Dust original golden world tree",
+  "generator": "art-source/world_tree_20261004_v5/build_world_tree_v5.py",
+  "blender": "5.2.1 LTS",
+  "blender_build_hash": "9e2066aef7ef",
+  "seed": 20261005,
+  "authoring": {
+    "units": "metres",
+    "up": "+Z",
+    "forward_corridor": "-Y",
+    "export": "glTF Y-up via export_yup=True"
+  },
+  "receiver_axes_note": "Raw glTF accessors confirm authored -Y maps to receiver +Z under export_yup=True; root should still confirm with its placement harness.",
+  "dimensions_authoring_m": {
+    "min": [
+      -135.33,
+      -127.1141,
+      -1.6336
+    ],
+    "max": [
+      143.3306,
+      132.8431,
+      252.4075
+    ],
+    "size": [
+      278.6605,
+      259.9573,
+      254.0411
+    ]
+  },
+  "target_dimensions_m": {
+    "height": 230.0,
+    "crown_width": 240.0,
+    "trunk_flare_diameter": 14.8,
+    "root_spread_radius": 55.0,
+    "approach_clear_radius": 9.5
+  },
+  "approach_clearance": {
+    "receiver_direction": "+Z",
+    "authoring_direction": "-Y",
+    "nearest_root_angle_deg": 32.7,
+    "corridor_is_unblocked_by_large_root": true
+  },
+  "materials": [
+    "WorldTree_Bark",
+    "WorldTree_Branches",
+    "WorldTree_Leaves",
+    "WorldTree_LuminousVeins"
+  ],
+  "mesh_stats": {
+    "WorldTree_Bark": {
+      "vertices": 2724,
+      "triangles": 5364,
+      "material": "WorldTree_Bark"
+    },
+    "WorldTree_Branches": {
+      "vertices": 10291,
+      "triangles": 19642,
+      "material": "WorldTree_Branches"
+    },
+    "WorldTree_Leaves": {
+      "vertices": 34614,
+      "triangles": 46152,
+      "material": "WorldTree_Leaves"
+    },
+    "WorldTree_LuminousVeins": {
+      "vertices": 6841,
+      "triangles": 12690,
+      "material": "WorldTree_LuminousVeins"
+    }
+  },
+  "triangles": 83848,
+  "primitive_count": 4,
+  "gltf_material_count": 4,
+  "gltf_image_count": 3,
+  "gltf_node_names": [
+    "WorldTree_Bark",
+    "WorldTree_Branches",
+    "WorldTree_Leaves",
+    "WorldTree_LuminousVeins"
+  ],
+  "leaf_surface": {
+    "opaque": true,
+    "alpha_blended": false,
+    "recommended_cast_shadow": false
+  },
+  "files": [
+    {
+      "path": "godot/assets/world_tree_v5/world_tree.glb",
+      "bytes": 7037396,
+      "sha256": "3c489d782575c9e0a9d998c2bdf4d8c3f2827f4a3bb54b18908117b79760ca5d"
+    },
+    {
+      "path": "art-source/world_tree_20261004_v5/world_tree.blend",
+      "bytes": 2801088,
+      "sha256": "b799ff3e19b266af2d82217473385b8dd7f1e11a55e6bc57e850731b3cc1f746"
+    },
+    {
+      "path": "art-source/world_tree_20261004_v5/build_world_tree_v5.py",
+      "bytes": 38457,
+      "sha256": "b8c140d8ef9bf78e80b0ef3e21500446bd216fbfc26719c61b584b3520299271"
+    },
+    {
+      "path": "godot/assets/world_tree_v5/textures/world_tree_bark_albedo_v5.png",
+      "bytes": 209612,
+      "sha256": "f3784cb960436296006ded40eec6680d7c871d86a74752e1848872d477c43194"
+    },
+    {
+      "path": "godot/assets/world_tree_v5/textures/world_tree_branch_albedo_v5.png",
+      "bytes": 204624,
+      "sha256": "9f41264693729769a1e7628ebb2b6e3e8c3ac885b290dfc3a728f4014e1beb5d"
+    },
+    {
+      "path": "godot/assets/world_tree_v5/textures/world_tree_leaf_albedo_v5.png",
+      "bytes": 167889,
+      "sha256": "dc7607b43b432eb1225a6309b89a3463d3f5c17814435848e3c66c08e69cdf09"
+    }
+  ],
+  "provenance": "All geometry, textures and shaders are locally authored by this deterministic script. No downloads, paid assets, ripped assets or external runtime services.",
+  "limitations": [
+    "No baked normal map is included; relief is carried by the low-poly ridged geometry and albedo variation.",
+    "Leaf shadow suppression is represented as receiver metadata; root should disable leaf shadow casting in Godot.",
+    "Godot importer/browser placement and visual quality remain root-owned runtime acceptance gates.",
+    "No native LOD nodes are included; the Godot importer may generate LODs from this merged mesh."
+  ]
+}

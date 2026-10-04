@@ -1,0 +1,605 @@
+{
+  "samples": [
+    {
+      "at": 1791085199709,
+      "z": 150,
+      "x": 0,
+      "target": 0,
+      "targetDistance": 800.000244140625,
+      "speed": 0,
+      "collisions": 1,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085202799,
+      "z": 111.772018432617,
+      "x": 11.763277053833,
+      "target": 11.780889453278824,
+      "targetDistance": 761.852661132812,
+      "speed": 24,
+      "collisions": 3,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085206038,
+      "z": 32.9796943664551,
+      "x": 17.7264442443848,
+      "target": 15.113146957739717,
+      "targetDistance": 683.1923828125,
+      "speed": 24,
+      "collisions": 2,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085209289,
+      "z": -41.8413429260254,
+      "x": 18.2507057189941,
+      "target": 13.587769948300195,
+      "targetDistance": 608.412414550781,
+      "speed": 23.7,
+      "collisions": 2,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085212352,
+      "z": -110.945732116699,
+      "x": 5.7919225692749,
+      "target": 3.091359360183018,
+      "targetDistance": 539.078491210938,
+      "speed": 24,
+      "collisions": 3,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085215458,
+      "z": -178.504165649414,
+      "x": -16.5338077545166,
+      "target": -16.870228715634692,
+      "targetDistance": 471.809967041016,
+      "speed": 24,
+      "collisions": 3,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085218500,
+      "z": -252.447174072266,
+      "x": -15.0044708251953,
+      "target": -15.256372515854927,
+      "targetDistance": 397.862091064453,
+      "speed": 24,
+      "collisions": 0,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085221529,
+      "z": -323.575286865234,
+      "x": -12.1376218795776,
+      "target": -9.84817725972833,
+      "targetDistance": 326.676239013672,
+      "speed": 24,
+      "collisions": 3,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085224616,
+      "z": -395.325042724609,
+      "x": -1.00794684886932,
+      "target": 1.624680550345862,
+      "targetDistance": 254.680541992188,
+      "speed": 24,
+      "collisions": 4,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085227738,
+      "z": -469.200622558594,
+      "x": 18.1210384368896,
+      "target": 20.40891066809434,
+      "targetDistance": 181.638732910156,
+      "speed": 24,
+      "collisions": 2,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085230781,
+      "z": -537.699279785156,
+      "x": 8.75750255584717,
+      "target": 14.004407537241978,
+      "targetDistance": 112.590896606445,
+      "speed": 16.5,
+      "collisions": 0,
+      "phase": "exploring"
+    },
+    {
+      "at": 1791085233826,
+      "z": -587.223449707031,
+      "x": 0.90866482257843,
+      "target": 6.954186143640261,
+      "targetDistance": 62.776969909668,
+      "speed": 16.5,
+      "collisions": 3,
+      "phase": "exploring"
+    }
+  ],
+  "before": {
+    "activeCamera": "FirstPersonCamera",
+    "activities": {
+      "completed_regions": {
+        "aurora_shelf": false,
+        "ember_rift": false,
+        "pale_decay": false,
+        "veil_marsh": false
+      },
+      "current_region": "pale_decay",
+      "discovered_regions": {
+        "aurora_shelf": true,
+        "ember_rift": true,
+        "pale_decay": true,
+        "veil_marsh": true
+      },
+      "escort_complete": false,
+      "escort_state": {
+        "alarm": 0,
+        "complete": false,
+        "origin": {
+          "x": 4.85389375686646,
+          "z": -105
+        },
+        "phase": "idle",
+        "position": {
+          "x": 4.85389375686646,
+          "z": -105
+        },
+        "total": 8,
+        "travelled": 0,
+        "waypoint": 0
+      },
+      "field_notes": {
+        "aurora_lode": false,
+        "aurora_ridge": false,
+        "ember_cairn": false,
+        "ember_lake": false,
+        "marsh_pool": false,
+        "marsh_reed": false,
+        "pale_bone": false,
+        "pale_sink": false
+      },
+      "optional_observations": {
+        "aurora_echo": false,
+        "ember_vent": false,
+        "marsh_crossing": false,
+        "spore_pulse": false
+      },
+      "passage_complete": false,
+      "passage_state": {
+        "alarm": 0,
+        "armed": false,
+        "complete": false,
+        "gate": 0,
+        "phase": "idle",
+        "route": [
+          {
+            "x": -23.3704891204834,
+            "z": -235
+          },
+          {
+            "x": -7.32839965820312,
+            "z": -260
+          },
+          {
+            "x": -18.8248767852783,
+            "z": -285
+          },
+          {
+            "x": -4.42698192596436,
+            "z": -310
+          },
+          {
+            "x": -14.520167350769,
+            "z": -330
+          }
+        ],
+        "total": 5
+      },
+      "quiet_seconds": 0,
+      "resonance_complete": false,
+      "root_network_state": {
+        "complete": false,
+        "ports": [
+          0,
+          0,
+          0
+        ],
+        "powered": 0,
+        "version": 1
+      },
+      "thermal_state": {
+        "locked": false,
+        "route": "warm",
+        "vent_observed": false,
+        "version": 1
+      },
+      "tracked_encounter": "",
+      "version": 11,
+      "wetland_study": {
+        "prepared": false,
+        "recovered": false,
+        "startled": false,
+        "version": 2
+      }
+    },
+    "activityCount": 0,
+    "boosting": false,
+    "camera": {
+      "mode": "first_person",
+      "pitch": 0,
+      "springLength": 7,
+      "yaw": 0
+    },
+    "collisions": 1,
+    "contactProgress": 0,
+    "distance": 810.863273110008,
+    "ecology": {
+      "aeral": "quiet",
+      "rootChoir": "quiet",
+      "veyra": "quiet"
+    },
+    "elapsed": 45.0002000000001,
+    "escort": {
+      "alarm": 0,
+      "complete": false,
+      "origin": {
+        "x": 4.85389375686646,
+        "z": -105
+      },
+      "phase": "idle",
+      "position": {
+        "x": 4.85389375686646,
+        "z": -105
+      },
+      "total": 8,
+      "travelled": 0,
+      "waypoint": 0
+    },
+    "floor": true,
+    "heading": 0.724524895833334,
+    "interaction": {
+      "distance": 8.8738260269165,
+      "eligible": true,
+      "key": "contact",
+      "kind": "contact",
+      "reason": "ready",
+      "subject": "contact"
+    },
+    "maxSpeedMps": 16.5,
+    "observedEcology": {},
+    "passage": {
+      "alarm": 0,
+      "armed": false,
+      "complete": false,
+      "gate": 0,
+      "phase": "idle",
+      "route": [
+        {
+          "x": -23.3704891204834,
+          "z": -235
+        },
+        {
+          "x": -7.32839965820312,
+          "z": -260
+        },
+        {
+          "x": -18.8248767852783,
+          "z": -285
+        },
+        {
+          "x": -4.42698192596436,
+          "z": -310
+        },
+        {
+          "x": -14.520167350769,
+          "z": -330
+        }
+      ],
+      "total": 5
+    },
+    "phase": "exploring",
+    "position": {
+      "x": -4.93234252929688,
+      "y": -0.935893893241882,
+      "z": -643.125793457031
+    },
+    "ready": true,
+    "resetCount": 0,
+    "resonance": {
+      "length": 3,
+      "matched": 0,
+      "phase": "idle",
+      "round_index": 0,
+      "solved": false
+    },
+    "rootNetwork": {
+      "complete": false,
+      "ports": [
+        0,
+        0,
+        0
+      ],
+      "powered": 0,
+      "version": 1
+    },
+    "saveAvailable": true,
+    "saveState": "valid",
+    "saveWriteFailed": false,
+    "settings": {
+      "locale": "zh_TW",
+      "low_quality": false,
+      "reduced_motion": false,
+      "volume": 0.65,
+      "whispers": true
+    },
+    "speed": 0,
+    "speedKph": 0,
+    "speedMps": 0,
+    "targetDistance": 8.8738260269165,
+    "thermal": {
+      "locked": false,
+      "route": "warm",
+      "vent_observed": false,
+      "version": 1
+    },
+    "thermalPulse": 0.509348602251548,
+    "touchEnabled": false,
+    "transmitCount": 0,
+    "view": "first_person",
+    "wetlandStudy": {
+      "prepared": false,
+      "recovered": false,
+      "startled": false,
+      "version": 2
+    }
+  },
+  "finalState": {
+    "activeCamera": "ContactShowcaseCamera",
+    "activities": {
+      "completed_regions": {
+        "aurora_shelf": false,
+        "ember_rift": false,
+        "pale_decay": false,
+        "veil_marsh": false
+      },
+      "current_region": "pale_decay",
+      "discovered_regions": {
+        "aurora_shelf": true,
+        "ember_rift": true,
+        "pale_decay": true,
+        "veil_marsh": true
+      },
+      "escort_complete": false,
+      "escort_state": {
+        "alarm": 0,
+        "complete": false,
+        "origin": {
+          "x": 4.85389375686646,
+          "z": -105
+        },
+        "phase": "idle",
+        "position": {
+          "x": 4.85389375686646,
+          "z": -105
+        },
+        "total": 8,
+        "travelled": 0,
+        "waypoint": 0
+      },
+      "field_notes": {
+        "aurora_lode": false,
+        "aurora_ridge": false,
+        "ember_cairn": false,
+        "ember_lake": false,
+        "marsh_pool": false,
+        "marsh_reed": false,
+        "pale_bone": false,
+        "pale_sink": false
+      },
+      "optional_observations": {
+        "aurora_echo": false,
+        "ember_vent": false,
+        "marsh_crossing": false,
+        "spore_pulse": false
+      },
+      "passage_complete": false,
+      "passage_state": {
+        "alarm": 0,
+        "armed": false,
+        "complete": false,
+        "gate": 0,
+        "phase": "idle",
+        "route": [
+          {
+            "x": -23.3704891204834,
+            "z": -235
+          },
+          {
+            "x": -7.32839965820312,
+            "z": -260
+          },
+          {
+            "x": -18.8248767852783,
+            "z": -285
+          },
+          {
+            "x": -4.42698192596436,
+            "z": -310
+          },
+          {
+            "x": -14.520167350769,
+            "z": -330
+          }
+        ],
+        "total": 5
+      },
+      "quiet_seconds": 0,
+      "resonance_complete": false,
+      "root_network_state": {
+        "complete": false,
+        "ports": [
+          0,
+          0,
+          0
+        ],
+        "powered": 0,
+        "version": 1
+      },
+      "thermal_state": {
+        "locked": false,
+        "route": "warm",
+        "vent_observed": false,
+        "version": 1
+      },
+      "tracked_encounter": "",
+      "version": 11,
+      "wetland_study": {
+        "prepared": false,
+        "recovered": false,
+        "startled": false,
+        "version": 2
+      }
+    },
+    "activityCount": 0,
+    "boosting": false,
+    "camera": {
+      "mode": "first_person",
+      "pitch": 0,
+      "springLength": 7,
+      "yaw": 0
+    },
+    "collisions": 1,
+    "contactProgress": 1,
+    "distance": 810.863273110008,
+    "ecology": {
+      "aeral": "quiet",
+      "rootChoir": "quiet",
+      "veyra": "quiet"
+    },
+    "elapsed": 69.0646560000005,
+    "escort": {
+      "alarm": 0,
+      "complete": false,
+      "origin": {
+        "x": 4.85389375686646,
+        "z": -105
+      },
+      "phase": "idle",
+      "position": {
+        "x": 4.85389375686646,
+        "z": -105
+      },
+      "total": 8,
+      "travelled": 0,
+      "waypoint": 0
+    },
+    "floor": true,
+    "heading": 0.684617306790691,
+    "interaction": {
+      "distance": 0,
+      "eligible": false,
+      "key": "none",
+      "kind": "none",
+      "reason": "none",
+      "subject": ""
+    },
+    "maxSpeedMps": 16.5,
+    "observedEcology": {},
+    "passage": {
+      "alarm": 0,
+      "armed": false,
+      "complete": false,
+      "gate": 0,
+      "phase": "idle",
+      "route": [
+        {
+          "x": -23.3704891204834,
+          "z": -235
+        },
+        {
+          "x": -7.32839965820312,
+          "z": -260
+        },
+        {
+          "x": -18.8248767852783,
+          "z": -285
+        },
+        {
+          "x": -4.42698192596436,
+          "z": -310
+        },
+        {
+          "x": -14.520167350769,
+          "z": -330
+        }
+      ],
+      "total": 5
+    },
+    "phase": "ending",
+    "position": {
+      "x": -11.9682760238647,
+      "y": -1.57121694087982,
+      "z": -634.506774902344
+    },
+    "ready": true,
+    "resetCount": 0,
+    "resonance": {
+      "length": 3,
+      "matched": 0,
+      "phase": "idle",
+      "round_index": 0,
+      "solved": false
+    },
+    "rootNetwork": {
+      "complete": false,
+      "ports": [
+        0,
+        0,
+        0
+      ],
+      "powered": 0,
+      "version": 1
+    },
+    "saveAvailable": true,
+    "saveState": "valid",
+    "saveWriteFailed": false,
+    "settings": {
+      "locale": "zh_TW",
+      "low_quality": false,
+      "reduced_motion": false,
+      "volume": 0.65,
+      "whispers": true
+    },
+    "speed": 0,
+    "speedKph": 0,
+    "speedMps": 0,
+    "targetDistance": 20.0000038146973,
+    "thermal": {
+      "locked": false,
+      "route": "warm",
+      "vent_observed": false,
+      "version": 1
+    },
+    "thermalPulse": 0.466172057745628,
+    "touchEnabled": false,
+    "transmitCount": 1,
+    "view": "first_person",
+    "wetlandStudy": {
+      "prepared": false,
+      "recovered": false,
+      "startled": false,
+      "version": 2
+    }
+  },
+  "readyToInteract": true,
+  "completionObserved": true,
+  "errors": [],
+  "seconds": 64.372,
+  "pass": true
+}

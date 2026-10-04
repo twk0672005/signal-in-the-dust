@@ -17,7 +17,7 @@ var clock: float = 0.0
 const DURATION: float = 24.0
 
 func _ready() -> void:
-	var packed = load("res://assets/world_tree_v3/world_tree.glb")
+	var packed = load("res://assets/world_tree_v5/world_tree.glb")
 	if packed is PackedScene:
 		var model: Node3D = packed.instantiate()
 		model.name = "GoldenWorldTree"
@@ -25,7 +25,7 @@ func _ready() -> void:
 		# Keep the interaction beacon on the road while staging the authored
 		# root mass beyond it, so a close third-person camera still sees the full
 		# trunk silhouette and the surrounding landscape.
-		model.position = Vector3.ZERO
+		model.position = Vector3(0.0, 0.0, -26.0)
 		add_child(model)
 		tree_root = model
 		# The tree is the endpoint landmark, not a wall of opaque foliage. Keep
@@ -46,29 +46,29 @@ func _ready() -> void:
 			tree_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 			tree_material.roughness = 0.82
 			if material_name.contains("leaves"):
-				tree_material.albedo_color = Color(1.35, 1.00, 0.65, 1.0)
+				tree_material.albedo_color = Color(1.00, 0.86, 0.52, 1.0)
 				tree_material.roughness = 0.74
 				tree_material.emission_enabled = true
-				tree_material.emission = Color("bd7e24")
-				tree_material.emission_energy_multiplier = 0.52
+				tree_material.emission = Color("d6ad57")
+				tree_material.emission_energy_multiplier = 0.24
 				mesh_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			elif material_name.contains("luminous") or material_name.contains("vein"):
-				tree_material.albedo_color = Color(1.50, 1.30, 1.00, 1.0)
+				tree_material.albedo_color = Color(1.02, 1.00, 0.94, 1.0)
 				tree_material.roughness = 0.52
 				tree_material.emission_enabled = true
-				tree_material.emission = Color("d9a743")
-				tree_material.emission_energy_multiplier = 1.45
+				tree_material.emission = Color("fff8dc")
+				tree_material.emission_energy_multiplier = 2.10
 				tree_glow_materials.append(tree_material)
 			elif material_name.contains("branch"):
-				tree_material.albedo_color = Color(1.90, 1.72, 1.45, 1.0)
+				tree_material.albedo_color = Color(1.46, 1.38, 1.20, 1.0)
 				tree_material.emission_enabled = true
-				tree_material.emission = Color("987b3b")
-				tree_material.emission_energy_multiplier = 0.46
+				tree_material.emission = Color("ead9a8")
+				tree_material.emission_energy_multiplier = 0.26
 			else:
-				tree_material.albedo_color = Color(1.90, 1.75, 1.50, 1.0)
+				tree_material.albedo_color = Color(1.58, 1.45, 1.22, 1.0)
 				tree_material.emission_enabled = true
-				tree_material.emission = Color("8e733c")
-				tree_material.emission_energy_multiplier = 0.34
+				tree_material.emission = Color("d8bf80")
+				tree_material.emission_energy_multiplier = 0.18
 			mesh_node.material_override = tree_material
 		for part in model.find_children("rib_*", "Node3D",true,false):
 			ribs.append(part)
@@ -87,15 +87,15 @@ func _ready() -> void:
 	body.add_child(collision)
 	add_child(body)
 	light = OmniLight3D.new()
-	light.position = Vector3(0.0, 4.0, 0.0)
+	light.position = Vector3(0.0, 8.0, -24.0)
 	light.light_color = Color("e7bd61")
-	light.light_energy = 1.35
-	light.omni_range = 22.0
+	light.light_energy = 1.05
+	light.omni_range = 42.0
 	light.shadow_enabled = false
 	add_child(light)
 	for spec in [
-		{"position":Vector3(-15.0, 12.0, -9.0), "energy":1.50, "range":34.0},
-		{"position":Vector3(13.0, 25.0, 12.0), "energy":1.20, "range":40.0}
+		{"position":Vector3(-15.0, 24.0, -32.0), "energy":1.15, "range":64.0},
+		{"position":Vector3(18.0, 62.0, -40.0), "energy":0.92, "range":90.0}
 	]:
 		var gold := OmniLight3D.new()
 		gold.position = spec["position"]
@@ -153,10 +153,14 @@ func _process(delta: float) -> void:
 			active = false
 			completed.emit()
 	var pulse := 1.0 + sin(clock*1.4)*0.08 + progress*0.32
-	light.light_energy = 1.35*pulse
+	light.light_energy = 1.05*pulse
 	for i in gold_lights.size():
 		gold_lights[i].light_energy = (1.50 if i == 0 else 1.20) * (0.94 + sin(clock*(1.05 + i*.22))*0.06 + progress*.24)
 	for material in tree_glow_materials:
 		material.emission_energy_multiplier = 1.00 + sin(clock*1.7)*0.08 + progress*.14
 	if is_instance_valid(tree_root): tree_root.scale = Vector3.ONE * (1.0 + sin(clock*.24)*.0025)
+
+
+
+
 

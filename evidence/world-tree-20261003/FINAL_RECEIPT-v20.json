@@ -1,0 +1,51 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v5-micro-lace",
+  "at": "2026-10-04T03:45:42.0477986Z",
+  "asset": {
+    "glb": "godot/assets/world_tree_v5/world_tree.glb",
+    "source": "art-source/world_tree_20261004_v5/build_world_tree_v5.py",
+    "triangles": 83848,
+    "embeddedImages": 3,
+    "sha256": "3C489D782575C9E0A9D998C2BDF4D8C3F2827F4A3BB54B18908117B79760CA5D"
+  },
+  "web": {
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v10/receipt.json",
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v10/arrival.png",
+    "activeCamera": "ContactShowcaseCamera",
+    "completionObserved": true,
+    "readyToInteract": true,
+    "pageErrors": 0,
+    "targetDistanceMeters": 20.0000038,
+    "seconds": 64.372
+  },
+  "visual": {
+    "improved": [
+      "full-crown showcase composition",
+      "ivory/gold trunk and structural branches",
+      "white emissive micro-lace crown",
+      "dark-fantasy terrain, moon and side ruins"
+    ],
+    "remaining": [
+      "reference crown still less organically interwoven than supplied image",
+      "light shaft layer is restrained and ruins remain simple",
+      "human Nova taste acceptance"
+    ]
+  },
+  "startup": {
+    "under30Seconds": "retained prior PASS",
+    "latestBuildPckSha256": "626BB8BBB1CC59DEC979AF3C68CC04D59CA9B7A38FD8981799F666C8C30097E5",
+    "latestBuildWasmSha256": "02E62809FDBD2784B297A8E45A588CB8F27443CCC316F50FA9047F5D9BDDA95E"
+  },
+  "publish": "not published to main or GitHub; homepage boundary remains accepted main",
+  "clawteam": {
+    "team": "signal-dust-worldtree-20261004",
+    "reviewers": [
+      "art-director",
+      "render-engineer",
+      "critic"
+    ],
+    "status": "in_progress_without_returned_handoffs",
+    "usedAsProof": false
+  }
+}
