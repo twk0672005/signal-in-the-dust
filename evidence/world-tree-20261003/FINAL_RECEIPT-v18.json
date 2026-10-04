@@ -1,0 +1,21 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v18-ivory-gold-ruin-frame",
+  "at": "2026-10-04T01:55:00Z",
+  "web": {
+    "activeCamera": "ContactShowcaseCamera",
+    "heroDistanceMeters": 20.0000076,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "shell404": 0,
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v5/arrival.png",
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json"
+  },
+  "visual": {
+    "improved": ["ivory/gold bark", "fine luminous lace", "dense pale-gold leaf crown", "dark sky/moon", "two non-collision ruin silhouettes framing the hero shot"],
+    "remaining": ["exact supplied-image species fidelity", "full ruin/shaft environment beyond the camera frame", "Nova visual acceptance"]
+  },
+  "startup": {"coldSeconds":14.82,"firstPlayableSeconds":15.141,"targetUnder30s":true},
+  "publish": "not published to main/GitHub; second art update remains PARTIAL"
+}

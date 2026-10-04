@@ -194,6 +194,7 @@ func _ready() -> void:
 	contact_showcase.near = 0.08
 	contact_showcase.far = 650.0
 	add_child(contact_showcase)
+	_build_contact_showcase_ruins()
 	audio = load("res://scripts/expedition_audio.gd").new()
 	add_child(audio)
 	var ui_new_started_usec := Time.get_ticks_usec()
@@ -1277,6 +1278,32 @@ func _show_contact_camera() -> void:
 	contact_showcase.global_position = position
 	contact_showcase.look_at(contact.global_position + Vector3.UP * 100.0, Vector3.UP)
 	contact_showcase.current = true
+
+func _build_contact_showcase_ruins() -> void:
+	var frame := Node3D.new()
+	frame.name = "ShowcaseRuinFrame"
+	contact_showcase.add_child(frame)
+	var stone := StandardMaterial3D.new()
+	stone.albedo_color = Color("101515")
+	stone.roughness = 0.98
+	for spec in [
+		{"x":-31.0,"y":6.0,"z":-92.0,"h":28.0},
+		{"x":31.0,"y":8.0,"z":-104.0,"h":34.0}
+	]:
+		var pillar := MeshInstance3D.new()
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(5.0, spec.h, 5.0)
+		pillar.mesh = mesh
+		pillar.position = Vector3(spec.x, spec.y, spec.z)
+		pillar.material_override = stone
+		frame.add_child(pillar)
+		var cap := MeshInstance3D.new()
+		var cap_mesh := BoxMesh.new()
+		cap_mesh.size = Vector3(7.0, 0.8, 6.0)
+		cap.mesh = cap_mesh
+		cap.position = pillar.position + Vector3(0.0, spec.h * 0.53, 0.0)
+		cap.material_override = stone
+		frame.add_child(cap)
 
 func interact() -> void:
 	var context := interaction_context()
