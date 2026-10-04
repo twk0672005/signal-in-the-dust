@@ -1,0 +1,51 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v6-broad-crown",
+  "at": "2026-10-04T04:08:07.7158781Z",
+  "asset": {
+    "glb": "godot/assets/world_tree_v6/world_tree.glb",
+    "source": "art-source/world_tree_20261004_v6/build_world_tree_v6.py",
+    "triangles": 87976,
+    "embeddedImages": 3,
+    "sha256": "B9C5AAB7854C3540ED9928438A9ED0C4BDC0000D090F5A3C1F30D410ABF0AAE2"
+  },
+  "web": {
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v11/receipt.json",
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v11/arrival.png",
+    "activeCamera": "ContactShowcaseCamera",
+    "completionObserved": true,
+    "readyToInteract": true,
+    "pageErrors": 0,
+    "targetDistanceMeters": 20.0000038,
+    "seconds": 65.958
+  },
+  "visual": {
+    "improved": [
+      "full-crown showcase composition",
+      "ivory/gold trunk and structural branches",
+      "white emissive micro-lace and broad crown arcs",
+      "dark-fantasy terrain, moon and side ruins"
+    ],
+    "remaining": [
+      "reference crown still less organically interwoven than supplied image",
+      "light shaft layer is restrained and ruins remain simple",
+      "human Nova taste acceptance"
+    ]
+  },
+  "startup": {
+    "under30Seconds": "retained prior PASS",
+    "latestBuildPckSha256": "BDF174558652E7F79BDA7FD0513AF0FD4BCBC0CD962D799F74EF4255AF610824",
+    "latestBuildWasmSha256": "02E62809FDBD2784B297A8E45A588CB8F27443CCC316F50FA9047F5D9BDDA95E"
+  },
+  "publish": "not published to main or GitHub; homepage boundary remains accepted main",
+  "clawteam": {
+    "team": "signal-dust-worldtree-20261004",
+    "reviewers": [
+      "art-director",
+      "render-engineer",
+      "critic"
+    ],
+    "status": "in_progress_without_returned_handoffs",
+    "usedAsProof": false
+  }
+}
