@@ -1,0 +1,16 @@
+{
+  "taskId": "3a90da7f",
+  "verdict": "PARTIAL",
+  "sourcePaths": [
+    "art-source/world_tree_20261004_v6/build_world_tree_v6.py",
+    "godot/assets/world_tree_v6/world_tree_provenance.json",
+    "evidence/world-tree-20261003/tree-journey-autopilot-v11/receipt.json"
+  ],
+  "triangleCount": 87976,
+  "browserCamera": "ContactShowcaseCamera",
+  "pageErrors": [],
+  "runtimeRisks": [
+    "Godot/browser importer placement and visual framing remain unverified; the receipt only records the ContactShowcaseCamera state, not a pixel capture or independent visual acceptance.",
+    "The 87,976-triangle merged asset has no native LOD nodes, and runtime performance plus leaf-shadow suppression remain unverified in the browser."
+  ]
+}
