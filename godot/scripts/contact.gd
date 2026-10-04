@@ -159,3 +159,4 @@ func _process(delta: float) -> void:
 	for material in tree_glow_materials:
 		material.emission_energy_multiplier = 1.00 + sin(clock*1.7)*0.08 + progress*.14
 	if is_instance_valid(tree_root): tree_root.scale = Vector3.ONE * (1.0 + sin(clock*.24)*.0025)
+
