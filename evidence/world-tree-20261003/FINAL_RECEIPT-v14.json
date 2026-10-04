@@ -1,0 +1,29 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v14-ivory-gold-hdr-lace",
+  "at": "2026-10-04T00:55:00Z",
+  "web": {
+    "activeCamera": "ContactShowcaseCamera",
+    "heroDistanceMeters": 20.0000247955322,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "shell404": 0,
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v5/arrival.png",
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json"
+  },
+  "asset": {
+    "triangles": 77032,
+    "embeddedAlbedoImages": 3,
+    "fineLacePaths": 12,
+    "leavesPerCluster": 34,
+    "runtimeLook": "ivory/gold HDR bark, textured grain, pale mineral-gold crown"
+  },
+  "startup": {
+    "previousV12ColdSeconds": 14.82,
+    "previousV12FirstPlayableSeconds": 15.141,
+    "targetUnder30s": true
+  },
+  "remainingGap": "Exact supplied-image species fidelity and ruins/shafts remain an interpretation gap; a human Nova visual decision is still required before publishing the second art update.",
+  "publish": "not published to main/GitHub"
+}

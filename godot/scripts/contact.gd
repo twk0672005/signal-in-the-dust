@@ -46,29 +46,29 @@ func _ready() -> void:
 			tree_material.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 			tree_material.roughness = 0.82
 			if material_name.contains("leaves"):
-				tree_material.albedo_color = Color(1.22, 0.92, 0.48, 1.0)
+				tree_material.albedo_color = Color(1.35, 1.00, 0.65, 1.0)
 				tree_material.roughness = 0.74
 				tree_material.emission_enabled = true
 				tree_material.emission = Color("bd7e24")
-				tree_material.emission_energy_multiplier = 0.42
+				tree_material.emission_energy_multiplier = 0.52
 				mesh_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			elif material_name.contains("luminous") or material_name.contains("vein"):
-				tree_material.albedo_color = Color(1.34, 1.16, 0.78, 1.0)
+				tree_material.albedo_color = Color(1.50, 1.30, 1.00, 1.0)
 				tree_material.roughness = 0.52
 				tree_material.emission_enabled = true
 				tree_material.emission = Color("d9a743")
-				tree_material.emission_energy_multiplier = 1.10
+				tree_material.emission_energy_multiplier = 1.45
 				tree_glow_materials.append(tree_material)
 			elif material_name.contains("branch"):
-				tree_material.albedo_color = Color(1.55, 1.34, 1.04, 1.0)
+				tree_material.albedo_color = Color(1.75, 1.55, 1.30, 1.0)
 				tree_material.emission_enabled = true
 				tree_material.emission = Color("987b3b")
-				tree_material.emission_energy_multiplier = 0.15
+				tree_material.emission_energy_multiplier = 0.28
 			else:
-				tree_material.albedo_color = Color(1.70, 1.50, 1.18, 1.0)
+				tree_material.albedo_color = Color(1.90, 1.75, 1.50, 1.0)
 				tree_material.emission_enabled = true
 				tree_material.emission = Color("8e733c")
-				tree_material.emission_energy_multiplier = 0.10
+				tree_material.emission_energy_multiplier = 0.34
 			mesh_node.material_override = tree_material
 		for part in model.find_children("rib_*", "Node3D",true,false):
 			ribs.append(part)
@@ -89,13 +89,13 @@ func _ready() -> void:
 	light = OmniLight3D.new()
 	light.position = Vector3(0.0, 4.0, 0.0)
 	light.light_color = Color("e7bd61")
-	light.light_energy = 1.25
+	light.light_energy = 1.35
 	light.omni_range = 22.0
 	light.shadow_enabled = false
 	add_child(light)
 	for spec in [
-		{"position":Vector3(-15.0, 12.0, -9.0), "energy":1.40, "range":34.0},
-		{"position":Vector3(13.0, 25.0, 12.0), "energy":1.10, "range":40.0}
+		{"position":Vector3(-15.0, 12.0, -9.0), "energy":1.50, "range":34.0},
+		{"position":Vector3(13.0, 25.0, 12.0), "energy":1.20, "range":40.0}
 	]:
 		var gold := OmniLight3D.new()
 		gold.position = spec["position"]
@@ -153,9 +153,9 @@ func _process(delta: float) -> void:
 			active = false
 			completed.emit()
 	var pulse := 1.0 + sin(clock*1.4)*0.08 + progress*0.32
-	light.light_energy = 1.25*pulse
+	light.light_energy = 1.35*pulse
 	for i in gold_lights.size():
-		gold_lights[i].light_energy = (1.40 if i == 0 else 1.10) * (0.94 + sin(clock*(1.05 + i*.22))*0.06 + progress*.24)
+		gold_lights[i].light_energy = (1.50 if i == 0 else 1.20) * (0.94 + sin(clock*(1.05 + i*.22))*0.06 + progress*.24)
 	for material in tree_glow_materials:
 		material.emission_energy_multiplier = 1.00 + sin(clock*1.7)*0.08 + progress*.14
 	if is_instance_valid(tree_root): tree_root.scale = Vector3.ONE * (1.0 + sin(clock*.24)*.0025)
