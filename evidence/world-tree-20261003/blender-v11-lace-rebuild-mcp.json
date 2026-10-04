@@ -1,0 +1,18 @@
+{
+  "meta": null,
+  "content": [
+    {
+      "type": "text",
+      "text": "{\n  \"status\": \"ok\",\n  \"result\": {},\n  \"stdout\": \"00:21:50 | INFO: Starting glTF 2.0 export\\n00:21:50 | INFO: Extracting primitive: WorldTree_Bark\\n00:21:50 | INFO: Primitives created: 1\\n00:21:50 | INFO: Extracting primitive: WorldTree_Branches\\n00:21:50 | INFO: Primitives created: 1\\n00:21:50 | INFO: Extracting primitive: WorldTree_Leaves\\n00:21:50 | INFO: Primitives created: 1\\n00:21:50 | INFO: Extracting primitive: WorldTree_LuminousVeins\\n00:21:50 | INFO: Primitives created: 1\\n00:21:50 | INFO: Finished glTF 2.0 export in 0.13509058952331543 s\\n\\nWORLD_TREE_EXPORT {\\\"glb\\\":\\\"C:\\\\\\\\Users\\\\\\\\tsang\\\\\\\\DeepSpaceRover\\\\\\\\deep-space-rover-three-20260906\\\\\\\\godot\\\\\\\\assets\\\\\\\\world_tree_v3\\\\\\\\world_tree.glb\\\",\\\"blend\\\":\\\"C:\\\\\\\\Users\\\\\\\\tsang\\\\\\\\DeepSpaceRover\\\\\\\\deep-space-rover-three-20260906\\\\\\\\art-source\\\\\\\\world_tree_20261003_v3\\\\\\\\world_tree.blend\\\",\\\"triangles\\\":77032,\\\"materials\\\":[\\\"WorldTree_Bark\\\",\\\"WorldTree_Branches\\\",\\\"WorldTree_Leaves\\\",\\\"WorldTree_LuminousVeins\\\"],\\\"images\\\":3,\\\"bounds\\\":{\\\"min\\\":[-117.486,-120.0577,-1.6336],\\\"max\\\":[110.8042,122.8536,242.7199],\\\"size\\\":[228.2902,242.9113,244.3536]},\\\"glb_bytes\\\":7184096}\\n\",\n  \"stderr\": \"C:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\art-source\\\\world_tree_20261003_v3\\\\build_world_tree_v3.py:57: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\\n  scene.world.use_nodes = True\\nC:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\art-source\\\\world_tree_20261003_v3\\\\build_world_tree_v3.py:130: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0\\n  material.diffuse_color = (*colour, 1.0)\\n\"\n}",
+      "annotations": null,
+      "meta": null
+    }
+  ],
+  "structuredContent": {
+    "status": "ok",
+    "result": {},
+    "stdout": "00:21:50 | INFO: Starting glTF 2.0 export\n00:21:50 | INFO: Extracting primitive: WorldTree_Bark\n00:21:50 | INFO: Primitives created: 1\n00:21:50 | INFO: Extracting primitive: WorldTree_Branches\n00:21:50 | INFO: Primitives created: 1\n00:21:50 | INFO: Extracting primitive: WorldTree_Leaves\n00:21:50 | INFO: Primitives created: 1\n00:21:50 | INFO: Extracting primitive: WorldTree_LuminousVeins\n00:21:50 | INFO: Primitives created: 1\n00:21:50 | INFO: Finished glTF 2.0 export in 0.13509058952331543 s\n\nWORLD_TREE_EXPORT {\"glb\":\"C:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\godot\\\\assets\\\\world_tree_v3\\\\world_tree.glb\",\"blend\":\"C:\\\\Users\\\\tsang\\\\DeepSpaceRover\\\\deep-space-rover-three-20260906\\\\art-source\\\\world_tree_20261003_v3\\\\world_tree.blend\",\"triangles\":77032,\"materials\":[\"WorldTree_Bark\",\"WorldTree_Branches\",\"WorldTree_Leaves\",\"WorldTree_LuminousVeins\"],\"images\":3,\"bounds\":{\"min\":[-117.486,-120.0577,-1.6336],\"max\":[110.8042,122.8536,242.7199],\"size\":[228.2902,242.9113,244.3536]},\"glb_bytes\":7184096}\n",
+    "stderr": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\art-source\\world_tree_20261003_v3\\build_world_tree_v3.py:57: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0\n  scene.world.use_nodes = True\nC:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\art-source\\world_tree_20261003_v3\\build_world_tree_v3.py:130: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0\n  material.diffuse_color = (*colour, 1.0)\n"
+  },
+  "isError": false
+}

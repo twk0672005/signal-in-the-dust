@@ -390,6 +390,28 @@ for bi,path in enumerate(dense_paths):
     if bi%3==0:
         add_tube("veins",[Vector(p)+Vector((0,0,.16)) for p in path],[.22,.16,.09,.025],sides=6,steps_per_segment=3,ellipticity=(.82,.62),phase=bi*.31)
 
+# A second, very thin lace layer keeps the upper crown from reading as eleven
+# clean spokes when the hero camera is pulled back.  These paths carry only
+# small tip clusters; their job is negative-space rhythm and species identity.
+for li in range(12):
+    angle=math.tau*li/12.0 + math.sin(li*1.91)*.17 + .24
+    radial=Vector((math.cos(angle),math.sin(angle),0.0))
+    side=Vector((-radial.y,radial.x,0.0))
+    attach=132.0 + (li%5)*12.0
+    length=48.0 + (li%4)*9.0
+    start=Vector((radial.x*.9,radial.y*.9,attach))
+    bend=start+radial*(length*.42)+side*(math.sin(li*1.7)*10.0)+Vector((0,0,16+(li%3)*5))
+    tip=start+radial*length+side*(math.cos(li*1.3)*14.0)+Vector((0,0,30+(li%4)*7))
+    add_tube("branches",[start,bend,tip],[.72,.30,.045],sides=6,steps_per_segment=2,ellipticity=(.86,.68),phase=li*.29)
+    for fork in range(2):
+        t=.38+fork*.22
+        anchor=start.lerp(tip,t)+side*((-1 if fork==0 else 1)*1.6)
+        fork_angle=angle+(-.58 if fork==0 else .52)
+        fr=Vector((math.cos(fork_angle),math.sin(fork_angle),0.0))
+        fine_tip=anchor+fr*(19+fork*6)+Vector((0,0,10+fork*4))
+        add_tube("branches",[anchor,anchor+fr*8+Vector((0,0,5)),fine_tip],[.22,.10,.025],sides=5,steps_per_segment=2,ellipticity=(.82,.60),phase=li*.3+fork)
+        secondary_tips.append((fine_tip,fr+Vector((0,0,.32)),19+fork*6))
+
 
 # --- Selected luminous veins ----------------------------------------------
 vein_indices = {0, 2, 4, 7, 9}

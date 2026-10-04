@@ -1,0 +1,23 @@
+{
+  "status": "PARTIAL",
+  "candidate": "reference-locked-world-tree-v12-fine-lace-ivory-gold",
+  "at": "2026-10-04T00:30:00Z",
+  "web": {
+    "activeCamera": "ContactShowcaseCamera",
+    "heroDistanceMeters": 20.00002670288,
+    "fourRegionsDiscovered": true,
+    "endingObserved": true,
+    "pageErrors": 0,
+    "shell404": 0,
+    "heroFrame": "evidence/world-tree-20261003/tree-journey-autopilot-v5/arrival.png",
+    "routeReceipt": "evidence/world-tree-20261003/tree-journey-autopilot-v5/receipt.json"
+  },
+  "asset": {
+    "triangles": 77032,
+    "embeddedAlbedoImages": 3,
+    "crown": "34 leaves per cluster plus 12 additional fine-lace branch paths",
+    "runtimeLook": "HDR ivory/gold bark and pale mineral-gold crown"
+  },
+  "remainingGap": "The silhouette and leaf language remain an original procedural interpretation rather than a pixel-faithful reconstruction of the supplied concept image; keep Nova visual acceptance open.",
+  "publish": "not published to main/GitHub"
+}
