@@ -19,6 +19,16 @@ Pages建置成功、23個公開檔案雜湊一致，公開Chrome的32項入口�
 
 [開啟遊戲](http://127.0.0.1:51860/) · [完整交付與驗證](evidence/alien-renewal-20260930T200644Z/HANDOFF.md)。固定版本7830ff00616c4e124b3b6440；可玩、美術與入口已整合，整體 Valley／60FPS／冷啟動門檻仍 PARTIAL，未發布。本段覆蓋下方歷史的 current/latest/預覽埠；舊工作、版本與證據保留。
 
+## Focused E repair — 2026-10-04, local candidate
+
+Previous 24-hour GitHub publication is complete. Nova then reported E at the world
+tree felt meaningless. That focused repair now passes its native, desktop and
+touch-context journeys. Read evidence/e-first-contact-20261004/HANDOFF.md and
+FINAL_RECEIPT.json. Local candidate web-r4, release94ed63a5c616a09020345d8d,
+http://127.0.0.1:52886/ (verify liveness). No new publication was performed or
+authorized for this repair. The broad art project remains PARTIAL and paused;
+this checkpoint does not resume old autonomous windows or ClawTeam work.
+
 ## Current local Blender lookdev — 2026-09-29
 
 Read docs/BLENDER_LOOKDEV_2026-09-29.md first. Requested skills installed with pinned sources; isolated Blender5.2.1 produced rock assets now used by Godot. Current local candidate release597955345e5829e79603d673, port52372/PID42468 (verify liveness), evidence/blender-lookdev-20260929/candidate-reviewed/web. Actual Web comparisons and driving/pause checked, native regressions passed. Overall wow/visual goal remains PARTIAL. Preserves the pending entry redesign; all current changes remain local and uncommitted. No automation or publication started.

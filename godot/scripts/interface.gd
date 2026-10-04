@@ -158,10 +158,24 @@ const COPY := {
 	"transmit": ["E   TRANSMIT A PULSE", "E   發送脈衝"],
 	"contact": ["LISTEN", "聆聽"],
 	"contact_sub": ["The landscape is answering.", "大地正在回應。"],
+	"contact_stage_0": ["Sending your signature", "聲紋已送出"],
+	"contact_stage_1": ["Roots are answering", "根脈正在回應"],
+	"contact_stage_2": ["Life response received", "收到生命回應"],
+	"contact_stage_sub_0": ["Your pulse enters the world tree's life network.", "你的脈衝進入世界樹的生命網絡。"],
+	"contact_stage_sub_1": ["A living response travels back through the roots.", "生命回應正沿根脈傳回。"],
+	"contact_stage_sub_2": ["Confirm first contact, or keep listening.", "確認首次聯絡，或繼續聆聽。"],
+	"contact_confirm_action": ["E · CONFIRM FIRST CONTACT", "E · 確認首次聯絡"],
+	"contact_reply_action": ["E · SEND A REPLY PULSE", "E · 回覆一道脈衝"],
+	"contact_reply_sent": ["Reply sent · the world tree received your pulse.", "回覆已送出 · 世界樹收到你的脈衝。"],
+	"contact_reply_wait": ["Pulse travelling · ready again in a moment", "脈衝傳送中 · 稍候即可再次回覆"],
 	"arrival": ["SURFACE ARRIVAL", "抵達地表"],
 	"arrival_sub": ["A signal. Too regular to be the wind.", "一段訊號。規律得不像風聲。"],
 	"ending": ["It heard you.", "它聽見了。"],
-	"ending_sub": ["You sent a pulse into the silence.\nAn entire landscape answered.", "你向寂靜發送了一道脈衝。\n整片大地作出了回應。"],
+	"ending_sub": ["You linked with the world tree's life network.\nIts response and your journal discoveries stay with this expedition.\nStarting a new journey clears this record.", "你已接通世界樹的生命網絡。\n繼續探索時，回應與日誌中的發現會保留。\n開始新旅程才會清除此紀錄。"],
+	"saved_contact_notice": ["First contact is recorded in your previous expedition. Starting anew clears that record.", "上次探勘已記錄首次聯絡。重新出發才會清除此紀錄。"],
+	"ending_unsaved": ["You linked with the world tree's life network.\nIts response and your discoveries remain in this session.\nProgress could not be saved for reload.", "你已接通世界樹的生命網絡。\n生命回應與發現仍保留在本次遊玩。\n未能儲存進度供重新載入。"],
+	"journal_contact": ["FIRST CONTACT · LIFE NETWORK LINKED", "首次聯絡 · 已接通生命網絡"],
+	"journal_contact_detail": ["World tree response recorded · discoveries preserved", "世界樹回應已記錄 · 探勘發現保留"],
 	"recorded": ["FIRST CONTACT  /  RECORDED", "初次接觸  /  已記錄"],
 	"replay": ["Explore again", "再次探索"],
 	"paused": ["Expedition paused", "探勘已暫停"],
@@ -223,6 +237,7 @@ var _saved_available := false
 var _save_invalid := false
 var _clear_failed := false
 var _write_failed := false
+var _saved_contact_completed := false
 var _root: Control
 var _hud: Control
 var _overlay: Control
@@ -247,10 +262,16 @@ var _escort_context: Dictionary = {}
 var _journal_context: Dictionary = {"entries": {}, "tracked": ""}
 var _reticle: Label
 var _interaction: Button
+var _interaction_kind := ""
 var _interaction_context: Dictionary = {}
 var _feedback_panel: PanelContainer
 var _message: Label
 var _contact_bar: ProgressBar
+var _contact_title: Label
+var _contact_subtitle: Label
+var _contact_stage := 0
+var _contact_elapsed_seconds := 0.0
+var _contact_can_confirm := false
 var _message_key := ""
 var _distance := 0.0
 var _elapsed := 0.0
@@ -332,6 +353,8 @@ func _style(background: Color, border: Color, inset: int = 12) -> StyleBoxFlat:
 	return box
 
 func _build() -> void:
+	_contact_title = null
+	_contact_subtitle = null
 	if is_instance_valid(_root):
 		_root.queue_free()
 	_root = Control.new()
@@ -405,6 +428,7 @@ func _build_hud() -> void:
 	_hud.add_child(top)
 	var panel := PanelContainer.new()
 	panel.name = "CurrentInvestigation"
+	panel.visible = _state != "contact"
 	panel.custom_minimum_size.x = 290 * scale if _mobile else minf(410.0, get_viewport().get_visible_rect().size.x * 0.36)
 	panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -430,14 +454,21 @@ func _build_hud() -> void:
 	_activity_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	left.add_child(_activity_label)
 	var instruments := left
-	if not _mobile:
+	if not _mobile or _state == "contact":
 		var glass := PanelContainer.new()
 		glass.name = "RoverInstrumentGlass"
 		glass.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
-		glass.offset_left = 22
-		glass.offset_right = 313
-		glass.offset_top = -106
-		glass.offset_bottom = -21
+		if _mobile:
+			glass.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+			glass.offset_left = 14 * scale
+			glass.offset_right = 242 * scale
+			glass.offset_top = 10 * scale
+			glass.offset_bottom = 72 * scale
+		else:
+			glass.offset_left = 22
+			glass.offset_right = 313
+			glass.offset_top = -106
+			glass.offset_bottom = -21
 		glass.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		glass.add_theme_stylebox_override("panel",_style(Color(0.035,0.09,0.09,0.78),Color(0.45,0.61,0.56,0.3),12))
 		_hud.add_child(glass)
@@ -446,7 +477,7 @@ func _build_hud() -> void:
 		instruments.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		instruments.add_theme_constant_override("separation", 8)
 		glass.add_child(instruments)
-		instruments.add_child(_label(_text("rover"), 10, SIGNAL))
+		if not _mobile: instruments.add_child(_label(_text("rover"), 10, SIGNAL))
 	_speed_label = _label("", roundi(12 * scale) if _mobile else 19, PAPER)
 	_speed_label.name = "Speedometer"
 	instruments.add_child(_speed_label)
@@ -519,6 +550,7 @@ func _build_hud() -> void:
 	bottom.add_child(_ecology_label)
 	_ecology_label.visible = false
 	_interaction = _button("transmit", func() -> void: interact_requested.emit())
+	_interaction.name = "InteractionAction"
 	_interaction.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_interaction.custom_minimum_size.x = 260
 	_interaction.add_theme_font_size_override("font_size", 16)
@@ -542,15 +574,25 @@ func _build_overlay() -> void:
 	if _state in ["arrival", "contact"]:
 		var captions := VBoxContainer.new()
 		captions.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-		captions.offset_left = -420
-		captions.offset_right = 420
-		captions.offset_top = -205 if _state == "contact" else -150
-		captions.offset_bottom = -80
+		var caption_half_width := minf(420.0, available.x * 0.5 - 24.0)
+		captions.offset_left = -caption_half_width
+		captions.offset_right = caption_half_width
+		captions.offset_top = (-250 if _mobile else -220) if _state == "contact" else -150
+		captions.offset_bottom = (-170 if _mobile else -140) if _state == "contact" else -80
 		_overlay.add_child(captions)
 		for key in [_state, _state + "_sub"]:
 			var caption := _label(_text(key), 19 if key == _state else 14, SIGNAL if _state == "contact" else PAPER)
 			caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			captions.add_child(caption)
+			if _state == "contact":
+				if key == "contact":
+					_contact_title = caption
+					caption.name = "ContactStageTitle"
+				else:
+					_contact_subtitle = caption
+					caption.name = "ContactStageSubtitle"
+		_render_contact_feedback()
 		return
 	var panel := PanelContainer.new()
 	panel.name = "JourneyPanel"
@@ -650,6 +692,11 @@ func _build_overlay() -> void:
 		var notice := _label(_text("fresh_notice"), 13, MUTED)
 		notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		column.add_child(notice)
+		if _saved_contact_completed:
+			var contact_notice := _label(_text("saved_contact_notice"), 13, SIGNAL)
+			contact_notice.name = "SavedFirstContactNotice"
+			contact_notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			column.add_child(contact_notice)
 		var actions := HBoxContainer.new()
 		actions.add_theme_constant_override("separation", 10)
 		column.add_child(actions)
@@ -675,7 +722,9 @@ func _build_overlay() -> void:
 	elif _state == "ending":
 		column.add_child(_label(_text("recorded"), 12, SIGNAL))
 		column.add_child(_label(_text("ending"), 34))
-		column.add_child(_label(_text("ending_sub"), 16))
+		var result := _label(_text("ending_unsaved" if _write_failed else "ending_sub"), 16)
+		result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		column.add_child(result)
 		primary = _button("keep_exploring", func() -> void: explore_requested.emit())
 		column.add_child(primary)
 		column.add_child(_label("%02d:%02d" % [int(_elapsed) / 60, int(_elapsed) % 60], 12, MUTED))
@@ -751,6 +800,14 @@ func _build_journal_entries(parent: VBoxContainer) -> void:
 	var current := _label(_target_name(str(_activity_context.get("target", ""))), 18)
 	current.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	parent.add_child(current)
+	if bool(_journal_context.get("contactCompleted", false)):
+		var contact_entry := _label(_text("journal_contact"), 14, SIGNAL)
+		contact_entry.name = "JournalFirstContact"
+		contact_entry.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		parent.add_child(contact_entry)
+		var contact_detail := _label(_text("journal_contact_detail"), 13, MUTED)
+		contact_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		parent.add_child(contact_detail)
 	parent.add_child(_label(_text("journal_discoveries") % count, 15, SIGNAL))
 	for species in ["veyra", "aeral", "root_choir"]:
 		var found := bool(observed.get(species, false))
@@ -817,6 +874,9 @@ func set_saved_available(value: bool, failed: bool = false) -> void:
 	_save_invalid = failed
 	if _state == "menu" and is_instance_valid(_root): _build()
 
+func set_saved_contact_completed(value: bool) -> void:
+	_saved_contact_completed = value
+
 func show_state(state: String) -> void:
 	if not state in ["menu", "arrival", "exploring", "contact", "ending", "paused", "settings", "journal", "confirm_reset", "confirm_new"]:
 		return
@@ -826,7 +886,26 @@ func show_state(state: String) -> void:
 		_build()
 
 func set_journal_context(data: Dictionary) -> void:
+	var contact_changed := bool(data.get("contactCompleted", false)) != bool(_journal_context.get("contactCompleted", false))
 	_journal_context = data.duplicate(true)
+	if contact_changed and _state in ["journal", "ending"] and is_instance_valid(_root): _build()
+
+func set_contact_feedback(stage: int, elapsed_seconds: float, can_confirm: bool) -> void:
+	_contact_stage = clampi(stage, 0, 2)
+	_contact_elapsed_seconds = maxf(elapsed_seconds, 0.0)
+	_contact_can_confirm = can_confirm and _contact_elapsed_seconds >= 6.0
+	_render_contact_feedback()
+
+func _render_contact_feedback() -> void:
+	if _state != "contact": return
+	if is_instance_valid(_contact_title): _contact_title.text = _text("contact_stage_%d" % _contact_stage)
+	if is_instance_valid(_contact_subtitle): _contact_subtitle.text = _text("contact_stage_sub_%d" % _contact_stage)
+	if is_instance_valid(_interaction):
+		set_interaction_kind("contact_confirm")
+		_interaction.visible = _contact_can_confirm
+		_interaction.disabled = not _contact_can_confirm
+	if is_instance_valid(_ecology_label): _ecology_label.visible = false
+	_refresh_feedback_visibility()
 
 func set_map_road(points: PackedVector2Array) -> void:
 	_map_road = points
@@ -949,8 +1028,13 @@ func set_escort_context(data: Dictionary) -> void:
 	_render_activity_context()
 
 func set_interaction_kind(kind: String) -> void:
+	_interaction_kind = kind
 	if not is_instance_valid(_interaction): return
-	_interaction.text=_text("thermal_observe_action" if kind=="thermal_observe" else "thermal_route_action" if kind=="thermal_route" else "root_turn" if kind.begins_with("root_relay:") else "root_pulse" if kind=="root_pulse" else "passage_action" if kind=="passage" else "escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
+	_interaction.text=_text("contact_confirm_action" if kind=="contact_confirm" else "contact_reply_action" if kind=="contact_reply" else "thermal_observe_action" if kind=="thermal_observe" else "thermal_route_action" if kind=="thermal_route" else "root_turn" if kind.begins_with("root_relay:") else "root_pulse" if kind=="root_pulse" else "passage_action" if kind=="passage" else "escort_action" if kind=="escort" else "resonance_action" if kind=="resonance" else "survey_action" if kind.begins_with("survey:") else ("observe_action" if kind=="ecology" else "transmit"))
+	var touch_contact := _mobile and kind in ["contact_confirm", "contact_reply"]
+	var scale := maxf(1.0, get_viewport().get_visible_rect().size.y / maxf(1.0, DisplayServer.window_get_size().y)) if touch_contact else 1.0
+	_interaction.custom_minimum_size = Vector2(260 * scale, 48 * scale)
+	_interaction.add_theme_font_size_override("font_size", roundi(14 * scale) if touch_contact else 16)
 
 func set_interaction_context(data: Dictionary) -> void:
 	_interaction_context = data.duplicate()
@@ -958,7 +1042,11 @@ func set_interaction_context(data: Dictionary) -> void:
 
 func _render_interaction_context() -> void:
 	if not is_instance_valid(_ecology_label): return
+	if _state == "contact":
+		_render_contact_feedback()
+		return
 	if _interaction_context.is_empty():
+		set_interaction_kind(_interaction_kind)
 		_refresh_feedback_visibility()
 		return
 	var data := _interaction_context
@@ -972,6 +1060,7 @@ func _render_interaction_context() -> void:
 	var detail := _text("interaction_" + reason)
 	if reason == "ready": detail = _interaction.text
 	if reason == "wait" and subject == "aeral": detail = _text("study_wait")
+	if reason == "wait" and kind == "contact_reply": detail = _text("contact_reply_wait")
 	if _mobile:
 		if reason == "slow": detail = "Tap Brake to stop" if _config.locale == "en" else "點煞車停下"
 		elif reason == "closer": detail = "Crawl + Drive to approach gently" if _config.locale == "en" else "慢行＋前進，慢慢靠近"
@@ -979,10 +1068,10 @@ func _render_interaction_context() -> void:
 		detail = detail.replace("E · ", "").replace("E   ", "").replace("E  ", "").replace("with E", "with Observe").replace("E 再次", "點互動再次")
 	var distance := float(data.get("distance", 0.0))
 	_ecology_label.text = name + (" · %d m" % roundi(distance) if distance > 0.0 else "")
-	# A ready desktop action is already printed on its physical button.
-	if not detail.is_empty() and (reason != "ready" or _mobile): _ecology_label.text += "\n" + detail
-	_ecology_label.visible = kind != "none" and reason != "none" and _state == "exploring"
-	_interaction.visible = eligible and _state == "exploring" and not _mobile
+	# Ready reply pulses use the same readable physical action on every device.
+	if not detail.is_empty() and (reason != "ready" or (_mobile and kind != "contact_reply")): _ecology_label.text += "\n" + detail
+	_ecology_label.visible = kind != "none" and reason != "none" and _state == "exploring" and not (kind == "contact_reply" and eligible)
+	_interaction.visible = eligible and _state == "exploring" and (not _mobile or kind == "contact_reply")
 	_interaction.disabled = not eligible
 	_reticle.text = "+" if eligible else "·"
 	_reticle.modulate = SIGNAL if eligible else Color(1, 1, 1, 0.35)
@@ -999,7 +1088,13 @@ func set_message(key: String) -> void:
 	_offer_whisper(key, _text(key), importance, 7.0, 8.0, true)
 
 func reset_guidance() -> void:
+	_contact_stage = 0
+	_contact_elapsed_seconds = 0.0
+	_contact_can_confirm = false
+	_interaction_kind = ""
+	_interaction_context.clear()
 	_guidance.reset()
+	_render_contact_feedback()
 	_refresh_whisper()
 
 func tick_guidance(delta: float) -> void:
