@@ -1,26 +1,32 @@
 # Signal in the Dust · 塵境回聲
 
-Drive a rover. Explore an alien planet. 駕駛探索車，探索外星星球。
+Play: https://twk0672005.github.io/signal-in-the-dust/
 
-Play: https://twk0672005.github.io/signal-in-the-dust/?v=d2594da6c116b21ea624de1b
+## World Tree update — 2026-10-04
 
-Explore four alien regions, stop to observe Veyra, Aeral and Morrow, and
-investigate life signals. English / 繁體中文; landscape touch controls.
-W/S drive, brake and reverse; A/D steer; Space brake; C crawl; V camera;
-right-drag look; E observe; J journal; Esc pause. Existing saved progress is
-replaced only after confirmation.
+Drive Rover 07 across four alien habitats, observe Veyra, Aeral and Morrow, and
+follow the life signal to the luminous world tree. This release includes the
+cinematic rover-game homepage, existing loading improvements, the v6 tree built
+in Blender, an ivory/gold and white branch crown, darker endpoint terrain,
+and a dedicated arrival camera.
 
-The October3 entrance update adds original cinematic concept art, clearly
-labelled, alongside separate actual-game previews. The optimized hero is345KB;
-bounded pointer motion respects reduced motion. The previously published
-game, loading pipeline and save/touch controls retain identical bytes.
-Local isolated Chrome154/RTX4060 start-to-drive measured15.665s cold and10.976s
-warm. Public results are recorded after readback; this is not a guarantee for
-every device/network. Physical phones/Safari, long play sessions and the wider
-Valley/sustained60FPS targets are not newly proven by this entrance update.
+Controls: W/S drive and reverse; A/D steer; Space brake; C crawl; V switch camera;
+right-drag look; E interact; J journal; Esc pause; R restart with confirmation.
+Traditional Chinese and English, mobile landscape touch controls, and protected
+saved progress remain available. No external AI account is required to play.
 
-This repository holds the Web export; editable Godot source is in its separate
-local repository. release.json / release-manifest.json bind source and artifact
-identities; CREDITS.md, licenses and home-art-provenance.json retain provenance.
-All prior releases remain available. The requested golden-world-tree and
-dark-fantasy world update is separate work in progress.
+Nova explicitly requested publication of the last 24 hours of updates.
+Local browser evidence proves four-region driving, E interaction and the
+24-second ending. Publication is separate from visual acceptance: exact reference
+crown fidelity, ruins/light shafts, physical phones/Safari and sustained performance
+remain PARTIAL or unverified. This publication does not claim Valley-quality parity.
+
+Source snapshot: 3808df73de55e6f2339808329d7a7918a37141b4.
+Game implementation: 864fc57 (v6 broad luminous crown).
+Release: bedf501e10b0277026060294.
+The 99,858,684-byte decoded game pack is streamed in two parts with unchanged
+content. All prior immutable releases and cached-page dependencies are retained.
+
+See release.json and release-manifest.json for artifact identities; CREDITS.md,
+licenses/ and home-art-provenance.json retain the existing asset notices.
+Editable Godot/Blender sources are available on branch codex/world-tree-v2-20261003.

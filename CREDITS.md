@@ -19,3 +19,6 @@ labelled as concept art in the interface. It is not a game screenshot. The four
 region previews are actual exported Godot captures, resized/encoded only.
 See home-art-provenance.json for original-source and delivered-image hashes.
 No commercial-game assets were extracted. Prior credits/licenses are retained.
+
+## World Tree v6 — 2026-10-04
+Project-authored Blender geometry, textures and Godot runtime integration. No external image was shipped as game content.
