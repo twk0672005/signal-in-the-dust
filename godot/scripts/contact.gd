@@ -47,19 +47,19 @@ func _ready() -> void:
 			material.roughness = 0.82
 			material.emission_enabled = true
 			if material_name.contains("leaves"):
-				material.albedo_color = Color(1.00, 0.86, 0.52, 1.0)
+				material.albedo_color = Color(0.82, 0.69, 0.38, 1.0)
 				material.roughness = 0.74
 				material.emission = Color("d6ad57")
-				material.emission_energy_multiplier = 0.24
+				material.emission_energy_multiplier = 0.08
 				mesh_node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			elif material_name.contains("branch"):
-				material.albedo_color = Color(1.46, 1.38, 1.20, 1.0)
+				material.albedo_color = Color(0.70, 0.65, 0.48, 1.0)
 				material.emission = Color("ead9a8")
-				material.emission_energy_multiplier = 0.26
+				material.emission_energy_multiplier = 0.035
 			else:
-				material.albedo_color = Color(1.58, 1.45, 1.22, 1.0)
+				material.albedo_color = Color(0.63, 0.59, 0.45, 1.0)
 				material.emission = Color("d8bf80")
-				material.emission_energy_multiplier = 0.18
+				material.emission_energy_multiplier = 0.025
 			mesh_node.material_override = material
 	var body := StaticBody3D.new()
 	body.name = "SignalCollision"
@@ -68,7 +68,7 @@ func _ready() -> void:
 	cylinder.radius = 7.5
 	cylinder.height = 8.0
 	collision.shape = cylinder
-	collision.position.y = 4.0
+	collision.position = Vector3(0.0, 4.0, -26.0)
 	body.add_child(collision)
 	add_child(body)
 	light = OmniLight3D.new()
@@ -108,6 +108,11 @@ func begin() -> void:
 	elapsed = 0.0
 	progress = 0.0
 	reply_elapsed = -1.0
+
+func observe() -> bool:
+	if reply_elapsed >= 0.0: return false
+	reply_elapsed = 0.0
+	return true
 
 func can_confirm() -> bool:
 	return active and elapsed >= RESPONSE_SECONDS

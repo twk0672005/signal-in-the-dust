@@ -14,16 +14,17 @@ for row in manifest['publishFiles']:
  name=path.removeprefix(prefix)
  if name=='index.pck':continue
  target=destination/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source/path,target)
-shutil.copy2(root/'godot/web/showcase.js',destination/'showcase.js')
+assert hashfile(root/'godot/web/showcase.js')==hashfile(destination/'showcase.js'), 'Accepted loader differs from live source'
 html=(destination/'index.html').read_text(encoding='utf-8').replace(prefix,'')
 match=re.search(r'window\.__EXPEDITION_ENGINE_CONFIG__=(\{[^\n]*\});',html);assert match
 config=json.loads(match.group(1));assert config['executable']=='index'
-parts=[];pack=source/'index.pck';digest=hashlib.sha256()
+pack_row=next(row for row in manifest['publishFiles'] if row['path']==prefix+'index.pck')
+parts=[];pack=source/pack_row['path'];digest=hashlib.sha256()
 with pack.open('rb') as stream:
  while data:=stream.read(64*1024*1024):
   name='index.pck.part-'+str(len(parts)).zfill(3);(destination/name).write_bytes(data);digest.update(data)
   parts.append({'name':name,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
-assert len(parts)==2 and digest.hexdigest()==hashfile(pack)
+assert len(parts)==2 and digest.hexdigest()==pack_row['sha256']
 config['mainPack']='index.pck';config['packParts']=[{k:r[k] for k in ['name','bytes']} for r in parts]
 assert config['fileSizes']['index.pck']==sum(r['bytes'] for r in parts)
 html=html[:match.start(1)]+json.dumps(config,separators=(',',':'))+html[match.end(1):]

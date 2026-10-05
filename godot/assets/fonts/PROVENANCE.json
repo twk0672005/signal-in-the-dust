@@ -5,9 +5,9 @@
     "© 2014-2021 Adobe (http://www.adobe.com/)."
   ],
   "source_sha256": "5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537",
-  "subset_sha256": "ca4064fde28b551f4cf634558b2fbd80037991bf03391662090715650bd9221a",
-  "subset_bytes": 141844,
-  "covered_characters": 561,
+  "subset_sha256": "ed79923410a6a387a20b1b096f9a7087be51321daf579b4db3c2ed54278e2944",
+  "subset_bytes": 105016,
+  "covered_characters": 424,
   "missing_characters": [],
   "derivative_family": "Signal Sans TC",
   "tool": "fontTools 4.65.0; retained local dependency",

@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readdirSync, readFileSync, writeFileSync, rmSync, existsSync, lstatSync, realpathSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync, cpSync, existsSync, lstatSync, realpathSync } from 'node:fs';
 import { resolve, extname, relative, isAbsolute, sep, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
@@ -40,13 +40,17 @@ function fileEntries(directory, prefix = '') {
 export function copyShellAssets(checkout, target) {
   assertCheckoutTarget(checkout,target);
   const source = resolve(checkout,'godot/web');
+  const brand = JSON.parse(readFileSync(resolve(checkout,'godot/config/brand.json'),'utf8'));
+  writeFileSync(resolve(target,'brand.js'),'window.__WANDER_BRAND__='+JSON.stringify(brand)+';\n');
+  const htmlPath = resolve(target,'index.html');
+  if (existsSync(htmlPath)) writeFileSync(htmlPath,readFileSync(htmlPath,'utf8').replaceAll('$WANDER_TITLE',brand.en.title).replaceAll('$WANDER_DESCRIPTION',brand.en.description));
   const names = ['showcase.css','showcase-grand.css','showcase.js','showcase-art.js', ...fileEntries(resolve(source,'assets'),'assets/')];
   for (const name of names) {
     const destination = assertCheckoutTarget(checkout,resolve(target,name));
     mkdirSync(dirname(destination),{recursive:true});
     writeFileSync(destination,readFileSync(resolve(source,name)));
   }
-  return names;
+  return ['brand.js', ...names];
 }
 
 function manifestEntry(name,data) {
@@ -71,10 +75,11 @@ export function packageWebExport(checkout, raw, out) {
 function main() {
   const engine = process.env.GODOT_BIN || 'C:/Users/tsang/AppData/Local/Microsoft/WinGet/Packages/GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe/Godot_v4.7.2-stable_win64_console.exe';
   const project = resolve(root,'godot');
-  const raw = assertCheckoutTarget(root,resolve(project,'build/web'));
-  const out = assertCheckoutTarget(root,resolve(root,'out'));
+  const stamp = new Date().toISOString().replace(/[:.]/g,'-');
+  const out = assertCheckoutTarget(root,resolve(root,process.env.WEB_OUTPUT_DIR || ('evidence/local-web-build-'+stamp+'/web')));
+  const raw = assertCheckoutTarget(root,resolve(out,'../raw-web'));
   mkdirSync(raw,{recursive:true});
-  rmSync(out,{recursive:true,force:true});
+  if (existsSync(out)) throw new Error('Choose a fresh WEB_OUTPUT_DIR; existing release artifacts are retained.');
   mkdirSync(out,{recursive:true});
   for (const args of [['--version'],['--headless','--path',project,'--editor','--import','--quit'],['--headless','--path',project,'--export-release','Web',resolve(raw,'index.html')]]) {
     const result = spawnSync(engine,args,{stdio:'inherit',timeout:180000});
@@ -91,7 +96,11 @@ function main() {
   mkdirSync(resolve(root,'evidence'),{recursive:true});
   writeFileSync(resolve(root,'evidence','web-build-manifest.json'),JSON.stringify({builtAt:new Date().toISOString(),engine:'4.7.2',files,rawFiles,standaloneAssets,release,rawRelease,headers},null,2));
   // Retained historical hosting gate. Changing hosting policy belongs to PM.
-  if (files.some(f=>f.bytes>25*1024*1024)) throw new Error('Sites asset exceeds 25 MiB');
+  // Local/Web export supports the current pack size; publication has its own gate.
+  if (!process.env.WEB_OUTPUT_DIR) {
+    const preview = assertCheckoutTarget(root,resolve(root,'out'));
+    cpSync(out,preview,{recursive:true,force:true});
+  }
   console.log(JSON.stringify({out,files},null,2));
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

@@ -105,7 +105,7 @@ func _configure_mesh(node: MeshInstance3D) -> void:
 			else:
 				tint = Color("444f60"); roughness = 0.78
 				if "mineral" in label: tint = Color("75816f"); shell = 0.65; roughness = 0.73
-				elif "membrane" in label: tint = Color("436b73"); membrane = 1.0; roughness = 0.65
+				elif "membrane" in label: tint = Color("436b73"); membrane = 1.0; roughness = 0.65; glow = 0.12
 			if "eyes" in label: tint = Color("111e21"); roughness = 0.24; shell = 0.0
 			material.set_shader_parameter("specular_amount", 0.5 if "eyes" in label else 0.52 if membrane > 0.0 else 0.36 if shell > 0.0 else 0.35)
 			var role := "fan" if membrane > 0.0 and species == "aeral" else "frond" if membrane > 0.0 else "scute" if species != "aeral" and "mineral" in label else "dermis"
@@ -148,13 +148,14 @@ func _configure_mesh(node: MeshInstance3D) -> void:
 					material.set_shader_parameter("normal_strength", source.normal_scale)
 			_material_cache[key] = material
 		var selected: ShaderMaterial = _material_cache[key]
-		if "signal" in label:
+		var responsive := "signal" in label or (species == "aeral" and "membrane" in label)
+		if responsive:
 			selected = selected.duplicate() as ShaderMaterial
-			signal_materials.append(selected)
 		if species == "aeral" and str(node.get_parent().name).begins_with("Wing_"):
 			selected = selected.duplicate() as ShaderMaterial
 			selected.set_shader_parameter("surface_age",.62 if str(node.get_parent().name).ends_with("_L") else .24)
 			_wing_materials.append({"material":selected,"side":-1.0 if str(node.get_parent().name).ends_with("_L") else 1.0})
+		if responsive: signal_materials.append(selected)
 		node.set_surface_override_material(surface, selected)
 		_material_bindings.append({"node":node,"surface":surface,"source":original,"current":selected,
 			"label":label,"wing":species == "aeral" and str(node.get_parent().name).begins_with("Wing_")})

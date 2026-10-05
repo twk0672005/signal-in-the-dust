@@ -1,4 +1,9 @@
-2026-09-23 latest override: Nova authorizes GitHub Pages public playable preview and mobile landscape touch support. Prior private-Sites/desktop-only wording is historical; MARKET remains PARTIAL.
+Current contract: [Alien Wander free exploration, 2026-10-04](docs/ALIEN_WANDER_2026-10-04.md).
+That user request supersedes the historical objectives and approvals below.
+There is no required mission, encounter completion, signal pursuit or finale.
+This revision is local, with publication awaiting a new explicit instruction.
+
+Historical 2026-09-23 override: Nova authorized GitHub Pages public playable preview and mobile landscape touch support.
 
 # Product contract — 2026-09-19
 Goal: approximately 30 minutes of meaningful player exploration in four connected Godot regions, with English/Traditional Chinese, throttle driving, speedometer and V first/third-person cameras.

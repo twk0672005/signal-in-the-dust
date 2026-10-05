@@ -24,6 +24,7 @@ from fontTools.ttLib import TTFont
 
 font = TTFont(args.source)
 text = (root / 'godot/scripts/interface.gd').read_text(encoding='utf-8')
+text += (root / 'godot/config/brand.json').read_text(encoding='utf-8')
 chars = (set(text) | {chr(n) for n in range(32, 127)}) - {'\n', '\r', '\t'}
 missing = sorted(ord(c) for c in chars if ord(c) not in font.getBestCmap())
 if missing:

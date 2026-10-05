@@ -18,13 +18,14 @@ var _headlamps: Array[SpotLight3D] = []
 var look_offset := Vector2.ZERO
 var motion_clock: float = 0.0
 var last_collision_count: int = 0
-const CRUISE_SPEED: float = 24.0
-const REVERSE_SPEED: float = 9.0
-const OFF_PATH_SPEED: float = 16.5
-const ACCELERATION: float = 9.0
+var _steering := 0.0
+const CRUISE_SPEED: float = 18.0
+const REVERSE_SPEED: float = 5.0
+const OFF_PATH_SPEED: float = 14.0
+const ACCELERATION: float = 6.0
 const BOOST_MULTIPLIER: float = 1.4
-const COAST_DECELERATION: float = 12.0
-const BRAKE_DECELERATION: float = 60.0
+const COAST_DECELERATION: float = 5.0
+const BRAKE_DECELERATION: float = 24.0
 
 func configure(value: Node3D) -> void:
 	terrain = value
@@ -48,7 +49,9 @@ func _ready() -> void:
 	_build_headlamps()
 	camera_rig = Node3D.new()
 	camera_rig.name = "SensorMount"
-	camera_rig.position = Vector3(0, 1.48, -0.43)
+	# The authored sensor housing reaches 1.94 m. Keep the optical viewpoint
+	# above it so parked rear/side observations are not hidden by the rover.
+	camera_rig.position = Vector3(0, 2.20, -0.43)
 	add_child(camera_rig)
 	camera = Camera3D.new()
 	camera.name = "FirstPersonCamera"
@@ -116,6 +119,7 @@ func reset() -> void:
 	distance_travelled = 0.0
 	look_offset = Vector2.ZERO
 	motion_clock = 0.0
+	_steering = 0.0
 	third_rig.rotation = Vector3.ZERO
 	third_arm.rotation.x = -0.18
 	global_position = terrain.spawn_origin() + Vector3(0, 0.08, 0)
@@ -179,8 +183,10 @@ func _physics_process(delta: float) -> void:
 	if opposing: target_speed = 0.0
 	if is_boosting() and not opposing: rate *= 1.7
 	speed = move_toward(speed, target_speed, delta * rate)
-	var steering_factor := lerpf(1.0, 0.58, clampf(absf(speed) / CRUISE_SPEED, 0.0, 1.0))
-	heading += steer * delta * 1.55 * steering_factor * (-1.0 if speed < -0.1 else 1.0)
+	_steering = move_toward(_steering, steer, delta * 4.0)
+	var steering_rate := 1.35 / (1.0 + pow(absf(speed) / 8.0, 2.0))
+	steering_rate *= smoothstep(0.0, 1.2, absf(speed))
+	heading += _steering * delta * steering_rate * (-1.0 if speed < -0.1 else 1.0)
 	rotation.y = -heading
 	var direction := Vector3(sin(heading), 0, -cos(heading))
 	velocity.x = direction.x * speed
@@ -213,15 +219,11 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(camera): return
-	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) or not driving:
-		look_offset = look_offset.lerp(Vector2.ZERO,1.0-exp(-delta*3.5))
-	if camera_mode == "first_person":
-		camera.rotation.y = look_offset.x
-		camera.rotation.x = -0.10 + look_offset.y
-	else:
-		# The parent body already supplies heading; only relative look belongs here.
-		third_rig.rotation.y = lerp_angle(third_rig.rotation.y,look_offset.x,1.0-exp(-delta*8.0))
-		third_arm.rotation.x = clampf(-0.18 + look_offset.y, -0.75, 0.35)
+	# Looking is deliberate and persists through parking, pausing and V switching.
+	camera.rotation.y = look_offset.x
+	camera.rotation.x = -0.10 + look_offset.y
+	third_rig.rotation.y = look_offset.x
+	third_arm.rotation.x = clampf(-0.18 + look_offset.y, -0.75, 0.35)
 	var bob: float = sin(motion_clock*7.0)*0.008 if driving and not reduced_motion else 0.0
 	if camera_mode == "first_person": camera.position.y = bob
 	else:
@@ -231,8 +233,12 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if driving and event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-		look_offset.x = clampf(look_offset.x-event.relative.x*0.003,-1.25,1.25)
-		look_offset.y = clampf(look_offset.y-event.relative.y*0.003,-0.55,0.65)
+		look(event.relative.x, event.relative.y)
+
+func look(horizontal: float, vertical: float) -> void:
+	if not driving or not is_finite(horizontal) or not is_finite(vertical): return
+	look_offset.x = wrapf(look_offset.x - horizontal * 0.003, -PI, PI)
+	look_offset.y = clampf(look_offset.y - vertical * 0.003, -0.55, 0.65)
 
 func get_active_camera() -> Camera3D:
 	return camera if camera_mode == "first_person" else third_camera

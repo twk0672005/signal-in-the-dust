@@ -8,7 +8,11 @@ Pages建置成功、23個公開檔案雜湊一致，公開Chrome的32項入口�
 [發布紀錄](docs/RELEASE_2026-10-01.md)。原量測及舊版本保留；下方未發布／PARTIAL為各歷史階段記錄。
 本次冷啟動重驗約164.7秒、最大停頓約14秒，回應速度門檻仍未過；NOVA版本接受與實測分開記錄。
 
-2026-09-23 active scope: GitHub Pages release + mobile landscape touch controls, actual touch regression, raw/static host validation, public deployment readback. No additional content expansion or heartbeat restart.
+Current plan: [Alien Wander free exploration, 2026-10-04](docs/ALIEN_WANDER_2026-10-04.md).
+The current free-roaming product direction supersedes all task/finale plans below.
+No old publication approval, worker dispatch or timed window is resumed.
+
+Historical 2026-09-23 scope: GitHub Pages release + mobile landscape touch controls.
 
 # Autonomous market art upgrade — 2026-09-30
 

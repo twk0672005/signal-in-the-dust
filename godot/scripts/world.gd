@@ -43,6 +43,7 @@ var _rock_transforms: Array[Array] = []
 var _bank_transforms: Array[Array] = []
 var _small_transforms: Array[Array] = []
 var _low_quality := false
+var _observation_pulses: Dictionary = {}
 var _world_time: float = 0.0
 var _distant_pose_clock := 0.0
 var _paused: bool = false
@@ -448,6 +449,7 @@ func boot_yield() -> void:
 
 func build_world() -> void:
 	_paused = staged_boot
+	build_stats["preparation_low_quality"] = _low_quality
 	_boot_slice_started = Time.get_ticks_usec()
 	var stage_started := Time.get_ticks_usec()
 	_rng.seed = 20260915
@@ -519,6 +521,10 @@ func _prepare_ecology_responses() -> void:
 
 func _process(delta: float) -> void:
 	if _paused: return
+	for id in _observation_pulses.keys():
+		_observation_pulses[id] = maxf(0.0, float(_observation_pulses[id]) - delta)
+		_survey_materials[id].emission_energy_multiplier = 0.6 + 1.8 * sin(float(_observation_pulses[id]) / 4.0 * PI)
+		if _observation_pulses[id] <= 0.0: _observation_pulses.erase(id)
 	_world_time += delta
 	if is_instance_valid(_living_habitat):_living_habitat.tick(delta,false)
 	_tick_ecology(delta)
@@ -594,10 +600,14 @@ func _tick_ecology(delta: float) -> void:
 			alarm=maxf(alarm,float(_escort_state.alarm))
 			# A frightened animal visibly folds down; it waits rather than clipping through rocks while fleeing.
 		var previous_position := node.position
+		if pulse > 0.0 and kind in ["aeral", "veyra"]:
+			# The optional observation is a brief, local acknowledgement.
+			node.rotation.y = lerp_angle(node.rotation.y, atan2(away.x, away.z), pulse * 0.75)
+			if kind == "aeral" and alarm < 0.4: target -= away * pulse * 1.5
 		node.position = node.position.lerp(target, 1.0 - exp(-delta * 5.0))
 		var visual_motion := clampf(node.position.distance_to(previous_position) / maxf(delta, 0.001), 0.0, 1.0)
-		var width := 1.0 + pulse * 0.12
-		node.scale = Vector3(width, (1.0 - alarm * (0.55 if kind=="root_choir" else 0.3) if kind=="root_choir" or (i==0 and not _escort_state.is_empty()) else 1.0) + pulse * 0.1, width)
+		var width := 1.0 + pulse * 0.025
+		node.scale = Vector3(width, (1.0 - alarm * (0.55 if kind=="root_choir" else 0.3) if kind=="root_choir" or (i==0 and not _escort_state.is_empty()) else 1.0) + pulse * 0.03, width)
 		var detailed=node.get_node_or_null("DetailedVisual")
 		# All reactions and positions keep their full tick. Sub-pixel distant limbs
 		# need not run terrain IK sixty times per second; near animals stay smooth.
@@ -759,6 +769,9 @@ func apply_survey_progress(data: Dictionary) -> void:
 		material.emission=material.albedo_color
 		material.emission_energy_multiplier=1.3 if finished else 0.6
 
+func observe_landmark(id: String) -> void:
+	if _survey_materials.has(id): _observation_pulses[id] = 4.0
+
 
 func _build_resonance_grove() -> void:
 	var grove:=Node3D.new()
@@ -794,7 +807,7 @@ func set_resonance_visual(band: int, complete: bool, delta: float = 0.0) -> void
 		var crystal:=_resonance_crystals[i]
 		crystal.rotation.z=(1-i)*0.42*_resonance_open
 		crystal.scale=Vector3.ONE*(1.0+_resonance_open*0.25)
-		crystal.get_node("BandNumber").visible=not complete
+		crystal.get_node("BandNumber").visible=false
 		_resonance_glows[i].emission_energy_multiplier=1.6 if i==band else (0.65 if complete else 0.18)
 
 func _build_escort_shelter() -> void:
@@ -957,8 +970,8 @@ func _build_atmosphere() -> void:
 	sky.radiance_size = Sky.RADIANCE_SIZE_128
 	_environment.sky = sky
 	_environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	_environment.ambient_light_color = Color(0.40, 0.45, 0.42)
-	_environment.ambient_light_energy = 0.54
+	_environment.ambient_light_color = Color(0.64, 0.71, 0.75)
+	_environment.ambient_light_energy = 0.76
 	_environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	_environment.tonemap_mode = Environment.TONE_MAPPER_ACES
 	_environment.tonemap_exposure = 0.96
@@ -980,15 +993,15 @@ func _build_atmosphere() -> void:
 	add_child(world_environment)
 	var sun := DirectionalLight3D.new()
 	sun.name = "LowWarmSun"
-	sun.rotation_degrees = Vector3(-28.0, -135.0, 0.0)
+	sun.rotation_degrees = Vector3(-38.0, -135.0, 0.0)
 	sun.light_color = Color(1.0, 0.90, 0.74)
 	sun.light_energy = 0.88
-	sun.shadow_enabled = true
+	sun.shadow_enabled = not _low_quality
 	sun.directional_shadow_max_distance = 140.0
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	sun.shadow_bias = 0.04
 	sun.shadow_blur = 2.0
-	sun.shadow_opacity = 0.72
+	sun.shadow_opacity = 0.55
 	add_child(sun)
 	var rim := DirectionalLight3D.new()
 	rim.name = "DistantWarmHorizon"
@@ -1374,7 +1387,10 @@ func _build_world_tree_arrival() -> void:
 	_world_tree_arrival.name = "WorldTreeArrivalRuins"
 	add_child(_world_tree_arrival)
 	_world_tree_ruin_material = StandardMaterial3D.new()
-	_world_tree_ruin_material.albedo_color = Color("171917")
+	_world_tree_ruin_material.albedo_color = Color("777e73")
+	_world_tree_ruin_material.albedo_texture = load("res://assets/terrain/cc0/rock023_alb_ht.png")
+	_world_tree_ruin_material.uv1_triplanar = true
+	_world_tree_ruin_material.uv1_scale = Vector3(0.35, 0.35, 0.35)
 	_world_tree_ruin_material.roughness = 0.94
 	_world_tree_ruin_material.metallic = 0.02
 	_world_tree_ruin_material.normal_enabled = false
@@ -2424,6 +2440,8 @@ func set_response(progress: float, elapsed: float) -> void:
 
 func set_low_quality(value: bool) -> void:
 	_low_quality = value
+	var sun := get_node_or_null("LowWarmSun")
+	if sun != null: sun.shadow_enabled = not value
 	var reflection := get_node_or_null("PairedMarshStudy/LocalShoreReflection")
 	if reflection!=null:reflection.visible=not value
 	if is_instance_valid(_living_habitat):_living_habitat.set_low_quality(value)

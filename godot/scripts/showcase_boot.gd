@@ -14,7 +14,7 @@ static func validate(value: Variant) -> Dictionary:
 	if not value.get("requestId") is String or not value.get("action") is String: return {}
 	var id: String = value.requestId
 	if id.is_empty() or id.length() > 128 or id != id.strip_edges(): return {}
-	if value.action != "new": return {}
+	if value.action not in ["new", "continue"]: return {}
 	var settings: Variant = value.get("settings", {})
 	if not settings is Dictionary: return {}
 	for key in settings:

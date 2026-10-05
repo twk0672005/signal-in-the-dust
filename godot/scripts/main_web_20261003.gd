@@ -1,5 +1,6 @@
 extends Node3D
 
+const Brand = preload("res://scripts/brand.gd")
 const ExpeditionSave = preload("res://scripts/expedition_save.gd")
 const ShowcaseBoot = preload("res://scripts/showcase_boot.gd")
 const WorldReview = preload("res://scripts/world_review.gd")
@@ -34,11 +35,9 @@ var contact: Node3D
 var ui: CanvasLayer
 var audio: Node
 var exterior: Camera3D
-var contact_showcase: Camera3D
 var phase: String = "menu"
 var previous_phase: String = "exploring"
 var elapsed: float = 0.0
-var arrival_time: float = 0.0
 var readout_clock: float = 0.0
 var world_clock: float = 0.0
 var frames: Array[float] = []
@@ -47,7 +46,6 @@ var transmit_count: int = 0
 var contact_completed: bool = false
 var reset_count: int = 0
 var ready_for_play: bool = false
-var reveal_audio_played: bool = false
 var save_clock: float = 0.0
 const SAVE_PATH := "user://expedition_state.json"
 var save_path: String = SAVE_PATH
@@ -57,6 +55,10 @@ var _save_write_failed := false
 var _shown_interaction: Dictionary = {}
 var _interaction_options: Array[Dictionary] = []
 var observed_ecology: Dictionary = {}
+var observed_landmarks: Dictionary = {}
+var observation_cooldown := 0.0
+var _landmark_response_seconds := 0.0
+var _last_landmark := ""
 var thermal: RefCounted
 var root_network: RefCounted
 var passage: RefCounted
@@ -154,10 +156,17 @@ func _ready() -> void:
 	root_network = RootScript.new()
 	passage = PassageScript.new()
 	escort = EscortScript.new()
+	# Select detail before constructing and warming the world.
+	var saved_settings := ConfigFile.new()
+	saved_settings.load("user://expedition.cfg")
+	var launch_settings: Dictionary = _read_web_launch_request().get("settings", {})
+	var boot_low := bool(launch_settings.get("low_quality", saved_settings.get_value("settings", "low_quality", touch_enabled)))
+	_apply_display_quality(boot_low)
 	var world_new_started_usec := Time.get_ticks_usec()
 	world = load("res://scripts/world.gd").new()
 	_boot_timing_span("world_new_including_script_load", world_new_started_usec)
 	var world_add_child_started_usec := Time.get_ticks_usec()
+	world._low_quality = boot_low
 	world.staged_boot = OS.has_feature("web")
 	world.boot_frame_yield = boot_browser_yield
 	add_child(world)
@@ -181,21 +190,12 @@ func _ready() -> void:
 	contact = ContactScript.new()
 	contact.position = world.signal_origin()
 	add_child(contact)
-	contact.completed.connect(_on_contact_completed)
 	exterior = Camera3D.new()
 	exterior.fov = 57
 	exterior.far = 650
 	add_child(exterior)
 	_place_exterior()
 	exterior.current = true
-	contact_showcase = Camera3D.new()
-	contact_showcase.name = "ContactShowcaseCamera"
-	# Web exports must keep a dedicated endpoint owner for the contact/ending shot.
-	contact_showcase.fov = 50
-	contact_showcase.near = 0.08
-	contact_showcase.far = 650.0
-	add_child(contact_showcase)
-	_build_contact_showcase_ruins()
 	audio = load("res://scripts/expedition_audio.gd").new()
 	add_child(audio)
 	var ui_new_started_usec := Time.get_ticks_usec()
@@ -206,10 +206,9 @@ func _ready() -> void:
 	_boot_timing_span("ui_add_child", ui_add_child_started_usec)
 	ui.start_requested.connect(request_new_expedition)
 	ui.resume_requested.connect(resume_expedition)
-	ui.encounter_selected.connect(_on_encounter_selected)
+	ui.continue_requested.connect(load_expedition)
 	ui.reset_requested.connect(reset_expedition)
 	ui.menu_requested.connect(_on_menu_requested)
-	ui.explore_requested.connect(_continue_exploring)
 	ui.interact_requested.connect(interact)
 	ui.locale_changed.connect(_on_locale)
 	ui.settings_changed.connect(_on_settings)
@@ -628,7 +627,13 @@ func _begin_web_launch(value: Variant) -> void:
 	_web_launch_pending = true
 	ui.apply_startup_settings(request.settings)
 	_publish_web_boot()
-	request_new_expedition()
+	if request.action == "continue":
+		if not load_expedition():
+			_web_launch_pending = false
+			_set_web_boot_stage("home")
+			return
+	else:
+		request_new_expedition()
 	if ui.current_state() == "confirm_new":
 		_set_web_boot_stage("confirm-new")
 	elif phase == "menu":
@@ -662,7 +667,12 @@ func _web_status() -> Dictionary:
 	return data
 
 func _on_menu_requested() -> void:
-	if phase != "menu": return
+	if phase != "menu":
+		_suspend()
+		_set_phase("menu")
+		_place_exterior()
+		exterior.current = true
+		ui.set_saved_available(has_saved_expedition())
 	_web_launch_pending = false
 	if not _web_boot.request_id.is_empty(): _set_web_boot_stage("home")
 
@@ -670,11 +680,14 @@ func _on_touch_action(args: Array) -> void:
 	if args.size() != 3 or not touch_enabled or not ready_for_play: return
 	var action := str(args[0])
 	if action == "pause_only":
-		if phase in ["arrival","exploring","contact"]: pause_expedition()
+		if phase in ["exploring"]: pause_expedition()
+		return
+	if action in ["look_x", "look_y"]:
+		if phase == "exploring": rover.look(float(args[2]) if action == "look_x" else 0.0, float(args[2]) if action == "look_y" else 0.0)
 		return
 	if action not in ["drive_forward","drive_reverse","turn_left","turn_right","brake","drive_boost","drive_crawl","toggle_camera","interact","expedition_journal","pause_mission","resonance_1","resonance_2","resonance_3"]: return
 	var pressed := bool(args[1])
-	if pressed and phase not in ["exploring","contact","arrival"]: return
+	if pressed and phase not in ["exploring"]: return
 	var strength := clampf(float(args[2]),0.0,1.0)
 	if not is_finite(strength): return
 	var event := InputEventAction.new()
@@ -704,11 +717,12 @@ func start_expedition() -> bool:
 	_shown_interaction.clear()
 	save_clock = 0.0
 	elapsed = 0.0
-	arrival_time = 0.0
 	world_clock = 0.0
 	transmit_count = 0
 	contact_completed = false
 	observed_ecology.clear()
+	observed_landmarks.clear()
+	observation_cooldown = 0.0
 	activities.reset()
 	resonance.reset()
 	thermal.reset()
@@ -716,11 +730,6 @@ func start_expedition() -> bool:
 	escort.configure(_escort_route())
 	passage.reset()
 	root_network.reset()
-	_resonance_flash=0.0
-	_resonance_band=-1
-	_resonance_feedback=""
-	_survey_message_seconds=0.0
-	reveal_audio_played = false
 	rover.reset()
 	rover.set_driving_enabled(false)
 	contact.reset()
@@ -728,9 +737,11 @@ func start_expedition() -> bool:
 	world.apply_survey_progress(activities.snapshot())
 	audio.reset()
 	audio.set_paused(false)
-	_place_exterior()
-	exterior.current = true
-	_set_phase("arrival")
+	rover.set_camera_mode(rover.camera_mode)
+	rover.set_driving_enabled(true)
+	_set_phase("exploring")
+	_boot_timing_mark_once("first_playable")
+	_publish_boot_timings()
 	return true
 
 func reset_expedition() -> void:
@@ -749,144 +760,44 @@ func _process(delta: float) -> void:
 	if not ready_for_play: return
 	ui.tick_guidance(delta)
 	if delta > 0.0:
-		frames.append(delta*1000.0)
+		frames.append(delta * 1000.0)
 		if frames.size() > 3600: frames.pop_front()
-	var running: bool = phase in ["arrival","exploring","contact","ending"]
-	if running:
-		world_clock += delta
-		if phase != "ending": elapsed += delta
-		world.set_response(contact.progress,world_clock)
-		world.set_player_state(rover.global_position, rover.speed)
-		world.set_region_mood(world.region_at(rover.global_position),delta)
 	if phase == "exploring":
-		_update_resonance(delta)
-		_update_escort(delta)
-		_update_passage(delta)
-		world.set_wetland_study_state(_wetland_world_state())
-		var survey_events: Array = activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,delta,rover.global_position)
-		for id: String in survey_events: _survey_completed(id)
-		_survey_message_seconds=maxf(0.0,_survey_message_seconds-delta)
+		world_clock += delta
+		elapsed += delta
+		observation_cooldown = maxf(0.0, observation_cooldown - delta)
+		_landmark_response_seconds = maxf(0.0, _landmark_response_seconds - delta)
+		world.set_response(0.35 if contact.reply_elapsed >= 0.0 else 0.0, world_clock)
+		world.set_player_state(rover.global_position, rover.speed)
+		world.set_region_mood(world.region_at(rover.global_position), delta)
+		# Legacy activity data survives loading but cannot assign a route or task.
+		var region: String = world.region_at(rover.global_position)
+		activities.discovered[region] = true
+		activities.current_region = region
+		world.set_resonance_visual(int(fmod(world_clock * 1.4, 3.0)) if _last_landmark == "aurora_echo" and _landmark_response_seconds > 0.0 else -1, observed_landmarks.get("aurora_echo", false) or activities.resonance_complete, delta)
 		save_clock += delta
 		if save_clock >= 10.0:
 			save_clock = 0.0
 			save_expedition()
-	if phase == "arrival":
-		arrival_time += delta
-		var blend: float = smoothstep(1.8,5.5,arrival_time)
-		var start: Vector3 = world.spawn_origin()
-		var selected: Camera3D = rover.get_active_camera()
-		exterior.global_position = (start+Vector3(5.5,3.2,5.8)).lerp(selected.global_position,blend)
-		var first_look: Vector3 = selected.global_position+rover.view_direction()*20.0
-		exterior.look_at((start+Vector3(0,0.85,-0.2)).lerp(first_look,blend))
-		if arrival_time >= 5.5:
-			rover.set_camera_mode(rover.camera_mode)
-			rover.set_driving_enabled(true)
-			_set_phase("exploring")
-			_boot_timing_mark_once("first_playable")
-			_publish_boot_timings()
-	elif phase == "contact":
-		_show_contact_camera()
-		ui.set_contact_feedback(contact.feedback_stage(), contact.elapsed, contact.can_confirm())
-		# Keep the 24-second response readable even if the last input frame
-		# slipped through before the contact state froze the rover.
-		if target_distance() < 18.0: _stage_contact_reveal()
-		if contact.elapsed >= 6.0 and not reveal_audio_played:
-			reveal_audio_played = true
-			audio.play_reveal()
-			ui.set_message("response")
-	elif phase == "ending":
-		_show_contact_camera()
-	if running:
 		audio.set_drive(rover.speed)
-		audio.set_signal(target_distance())
+		audio.set_signal(1000.0)
 	readout_clock += delta
 	if readout_clock >= 0.15:
 		readout_clock = 0.0
-		# Web window blur is not consistently forwarded as application focus-out.
-		# Consume the real DOM-event request on the engine frame, avoiding WASM re-entry.
 		if OS.has_feature("web") and bool(JavaScriptBridge.eval("window.__EXPEDITION_FOCUS_LOST__ === true", true)):
 			JavaScriptBridge.eval("window.__EXPEDITION_FOCUS_LOST__ = false;", true)
 			pause_expedition()
-		ui.update_readout(target_distance(), elapsed, contact.progress, can_interact(), rover.current_speed_mps(), rover.max_speed_mps(), rover.camera_mode, ecology_snapshot())
+		ui.update_readout(0.0, elapsed, 0.0, can_interact(), rover.current_speed_mps(), rover.max_speed_mps(), rover.camera_mode, ecology_snapshot())
 		_update_survey_readout()
-		if phase == "exploring":
-			ui.suggest_guidance(world.region_at(rover.global_position), ecology_snapshot())
 		_publish_snapshot()
 
-func _survey_completed(id: String) -> void:
-	world.apply_survey_progress(activities.snapshot())
-	audio.play_transmit()
-	_survey_message_seconds=3.0
-	ui.set_message("survey_recorded")
-	ui.update_readout(target_distance(),elapsed,contact.progress,can_interact(),rover.current_speed_mps(),rover.max_speed_mps(),rover.camera_mode,ecology_snapshot())
-	_update_survey_readout()
-	save_expedition()
-
 func _update_survey_readout() -> void:
-	var region: String=world.region_at(rover.global_position)
-	var target: String=activities.target(region)
-	# Discover life before asking for a site record that requires that discovery.
-	var species: String={"ember_rift":"veyra","veil_marsh":"aeral","pale_decay":"root_choir"}.get(region,"")
-	if not species.is_empty() and not observed_ecology.get(species,false): target="life_"+species
-	elif region=="aurora_shelf" and activities.completed.aurora_shelf and not resonance.solved: target="aurora_echo"
-	var tracked: String=activities.tracked_encounter
-	if not tracked.is_empty() and _encounter_complete(tracked):
-		activities.tracked_encounter=""
-		tracked=""
-	if tracked.is_empty() and region=="veil_marsh" and activities.wetland_study.prepared and not activities.field.marsh_pool:
-		target="marsh_pool" if activities.wetland_study.recovered else "study_aeral"
-	if not tracked.is_empty(): target="encounter_"+tracked
-	var distance:=0.0
-	var bearing:=0.0
-	if not target.is_empty():
-		var point: Vector2=ActivityScript.point(target) if tracked.is_empty() else _encounter_point(tracked)
-		if target=="study_aeral":
-			var animal: Vector3=world._ecology_nodes[4].global_position
-			point=Vector2(animal.x,animal.z)
-		elif target.begins_with("life_"):
-			point=_life_point(target.trim_prefix("life_"))
-		distance=Vector2(rover.position.x,rover.position.z).distance_to(point)
-		var offset: Vector2=point-Vector2(rover.position.x,rover.position.z)
-		bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
-	ui.set_activity_progress(activities.count(),activities.optional_count(),activities.field_count(),region,target,distance,activities.stillness,bearing)
-	# The same current investigation supplies both HUD distance and map marker.
-	var map_target := _encounter_point(tracked) if not tracked.is_empty() else ActivityScript.point(target)
-	if target=="study_aeral":
-		var animal: Vector3=world._ecology_nodes[4].global_position
-		map_target=Vector2(animal.x,animal.z)
-	elif target.begins_with("life_"): map_target=_life_point(target.trim_prefix("life_"))
-	ui.set_navigation(Vector2(rover.position.x, rover.position.z), rover.heading, map_target, not target.is_empty() and map_target.is_finite())
-	ui.set_resonance_context(_resonance_context())
-	ui.set_escort_context(_escort_context())
-	ui.set_passage_context(_passage_context())
-	ui.set_root_network_context(_root_network_context())
-	ui.set_thermal_context(_thermal_context())
-	ui.set_wetland_context(_wetland_context())
-	var journal: Dictionary={"tracked":activities.tracked_encounter,"entries":{},"observedEcology":observed_ecology.duplicate(true),"contactCompleted":contact_completed}
-	for id in ActivityScript.REGIONS:
-		journal.entries[id]={"discovered":activities.discovered[id],"complete":_encounter_complete(id)}
-	ui.set_journal_context(journal)
+	var region: String = world.region_at(rover.global_position)
+	ui.set_activity_progress(0, 0, 0, region)
+	ui.set_navigation(Vector2(rover.position.x, rover.position.z), rover.heading, Vector2.ZERO, false)
+	ui.set_journal_context({"observedLandmarks":observed_landmarks.duplicate(true),"observedEcology":observed_ecology.duplicate(true), "landmarks":observed_landmarks.duplicate(true), "visited":activities.discovered.duplicate(true), "contactCompleted":contact_completed})
 	_shown_interaction = interaction_context()
-	ui.set_interaction_kind(_shown_interaction.kind if _shown_interaction.eligible else "none")
-	if ui.has_method("set_interaction_context"): ui.set_interaction_context(_shown_interaction)
-
-func _life_point(kind: String) -> Vector2:
-	var point := Vector2.ZERO
-	var nearest := INF
-	for i in world._ecology_nodes.size():
-		if world._ecology_meta[i].kind!=kind: continue
-		var position: Vector3=world._ecology_nodes[i].global_position
-		var distance:=rover.global_position.distance_to(position)
-		if distance<nearest:
-			nearest=distance;point=Vector2(position.x,position.z)
-	return point
-
-func _nearby_survey() -> String:
-	for id in ActivityScript.SITES:
-		if activities.can_record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology):
-			if _target_visible(world.survey_position(id)+Vector3(0,1,0),world.get_node("Survey_"+id)): return id
-	return ""
-
+	ui.set_interaction_context(_shown_interaction)
 
 func _input(event: InputEvent) -> void:
 	if not ready_for_play or event.is_echo(): return
@@ -894,21 +805,17 @@ func _input(event: InputEvent) -> void:
 		if phase == "menu" and ui.current_state() == "confirm_new": ui._cancel_new()
 		elif phase == "paused" and ui.current_state() == "settings": ui.show_state("paused")
 		elif phase in ["paused","confirm_reset"]: resume_expedition()
-		elif phase in ["arrival","exploring","contact"]: pause_expedition()
+		elif phase in ["exploring"]: pause_expedition()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("expedition_journal") and phase=="exploring":
 		pause_expedition()
 		_update_survey_readout()
 		ui.show_state("journal")
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("toggle_camera") and phase in ["exploring", "contact"]:
+	elif event.is_action_pressed("toggle_camera") and phase in ["exploring"]:
 		rover.toggle_camera_mode()
 		ui.set_view_message(rover.camera_mode)
 		_publish_snapshot()
-		get_viewport().set_input_as_handled()
-	elif phase=="exploring" and _resonance_near() and (event.is_action_pressed("resonance_1") or event.is_action_pressed("resonance_2") or event.is_action_pressed("resonance_3")):
-		var band:=0 if event.is_action_pressed("resonance_1") else (1 if event.is_action_pressed("resonance_2") else 2)
-		_resonance_reply(band)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("restart_mission") and phase != "menu":
 		if phase == "ending": reset_expedition()
@@ -922,18 +829,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") and not event.is_echo(): interact()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and ready_for_play and phase in ["arrival","exploring","contact"]:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and ready_for_play and phase in ["exploring"]:
 		pause_expedition()
 
 func _suspend() -> void:
-	if phase in ["exploring", "contact"]: save_expedition()
+	if phase in ["exploring"]: save_expedition()
 	rover.set_driving_enabled(false)
 	contact.paused = true
 	world.set_paused(true)
 	audio.set_paused(true)
 
 func pause_expedition() -> void:
-	if phase not in ["arrival","exploring","contact"]: return
+	if phase not in ["exploring"]: return
 	previous_phase = phase
 	_suspend()
 	_set_phase("paused")
@@ -953,13 +860,13 @@ func request_new_expedition() -> void:
 	else: start_expedition()
 
 func save_expedition() -> bool:
-	# Contact is optional. Preserve the last explorable position through its closing scene.
-	if phase not in ["exploring", "contact", "ending"]: return false
+	# Keep legacy fields readable; they no longer select gameplay or camera state.
+	if phase not in ["exploring"]: return false
 	activities.thermal_state=thermal.snapshot()
 	activities.escort_state=escort.snapshot()
 	activities.passage_state=passage.snapshot()
 	activities.root_network_state=root_network.snapshot()
-	var payload := {"version":2,"phase":"exploring","position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"elapsed":elapsed,"distance":rover.distance_travelled,"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"transmitCount":transmit_count,"contactCompleted":contact_completed,"view":rover.camera_mode}
+	var payload := {"version":2,"phase":"exploring","position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"elapsed":elapsed,"distance":rover.distance_travelled,"observedLandmarks":observed_landmarks.duplicate(true),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"transmitCount":transmit_count,"contactCompleted":contact_completed,"view":rover.camera_mode}
 	var success := ExpeditionSave.write(save_path,payload)
 	if is_instance_valid(ui): ui.set_write_failed(not success)
 	_save_write_failed = not success
@@ -967,7 +874,6 @@ func save_expedition() -> bool:
 		_save_available = true
 		_save_state = "valid"
 	elif is_instance_valid(ui):
-		_survey_message_seconds=6.0
 		ui.set_message("save_write_failed")
 	_publish_web_boot()
 	return success
@@ -1114,6 +1020,12 @@ func load_expedition() -> bool:
 	contact.reset()
 	audio.reset()
 	observed_ecology = parsed["observedEcology"].duplicate(true)
+	observed_landmarks = parsed.get("observedLandmarks", {}).duplicate(true)
+	if not parsed.has("observedLandmarks"):
+		for group in ["completed_regions", "optional_observations", "field_notes"]:
+			for id in parsed.activities.get(group, {}):
+				if parsed.activities[group][id]: observed_landmarks[id] = true
+		if parsed.get("contactCompleted", false): observed_landmarks["world_tree"] = true
 	activities=restored_activities
 	world.set_wetland_study_state(_wetland_world_state(),true)
 	resonance.reset(activities.resonance_complete)
@@ -1125,11 +1037,7 @@ func load_expedition() -> bool:
 	world.set_thermal_state(thermal.snapshot(),true)
 	escort=restored_escort
 	world.set_escort_state(escort.snapshot(),true)
-	_resonance_flash=0.0
-	_resonance_band=-1
-	_resonance_feedback=""
 	world.apply_survey_progress(activities.snapshot())
-	_survey_message_seconds=0.0
 	world._observed_regions = observed_ecology.duplicate(true)
 	transmit_count = int(parsed["transmitCount"])
 	contact_completed = bool(parsed.get("contactCompleted",false))
@@ -1137,10 +1045,8 @@ func load_expedition() -> bool:
 	world.set_response(contact.progress,float(parsed["elapsed"]))
 	elapsed = float(parsed["elapsed"])
 	world_clock = elapsed
-	arrival_time = 0.0
 	readout_clock = 0.0
 	save_clock = 0.0
-	reveal_audio_played = false
 	previous_phase = "exploring"
 	rover.distance_travelled = float(parsed["distance"])
 	rover.global_position = position
@@ -1162,7 +1068,6 @@ func clear_saved_expedition() -> bool:
 		if is_instance_valid(ui):
 			ui.set_clear_failed(_save_available)
 			ui.set_write_failed(not _save_available)
-		_survey_message_seconds=6.0
 		if is_instance_valid(ui): ui.set_message("save_clear_failed" if _save_available else "save_write_failed")
 		return false
 	_save_available=false
@@ -1201,63 +1106,36 @@ func _candidate(kind: String, subject: String, point: Vector3, radius: float, al
 func interaction_context() -> Dictionary:
 	var empty := {"key":"none","kind":"none","subject":"","reason":"none","distance":0.0,"eligible":false}
 	_interaction_options.clear()
-	if phase == "contact":
-		var confirmation := {"key":"contact_confirm","kind":"contact_confirm","subject":"contact","reason":"ready" if contact.can_confirm() else "wait","distance":0.0,"eligible":contact.can_confirm()}
-		_interaction_options.append(confirmation)
-		return confirmation
 	if phase != "exploring": return empty
 	var choices: Array[Dictionary] = []
-	if target_distance() < 24.0:
-		# Keep the endpoint readable at driving height: the v3 buttressed trunk
-		# is ~15 m across, so a 18 m interaction envelope preserves the crown,
-		# roots and horizon instead of placing the camera inside the base.
-		var item := _candidate("contact_reply" if contact_completed else "contact","contact",contact.global_position+Vector3(0,2,0),24.0 if contact_completed else 18.0,contact)
-		if contact_completed and contact.reply_elapsed >= 0.0:
-			item.eligible = false
-			item.reason = "wait"
-		choices.append(item)
+	var tree_point: Vector3 = contact.tree_root.global_position + Vector3(0, 3, 0)
+	if rover.global_position.distance_to(tree_point) < 36.0:
+		choices.append(_candidate("landmark", "world_tree", tree_point, 32.0, contact))
 	for id in ActivityScript.SITES:
-		if id == "aurora_shelf" or activities.done(id): continue
-		var point: Vector3 = world.survey_position(id)+Vector3(0,1,0)
-		if rover.global_position.distance_to(point)>20.0: continue
-		var item := _candidate("survey:"+id,id,point,7.0,world.get_node("Survey_"+id),1.5)
-		if not activities.ready(id,observed_ecology):
-			item.reason="wait";item.eligible=false
-		# Exact existing rule remains authoritative at the final action boundary.
-		if item.eligible and not activities.can_record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology): item.eligible=false;item.reason="closer"
+		var point: Vector3 = world.survey_position(id) + Vector3(0, 1.2, 0)
+		if rover.global_position.distance_to(point) > 12.0: continue
+		var item := _candidate("landmark", id, point, 9.0, world.get_node("Survey_" + id))
+		item.key = "landmark:" + id
 		choices.append(item)
-	var activity := "none"
-	if _resonance_near() and not resonance.solved: activity="resonance"
-	elif _thermal_near():
-		if thermal.vent_observed: activity="thermal_route"
-		elif world.thermal_pulse()>=.75: activity="thermal_observe"
-	elif _escort_can_start(): activity="escort"
-	elif _passage_can_start(): activity="passage"
-	else: activity=_root_network_interaction()
-	if activity!="none": choices.append({"key":activity,"kind":activity,"subject":activity,"reason":"ready","distance":0.0,"eligible":true})
 	for i in world._ecology_nodes.size():
-		var point: Vector3=world._ecology_nodes[i].global_position+Vector3(0,.3,0)
-		if rover.global_position.distance_to(point)>28.0: continue
-		var kind: String=world._ecology_meta[i].kind
-		var item:=_candidate("ecology",kind,point,14.0)
-		item.index=i;item.key="ecology:"+str(i)
-		if i==0 and escort.phase in ["travelling","alarmed","waiting"]: item.eligible=false;item.reason="wait"
-		if item.eligible and observed_ecology.get(kind,false): item.reason="recorded"
+		var point: Vector3 = world._ecology_nodes[i].global_position + Vector3(0, 0.3, 0)
+		if rover.global_position.distance_to(point) > 18.0: continue
+		var item := _candidate("ecology", str(world._ecology_meta[i].kind), point, 14.0)
+		item.index = i
+		item.key = "ecology:" + str(i)
 		choices.append(item)
 	var best := empty
-	_interaction_options=choices
 	var best_score := INF
 	for item in choices:
-		var score: float=float(item.distance)+(0.0 if item.eligible else 1000.0)
-		# Preserve the action contract: contact, unrecorded site, active encounter,
-		# then life. An encounter at the same station cannot swallow its field record.
-		if item.eligible:
-			if item.kind in ["contact","contact_reply"]: score-=300.0
-			elif str(item.kind).begins_with("survey:"): score-=200.0
-			elif item.kind!="ecology": score-=100.0
-		if item.reason=="wait": score+=200.0
-		if item.get("key","")==_shown_interaction.get("key","-"): score-=2.0
-		if score<best_score: best=item;best_score=score
+		if observation_cooldown > 0.0 or (item.subject == "world_tree" and contact.reply_elapsed >= 0.0):
+			item.eligible = false
+			item.reason = "wait"
+		var score: float = float(item.distance) + (0.0 if item.eligible else 1000.0)
+		if item.key == _shown_interaction.get("key", "-"): score -= 1.5
+		if score < best_score:
+			best = item
+			best_score = score
+	_interaction_options = choices
 	return best
 
 func interaction_target() -> String:
@@ -1267,201 +1145,51 @@ func interaction_target() -> String:
 func can_interact() -> bool:
 	return interaction_target() != "none"
 
-func _stage_contact_reveal() -> void:
-	# The world tree is a monumental hero asset. If an old route, saved position
-	# or a physics edge leaves the rover inside the 20 m presentation envelope,
-	# settle it back on the approach side before the transmission shot. This is
-	# a bounded endpoint framing correction; progress, controls and save bytes
-	# remain owned by the normal contact flow.
-	var flat := Vector2(rover.global_position.x-contact.global_position.x, rover.global_position.z-contact.global_position.z)
-	if flat.length() >= 18.0: return
-	if flat.length_squared() < 0.01: flat = Vector2(0.0, 1.0)
-	var reveal := Vector2(contact.global_position.x, contact.global_position.z) + flat.normalized() * 20.0
-	rover.global_position = Vector3(reveal.x, world.height_at(reveal.x,reveal.y)+0.08, reveal.y)
-	var to_tree := contact.global_position-rover.global_position
-	rover.heading = atan2(to_tree.x,-to_tree.z)
-	rover.rotation.y = -rover.heading
-	_publish_snapshot()
 
-func _show_contact_camera() -> void:
-	if not is_instance_valid(contact_showcase): return
-	var flat := Vector2(rover.global_position.x-contact.global_position.x, rover.global_position.z-contact.global_position.z)
-	if flat.length_squared() < 0.01: flat = Vector2(0.0, 1.0)
-	var approach := Vector3(flat.x, 0.0, flat.y).normalized()
-	var side := Vector3(-approach.z, 0.0, approach.x)
-	var position := contact.global_position + approach * 292.0 + side * 88.0 + Vector3.UP * 84.0
-	position.y = maxf(position.y, world.height_at(position.x, position.z) + 6.0)
-	contact_showcase.global_position = position
-	contact_showcase.look_at(contact.global_position + Vector3(0.0, 112.0, -18.0), Vector3.UP)
-	contact_showcase.current = true
 
-func _build_contact_showcase_ruins() -> void:
-	var frame := Node3D.new()
-	frame.name = "ShowcaseRuinFrame"
-	contact_showcase.add_child(frame)
-	var stone := StandardMaterial3D.new()
-	stone.albedo_color = Color("101515")
-	stone.roughness = 0.98
-	for spec in [
-		{"x":-92.0,"y":6.0,"z":-122.0,"h":28.0},
-		{"x":92.0,"y":8.0,"z":-136.0,"h":34.0}
-	]:
-		var pillar := MeshInstance3D.new()
-		var mesh := BoxMesh.new()
-		mesh.size = Vector3(5.0, spec.h, 5.0)
-		pillar.mesh = mesh
-		pillar.position = Vector3(spec.x, spec.y, spec.z)
-		pillar.material_override = stone
-		frame.add_child(pillar)
-		var cap := MeshInstance3D.new()
-		var cap_mesh := BoxMesh.new()
-		cap_mesh.size = Vector3(7.0, 0.8, 6.0)
-		cap.mesh = cap_mesh
-		cap.position = pillar.position + Vector3(0.0, spec.h * 0.53, 0.0)
-		cap.material_override = stone
-		frame.add_child(cap)
 
-	# Four translucent atmosphere shafts give the endpoint the reference image's
-	# pale-gold volume without a postprocess dependency or a texture download.
-	var shaft_material := StandardMaterial3D.new()
-	shaft_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	shaft_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	shaft_material.albedo_color = Color(1.0, 0.88, 0.56, 0.018)
-	shaft_material.emission_enabled = true
-	shaft_material.emission = Color(1.0, 0.78, 0.34)
-	shaft_material.emission_energy_multiplier = 0.08
-	for i in 4:
-		var shaft := MeshInstance3D.new()
-		shaft.name = "WorldTreeLightShaft_%02d" % i
-		var shaft_mesh := CylinderMesh.new()
-		shaft_mesh.top_radius = 0.8
-		shaft_mesh.bottom_radius = 6.2
-		shaft_mesh.height = 190.0
-		shaft_mesh.radial_segments = 12
-		shaft.mesh = shaft_mesh
-		shaft.position = Vector3(-62.0 + i * 38.0, 94.0, -176.0 - i * 13.0)
-		shaft.rotation = Vector3(0.12 + i * 0.035, 0.08 * sin(float(i)), -0.06 + i * 0.03)
-		shaft.material_override = shaft_material
-		frame.add_child(shaft)
+
+
 
 func interact() -> void:
 	var context := interaction_context()
-	# Revalidate the displayed identity. A moving/occluded subject cannot silently
-	# redirect E to a different animal between the prompt and the input event.
-	if not _shown_interaction.is_empty() and _shown_interaction.get("eligible",false):
-		var displayed: Dictionary={}
+	if not _shown_interaction.is_empty() and _shown_interaction.get("eligible", false):
+		var displayed: Dictionary = {}
 		for option in _interaction_options:
-			if option.key==_shown_interaction.key and option.eligible: displayed=option;break
+			if option.key == _shown_interaction.key and option.eligible:
+				displayed = option
+				break
 		if displayed.is_empty():
 			_update_survey_readout()
 			return
-		context=displayed
-	_shown_interaction = context
-	if not context.eligible:
-		_update_survey_readout()
-		return
-	var target: String = context.kind
-	if target == "contact_confirm":
-		contact.confirm_response()
-		return
-	if target == "contact_reply":
-		if contact.reply():
-			transmit_count += 1
-			audio.play_resonance(2)
-			ui.set_message("contact_reply_sent")
-			save_expedition()
-			_publish_snapshot()
-		return
-	if target.begins_with("survey:"):
-		var id:=target.trim_prefix("survey:")
-		if activities.record(id,world.region_at(rover.position),rover.position,rover.speed,observed_ecology):
-			_survey_completed(id)
-		return
-	if target.begins_with("root_relay:"):
-		var index:=int(target.trim_prefix("root_relay:"))
-		if root_network.turn(index): _root_network_changed(false,index)
-		return
-	if target=="root_pulse":
-		if root_network.pulse(): _root_network_changed(true,0)
-		return
-	if target == "passage":
-		if not passage.start(): return
-		audio.play_transmit()
-		save_expedition()
-		_update_survey_readout()
-		return
-	if target in ["thermal_observe","thermal_route"]:
-		var changed: bool=thermal.observe(world.thermal_pulse()) if target=="thermal_observe" else thermal.toggle_route()
-		if changed:
-			escort.configure(_escort_route())
-			world.set_thermal_state(thermal.snapshot())
-			audio.play_resonance(1 if thermal.route=="cool" else 0)
-			_survey_message_seconds=4.0
-			ui.set_message("thermal_read" if target=="thermal_observe" else "thermal_"+thermal.route)
-			save_expedition()
-			_update_survey_readout()
-		return
-	if target == "escort":
-		var origin: Vector3=world._ecology_nodes[0].global_position
-		if not escort.start(Vector2(origin.x,origin.z)): return
-		thermal.lock_route()
-		world.set_thermal_state(thermal.snapshot())
-		save_expedition()
-		audio.play_transmit()
-		_update_survey_readout()
-		return
-	if target == "resonance":
-		resonance.start()
-		_resonance_feedback=""
-		_update_survey_readout()
-		return
-	if target == "ecology":
-		var observed: Dictionary = world.observe_ecology(rover.global_position, int(context.get("index",-1)))
-		if not observed.is_empty():
-			var first_discovery: bool = not observed_ecology.get(str(observed.kind),false)
-			observed_ecology[str(observed.get("kind","unknown"))] = true
-			if observed.kind == "aeral": activities.wetland_study.prepare()
-			activities.tick(world.region_at(rover.global_position),rover.speed,observed_ecology,0.0,rover.global_position)
-			_update_survey_readout()
-			var study_event: String=activities.wetland_study.observe(str(observed.get("kind","")),float(world._ecology_reactions[int(observed.index)].alert))
-			ui.set_message("study_"+study_event if not study_event.is_empty() else "discovered_"+str(observed.kind) if first_discovery else "ecology_observed")
-			if not study_event.is_empty():
-				_survey_message_seconds=4.0
-				audio.play_resonance(0 if study_event=="startled" else 2)
-				save_expedition()
-				_update_survey_readout()
-			save_expedition()
-			_publish_snapshot()
-		return
-	_stage_contact_reveal()
+		context = displayed
+	if not context.eligible: return
+	var subject: String = context.subject
+	if context.kind == "ecology":
+		var observed: Dictionary = world.observe_ecology(rover.global_position, int(context.get("index", -1)))
+		if observed.is_empty(): return
+		observed_ecology[subject] = true
+		ui.set_message("observed_" + subject)
+		audio.play_resonance(1 if subject == "veyra" else 2)
+	elif context.kind == "landmark":
+		observed_landmarks[subject] = true
+		_last_landmark = subject
+		_landmark_response_seconds = 4.0
+		if subject == "world_tree":
+			contact.observe()
+		else:
+			world.observe_landmark(subject)
+		ui.set_message("observed_" + subject)
+		audio.play_resonance(0 if subject.begins_with("aurora") else 2)
+	else: return
+	observation_cooldown = 3.0
 	save_expedition()
-	transmit_count += 1
-	rover.set_driving_enabled(false)
-	# Re-apply after the driving state is frozen so the endpoint reveal cannot
-	# be overwritten by the final physics frame of the real keyboard journey.
-	_stage_contact_reveal()
-	audio.play_transmit()
-	contact.begin()
-	_set_phase("contact")
-	_show_contact_camera()
-	ui.set_message("transmitting")
-
-func _on_contact_completed() -> void:
-	contact_completed = true
-	if not contact.linked: contact.restore_completion(true)
 	_update_survey_readout()
-	save_expedition()
-	_set_phase("ending")
+	_publish_snapshot()
 
-func _continue_exploring() -> void:
-	if phase != "ending": return
-	contact.restore_completion(contact_completed)
-	world.set_paused(false)
-	audio.set_paused(false)
-	rover.set_driving_enabled(true)
-	rover.set_camera_mode(rover.camera_mode)
-	_set_phase("exploring")
-	save_expedition()
+
+
+
 
 func _on_locale(value: String) -> void:
 	settings["locale"] = value
@@ -1482,7 +1210,7 @@ func _apply_display_quality(low: bool) -> void:
 func snapshot() -> Dictionary:
 	if not ready_for_play: return {"ready":false,"phase":phase}
 	var active_camera := get_viewport().get_camera_3d()
-	return {"ready":true,"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"boosting":rover.is_boosting(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"contactCompleted":contact_completed,"contactStage":contact.feedback_stage(),"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"activeCamera":str(active_camera.name) if active_camera != null else "none","ecology":ecology_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available,"saveState":_save_state,"saveWriteFailed":_save_write_failed,"interaction":_shown_interaction.duplicate(true)}
+	return {"ready":true,"mode":"free_roam","region":world.region_at(rover.global_position),"touchEnabled":touch_enabled,"phase":phase,"position":{"x":rover.global_position.x,"y":rover.global_position.y,"z":rover.global_position.z},"heading":rover.heading,"speed":rover.speed,"speedMps":rover.current_speed_mps(),"speedKph":rover.current_speed_mps()*3.6,"maxSpeedMps":rover.max_speed_mps(),"boosting":rover.is_boosting(),"distance":rover.distance_travelled,"targetDistance":target_distance(),"elapsed":elapsed,"contactProgress":contact.progress,"transmitCount":transmit_count,"contactCompleted":contact_completed,"contactStage":contact.feedback_stage(),"resetCount":reset_count,"view":rover.camera_mode,"camera":rover.camera_snapshot(),"activeCamera":str(active_camera.name) if active_camera != null else "none","ecology":ecology_snapshot(),"observedLandmarks":observed_landmarks.duplicate(true),"ecologyResponses":world.reaction_snapshot(),"observedEcology":observed_ecology.duplicate(true),"activities":activities.snapshot(),"wetlandStudy":activities.wetland_study.snapshot(),"resonance":resonance.snapshot(),"escort":escort.snapshot(),"thermal":thermal.snapshot(),"thermalPulse":world.thermal_pulse(),"passage":passage.snapshot(),"rootNetwork":root_network.snapshot(),"activityCount":activities.count(),"floor":rover.is_on_floor(),"collisions":rover.last_collision_count,"settings":settings.duplicate(true),"saveAvailable":_save_available,"saveState":_save_state,"saveWriteFailed":_save_write_failed,"interaction":_shown_interaction.duplicate(true)}
 
 func ecology_snapshot() -> Dictionary:
 	return {"veyra": world.ecology_state("veyra", rover.global_position), "aeral": world.ecology_state("aeral", rover.global_position), "rootChoir": world.ecology_state("root_choir", rover.global_position)}
@@ -1497,182 +1225,13 @@ func _publish_snapshot() -> void:
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.__EXPEDITION_STATE__="+JSON.stringify(snapshot())+";window.__EXPEDITION_METRICS__="+JSON.stringify(metrics())+";document.body.dataset.phase="+JSON.stringify(phase)+";",true)
 
-func _resonance_in_grove() -> bool:
-	return activities.done("aurora_echo") and absf(rover.speed)<1.5 and activities.near("aurora_echo",rover.global_position)
-
-func _resonance_near() -> bool:
-	return _resonance_in_grove() and (resonance.phase!="idle" or _target_visible(world.survey_position("aurora_echo")+Vector3(0,1,0),world.get_node("Survey_aurora_echo")))
-
-func _resonance_context() -> Dictionary:
-	if not _resonance_near(): return {}
-	var data: Dictionary=resonance.snapshot()
-	data["band"]=_resonance_band
-	data["feedback"]=_resonance_feedback
-	return data
-
-func _update_resonance(delta: float) -> void:
-	_resonance_flash=maxf(0.0,_resonance_flash-delta)
-	if _resonance_flash<=0.0: _resonance_band=-1
-	if _resonance_in_grove():
-		for event: Dictionary in resonance.tick(delta):
-			if event.kind=="tone":
-				_resonance_band=int(event.band);_resonance_flash=0.5
-				audio.play_resonance(_resonance_band)
-	elif not resonance.solved and resonance.phase!="idle":
-		resonance.reset();_resonance_feedback=""
-	world.set_resonance_visual(_resonance_band,activities.resonance_complete,delta)
-
-func _resonance_reply(band: int) -> void:
-	var outcome: String=resonance.respond(band)
-	if outcome=="ignored": return
-	_resonance_feedback=outcome
-	_resonance_band=band;_resonance_flash=0.35
-	audio.play_resonance(band)
-	if outcome=="solved":
-		activities.resonance_complete=true
-		_survey_message_seconds=4.0
-		ui.set_message("resonance_solved")
-		save_expedition()
-	_update_survey_readout()
-	_publish_snapshot()
-
 func _escort_route(route_choice: String = "") -> Array[Vector2]:
 	var selected: String=thermal.route if route_choice.is_empty() else route_choice
 	return world.escort_route_points(selected)
 
-func _escort_can_start() -> bool:
-	if escort.phase!="idle" or activities.escort_complete or not activities.completed.ember_rift or not observed_ecology.get("veyra",false) or absf(rover.speed)>=1.5: return false
-	var animal: Node3D=world._ecology_nodes[0]
-	return rover.global_position.distance_to(animal.global_position)<=14.0 and world._ecology_reactions[0].alert<0.2 and _target_visible(animal.global_position+Vector3(0,0.45,0))
-
-func _escort_context() -> Dictionary:
-	if phase!="exploring": return {}
-	if escort.phase=="complete" and world.region_at(rover.position)!="ember_rift": return {}
-	if escort.phase=="idle" and not _escort_can_start(): return {}
-	var data: Dictionary=escort.snapshot()
-	var animal: Vector3=world._ecology_nodes[0].global_position
-	data["distance"]=Vector2(animal.x-rover.position.x,animal.z-rover.position.z).length()
-	data["route"]=thermal.route
-	return data
-
-func _update_escort(delta: float) -> void:
-	if escort.tick(Vector2(rover.position.x,rover.position.z),rover.speed,delta):
-		activities.escort_complete=true
-		audio.play_transmit()
-		_survey_message_seconds=4.0
-		ui.set_message("escort_complete_cool" if thermal.route=="cool" else "escort_complete")
-		save_expedition()
-	world.set_escort_state(escort.snapshot())
-
-func _passage_can_start() -> bool:
-	if passage.phase!="idle" or absf(rover.speed)>=1.5: return false
-	var gate: Node3D=world.get_node("QuietPassageGate0")
-	return Vector2(rover.position.x-gate.position.x,rover.position.z-gate.position.z).length()<=14.0 and _target_visible(gate.position+Vector3(0,2,0),gate)
-
-func _passage_context() -> Dictionary:
-	if phase!="exploring" or world.region_at(rover.position)!="veil_marsh": return {}
-	var data: Dictionary=passage.snapshot()
-	var route: Array[Vector2]=world.passage_route()
-	var target: Vector2=route[mini(passage.gate,route.size()-1)]
-	var offset:=target-Vector2(rover.position.x,rover.position.z)
-	data.distance=offset.length()
-	data.bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
-	return data
-
-func _update_passage(delta: float) -> void:
-	var event: String=passage.tick(Vector2(rover.position.x,rover.position.z),rover.speed,delta)
-	if not event.is_empty():
-		if event=="complete": activities.passage_complete=true
-		if event in ["gate","complete"]: audio.play_resonance(2 if event=="complete" else 1)
-		if event=="scattered": audio.play_resonance(0)
-		_survey_message_seconds=3.0
-		ui.set_message("passage_"+("complete" if event=="complete" else "scattered" if event=="scattered" else "gate"))
-		save_expedition()
-	world.set_passage_state(passage.snapshot())
-
-func _root_network_interaction() -> String:
-	if root_network.complete or absf(rover.speed)>=1.5: return "none"
-	for index in 4:
-		var landmark: Node3D=world.get_node("RootRelay"+str(index) if index<3 else "RootTerminal")
-		var offset:=Vector2(landmark.position.x-rover.position.x,landmark.position.z-rover.position.z)
-		if offset.length()<=8.0 and _target_visible(landmark.position+Vector3(0,2,0),landmark):
-			if index<3: return "root_relay:"+str(index)
-			if root_network.powered_count()==3: return "root_pulse"
-	return "none"
-
-func _root_network_context() -> Dictionary:
-	if phase!="exploring" or world.region_at(rover.position)!="pale_decay": return {}
-	var data: Dictionary=root_network.snapshot()
-	var points: Array[Vector2]=world.root_network_points()
-	var target: Vector2=points[root_network.powered_count()]
-	var offset:=target-Vector2(rover.position.x,rover.position.z)
-	data.distance=offset.length()
-	data.bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
-	data.near=-1
-	for i in 3:
-		if points[i].distance_to(Vector2(rover.position.x,rover.position.z))<=10: data.near=i
-	return data
-
-func _root_network_changed(complete: bool, index: int) -> void:
-	world.set_root_network_state(root_network.snapshot())
-	audio.play_resonance(2 if complete else root_network.ports[index])
-	_survey_message_seconds=4.0
-	ui.set_message("root_complete" if complete else "root_changed")
-	save_expedition()
-	_update_survey_readout()
-	_publish_snapshot()
-
-func _encounter_complete(region: String) -> bool:
-	match region:
-		"aurora_shelf": return resonance.solved
-		"ember_rift": return escort.phase=="complete"
-		"veil_marsh": return passage.phase=="complete"
-		"pale_decay": return root_network.complete
-	return false
-
-func _encounter_point(region: String) -> Vector2:
-	match region:
-		"aurora_shelf": return ActivityScript.point("aurora_echo")
-		"ember_rift":
-			if observed_ecology.get("veyra",false) and not activities.completed.ember_rift: return ActivityScript.point("ember_rift")
-			var animal: Vector3=world._ecology_nodes[0].global_position
-			return Vector2(animal.x,animal.z)
-		"veil_marsh": return world.passage_route()[mini(passage.gate,4)]
-		"pale_decay": return world.root_network_points()[root_network.powered_count()]
-	return Vector2.ZERO
-
-func _on_encounter_selected(region: String) -> void:
-	if phase!="paused": return
-	if region!="" and (region not in ActivityScript.REGIONS or not activities.discovered.get(region,false) or _encounter_complete(region)): return
-	activities.tracked_encounter=region
-	resume_expedition()
-	save_expedition()
-	_update_survey_readout()
-
-func _thermal_near() -> bool:
-	if thermal.locked or escort.phase!="idle" or absf(rover.speed)>=1.5: return false
-	var point: Vector3=world.survey_position("ember_vent")
-	return Vector2(point.x-rover.position.x,point.z-rover.position.z).length()<=8.0 and _target_visible(point+Vector3(0,2,0),world.get_node("Survey_ember_vent"))
-
-func _thermal_context() -> Dictionary:
-	if phase!="exploring" or world.region_at(rover.position)!="ember_rift": return {}
-	var data: Dictionary=thermal.snapshot()
-	var offset: Vector2=ActivityScript.point("ember_vent")-Vector2(rover.position.x,rover.position.z)
-	data.distance=offset.length()
-	data.bearing=wrapf(atan2(offset.x,-offset.y)-rover.heading,-PI,PI)
-	data.pulse=world.thermal_pulse()
-	data.near=_thermal_near()
-	return data
-
 func _wetland_world_state() -> Dictionary:
 	var data: Dictionary=activities.wetland_study.snapshot()
 	data.complete=activities.field.marsh_pool
-	return data
-
-func _wetland_context() -> Dictionary:
-	if phase!="exploring" or world.region_at(rover.position)!="veil_marsh": return {}
-	var data:=_wetland_world_state()
-	data.phase="complete" if data.complete else "return" if data.recovered else "quiet" if data.prepared else "prepare"
 	return data
 
 

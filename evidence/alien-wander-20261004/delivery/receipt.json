@@ -1,0 +1,311 @@
+{
+  "verdict": "PASS_LOCAL_PRODUCT",
+  "workingName": "Alien Wander / 異星漫遊 (proposal, not final brand approval)",
+  "releaseId": "565b87cc7346650fc245d405",
+  "url": "http://127.0.0.1:64818/",
+  "artifact": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\alien-wander-20261004\\candidate-h\\web",
+  "sourceBase": "87f4de73d39af23bcc5a4cfb50e6d045f6f093ec",
+  "branch": "codex/alien-wander-20261004",
+  "sourceUncommitted": true,
+  "sourceHashes": {
+    "godot/project.godot": "1067c72501592f9e3fbbffef5a8e6906e91f5fd27c091b55d60ac87f8d9c2393",
+    "godot/main.tscn": "a6bad8dc741bfbc0bbcad40a1d59cd130239b4380b7e26db3f38e045ad5dab13",
+    "godot/export_presets.cfg": "c58413bb61a921a564cf53b345eccf483531b1ea309a309f63584fab437caf4d",
+    "godot/config/brand.json": "7ee5665c2744ef788c34dab9ce2a485a82fa3e75fa4124ba3fba6b3a8dfd13be",
+    "godot/assets/fonts/SignalSansTC.otf": "ed79923410a6a387a20b1b096f9a7087be51321daf579b4db3c2ed54278e2944",
+    "godot/assets/fonts/PROVENANCE.json": "fb2600ffd45ea9125cb9f4ca775caefb929fe9f42c0117a0d5b6900ce1cce94d",
+    "package.json": "3650c901bfe4002099e538e901cf8e221e2d573464016ab6f95cdbdb9e2e62e0",
+    "godot/scripts/brand.gd": "faedff34a191e818f207e84481c4273bc8f0d910bbe0fcf11c85b9325bfe850a",
+    "godot/scripts/contact.gd": "edab2e3e4cb3102521f05f2883805bfa3ed183218f2c259676875c661905efaa",
+    "godot/scripts/creature_visual.gd": "7530e02c8d66598d3268f19339254cce71b65bfa9baced98e28b40dff60059d8",
+    "godot/scripts/ecology_response.gd": "8b60301690410c5faf1bed34355aead3b80fb01b7d381e0116abe5ce7d1aefa6",
+    "godot/scripts/expedition_activities.gd": "6425961791e67cb189dfb73b949d21ed1a52f62d6b331466ace443583884b18d",
+    "godot/scripts/expedition_audio.gd": "fdd5fc79dc839c85c8eafeb671da7db28e1fad80250fedb7164bc1bdcfdebbf1",
+    "godot/scripts/expedition_save.gd": "53e84087f236b4c4b081e63d09e226d755bfd5ed90efbdc8d8be5f3bbdac33d1",
+    "godot/scripts/habitat_features.gd": "fc96a9f6decfc54c7d8942bfe7c84c6df514d718f75740bd6dfb81330c9a80eb",
+    "godot/scripts/interface.gd": "77cd8d74670e2a5207fad264d0dbfbe284f8ef1148b25635db06ee33919049b7",
+    "godot/scripts/living_habitat.gd": "7fbe294b58f09956cbcd57899fd9d080621caafaa9c43379ecc92d7a637e40e9",
+    "godot/scripts/main.gd": "43a46058234eb57864f80701c58219dc1a70aa82b77f930d708b5e998689fa35",
+    "godot/scripts/main_web_20261003.gd": "8beed6d5e024f3ec66c7aea44272446a00105045562d5cf4c216b7b5bdd33485",
+    "godot/scripts/microfauna_visual.gd": "3a9475cf99c40658cb571f1ba10db24f6c4f2c297fe160ce7a56fbd509250755",
+    "godot/scripts/quiet_escort.gd": "0cb9d5f591ad249d827e6f36330ac526e4a1e157cf875ed126aba37928158689",
+    "godot/scripts/quiet_passage.gd": "0505bcbecc01a2be73ba8b8b8c55137418a694ef7ee2895955e09248d2577806",
+    "godot/scripts/resonance_sequence.gd": "1cdd30a45578744bf5d6f161c03283db948d024d0d82fb481f2693d61aa33b42",
+    "godot/scripts/root_network.gd": "6c93c296615e30982655e9689f38d1212fcf03b5fdc13ee721a756ef293993ab",
+    "godot/scripts/rover.gd": "194e59726813291dee7dd1c5b074f5f029fe6236b36ed787459c174eb4e57f0e",
+    "godot/scripts/runtime_surface.gd": "27d2285303befd1b50a88919f42e8c7f05a085a94d195fe74310fa6dbb2a575f",
+    "godot/scripts/showcase_boot.gd": "f28b3dd893088c67818da9403152170a5b5cc8fbf00c6af99ac4944398624532",
+    "godot/scripts/showcase_minimap.gd": "1998288d275fa6832146b5ded33edc6b1685de01e32dafdc8b8f1e58094bc45b",
+    "godot/scripts/showcase_whispers.gd": "dabc08baef82ef476e88a8af3486764374fb5e85c34aef8f51846a52616b31e1",
+    "godot/scripts/thermal_route.gd": "08920af69bdfe203f84f39185e7e13f6c25def72b5a862a6fc5f97fb8ad80681",
+    "godot/scripts/wetland_study.gd": "8f8a6a144e8623bdeb2c5059ab20e294f381f573f42cab867e43293987117a20",
+    "godot/scripts/world.gd": "0337731e658990daf81da7e1c1b568efcb49de24a1dd4d889e0febe0e8d70609",
+    "godot/scripts/world_review.gd": "8a96018025ef6edd6c4a1b945ec56323c1daf8a565933fa0416df1d9cf3b1996",
+    "godot/shaders/bioceramic.gdshader": "1c121e538ed98c29c4ef6be8cee9df62837d24ff3a8990f7f537bb6c3de60730",
+    "godot/shaders/boundary_cutout.gdshader": "ff3388b7c660712261e6d78077daa5c078f495a8dbac05d03eba901497d7b89b",
+    "godot/shaders/contact_signal.gdshader": "0eecadf6ead6b7afedd0c53bb3ac8cdf6ed29c8c7d64534bc0cc93afaf0b862b",
+    "godot/shaders/creature_authored_factors.gdshader": "199fddf94857608831c9591c34d13577ddda98d51e0f07cbbf271095bda6fe7e",
+    "godot/shaders/creature_previous.gdshader": "cddfad40ab516852ef64a5d116a2ca2f2a7aad844027dce218903621ca381c8e",
+    "godot/shaders/geological_strata.gdshader": "c6f16ed572447fd96f214c55e64213fb088c3a670db1fe9ec5f43a3dfbf39950",
+    "godot/shaders/ground_life.gdshader": "89ab86ae8c543ae4415fa04bd3ad511e706a2a916cbd957618c3d31e808493ed",
+    "godot/shaders/response_roots.gdshader": "29d23b4845921fac0bedbc07488cadcb010a7bb62c23a8834b12bf7b9d8da3e2",
+    "godot/shaders/runtime_surface.gdshaderinc": "abb819d83fff92f99720f3952ea2f649b4acb13ca2cf38d39ef80daa1b02b2ba",
+    "godot/shaders/storm_sky.gdshader": "88aa06ac907921bb78ee5e0fc4c0a4450d9e6276ec0e379cbdf3d3dafc731179",
+    "godot/shaders/terrain.gdshader": "0c606bda286fa1adc8530319ca58f92f91cfd0479ec4a9f2db431b90f7648750",
+    "godot/shaders/wetland_pool.gdshader": "ae5e5eb3d6894d66465d3da1eb1e98fbeaa699844568abda08fdb04d0e6e6464",
+    "godot/web/shell.html": "edacae9afde59e29b6c30c2faaede3d34662d52fca0f3338b4be9afbcc39c6b7",
+    "godot/web/showcase.js": "d01423be50ed240a42e87224e8ed4ef1187e3ad15ec0f849985fe2abe74ba6ed",
+    "godot/web/showcase.css": "56a783388185924faf7d85d929d8082a3adb4a61ef865ac35b5cc41ed9c3e34c",
+    "godot/web/showcase-art.js": "a8cb131d537ff1597376b2fdf3e830d7971f1903f619df4cfd292620f5c2511e",
+    "godot/web/showcase-grand.css": "71eabaa2fcaa0904b4f574f30a2decab9149b3910fe6e248d3643287c18d8220"
+  },
+  "priorImmutableRelease": {
+    "releaseId": "f883e019fb7c4d8c674d73bf",
+    "verifiedUnchanged": true,
+    "indexBackup": "C:\\Users\\tsang\\DeepSpaceRover\\deep-space-rover-three-20260906\\evidence\\alien-wander-20261004\\baseline-index.html"
+  },
+  "internalStorageIdentityPreserved": true,
+  "native": [
+    {
+      "path": "native-physics_camera_regression/physics-camera.json",
+      "passed": true,
+      "checks": 20,
+      "failures": [],
+      "sha256": "ea6919a0fab4931aab96e13d3be7bb7406a90bc1fc3d0aa5b8d008abf36a5ae6"
+    },
+    {
+      "path": "native-free_roam_regression/free-roam.json",
+      "passed": true,
+      "checks": 28,
+      "failures": [],
+      "sha256": "d4f613662458b0a8a2803d56c51a5599c5e31042cb85d8369a2e7c40d53f7526"
+    },
+    {
+      "path": "native-ecology_regression/ecology.json",
+      "passed": true,
+      "checks": 25,
+      "failures": [],
+      "sha256": "b266992eec57ca431a39331508f8698bf8f5fd350c30442933901b1d71569f7e"
+    },
+    {
+      "path": "native-save_resume_regression/save-resume.json",
+      "passed": true,
+      "checks": 9,
+      "failures": [],
+      "sha256": "0a5e7ec19f1c7b76a1b601588b1535461d6b8846329a1e8127ab56550ad585e2"
+    },
+    {
+      "path": "native-save_flow_regression/save-flow.json",
+      "passed": true,
+      "checks": 23,
+      "failures": [],
+      "sha256": "513028af124f32e1040d9d92212d20a5854fdd5eb4908a3af0f310535881205a"
+    }
+  ],
+  "desktop": {
+    "passed": true,
+    "checks": {
+      "title": true,
+      "freeExplorationEntry": true,
+      "chineseEntry": true,
+      "directDriving": true,
+      "touchDetected": true,
+      "lighterSelected": true,
+      "lighterDuringPreparation": true,
+      "offRoad": true,
+      "parkedLookRetained": true,
+      "viewSwitch": true,
+      "fourHabitatsNoE": true,
+      "treeReachedWithoutE": true,
+      "leftTreeFreely": true,
+      "treePrompt": true,
+      "optionalTreeKeepsControl": true,
+      "continuedAfterObservation": true,
+      "creaturePrompt": true,
+      "creatureResponse": true,
+      "driveAfterCreature": true,
+      "paused": true,
+      "resume": true,
+      "returnToTitle": true,
+      "titleContinue": true,
+      "reloadContinue": true,
+      "observationsRetained": true,
+      "noPageErrors": true
+    },
+    "renderer": {
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 Laptop GPU (0x000028A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (NVIDIA)"
+    },
+    "traceSamples": 2046,
+    "noEArrival": {
+      "x": 2.08148884773254,
+      "y": -0.726311326026917,
+      "z": -640.738342285156
+    },
+    "observations": {
+      "aeral": true
+    }
+  },
+  "touch": {
+    "passed": true,
+    "checks": {
+      "title": true,
+      "freeExplorationEntry": true,
+      "chineseEntry": true,
+      "directDriving": true,
+      "touchDetected": true,
+      "lighterSelected": true,
+      "lighterDuringPreparation": true,
+      "offRoad": true,
+      "parkedLookRetained": true,
+      "viewSwitch": true,
+      "touchObservationPrompt": true,
+      "touchObservation": true,
+      "paused": true,
+      "resume": true,
+      "returnToTitle": true,
+      "titleContinue": true,
+      "reloadContinue": true,
+      "observationsRetained": true,
+      "backupRecoveredThroughEntry": true,
+      "noPageErrors": true
+    },
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "physicalDevice": false
+  },
+  "nativeUi": {
+    "modified": {
+      "locale": "zh_TW",
+      "low_quality": true,
+      "reduced_motion": true,
+      "volume": 0.3,
+      "whispers": true
+    },
+    "restored": {
+      "settings": {
+        "locale": "zh_TW",
+        "low_quality": false,
+        "reduced_motion": false,
+        "volume": 0.65,
+        "whispers": true
+      },
+      "phase": "menu",
+      "title": "異星漫遊",
+      "lang": "zh-Hant",
+      "shell": "home"
+    },
+    "evidence": [
+      "pause-zh.jpg",
+      "settings-zh.jpg",
+      "settings-en.jpg",
+      "journal-zh.jpg"
+    ]
+  },
+  "visualReview": {
+    "passed": true,
+    "releaseId": "565b87cc7346650fc245d405",
+    "reviewer": "Codex root, fresh runtime/capture review",
+    "evidenceClass": "PROXY_HUMAN_REVIEW",
+    "checks": {
+      "namedFreeExplorationEntryInBothLanguages": true,
+      "offRoadRoverGroundedAndVisible": true,
+      "firstPersonAeralObservationUnobscured": true,
+      "parkedRearViewClearsRoverHousing": true,
+      "fourHabitatsRemainVisuallyDistinct": true,
+      "treeExposureAndStoneTextureReadable": true,
+      "landscapeTouchControlsAndObservationTextFit": true,
+      "journalHasNoAssignedTaskOrCompletionChecklist": true
+    },
+    "captures": [
+      "desktop-h/02-entry-zh.png",
+      "desktop-h/04-off-road-look.png",
+      "desktop-h/05-ember.png",
+      "desktop-h/06-veil.png",
+      "desktop-h/07-pale.png",
+      "desktop-h/09b-observe-aeral.png",
+      "camera-h/first-person-rear.jpg",
+      "touch-h/05-touch-observation.png",
+      "native-ui-g/journal-zh.jpg"
+    ],
+    "limits": "AI visual review, not independent audience acceptance. Native UI evidence is reused for unchanged menu code; candidate H changes the first-person camera mount."
+  },
+  "loading": {
+    "environment": "Fresh Chromium contexts, local loopback server, RTX 4060 D3D11; no gameplay recorder during these samples. OS/driver caches were not cleared. No public-network claim.",
+    "full": {
+      "downloadSeconds": 0.26939999985694885,
+      "worldSeconds": 1.0354,
+      "graphicsPreparationSeconds": 5.7889,
+      "entryFirstPaintSeconds": 0.476,
+      "firstUnobscuredGameSeconds": 8.495400000095367,
+      "firstControlSeconds": 8.081300000190735,
+      "preparationLowQuality": false,
+      "renderer": {
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 Laptop GPU (0x000028A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "Google Inc. (NVIDIA)"
+      }
+    },
+    "lighter": {
+      "downloadSeconds": 0.3112999999523163,
+      "worldSeconds": 1.0015,
+      "graphicsPreparationSeconds": 3.4118,
+      "entryFirstPaintSeconds": 0.268,
+      "firstUnobscuredGameSeconds": 6.176600000143051,
+      "firstControlSeconds": 5.769700000047684,
+      "preparationLowQuality": true,
+      "renderer": {
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 Laptop GPU (0x000028A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "Google Inc. (NVIDIA)"
+      }
+    }
+  },
+  "media": [
+    {
+      "file": "aeral-observation.png",
+      "sha256": "4ec1ef12a924b74a5e4b794fd9ff8281dbe1d568131af900b27ce9e1b73c9652"
+    },
+    {
+      "file": "alien-wander-drive.webm",
+      "sha256": "df57dfe50a88959b5a61427b720d511deeb80132803fd2a3028f5679f46a4c64"
+    },
+    {
+      "file": "alien-wander-touch.webm",
+      "sha256": "1c906af32af5eae173776ecc3d57257a37df8c621b29f34e5d5dc8fbd360f078"
+    },
+    {
+      "file": "entry-zh.png",
+      "sha256": "3bde52560b4509abd9088e86ff4c8d44c0616fcc12e3c9936810f0ca6c72222c"
+    },
+    {
+      "file": "rover-roaming.png",
+      "sha256": "4b2960b45c226140042f74e9400e4eadd23bc007a9eb853abe0ae7911665e453"
+    },
+    {
+      "file": "touch-observation.png",
+      "sha256": "59e59e9abed2513b8340320417a1e466577bb1b2bd8f05afe09b16bbcfe84055"
+    },
+    {
+      "file": "world-tree.png",
+      "sha256": "72126c2faf7a3cb3988193c924c8b4743f3231cb71e27de6d8ec0f08e83b9d08"
+    }
+  ],
+  "mediaDecodes": [
+    {
+      "file": "desktop-h/video-proof-mid.png",
+      "sha256": "be0c491b65e7734db4cc95861adb005918d2f356768c8b47f102ad9a32fdde1e"
+    },
+    {
+      "file": "touch-h/video-proof-at-20.png",
+      "sha256": "65425bebbf4e5671fc0832dd426390daf1a9bba5f5b6fbca05a6ab7024f394ef"
+    }
+  ],
+  "publication": "NOT_PUBLISHED: no push or deployment in this request",
+  "limitations": [
+    "Physical phone and Safari not tested",
+    "No universal FPS or public-network loading guarantee",
+    "Proxy visual review, not independent user acceptance"
+  ],
+  "verification": "No teleport, review camera or snapshot mutation in the recorded player journeys. Storage fault injection only after real touch journey, in a disposable browser context."
+}

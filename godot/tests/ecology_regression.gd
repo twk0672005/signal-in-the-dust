@@ -48,7 +48,11 @@ func run() -> void:
 		world.set_player_state(node.position, 0.0)
 		var observed: Dictionary = world.observe_ecology(node.position)
 		advance(1.0)
-		checks[kind + "_visible_observation_pulse"] = not observed.is_empty() and node.scale.x > 1.09 and world.reaction_snapshot()[index].pulse > 0.0
+		var glow: bool = false
+		var visual: Node3D = node.get_node("DetailedVisual")
+		for material: ShaderMaterial in visual.signal_materials:
+			if float(material.get_shader_parameter("response")) > 0.8: glow = true
+		checks[kind + "_visible_observation_pulse"] = not observed.is_empty() and glow and node.scale.x > 1.01 and node.scale.x < 1.05 and world.reaction_snapshot()[index].pulse > 0.0
 		world.set_paused(true)
 		var paused: Dictionary = world.reaction_snapshot()[index]
 		var pose := node.transform

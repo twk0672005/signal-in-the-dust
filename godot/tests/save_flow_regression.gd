@@ -34,12 +34,12 @@ func run() -> void:
 	checks.backup_counts_as_valid_slot=Save.status(game.save_path)=="valid"
 	var path: String=game.save_path
 	game.queue_free(); await create_timer(0.4).timeout
-	# Save recovery remains internal; the player menu only starts new journeys.
+	# A recovered old checkpoint must be reachable from the visible menu.
 	game=load("res://main.tscn").instantiate();game.save_path=path;root.add_child(game)
 	await process_frame;await process_frame
 	var button: Button=game.ui._root.find_child("ContinueSaved",true,false)
-	checks.continue_button_removed=button == null
-	game.load_expedition()
+	checks.continue_button_available=button != null
+	if button != null: button.pressed.emit()
 	checks.new_instance_restores_progress=game.phase=="exploring" and is_equal_approx(game.elapsed,123.4) and game.observed_ecology.get("veyra",false)
 	checks.camera_and_counters_restored=game.rover.camera_mode=="third_person" and is_equal_approx(game.rover.distance_travelled,86.2) and is_equal_approx(game.rover.heading,0.47)
 	checks.world_observations_consistent=game.world._observed_regions==game.observed_ecology

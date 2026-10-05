@@ -1,4 +1,5 @@
 /* Beneath the Listening Arch. Original concept key art + separate actual-game atlas. */
+/* Working brand and wandering entry. The full-bleed artwork remains a concept. */
 #veil { --ink:#101e26; --text:#fff5e6; --muted:#cad6d5; --cyan:#bed9df; --warm:#f6d29f; --line:#ecdcc838; --drift-x:0px; --drift-y:0px; background:#101e26; }
 #veil .hero-art { z-index:-4; object-position:63% 52%; animation:none; transform:translate3d(var(--drift-x),var(--drift-y),0) scale(1.018); transition:transform 500ms ease-out; }
 #veil .art-shade { z-index:-3; background:linear-gradient(90deg,#071723ba 0%,#0a1a2278 33%,#0a1a2200 58%),linear-gradient(0deg,#091721ee 0%,#0e1b2200 25%,#0e1b2200 87%,#101e2652 100%); }
@@ -6,7 +7,7 @@
 #veil .entry-atmosphere { z-index:-1; }
 #veil .entry-atmosphere i { width:2px;height:2px;box-shadow:0 0 7px #ffdeb4; }
 #veil .entry-header { padding-top:max(23px,env(safe-area-inset-top));padding-bottom:17px;border-bottom-color:#c0d8dc30; }
-#veil .wordmark { gap:13px;letter-spacing:.24em;font-size:10px; }
+#veil .wordmark { gap:13px;letter-spacing:0;font-size:20px;font-weight:600; }
 #veil .signal-mark { padding:5px;width:34px;justify-content:center;border:1px solid #e9c9945c;border-radius:50%;height:34px; }
 #veil .signal-mark i { width:1.5px; }
 #veil .signal-mark i:nth-child(3) { height:18px; }
@@ -20,10 +21,10 @@
 .signal-dot { width:5px;height:5px;border-radius:50%;background:#eed6a6;box-shadow:0 0 10px #eacf9a7a; }
 #veil .home .eyebrow { margin-bottom:16px;font-size:11px;color:#f0d3a5;font-weight:500;letter-spacing:.12em; }
 #veil .home .eyebrow::before { flex-basis:20px; }
-#veil .home h1 { font:400 clamp(46px,4.5vw,74px)/1.05 Georgia,'Times New Roman',serif;letter-spacing:-.045em;text-wrap:initial;text-shadow:0 4px 24px #06152380; }
-html[lang=zh-Hant] #veil .home h1 { font-family:var(--font);font-size:clamp(40px,4.1vw,62px);font-weight:600;line-height:1.27;letter-spacing:.025em; }
+#veil .home h1 { font:400 62px/1.08 Georgia,'Times New Roman',serif;letter-spacing:0;text-wrap:balance;text-shadow:0 4px 24px #06152380; }
+html[lang=zh-Hant] #veil .home h1 { font-family:var(--font);font-size:52px;font-weight:600;line-height:1.27;letter-spacing:0; }
 #veil .intro { margin-top:25px;max-width:405px;font-size:15px;line-height:1.8;color:#dce6e6;text-shadow:0 2px 16px #091a23; }
-#veil .entry-actions { margin-top:30px; }
+#veil .entry-actions { margin-top:30px;display:flex;flex-wrap:wrap;gap:12px; }
 #veil .entry-actions .primary-button { min-width:255px;min-height:59px;padding:13px 20px 13px 23px;border:1px solid #f4dfba;background:linear-gradient(135deg,#f6ddb4,#dfb67e);color:#18252b;font-size:14px;font-weight:600;border-radius:3px;box-shadow:0 2px 0 #fff4d840 inset,0 12px 33px #0003; }
 #veil .entry-actions .primary-button:hover { background:linear-gradient(135deg,#fff0cf,#edc894);border-color:#fff3ce;box-shadow:0 2px 0 #fff4d8 inset,0 14px 38px #0003; }
 #veil .button-arrow { width:32px;height:32px;border-color:#5c543b45; }
@@ -176,4 +177,21 @@ body[data-reduced-motion=true] #veil .home-copy { animation:none; }
  #home-footer #region-name { font-size:8px; }
  #home-footer .habitat-index { width:72%; }
  #home-footer .habitat-index button { padding-left:10px;padding-right:10px; }
+}
+
+/* Stable type and touch targets keep both saved/new actions inside the entry. */
+#canvas:focus-visible { outline:none; }
+#veil .entry-actions .primary-button { min-width:190px; max-width:100%; }
+#veil .wordmark, #veil .expedition-id, #veil .eyebrow, #veil h1,
+#veil .preview-heading, #veil .scene-caption span, #veil #region-name { letter-spacing:0; }
+@media (max-width:1000px) {
+  #veil .home h1 { font-size:48px; }
+  html[lang=zh-Hant] #veil .home h1 { font-size:42px; }
+}
+@media (max-width:700px), (max-height:650px) and (orientation:landscape) {
+  #veil .wordmark { font-size:16px; }
+  #veil .home h1 { font-size:34px; }
+  html[lang=zh-Hant] #veil .home h1 { font-size:32px; }
+  #veil .entry-actions { gap:8px; margin-top:16px; }
+  #veil .entry-actions .primary-button { min-width:144px; min-height:48px; padding:10px 14px; }
 }

@@ -3,22 +3,23 @@
   'use strict';
   const COPY = {
     en: {
-      downloadStep:'Game download', worldStep:'Planet preparation', viewStep:'First game view', preparationLabel:'Game loading stages', atlas:'Four alien regions to explore', elapsed:'Elapsed', received:'received', firstDiscovery:'Your first objective', observation:'Field observation 03', studyArt:'Ecology · In-game capture', specimenHabitat:'VEIL MARSH',
+      downloadStep:'Game download', worldStep:'Planet preparation', viewStep:'First game view', preparationLabel:'Game loading stages', atlas:'Four alien regions to explore', elapsed:'Elapsed', received:'received', firstDiscovery:'At your own pace', observation:'Field observation 03', studyArt:'Ecology · In-game capture', specimenHabitat:'VEIL MARSH',
       downloadTitle:'Downloading\nthe game', worldTitle:'Preparing\nthe alien planet', materialTitle:'Preparing\nthe game graphics', viewTitle:'Opening\nthe game view',
       worldStatus:'Preparing the four alien regions…', materialStatus:'Preparing the game graphics…', firstViewStatus:'Waiting for the first game view…', connectingHint:'Opening the game files. The game has not started yet.', worldHint:'Preparing four alien regions and their creatures.', materialHint:'Preparing the terrain, water and creature graphics.', viewHint:'The game view opens when its first frame is ready.', validationHint:'Checking saved game progress before starting.', transferFiles:'Game files', surfaceCount:'Surface preparation', longWait:'First-time downloads and graphics preparation can take longer. Keep this tab open until the game view is ready. If the browser stops responding, let it recover.',
       specimenNotes:['Aeral Veil live in the marsh. Slow down and stop to observe them.', 'A quiet approach changes how nearby creatures respond.', 'Explore Aurora Shelf, Ember Rift, Veil Marsh and Pale Decay.'],
-      firstStep:'Drive to the gold map marker. Brake beside the crystals, then observe the signal.', driveTip:'W / arrows · Drive    C (hold) · Crawl    Space · Brake', observeTip:'Right-drag · Look    V · Camera    E · Observe    J · Journal', touchTip:'Drive to move. Crawl + Drive for a quiet approach. Brake to stop, then tap Observe.',
-      ready:'Drive a rover.\nExplore an alien planet.', freshJourney:'Saved progress is replaced only after your confirmation.', eyebrow:'ALIEN PLANET EXPLORATION GAME', subtitle:'塵境回聲', intro:'Drive across four alien regions. Stop to observe creatures and investigate signals.', start:'Begin my journey', settings:'Settings', language:'繁中', desktop:'For the richest detail, explore on a desktop. Mobile play uses landscape.', footer:'Drive · Observe creatures · Investigate signals', controls:'Keyboard & mouse · Landscape touch', habitat:'AURORA SHELF', art:'Aurora Shelf · In-game capture', landscapeNote:'Start in Aurora Shelf. Follow the gold marker.', aurora:'Aurora Shelf', ember:'Ember Rift', veil:'Veil Marsh', pale:'Pale Decay', expedition:'Loading the game', specimen:'Aeral Veil', settingsKicker:'Expedition preferences', settingsTitle:'Make yourself at home', settingsNote:'Saved preferences stay in place unless you change them here.', localeLabel:'Language', volumeLabel:'Sound', motionLabel:'Reduced motion', qualityLabel:'Visual detail', saved:'Use saved preference', on:'On', off:'Off', low:'Lighter', high:'Full', done:'Done', restore:'Keep saved preferences', close:'Close settings', loadingTitle:'Loading your rover exploration game', connecting:'Opening the game…', downloading:'Downloading game files…', preparing:'Preparing the alien planet…', validating:'Checking saved game progress…', waiting:'Waiting for the first game view…', transferHint:'Download progress', prepareHint:'Preparing the game before you can drive…', errorTitle:'The game could not open', error:'The game could not open. Try again, or return to the home screen.', support:'This browser cannot provide the required 3D graphics. Try a browser with hardware acceleration enabled.', lost:'The graphics connection was interrupted. Reload the page to restart the game. Your preferences will be kept.', timeout:'Game loading is taking longer than expected. Return home to try again, or reload if it remains unavailable.', retry:'Try again', reload:'Reload page', home:'Return home', loadingFooter:'Explore four regions. Drive, observe and follow signals.', stopMotion:'Pause animation', resumeMotion:'Resume animation', canvas:'Signal in the Dust alien-planet rover exploration game'
+      firstStep:'Follow an interesting ridge, leave the road, or stop beside a creature.', driveTip:'W / arrows · Drive    C (hold) · Crawl    Space · Brake', observeTip:'Right-drag · Look    V · Camera    E · Observe    J · Journal', touchTip:'Drive to move. Crawl + Drive for a quiet approach. Brake to stop, then tap Observe.',
+      ready:'Explore an alien world freely', freshJourney:'Saved progress is replaced only after your confirmation.', eyebrow:'ALIEN PLANET EXPLORATION GAME', subtitle:'異星漫遊', intro:'Drive a rover across four alien habitats. No set route. Let curiosity lead.', start:'Start wandering', settings:'Settings', language:'繁中', desktop:'For the richest detail, explore on a desktop. Mobile play uses landscape.', footer:'Drive · Watch wildlife · Wander freely', controls:'Keyboard & mouse · Landscape touch', habitat:'AURORA SHELF', art:'Aurora Shelf · In-game capture', landscapeNote:'A ridge, a shoreline, a distant silhouette. Choose your own way.', aurora:'Aurora Shelf', ember:'Ember Rift', veil:'Veil Marsh', pale:'Pale Decay', expedition:'Loading the game', specimen:'Aeral Veil', settingsKicker:'Expedition preferences', settingsTitle:'Make yourself at home', settingsNote:'Saved preferences stay in place unless you change them here.', localeLabel:'Language', volumeLabel:'Sound', motionLabel:'Reduced motion', qualityLabel:'Visual detail', saved:'Use saved preference', on:'On', off:'Off', low:'Lighter', high:'Full', done:'Done', restore:'Keep saved preferences', close:'Close settings', loadingTitle:'Loading your rover exploration game', connecting:'Opening the game…', downloading:'Downloading game files…', preparing:'Preparing the alien planet…', validating:'Checking saved game progress…', waiting:'Waiting for the first game view…', transferHint:'Download progress', prepareHint:'Preparing the game before you can drive…', errorTitle:'The game could not open', error:'The game could not open. Try again, or return to the home screen.', support:'This browser cannot provide the required 3D graphics. Try a browser with hardware acceleration enabled.', lost:'The graphics connection was interrupted. Reload the page to restart the game. Your preferences will be kept.', timeout:'Game loading is taking longer than expected. Return home to try again, or reload if it remains unavailable.', retry:'Try again', reload:'Reload page', home:'Return home', loadingFooter:'Four habitats. No set route. Let curiosity lead.', stopMotion:'Pause animation', resumeMotion:'Resume animation', canvas:'Alien Wander alien-planet rover exploration game'
     },
     zh_TW: {
-      downloadStep:'下載遊戲', worldStep:'準備星球', viewStep:'開啟畫面', preparationLabel:'遊戲載入階段', atlas:'探索四個外星區域', elapsed:'已等候', received:'已接收', firstDiscovery:'第一個探索目標', observation:'生態場記 03', studyArt:'生態 · 遊戲實景', specimenHabitat:'濃霧沼澤',
+      downloadStep:'下載遊戲', worldStep:'準備星球', viewStep:'開啟畫面', preparationLabel:'遊戲載入階段', atlas:'探索四個外星區域', elapsed:'已等候', received:'已接收', firstDiscovery:'以自己的步調', observation:'生態場記 03', studyArt:'生態 · 遊戲實景', specimenHabitat:'濃霧沼澤',
       downloadTitle:'正在下載\n遊戲內容', worldTitle:'正在準備\n外星星球', materialTitle:'正在準備\n遊戲畫面', viewTitle:'正在開啟\n遊戲畫面',
       worldStatus:'正在準備四個外星區域…', materialStatus:'正在準備遊戲畫面…', firstViewStatus:'正在等候第一個遊戲畫面…', connectingHint:'正在開啟遊戲內容，遊戲尚未開始。', worldHint:'正在準備四個外星區域與其中的生物。', materialHint:'正在準備地形、水面與生物的畫面。', viewHint:'第一個遊戲畫面準備完成後，才會開啟遊戲。', validationHint:'開始前，正在確認已儲存的遊戲進度。', transferFiles:'遊戲內容', surfaceCount:'表面準備', longWait:'首次下載與畫面準備可能需要較多時間。請保持此分頁開啟，等候遊戲畫面準備完成。若瀏覽器暫時未有回應，請先等它恢復。',
       specimenNotes:['Aeral 霧翼群生活在濃霧沼澤。減速停車，靠近觀察。', '安靜靠近時，附近生物會以不同方式回應。', '探索極光高原、熱泉裂谷、濃霧沼澤與孢子衰變。'],
-      firstStep:'駕駛探索車前往地圖的金色標記；在冰晶旁煞車停下，觀察生命訊號。', driveTip:'W／方向鍵 · 駕駛　按住 C · 慢行　空白鍵 · 煞車', observeTip:'按住右鍵拖曳 · 環顧　V · 視角　E · 觀察　J · 日誌', touchTip:'點前進駕駛；慢行＋前進可安靜靠近。煞車停下後，點互動觀察。',
-      ready:'駕駛探索車，\n探索外星星球', freshJourney:'確認重新出發前，已儲存的旅程會為你保留。', eyebrow:'外星星球探索遊戲', subtitle:'塵境回聲', intro:'駕駛探索車穿越四個外星區域，減速停車，觀察生物與調查生命訊號。', start:'開啟我的旅程', settings:'設定', language:'EN', desktop:'電腦可呈現更豐富的細節；手機請以橫向遊玩。', footer:'駕駛探索車 · 觀察生物 · 調查訊號', controls:'鍵盤與滑鼠 · 橫向觸控', habitat:'極光高原', art:'極光高原 · 遊戲實景', landscapeNote:'從極光高原出發，跟隨金色標記。', aurora:'極光高原', ember:'熱泉裂谷', veil:'濃霧沼澤', pale:'孢子衰變', expedition:'正在載入遊戲', specimen:'Aeral 霧翼群', settingsKicker:'旅程偏好', settingsTitle:'以你的步調出發', settingsNote:'除非在此更改，否則沿用遊戲已儲存的偏好。', localeLabel:'語言', volumeLabel:'音量', motionLabel:'減少動態效果', qualityLabel:'畫面細節', saved:'沿用遊戲偏好', on:'開啟', off:'關閉', low:'輕量', high:'完整', done:'完成', restore:'沿用已儲存偏好', close:'關閉設定', loadingTitle:'正在載入探索車遊戲', connecting:'正在開啟遊戲…', downloading:'正在下載遊戲內容…', preparing:'正在準備外星星球…', validating:'正在確認已儲存的遊戲進度…', waiting:'正在等候第一個遊戲畫面…', transferHint:'實際下載進度', prepareHint:'正在準備遊戲，完成後即可駕駛探索車…', errorTitle:'遊戲暫時未能開啟', error:'遊戲暫時未能開啟。你可以再試一次，或先返回首頁。', support:'此瀏覽器未能提供所需的 3D 圖像支援，請使用已啟用硬件加速的瀏覽器。', lost:'圖像連線中斷。請重新載入，重新開啟遊戲。語言與設定會保留。', timeout:'遊戲載入時間比預期長。你可以返回首頁再試一次；若仍未能開啟，請重新載入。', retry:'再試一次', reload:'重新載入', home:'返回首頁', loadingFooter:'探索四個外星區域，駕駛、觀察並追蹤訊號。', stopMotion:'暫停動畫', resumeMotion:'繼續動畫', canvas:'塵境回聲：外星星球探索車遊戲'
+      firstStep:'繞過山丘、離開主路，或停車看看身邊的生物。', driveTip:'W／方向鍵 · 駕駛　按住 C · 慢行　空白鍵 · 煞車', observeTip:'按住右鍵拖曳 · 環顧　V · 視角　E · 觀察　J · 日誌', touchTip:'點前進駕駛；慢行＋前進可安靜靠近。煞車停下後，點互動觀察。',
+      ready:'自由探索外星世界', freshJourney:'確認重新出發前，已儲存的旅程會為你保留。', eyebrow:'外星星球探索遊戲', subtitle:'異星漫遊', intro:'駕駛探測車，漫遊四片異星棲地。沒有指定路線，讓好奇心帶路。', start:'開始漫遊', settings:'設定', language:'EN', desktop:'電腦可呈現更豐富的細節；手機請以橫向遊玩。', footer:'自由駕駛 · 觀察生命 · 漫遊異星', controls:'鍵盤與滑鼠 · 橫向觸控', habitat:'極光高原', art:'極光高原 · 遊戲實景', landscapeNote:'山丘、岸線、遠方的輪廓，方向由你決定。', aurora:'極光高原', ember:'熱泉裂谷', veil:'濃霧沼澤', pale:'孢子衰變', expedition:'正在載入遊戲', specimen:'Aeral 霧翼群', settingsKicker:'旅程偏好', settingsTitle:'以你的步調出發', settingsNote:'除非在此更改，否則沿用遊戲已儲存的偏好。', localeLabel:'語言', volumeLabel:'音量', motionLabel:'減少動態效果', qualityLabel:'畫面細節', saved:'沿用遊戲偏好', on:'開啟', off:'關閉', low:'輕量', high:'完整', done:'完成', restore:'沿用已儲存偏好', close:'關閉設定', loadingTitle:'正在載入探索車遊戲', connecting:'正在開啟遊戲…', downloading:'正在下載遊戲內容…', preparing:'正在準備外星星球…', validating:'正在確認已儲存的遊戲進度…', waiting:'正在等候第一個遊戲畫面…', transferHint:'實際下載進度', prepareHint:'正在準備遊戲，完成後即可駕駛探索車…', errorTitle:'遊戲暫時未能開啟', error:'遊戲暫時未能開啟。你可以再試一次，或先返回首頁。', support:'此瀏覽器未能提供所需的 3D 圖像支援，請使用已啟用硬件加速的瀏覽器。', lost:'圖像連線中斷。請重新載入，重新開啟遊戲。語言與設定會保留。', timeout:'遊戲載入時間比預期長。你可以返回首頁再試一次；若仍未能開啟，請重新載入。', retry:'再試一次', reload:'重新載入', home:'返回首頁', loadingFooter:'漫遊四片棲地，沒有指定路線，讓好奇心帶路。', stopMotion:'暫停動畫', resumeMotion:'繼續動畫', canvas:'異星漫遊：外星星球探索車遊戲'
     }
   };
+  for (const lang of ['en','zh_TW']) Object.assign(COPY[lang], window.__WANDER_BRAND__[lang]);
   const $ = id => document.getElementById(id);
   const canvas = $('canvas'), veil = $('veil'), home = $('home'), loading = $('loading');
   const dialog = $('settings-dialog'), progress = $('progress'), percent = $('percent');
@@ -102,7 +103,13 @@
     const copy = COPY[locale];
     document.documentElement.lang = locale === 'zh_TW' ? 'zh-Hant' : 'en';
     for (const node of document.querySelectorAll('[data-copy]')) node.textContent = copy[node.dataset.copy];
+    document.title = copy.title;
+    document.querySelector('.wordmark-name').textContent = copy.name;
+    document.querySelector('meta[name="description"]').content = copy.description;
+    document.querySelector('meta[property="og:title"]').content = copy.title;
+    document.querySelector('meta[property="og:description"]').content = copy.description;
     canvas.setAttribute('aria-label', copy.canvas);
+    $('continue').hidden = !savedWanderAvailable();
     progress.setAttribute('aria-label',copy.transferHint);
     $('open-settings').setAttribute('aria-label', copy.settings);
     $('close-settings').setAttribute('aria-label', copy.close);
@@ -163,6 +170,21 @@
       if (['arrival','exploring','contact'].includes(window.__EXPEDITION_STATE__?.phase)) window.expeditionTouch?.('pause_only', true);
     }
   }
+  function savedWanderAvailable() {
+    if (started) return window.__EXPEDITION_BOOT_STATUS__?.savedAvailable === true || window.__EXPEDITION_STATE__?.saveAvailable === true;
+    try {
+      const key = 'signal-in-the-dust:expedition:v2:user://expedition_state.json';
+      if (localStorage.getItem(key) === '__EXPEDITION_CLEARED__') return false;
+      return [key, key + '.bak'].some(name => {
+        const raw = localStorage.getItem(name);
+        if (!raw || raw.length > 65536) return false;
+        try {
+          const save = JSON.parse(raw);
+          return [1,2].includes(save?.version) && save.phase === 'exploring' && Number.isFinite(save.position?.z);
+        } catch { return false; }
+      });
+    } catch { return false; }
+  }
   function showHome(message = '') {
     clearTimeout(guard); clearTimeout(fade); busy = false; homeMessage = message;
     document.body.dataset.shellPhase = 'home';
@@ -170,6 +192,7 @@
     home.hidden = false; loading.hidden = true; $('home-footer').hidden = false;
     $('home-message').hidden = !message;
     $('start').disabled = false;
+    if (started && ['en','zh_TW'].includes(window.__EXPEDITION_STATE__?.settings?.locale)) locale=window.__EXPEDITION_STATE__.settings.locale;
     blockGame(true); translate();
     if (pending) $('start').focus({preventScroll:true});
   }
@@ -404,7 +427,7 @@
     }, Math.max(0,Math.min(120000,bootDeadline - performance.now())));
   }
   async function launch(action) {
-    if (action !== 'new' || busy) return;
+    if (!['new','continue'].includes(action) || busy) return;
     if (fatal) { fail(errorKey, null, true); return; }
     lastAction = action; busy = true; pending = request(action); lastStatus = '';
     resetBootTimings(action);
@@ -448,6 +471,7 @@
     }
   }
 
+  $('continue').addEventListener('click',() => launch('continue'));
   $('start').addEventListener('click',() => launch('new'));
   $('retry').addEventListener('click',() => fatal ? location.reload() : launch(lastAction));
   $('return-home').addEventListener('click',() => { pending = null; showHome(); $('start').focus({preventScroll:true}); });

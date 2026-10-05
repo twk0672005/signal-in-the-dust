@@ -1,3 +1,17 @@
+## Current work: free exploration, 2026-10-04
+
+Completed local PRODUCT delivery: release 565b87cc7346650fc245d405.
+Play http://127.0.0.1:64818/; verified handoff:
+[Alien Wander delivery](evidence/alien-wander-20261004/delivery/HANDOFF.md).
+105 native, 26 desktop, 20 landscape-touch checks pass. Actual first-person
+observation visuals were rechecked after raising the camera above its housing.
+No public push/deployment. Physical phone/Safari remain untested.
+
+Nova's latest instruction replaces the signal/first-contact final-polish direction.
+Read [the current Alien Wander checkpoint](docs/ALIEN_WANDER_2026-10-04.md).
+Branch: codex/alien-wander-20261004. Local implementation and verification only;
+no new publication authority. All following release/task entries are historical.
+
 ## E 首次聯絡更新已上線 — 2026-10-04
 
 [開啟最新公開遊戲](https://twk0672005.github.io/signal-in-the-dust/?v=9515f0fa92616a04840eb938) · [發布與驗收紀錄](docs/E_CONTACT_RELEASE_2026-10-04.md)

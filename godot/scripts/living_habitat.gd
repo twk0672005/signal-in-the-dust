@@ -424,6 +424,10 @@ func _spatial_batches(family: String,transforms: Array,seated: bool=false,zone: 
 	for raw: Transform3D in transforms:
 		if not seated and family in SOLID_FAMILIES and terrain.environment_access_distance(raw.origin.x,raw.origin.z)<7.0+_footprint(family,raw.basis): continue
 		var pose := raw if seated else _seat_transform(family,raw)
+		if family.ends_with("_floor"):
+			# Break repeated bed outlines into uneven colonies; keep the same assets.
+			var patch := sin(raw.origin.x * 0.37 + raw.origin.z * 0.19) * cos(raw.origin.z * 0.11)
+			if patch > 0.70: continue
 		if family in SOLID_FAMILIES: _add_habitat_collision(family,pose)
 		var key := Vector2i(floori(pose.origin.x/48.0),floori(pose.origin.z/64.0))
 		if not chunks.has(key): chunks[key]=[]

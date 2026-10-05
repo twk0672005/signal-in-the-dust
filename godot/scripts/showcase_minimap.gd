@@ -1,4 +1,5 @@
 extends Control
+const Habitats = preload("res://scripts/expedition_activities.gd")
 ## North-up local map. Receives world-space data; never moves the rover or owns game state.
 
 var _road := PackedVector2Array()
@@ -49,6 +50,11 @@ func _draw() -> void:
 		var offset := (projected(_target) - center).limit_length(radius - 8.0)
 		draw_circle(center + offset, 3.0, Color(0.97, 0.77, 0.43))
 		draw_arc(center + offset, 5.5, 0.0, TAU, 16, Color(0.97, 0.77, 0.43, 0.4), 1.0, true)
+	# Static local landmarks are orientation references, never assigned objectives.
+	for id in Habitats.SITES:
+		var point := projected(Habitats.point(id))
+		if point.distance_to(center) < radius - 6.0:
+			draw_rect(Rect2(point - Vector2(1.5, 1.5), Vector2(3, 3)), Color(0.65, 0.79, 0.74, 0.60))
 	var forward := Vector2(sin(_heading), -cos(_heading))
 	var side := Vector2(-forward.y, forward.x)
 	var arrow := PackedVector2Array([center + forward * 8.0, center - forward * 5.0 + side * 5.0, center - forward * 2.0, center - forward * 5.0 - side * 5.0])

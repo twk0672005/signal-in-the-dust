@@ -23,6 +23,10 @@ static func valid(data: Variant) -> bool:
 	# Optional v2 extension: old saves remain valid and a partial transmission
 	# must never be promoted into a completed first-contact discovery.
 	if data.has("contactCompleted") and not data.contactCompleted is bool: return false
+	var landmarks: Variant = data.get("observedLandmarks", {})
+	if not landmarks is Dictionary or landmarks.size() > Activities.SITES.size() + 1: return false
+	for id in landmarks:
+		if (id != "world_tree" and not Activities.SITES.has(id)) or not landmarks[id] is bool: return false
 	var observations: Variant = data.get("observedEcology")
 	if not observations is Dictionary: return false
 	for key in observations:

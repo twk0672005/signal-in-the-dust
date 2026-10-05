@@ -1,4 +1,18 @@
-# Signal in the Dust — current project authority
+# Current Direction: Free Alien Exploration (2026-10-04)
+
+2026-10-05: Nova now authorizes push/put main and the existing public Pages update.
+Read docs/ALIEN_WANDER_RELEASE_2026-10-05.md for this publication. Earlier
+local-only restrictions below are historical; preserve free exploration.
+
+Nova's latest request replaces signal pursuit, first contact and mission/finale
+polish. Use [the current contract](docs/ALIEN_WANDER_2026-10-04.md) and README.
+Working title: Alien Wander / 異星漫遊, not final brand approval.
+All four habitats and the world tree remain reachable without tasks or E.
+Observations are optional and never take over the camera or end play.
+No public push/deployment is authorized for this revision.
+The following historical approvals and scope statements do not override this.
+
+# Signal in the Dust — historical project authority
 
 Nova's approved 2026-09-15 plan supersedes the archived AURELIA route.
 This root owns one Godot 4.7.2 game at `godot/project.godot`.

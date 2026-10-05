@@ -6,8 +6,8 @@
   const veil=document.getElementById('veil'), preview=document.getElementById('region-preview');
   const regions=['aurora_shelf','ember_rift','veil_marsh','pale_decay'];
   const copy={
-    en:{scene:'Beneath the listening arch',keyArt:'Concept artwork',expedition:'AN EXPEDITION INTO THE UNKNOWN',actual:'Actual gameplay',preview:'Preview the four regions',names:['Aurora Shelf','Ember Rift','Veil Marsh','Pale Decay'],details:['Crystal ridges · first signals','Thermal stone · Veyra territory','Quiet water · Aeral flight','Root networks · Morrow shells']},
-    zh:{scene:'聆聽岩拱之下',keyArt:'概念主視覺',expedition:'向未知出發',actual:'實際遊戲畫面',preview:'預覽四個探索區域',names:['極光高原','熱泉裂谷','濃霧沼澤','孢子衰變'],details:['冰晶地脊 · 第一段生命訊號','熱岩台地 · Veyra 礦殼生物','安靜水岸 · Aeral 霧翼群','根系網絡 · Morrow 甲殼生物']}
+    en:{scene:'Beyond the arch',keyArt:'Concept artwork',expedition:'LET CURIOSITY LEAD',actual:'Actual gameplay',preview:'Preview the four habitats',names:['Aurora Shelf','Ember Rift','Veil Marsh','Pale Decay'],details:['Crystal ridges · open horizons','Thermal stone · Veyra territory','Quiet water · Aeral flight','Spore hollows · Morrow shells']},
+    zh:{scene:'岩拱之外',keyArt:'概念主視覺',expedition:'讓好奇心帶路',actual:'實際遊戲畫面',preview:'預覽四片棲地',names:['極光高原','熱泉裂谷','濃霧沼澤','孢子衰變'],details:['冰晶地脊 · 開闊遠景','熱岩台地 · Veyra 礦殼生物','安靜水岸 · Aeral 霧翼群','孢子窪地 · Morrow 甲殼生物']}
   };
   let selected=0,frame=0,point=null;
   const reduced=()=>document.body.dataset.reducedMotion==='true'||matchMedia('(prefers-reduced-motion: reduce)').matches;

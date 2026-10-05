@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 const root=resolve(import.meta.dirname,'..');
 const suite=process.argv[2] || 'runtime_checks';
-if(!['runtime_checks','physics_camera_regression','interaction_regression','ecology_regression','save_resume_regression','save_flow_regression','activity_logic_runner','resonance_logic','escort_logic','quiet_passage_checks','root_network_checks','thermal_checks','wetland_checks'].includes(suite)) throw new Error('Unknown native suite');
+if(!['free_roam_regression','runtime_checks','physics_camera_regression','interaction_regression','ecology_regression','save_resume_regression','save_flow_regression','activity_logic_runner','resonance_logic','escort_logic','quiet_passage_checks','root_network_checks','thermal_checks','wetland_checks'].includes(suite)) throw new Error('Unknown native suite');
 const evidence=resolve(root,'evidence',suite==='runtime_checks'?'native-latest':'native-'+suite); mkdirSync(evidence,{recursive:true});
 const isolatedData=resolve(evidence,'native-userdata'); mkdirSync(isolatedData,{recursive:true});
 const engine=process.env.GODOT_BIN || 'C:/Users/tsang/AppData/Local/Microsoft/WinGet/Packages/GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe/Godot_v4.7.2-stable_win64_console.exe';

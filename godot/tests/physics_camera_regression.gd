@@ -62,10 +62,17 @@ func run() -> void:
 	detail.missing_ground_z = missing
 	game.start_expedition()
 	await frames(30)
-	checks.arrival_owns_camera = root.get_camera_3d() == game.exterior
+	checks.start_immediately_owns_player_camera = root.get_camera_3d() == game.rover.get_active_camera()
 	await frames(360)
 	checks.driving_starts_after_arrival = game.phase == "exploring"
 	checks.spawn_grounded = game.rover.is_on_floor()
+	var body_mesh: MeshInstance3D = game.rover.model.find_child("rover_body", true, false)
+	var body_box := body_mesh.get_aabb()
+	var highest := -INF
+	for i in 8:
+		var corner: Vector3 = body_mesh.global_transform * (body_box.position + body_box.size * Vector3(i & 1, (i >> 1) & 1, (i >> 2) & 1))
+		highest = maxf(highest, corner.y)
+	checks.first_person_clears_sensor_housing = game.rover.camera.global_position.y > highest + 0.1
 	detail.spawn_position = str(game.rover.global_position)
 	game.rover.set_driving_enabled(false)
 	game.rover.heading = 0.7
@@ -100,21 +107,21 @@ func run() -> void:
 	await place(origin,0.32)
 	press(KEY_W,true)
 	await frames(175)
-	checks.reaches_cruise_in_three_seconds = game.rover.speed > 23.5 and game.rover.speed <= 24.1
+	checks.reaches_cruise_in_three_seconds = game.rover.speed > 16.0 and game.rover.speed <= 18.1
 	detail.speed_after_2_9_seconds = game.rover.speed
 	press(KEY_W,false)
 	await frames(1)
-	checks.coasting_retains_momentum = game.rover.speed > 20.0
-	await frames(123)
-	checks.coasting_stops_after_two_seconds = absf(game.rover.speed) < 0.15
+	checks.coasting_retains_momentum = game.rover.speed > 15.5
+	await frames(240)
+	checks.coasting_stops_within_four_seconds = absf(game.rover.speed) < 0.15
 	detail.coast_terminal_speed = game.rover.speed
 	await place(origin,0.32)
 	press(KEY_W,true)
 	await frames(175)
 	press(KEY_W,false)
 	press(KEY_SPACE,true)
-	await frames(29)
-	checks.full_speed_brake_under_half_second = absf(game.rover.speed) < 0.15
+	await frames(50)
+	checks.full_speed_brake_under_one_second = absf(game.rover.speed) < 0.15
 	press(KEY_SPACE,false)
 	await place(origin,PI/2)
 	var before: Vector3 = game.rover.global_position
