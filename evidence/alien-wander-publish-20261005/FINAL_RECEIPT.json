@@ -1,0 +1,66 @@
+{
+  "at": "2026-10-05T16:47:13.095Z",
+  "status": "RELEASED",
+  "scope": "Alien Wander free-exploration update",
+  "authorization": "Nova: PASH PUT MAIN on 2026-10-05",
+  "website": "https://twk0672005.github.io/signal-in-the-dust/?v=0f0d23d21cd310d632cf7000",
+  "githubMainCommit": "edd72bac585af55c964334a87336a36115e93169",
+  "sourceCodeCommit": "0bf2332ca1ddfce3cb813493e5af5b830b24390b",
+  "sourceBranch": "codex/alien-wander-20261004",
+  "acceptedReleaseId": "565b87cc7346650fc245d405",
+  "publishedReleaseId": "0f0d23d21cd310d632cf7000",
+  "decodedPckSha256": "ed3b68ae78539f62ebdd4364151f92980b954f63b20f17830118f40660094eb6",
+  "gameContentChangedByTransport": false,
+  "pagesBuilt": true,
+  "publicFilesVerified": 26,
+  "publicMetadataVerified": 2,
+  "desktop": {
+    "passed": true,
+    "checks": 26,
+    "regions": [
+      "aurora_shelf",
+      "ember_rift",
+      "veil_marsh",
+      "pale_decay"
+    ],
+    "noEWorldTreeArrival": {
+      "x": 1.93889939785004,
+      "y": -0.733576059341431,
+      "z": -640.583312988281
+    },
+    "errors": [],
+    "renderer": {
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4060 Laptop GPU (0x000028A0) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (NVIDIA)"
+    },
+    "launchToControlSeconds": 18.516400000095366
+  },
+  "touch": {
+    "passed": true,
+    "checks": 20,
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "physicalPhone": false,
+    "errors": [],
+    "launchToControlSeconds": 19.244700000047683
+  },
+  "preservedWebsiteFiles": 143,
+  "preexistingTrackedContentVerified": true,
+  "firstPush": "HTTP 408; remote ref confirmed unchanged before retry",
+  "retry": "Successful per-command HTTP/1.1 and 150 MiB post buffer; no persistent Git configuration changed",
+  "limitations": [
+    "Physical phones and Safari remain untested",
+    "Startup samples use fresh isolated Chromium contexts with video recording; OS/GPU and CDN caches uncontrolled",
+    "No universal FPS or cold-load guarantee",
+    "AI visual assessment remains proxy evidence"
+  ],
+  "evidence": {
+    "hashes": "PUBLIC_HASH_READBACK.json",
+    "pages": "PAGES_BUILD.json",
+    "staging": "STAGED_BYTE_CHECK.json",
+    "desktop": "public-desktop/receipt.json",
+    "touch": "public-touch/receipt.json"
+  }
+}

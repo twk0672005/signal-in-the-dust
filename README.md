@@ -1,5 +1,8 @@
 # 異星漫遊 | Alien Wander
 
+[Play the public game](https://twk0672005.github.io/signal-in-the-dust/?v=0f0d23d21cd310d632cf7000)
+| [Publication receipt](docs/ALIEN_WANDER_RELEASE_2026-10-05.md)
+
 Working title proposed for the 2026-10-04 free-exploration revision, not a final
 brand decision. Drive a rover through Aurora Shelf, Ember Rift, Veil Marsh and
 Pale Decay. Leave the road, watch alien life, stop at a landmark, and keep roaming.
@@ -69,7 +72,8 @@ remain as compatibility evidence; they are not the current product contract.
 
 ## Publication
 
-This revision is local until Nova explicitly authorizes a particular public
-push/deployment. Existing repository names and public URLs are unchanged.
-Previous release approvals do not apply to this candidate. Physical-phone,
-Safari and broad hardware performance claims require their own actual tests.
+Nova authorized this revision's main/Pages publication on 2026-10-05. The public
+artifact has been verified against its manifest and actual browser journeys.
+Existing repository names, URLs and storage identity are retained. Later releases
+require their own authorization. Physical-phone, Safari and broad hardware
+performance claims require their own actual tests.

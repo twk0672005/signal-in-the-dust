@@ -1,0 +1,202 @@
+{
+  "at": 1791218143.576685,
+  "releaseId": "0f0d23d21cd310d632cf7000",
+  "url": "https://twk0672005.github.io/signal-in-the-dust/",
+  "files": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "bytes": 19481,
+      "sha256": "c630a1377a5a335830ec381785a6bf189134ad3a40f7def69dd52f58f3997ac2",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/aeral-hero-v1.png",
+      "status": 200,
+      "bytes": 2721549,
+      "sha256": "1793673f91d25affd671631fdd19f2e182a0623b7bd89f2272a79e95888d0f15",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/alien-renewal/aeral-study-web-20261001.webp",
+      "status": 200,
+      "bytes": 75186,
+      "sha256": "a3b0fd2775f431769ec5df917affbcdf422fddf471c1522406b87999c9553c0a",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/alien-renewal/aeral-web-6da6c8ca.webp",
+      "status": 200,
+      "bytes": 102512,
+      "sha256": "a3188ff333b53b25bb3bf79a8210882be00c22bebc2c716aaedae07485470d0d",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/alien-renewal/aurora-entry-web-20261001.webp",
+      "status": 200,
+      "bytes": 143422,
+      "sha256": "9173ac9bf0a0234c08f418eecb4754fec172d6917486709db60a57fdeac7c276",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/alien-renewal/aurora-web-6da6c8ca.webp",
+      "status": 200,
+      "bytes": 273514,
+      "sha256": "0e338f6ed35657216c6afe08f7b67b8b21bd42495174783b26676c4c14e6697a",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/grand-home/aurora_shelf-actual.webp",
+      "status": 200,
+      "bytes": 33636,
+      "sha256": "fb0aa474830e93bdbead9c112b655c646852e50505ee603347beec08912362c9",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/grand-home/ember_rift-actual.webp",
+      "status": 200,
+      "bytes": 22904,
+      "sha256": "21b92686c16e38903678ee5b59b416c52bce57b692544f93eb8ab77541f2115d",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/grand-home/listening-arch-keyart.webp",
+      "status": 200,
+      "bytes": 345526,
+      "sha256": "29ab7ba049303bebaf289b1c024e113f9730b1fd2a928f95351eae9148f3d5e7",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/grand-home/pale_decay-actual.webp",
+      "status": 200,
+      "bytes": 25940,
+      "sha256": "af10713ed4d13333fc6ede578b605d856a5ebb512d15f2b291da74b6b4f22741",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/grand-home/veil_marsh-actual.webp",
+      "status": 200,
+      "bytes": 17870,
+      "sha256": "ae7a0cca71ced50cb7d1f92884efcf2a7f8f5bed6a83ed9030ba7e98a3cdf907",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/assets/veil-entry-v2.png",
+      "status": 200,
+      "bytes": 3059723,
+      "sha256": "5017ba0aea023337f3fbe6b2e1924c9ceebf94d6286fea833b98e78e9256d8c9",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/brand.js",
+      "status": 200,
+      "bytes": 2608,
+      "sha256": "1e2c71fd72b1fae94a93e599760747407628a1b5823c15782f36894f8150fc54",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.apple-touch-icon.png",
+      "status": 200,
+      "bytes": 11944,
+      "sha256": "01d4f63e525941e06ce74f5187dad030d20a8d52a07ce365ae4e94af97a3b1f5",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.audio.position.worklet.js",
+      "status": 200,
+      "bytes": 2973,
+      "sha256": "be33985bc7160d6bf9646f259cd86b259cd67b02ccb297ee5c44f8ac84327bc8",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.audio.worklet.js",
+      "status": 200,
+      "bytes": 7298,
+      "sha256": "5b476a9c9ce642c0ee4256436d1bc31d9c38f868aca0f9a8e2a57c18d2dec2a3",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.icon.png",
+      "status": 200,
+      "bytes": 5700,
+      "sha256": "ad3c35ad0facf487c618204bd98db543034fc95224eadc7f08c7a9ff38d5b3b5",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.js",
+      "status": 200,
+      "bytes": 279858,
+      "sha256": "7dbe74ca854c283711ad761a315296c65735dd2c5198c0692f6073e9267fede5",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.pck.part-000",
+      "status": 200,
+      "bytes": 67108864,
+      "sha256": "9a1c891b68da72f94ff214d8b44ea40c39d968a8566eaef069746127646563a9",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.pck.part-001",
+      "status": 200,
+      "bytes": 32655564,
+      "sha256": "77874874795c15b980654423e1466eac7f983d3156631d63e277e47a196e5a0b",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.png",
+      "status": 200,
+      "bytes": 21443,
+      "sha256": "3cb4495c0b98dfbe4b663cbf2b6836473572339beb66d902367893162a70be0e",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/index.wasm",
+      "status": 200,
+      "bytes": 10152659,
+      "sha256": "02e62809fdbd2784b297a8e45a588cb8f27443ccc316f50fa9047f5d9bdda95e",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/showcase-art.js",
+      "status": 200,
+      "bytes": 4064,
+      "sha256": "a8cb131d537ff1597376b2fdf3e830d7971f1903f619df4cfd292620f5c2511e",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/showcase-grand.css",
+      "status": 200,
+      "bytes": 14778,
+      "sha256": "71eabaa2fcaa0904b4f574f30a2decab9149b3910fe6e248d3643287c18d8220",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/showcase.css",
+      "status": 200,
+      "bytes": 24568,
+      "sha256": "56a783388185924faf7d85d929d8082a3adb4a61ef865ac35b5cc41ed9c3e34c",
+      "pass": true
+    },
+    {
+      "path": "releases/0f0d23d21cd310d632cf7000/showcase.js",
+      "status": 200,
+      "bytes": 37491,
+      "sha256": "d01423be50ed240a42e87224e8ed4ef1187e3ad15ec0f849985fe2abe74ba6ed",
+      "pass": true
+    }
+  ],
+  "metadata": [
+    {
+      "path": "release.json",
+      "releaseId": "0f0d23d21cd310d632cf7000",
+      "pass": true
+    },
+    {
+      "path": "release-manifest.json",
+      "releaseId": "0f0d23d21cd310d632cf7000",
+      "pass": true
+    }
+  ],
+  "pass": true
+}

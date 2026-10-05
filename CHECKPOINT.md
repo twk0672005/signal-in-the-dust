@@ -1,5 +1,12 @@
 ## Current work: free exploration, 2026-10-04
 
+2026-10-05 PUBLICATION COMPLETE: Nova instructed push/put main.
+[Public game](https://twk0672005.github.io/signal-in-the-dust/?v=0f0d23d21cd310d632cf7000).
+Website main edd72ba; game source 0bf2332. Pages built; 26 file hashes and two
+metadata files match; 26 desktop and 20 touch-context checks pass.
+Read docs/ALIEN_WANDER_RELEASE_2026-10-05.md. Following local-only notes describe
+the earlier acceptance checkpoint, not the current publication state.
+
 Completed local PRODUCT delivery: release 565b87cc7346650fc245d405.
 Play http://127.0.0.1:64818/; verified handoff:
 [Alien Wander delivery](evidence/alien-wander-20261004/delivery/HANDOFF.md).

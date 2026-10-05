@@ -1,5 +1,10 @@
 # Alien Wander: current delivery checkpoint
 
+Publication update, 2026-10-05: Nova authorized push/put main. The accepted game
+is now published and read back successfully; see ALIEN_WANDER_RELEASE_2026-10-05.md.
+The source has been committed and integrated into local main. Local-only and
+uncommitted statements below record the original acceptance checkpoint.
+
 Nova's 2026-10-04 free-exploration request replaces the previous final-polish,
 signal pursuit, first-contact and mission direction. Historical release approvals
 do not authorize publication of this candidate.
