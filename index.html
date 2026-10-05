@@ -3,29 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Signal in the Dust is an alien-planet rover exploration game. Drive across four regions, observe creatures and investigate signals. English / 繁體中文.">
+<meta name="description" content="Drive a rover across four alien habitats. Wander, watch alien life and stop wherever curiosity takes you.">
+<meta property="og:title" content="Alien Wander">
+<meta property="og:description" content="Drive a rover across four alien habitats. Wander, watch alien life and stop wherever curiosity takes you.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#13292b">
-<title>Signal in the Dust — First Contact</title>
+<title>Alien Wander</title>
+<script src="releases/0f0d23d21cd310d632cf7000/brand.js"></script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%23080d1e'/%3E%3Cpath d='M12 21v6m6-12v18m6-24v30m6-24v18m6-12v6' stroke='%23a5e4ee' stroke-width='2'/%3E%3C/svg%3E">
-<link rel="preload" as="image" type="image/webp" href="releases/9515f0fa92616a04840eb938/assets/grand-home/listening-arch-keyart.webp" fetchpriority="high">
-<link rel="preload" as="image" type="image/webp" href="releases/9515f0fa92616a04840eb938/assets/alien-renewal/aeral-web-6da6c8ca.webp" fetchpriority="low">
-<link rel="stylesheet" href="releases/9515f0fa92616a04840eb938/showcase.css">
-<link rel="stylesheet" href="releases/9515f0fa92616a04840eb938/showcase-grand.css">
-<link id="-gd-engine-icon" rel="icon" type="image/png" href="releases/9515f0fa92616a04840eb938/index.icon.png" />
-<link rel="apple-touch-icon" href="releases/9515f0fa92616a04840eb938/index.apple-touch-icon.png"/>
+<link rel="preload" as="image" type="image/webp" href="releases/0f0d23d21cd310d632cf7000/assets/grand-home/listening-arch-keyart.webp" fetchpriority="high">
+<link rel="preload" as="image" type="image/webp" href="releases/0f0d23d21cd310d632cf7000/assets/alien-renewal/aeral-web-6da6c8ca.webp" fetchpriority="low">
+<link rel="stylesheet" href="releases/0f0d23d21cd310d632cf7000/showcase.css">
+<link rel="stylesheet" href="releases/0f0d23d21cd310d632cf7000/showcase-grand.css">
+<link id="-gd-engine-icon" rel="icon" type="image/png" href="releases/0f0d23d21cd310d632cf7000/index.icon.png" />
+<link rel="apple-touch-icon" href="releases/0f0d23d21cd310d632cf7000/index.apple-touch-icon.png"/>
 
 </head>
 <body data-shell-phase="home">
-<canvas id="canvas" tabindex="0" aria-label="Signal in the Dust alien-planet rover exploration game" aria-hidden="true" inert></canvas>
+<canvas id="canvas" tabindex="0" aria-label="Alien Wander alien-planet rover exploration game" aria-hidden="true" inert></canvas>
 <noscript>JavaScript is required to play. / 請啟用 JavaScript 以開始探索。</noscript>
 <main id="veil">
-  <img class="hero-art" src="releases/9515f0fa92616a04840eb938/assets/grand-home/listening-arch-keyart.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async">
+  <img class="hero-art" src="releases/0f0d23d21cd310d632cf7000/assets/grand-home/listening-arch-keyart.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async">
   <div class="art-shade" aria-hidden="true"></div>
   <div class="entry-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="arrival-light" aria-hidden="true"></div>
   <div class="scene-caption"><span class="caption-line" aria-hidden="true"></span><span data-art-copy="scene">Beneath the listening arch</span><span data-art-copy="keyArt">Concept artwork</span></div>
   <header class="entry-header">
-    <div class="wordmark"><span class="signal-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>SIGNAL IN THE DUST</span></div>
+    <div class="wordmark"><span class="signal-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="wordmark-name">Alien Wander</span></div>
     <nav class="entry-tools" aria-label="Preferences">
       <button id="language-toggle" class="text-button language-button" type="button" data-copy="language">繁中</button>
       <button id="open-settings" class="text-button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m9 3-1 3-3 1 1 3-2 2 2 2-1 3 3 1 1 3h6l1-3 3-1-1-3 2-2-2-2 1-3-3-1-1-3Z"/></svg><span class="settings-label" data-copy="settings">Settings</span></button>
@@ -35,11 +40,11 @@
     <div class="home-copy">
       <p class="expedition-id"><span class="signal-dot" aria-hidden="true"></span><span data-art-copy="expedition">AN EXPEDITION INTO THE UNKNOWN</span></p>
       <p class="eyebrow" data-copy="eyebrow">ALIEN PLANET EXPLORATION GAME</p>
-      <h1 id="title" data-copy="ready">Drive a rover.
-Explore an alien planet.</h1>
-      <p class="intro" data-copy="intro">Drive across four alien regions. Stop to observe creatures and investigate signals.</p>
+      <h1 id="title" data-copy="ready">Explore an alien world freely</h1>
+      <p class="intro" data-copy="intro">Drive a rover across four alien habitats. No set route. Let curiosity lead.</p>
       <div class="entry-actions">
-        <button id="start" class="primary-button" type="button"><span data-copy="start">Begin my journey</span><span class="button-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></span></button>
+        <button id="continue" class="primary-button" type="button" hidden data-copy="continue">Continue wandering</button>
+        <button id="start" class="primary-button" type="button"><span data-copy="start">Start wandering</span><span class="button-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></span></button>
       </div>
       <p class="local-save" data-copy="freshJourney">Saved progress is replaced only after your confirmation.</p>
       <p class="notice"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 21h8m-4-5v5"/></svg><span data-copy="desktop">For the richest detail, explore on a desktop. Mobile play uses landscape.</span></p>
@@ -50,7 +55,7 @@ Explore an alien planet.</h1>
   <footer id="home-footer" class="entry-footer">
     <aside class="game-preview" aria-label="Actual gameplay preview">
       <div class="preview-heading"><span class="live-tick" aria-hidden="true"></span><span data-art-copy="actual">Actual gameplay</span><span id="preview-index">01 / 04</span></div>
-      <div class="preview-image-window"><img id="region-preview" src="releases/9515f0fa92616a04840eb938/assets/grand-home/aurora_shelf-actual.webp" width="640" height="360" alt="" decoding="async"><span class="preview-reticle" aria-hidden="true"></span></div>
+      <div class="preview-image-window"><img id="region-preview" src="releases/0f0d23d21cd310d632cf7000/assets/grand-home/aurora_shelf-actual.webp" width="640" height="360" alt="" decoding="async"><span class="preview-reticle" aria-hidden="true"></span></div>
       <div class="preview-description"><span id="region-name">Aurora Shelf</span><span id="region-detail">Crystal ridges · first signals</span></div>
       <span class="art-credit" data-copy="art">Aurora Shelf · In-game capture</span>
     </aside>
@@ -76,7 +81,7 @@ Explore an alien planet.</h1>
       <p id="wait-note" class="wait-note" data-copy="longWait" hidden>First-time downloads and graphics preparation can take longer. Keep this tab open until the game view is ready. If the browser stops responding, let it recover.</p>
       <div class="arrival-guide">
         <p class="guide-kicker" data-copy="firstDiscovery">Your first objective</p>
-        <p id="arrival-purpose" data-copy="firstStep">Drive to the gold map marker. Brake beside the crystals, then observe the signal.</p>
+        <p id="arrival-purpose" data-copy="firstStep">Follow an interesting ridge, leave the road, or stop beside a creature.</p>
         <p id="control-drive"></p>
         <p id="control-observe" data-copy="observeTip">Right-drag · Look    V · Camera    E · Observe    J · Journal</p>
       </div>
@@ -85,7 +90,7 @@ Explore an alien planet.</h1>
     </div>
     <figure class="loading-specimen" aria-hidden="true">
       <div class="specimen-window">
-        <img class="specimen-art" src="releases/9515f0fa92616a04840eb938/assets/alien-renewal/aeral-web-6da6c8ca.webp" width="1024" height="768" alt="" loading="lazy" decoding="async">
+        <img class="specimen-art" src="releases/0f0d23d21cd310d632cf7000/assets/alien-renewal/aeral-web-6da6c8ca.webp" width="1024" height="768" alt="" loading="lazy" decoding="async">
         <svg class="field-trace" viewBox="0 0 500 540" fill="none" focusable="false">
           <path class="trace-corners" d="M24 61V24H61M439 24H476V61M24 479V516H61M439 516H476V479"/>
           <path class="trace-orbit" d="M98 333C146 161 305 96 432 181M98 333C219 452 363 395 432 181"/>
@@ -98,7 +103,7 @@ Explore an alien planet.</h1>
       <figcaption><span data-copy="specimenHabitat">VEIL MARSH</span><span data-copy="studyArt">Ecology · In-game capture</span></figcaption>
       <p id="specimen-note" class="specimen-note"></p>
     </figure>
-    <div class="loading-footer"><span data-copy="loadingFooter">Explore four regions. Drive, observe and follow signals.</span><span data-copy="art">Aurora Shelf · In-game capture</span></div>
+    <div class="loading-footer"><span data-copy="loadingFooter">Four habitats. No set route. Let curiosity lead.</span><span data-copy="art">Aurora Shelf · In-game capture</span></div>
   </section>
 </main>
 <dialog id="settings-dialog" aria-labelledby="settings-title" aria-describedby="settings-note">
@@ -120,7 +125,20 @@ Explore an alien planet.</h1>
   if (!mobile) return;
   const canvas = document.getElementById('canvas');
   const panel = document.createElement('nav'); panel.id='touch-controls'; panel.setAttribute('aria-label','Touch controls');
-  const groups=[['tools',[['expedition_journal','Journal','日誌'],['toggle_camera','View','視角'],['pause_mission','Pause','暫停']]],['steer',[['turn_left','◀','◀'],['turn_right','▶','▶']]],['pedals',[['drive_reverse','Reverse','倒車'],['brake','Brake','煞車'],['drive_forward','Drive','前進'],['drive_boost','Boost','加速']]],['actions',[['interact','Observe','互動'],['slow','Crawl','慢行']]],['tones',[['resonance_1','1','1'],['resonance_2','2','2'],['resonance_3','3','3']]]];
+  const groups=[['tools',[['expedition_journal','Journal','日誌'],['toggle_camera','View','視角'],['pause_mission','Pause','暫停']]],['steer',[['turn_left','◀','◀'],['turn_right','▶','▶']]],['pedals',[['drive_reverse','Reverse','倒車'],['brake','Brake','煞車'],['drive_forward','Drive','前進'],['drive_boost','Boost','加速']]],['actions',[['interact','Observe','觀察'],['slow','Crawl','慢行']]]];
+  let lookPointer = null;
+  canvas.addEventListener('pointerdown', event => {
+    if (document.body.dataset.shellPhase !== 'game') return;
+    lookPointer = {id:event.pointerId, x:event.clientX, y:event.clientY};
+    canvas.setPointerCapture(event.pointerId);
+  });
+  canvas.addEventListener('pointermove', event => {
+    if (!lookPointer || lookPointer.id !== event.pointerId) return;
+    send('look_x',true,event.clientX-lookPointer.x);
+    send('look_y',true,event.clientY-lookPointer.y);
+    lookPointer.x=event.clientX; lookPointer.y=event.clientY;
+  });
+  for (const kind of ['pointerup','pointercancel','lostpointercapture']) canvas.addEventListener(kind,()=>{lookPointer=null;});
   const held=new Map(); let slow=false, locale='', lastPhase='';
   const continuous=new Set(['turn_left','turn_right','drive_forward','drive_reverse','brake','drive_boost']);
   function send(action,pressed,strength=1){ if(typeof window.expeditionTouch==='function')window.expeditionTouch(action,pressed,strength); }
@@ -158,17 +176,19 @@ Explore an alien planet.</h1>
     const s=window.__EXPEDITION_STATE__;if(!s)return;
     if(lastPhase!==s.phase){releaseAll();lastPhase=s.phase;}
     panel.style.display=document.body.dataset.shellPhase==='game'&&innerWidth>=innerHeight&&['exploring','contact'].includes(s.phase)?'block':'none';
-    panel.querySelector('.touch-tones').style.display=s.resonance?.phase==='answer'||s.resonance?.phase==='listening'?'flex':'none';
+    const observe=panel.querySelector('[data-action="interact"]');
+    observe.hidden=!s.interaction?.eligible;
+    observe.disabled=!s.interaction?.eligible;
     if(locale!==s.settings?.locale){locale=s.settings?.locale;for(const b of panel.querySelectorAll('button')){b.textContent=locale==='zh_TW'?b.dataset.zh:b.dataset.en;b.setAttribute('aria-label',b.textContent);}}
   },100);
 })();
 
 
 </script>
-<script id="engine-source" type="application/json" data-src="releases/9515f0fa92616a04840eb938/index.js">{}</script>
-<script>window.__EXPEDITION_ENGINE_CONFIG__={"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"releases/9515f0fa92616a04840eb938/index","experimentalVK":false,"fileSizes":{"releases/9515f0fa92616a04840eb938/index.pck":99869236,"releases/9515f0fa92616a04840eb938/index.wasm":39517308},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"mainPack":"releases/9515f0fa92616a04840eb938/index.pck","packParts":[{"name":"index.pck.part-000","bytes":67108864},{"name":"index.pck.part-001","bytes":32760372}]};</script>
-<script src="releases/9515f0fa92616a04840eb938/showcase.js" defer></script>
-<script src="releases/9515f0fa92616a04840eb938/showcase-art.js" defer></script>
+<script id="engine-source" type="application/json" data-src="releases/0f0d23d21cd310d632cf7000/index.js">{}</script>
+<script>window.__EXPEDITION_ENGINE_CONFIG__={"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"releases/0f0d23d21cd310d632cf7000/index","experimentalVK":false,"fileSizes":{"releases/0f0d23d21cd310d632cf7000/index.pck":99764428,"releases/0f0d23d21cd310d632cf7000/index.wasm":39517308},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"mainPack":"releases/0f0d23d21cd310d632cf7000/index.pck","packParts":[{"name":"index.pck.part-000","bytes":67108864},{"name":"index.pck.part-001","bytes":32655564}]};</script>
+<script src="releases/0f0d23d21cd310d632cf7000/showcase.js" defer></script>
+<script src="releases/0f0d23d21cd310d632cf7000/showcase-art.js" defer></script>
 </body>
 </html>
 
